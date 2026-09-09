@@ -11,8 +11,7 @@ research centre, with no wet-lab actions, no private data and no paywalled sourc
 The tool takes a natural-language request, ranks known oxides from cached public data against
 explicit criteria, and returns a shortlist where every number traces to a source, every gap in the
 data is named, and every entry carries the arguments against it. It does not propose new
-materials, predict deposition routes, or make publishable claims. Those exclusions are
-architectural, not disclaimers: there is no code path that could do them.
+materials, predict deposition routes, or make publishable claims.
 
 ## 2. Core principle: the model lives only at the edges
 
@@ -46,8 +45,7 @@ code path. Here the core (`scoring/`) imports nothing from `edges/`; the rendere
 finished result object and a template file and has no handle on any data source; the refutation
 stage receives structured facts and may annotate but cannot touch a rank or a score. A run's
 `config_hash` and `cache_fingerprint` identify the answer: same query, same cache, same output,
-next month too. That is what makes the tool auditable to a scientist rather than merely
-persuasive.
+next month too.
 
 The model is optional everywhere it appears. With `llm.provider: none` a rule-based parser reads
 the request and templates render the result; the tests, the evaluation and the demo all run this
@@ -68,21 +66,16 @@ counts per compound: works matching the formula or its common names, and the sub
 match a thin-film deposition term. **PubChem** gives compound-level GHS statements where a record
 exists. An **element hazard table** in the repo, versioned and with a cited basis per element,
 is the scoring basis for toxicity because it is complete; PubChem is layered on as caveat evidence
-because it is not.
-
-Two decisions here matter more than they look. First, absence is cached: a material with no DFPT
-dielectric record gets an explicit `{found: false}` row with a timestamp, so "unknown" has
-provenance too. Second, the functional behind each band gap is resolved by following MP's
-`origins` to the task that produced the value and reading its `run_type`, and recorded as
-`unknown` when that fails, never guessed. **ICSD** and other closed sources are excluded and the
+because it is not. Absence is cached (an explicit `{found: false}` row with a timestamp), and
+the functional behind each gap is read from the producing MP task's `run_type`, or recorded as
+`unknown`, never guessed.
+ **ICSD** and other closed sources are excluded and the
 README says why; MP's `theoretical` flag stands in for "has an experimentally observed structure".
 
 The API surprises the brief warns about are the reason the data layer was built first. The
 environment this prototype was developed in had no egress to any of the four sources, so the
 clients are written to the documented endpoints, isolated behind one adapter, and exercised
-against a **synthetic fixture** of ~35 well-known oxides. The fixture sets a flag in the cache;
-every record, provenance note and rendered output from it carries a banner. Fixture ids are
-`fx-NNNN`, never MP ids. The first live `warm-cache` is where field names and coverage will be
+against a **synthetic fixture** of ~35 well-known oxides. The first live `warm-cache` is where field names and coverage will be
 checked against reality, and the adapter is the only file that should need to change.
 
 ## 4. Domain handling a materials scientist checks first
@@ -92,15 +85,12 @@ checked against reality, and the adapter is the only file that should need to ch
 labelled *corrected*. `hse_preferred` mostly falls back to the scalar path because HSE is sparse in
 MP; the audit view shows exactly that rather than implying a hybrid result. The gate applies to
 the *effective* gap, so a 3.0 eV GGA value passes a 4 eV gate under a 1.4× correction and fails it
-under `none`. The correction factor is inside the error bar of the whole approach; a caveat fires
-whenever a candidate clears the gate by less than 0.5 eV.
+under `none`.
 
 **Bulk stability is not thin-film processability.** Hull distance says nothing about ALD or
 sputter routes, crystallisation, hygroscopicity or lattice match. None of that is computed from
 public thermodynamic data, so the tool does not model it and the model is not allowed to speculate
-about it. A structural scope-limitation statement appears in every output. The one thing that
-*is* curated is a hygroscopicity list (La₂O₃, the alkaline-earth oxides, alkali oxides) that
-attaches a caveat; absence from the list means "not flagged", and the list says so.
+about it. A structural scope-limitation statement appears in every output.
 
 **Dielectric coverage is sparse.** `unknown` is a distinct `DataStatus`, not a value. It
 propagates through scoring as `None`, lowers `data_coverage`, caps the confidence label at
@@ -126,19 +116,16 @@ by having less data. `renormalize` is kept as a documented option so the compari
 reproduced, and the notebook does so.
 
 Two default curves were retuned after the same check (dielectric preference 8→30, gap preference
-saturating at 5.5 eV effective) with the domain reasoning written into `default.yaml`. The
-calibration set is four compounds and the risk of tuning defaults to them is real; the profiles
-exist so a site retunes against its own judgement, and the audit view makes any retune visible.
+saturating at 5.5 eV effective); the reasoning is written into `default.yaml`, and the calibration
+set is four compounds, so the profiles exist for sites to retune against their own judgement.
 
 ## 6. Refutation pass
 
 A shortlist entry is a **conjecture**, held provisionally and stated so that it can be falsified.
 After ranking, every shortlisted candidate goes through a stage whose only job is to argue against
-it. Its output is the caveats column. Rule-derived caveats cover hygroscopicity, absent dielectric
-data, single-source stability, cross-source disagreement (critical), metastability, theoretical
-structures, corrected gaps and near-threshold gaps, tier-1 elements and tier-2 elements permitted
-by configuration (critical), compound GHS statements, thin or absent thin-film literature, noisy
-short-formula searches, complex compositions and partial data coverage. An optional model pass
+it. Its output is the caveats column: hygroscopicity, absent dielectric data, single-source or
+contested stability, metastability, theoretical structures, corrected or near-threshold gaps,
+hazard tiers (critical when permitted by configuration), thin literature, partial coverage. An optional model pass
 elaborates over the same structured facts, delimited as data, under the guards described in
 section 2. The stage annotates; it cannot fetch, and it cannot alter a rank or a score. The
 scientist at the bench is the refutation step the system cannot perform for itself. The tool
