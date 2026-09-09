@@ -1,0 +1,28 @@
+# Ferroelectric research: a group working on Pb- and Bi-based perovskites has a
+# legitimate reason to see lead-containing compounds. This is a *configuration*
+# choice, not a policy bypass: the deviation is printed in the output header and
+# logged on every run.
+profile_name: ferroelectric-research
+description: >
+  Perovskite / ferroelectric oxides. Ternaries allowed, lower gap bar (ferroelectrics are
+  typically 2.5-4 eV in PBE), lead and bismuth explicitly permitted and flagged, dielectric
+  constant weighted heavily.
+weights:
+  stability: 0.20
+  band_gap: 0.10
+  dielectric: 0.35
+  toxicity: 0.10
+  simplicity: 0.05
+  literature: 0.20
+gates:
+  max_energy_above_hull_ev_atom: 0.05
+  min_band_gap_ev: 2.5
+  max_elements: 4
+toxicity:
+  element_allowlist: [Pb, Bi]
+band_gap:
+  preference:
+    ideal_ev: 4.0
+output:
+  top_k: 8
+  default_template: audit

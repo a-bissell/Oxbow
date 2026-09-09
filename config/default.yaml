@@ -1,0 +1,139 @@
+# Oxide Triage — base configuration.
+# Every knob a site admin may want to turn lives here. Profiles in config/profiles/
+# are partial overrides deep-merged onto this file.
+#
+# Units: energies in eV/atom, band gaps in eV, dielectric constants dimensionless.
+
+profile_name: default
+description: >
+  Balanced defaults for oxide dielectric triage. Wide-gap, stable, non-toxic, simple,
+  with public literature evidence.
+
+# ---------------------------------------------------------------------------
+# Criterion weights (relative; normalised to sum 1.0 at load time)
+# ---------------------------------------------------------------------------
+weights:
+  stability: 0.25
+  band_gap: 0.25
+  dielectric: 0.15
+  toxicity: 0.15
+  simplicity: 0.10
+  literature: 0.10
+
+# ---------------------------------------------------------------------------
+# Hard gates. A candidate failing any gate is excluded (listed in the audit view
+# with the reason). on_missing controls what happens when the gate cannot be
+# evaluated because the value is absent: exclude | flag
+# ---------------------------------------------------------------------------
+gates:
+  max_energy_above_hull_ev_atom: 0.05
+  min_band_gap_ev: 4.0          # applied to the *effective* (possibly corrected) gap
+  max_elements: 3
+  on_missing_stability: exclude
+  on_missing_band_gap: exclude
+
+# ---------------------------------------------------------------------------
+# Band gap handling. DFT (PBE/GGA) gaps underestimate experiment by ~30-50%.
+# strategy: none | scalar_factor | hse_preferred
+#   none           use the reported value, whatever functional produced it
+#   scalar_factor  multiply GGA/GGA+U/r2SCAN values by scalar_factor; HSE untouched
+#   hse_preferred  use HSE where reported; otherwise apply `fallback`
+# The functional behind every value is recorded and displayed. Corrected values are
+# always labelled as corrected.
+# ---------------------------------------------------------------------------
+band_gap:
+  correction:
+    strategy: hse_preferred
+    scalar_factor: 1.4
+    fallback: scalar_factor     # used by hse_preferred when no HSE value: scalar_factor | none
+  hybrid_functionals: [HSE06, HSE, PBE0, B3LYP]   # treated as "already accurate"
+  preference:
+    ideal_ev: 6.0               # normalized score reaches 1.0 here (effective gap)
+    # score is 0 at gates.min_band_gap_ev and rises linearly to 1 at ideal_ev
+
+stability:
+  zero_score_at_ev_atom: 0.10   # E_hull at which the stability score reaches 0
+  cross_check_tolerance_ev_atom: 0.05   # |MP - OQMD| hull distance within this = agree
+  agreement_bonus: 0.10
+  disagreement_penalty: 0.15
+
+dielectric:
+  low: 10.0                     # e_total at/below this scores 0
+  high: 40.0                    # e_total at/above this scores 1
+
+toxicity:
+  table_file: element_hazards.yaml
+  tier_scores: {0: 1.0, 1: 0.5, 2: 0.0}
+  blocklist_tiers: [2]          # elements in these tiers fail the hazard gate
+  element_blocklist: []         # extra elements to block regardless of tier
+  element_allowlist: []         # elements to permit despite tier (surfaced as a deviation)
+
+simplicity:
+  scores: {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}   # by number of distinct elements
+
+literature:
+  thin_film_saturation: 50      # thin-film works at which the sub-score saturates
+  total_saturation: 500
+  thin_film_weight: 0.7         # remainder goes to total works
+
+# How an UNKNOWN criterion affects ranking. It is always displayed as unknown (never as
+# zero) and always lowers the confidence label. For the ranking arithmetic:
+#   no_credit    the unknown criterion earns no contribution; adjusted = raw*coverage - penalty*(1-coverage)
+#                A candidate can never outrank another by having *less* data. (default)
+#   renormalize  score over the criteria that have data only; adjusted = raw - penalty*(1-coverage)
+#                Warning: with this policy a candidate missing a criterion it would have
+#                scored poorly on is *helped* by the gap. The known-answer evaluation
+#                caught exactly this during development; kept as an option for comparison.
+missing_data:
+  policy: no_credit
+  penalty: 0.05
+  confidence_thresholds: {high: 0.9, medium: 0.6}
+
+# ---------------------------------------------------------------------------
+# Candidate universe (what is pulled from Materials Project into the cache)
+# ---------------------------------------------------------------------------
+candidates:
+  cation_allowlist_file: cation_allowlist.yaml
+  max_elements_query: 3
+  energy_above_hull_ceiling_ev_atom: 0.20   # keep borderline entries so caveats have material
+  min_reported_gap_ev: 1.0                  # below this no correction rescues the candidate
+  literature_sample_size: 5
+
+output:
+  default_template: pi_summary   # pi_summary | audit | json
+  top_k: 5
+  verbosity: normal              # terse | normal | verbose
+
+# Site-local vocabulary -> canonical terms understood by the parser
+terminology:
+  high-k: dielectric
+  hi-k: dielectric
+  hafnia: HfO2
+  zirconia: ZrO2
+  alumina: Al2O3
+  silica: SiO2
+  magnesia: MgO
+  yttria: Y2O3
+  tantala: Ta2O5
+  titania: TiO2
+  stable: thermodynamically stable
+
+cache:
+  path: data/cache.sqlite
+  ttl_days: 90
+  offline: false
+
+# ---------------------------------------------------------------------------
+# LLM edges. provider: none | anthropic | openai_compatible
+# The deterministic core never sees the model. With provider=none the whole system
+# still runs: a rule-based parser handles the front edge and templates the back edge.
+# ---------------------------------------------------------------------------
+llm:
+  provider: none
+  model: null
+  base_url: null
+  timeout_s: 60
+  use_for:
+    parse: true      # natural-language request -> Criteria (validated)
+    refute: true     # elaborate rule-derived caveats over structured facts
+    rationale: false # one-line plain-language rationale per candidate (numeric-guarded)
