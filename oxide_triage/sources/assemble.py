@@ -53,7 +53,9 @@ class DataLayer:
     warnings: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_config(cls, config: Config, cache: Cache | None = None, offline: bool | None = None) -> DataLayer:
+    def from_config(
+        cls, config: Config, cache: Cache | None = None, offline: bool | None = None
+    ) -> DataLayer:
         cache = cache or Cache(config.cache.path)
         off = config.cache.offline if offline is None else offline
         ttl = config.cache.ttl_days
@@ -63,7 +65,10 @@ class DataLayer:
             mp=MaterialsProject(cache, ttl, off),
             oqmd=OQMD(cache, ttl, off),
             openalex=OpenAlex(
-                cache, ttl, off, sample_size=config.candidates.literature_sample_size,
+                cache,
+                ttl,
+                off,
+                sample_size=config.candidates.literature_sample_size,
                 mailto=os.environ.get("OPENALEX_MAILTO"),
             ),
             pubchem=PubChem(cache, ttl, off),
@@ -160,7 +165,9 @@ class DataLayer:
         stability = StabilityRecord(
             energy_above_hull_ev_atom=None if e_hull is None else float(e_hull),
             formation_energy_ev_atom=(
-                None if doc.get("formation_energy_per_atom") is None else float(doc["formation_energy_per_atom"])
+                None
+                if doc.get("formation_energy_per_atom") is None
+                else float(doc["formation_energy_per_atom"])
             ),
             is_stable=doc.get("is_stable"),
             functional=THERMO_FUNCTIONAL_LABEL,
@@ -190,7 +197,9 @@ class DataLayer:
                 e_ionic=_opt_float(diel_payload.get("e_ionic")),
                 refractive_index=_opt_float(diel_payload.get("n")),
                 status=DataStatus.KNOWN,
-                provenance=mp_prov.model_copy(update={"retrieved_at": diel_ts, "note": src_note or "MP DFPT dataset"}),
+                provenance=mp_prov.model_copy(
+                    update={"retrieved_at": diel_ts, "note": src_note or "MP DFPT dataset"}
+                ),
             )
         else:
             dielectric = DielectricRecord(
@@ -198,7 +207,9 @@ class DataLayer:
                 provenance=mp_prov.model_copy(
                     update={
                         "retrieved_at": diel_ts,
-                        "note": "no DFPT dielectric record in MP" if diel_payload else "dielectric lookup unavailable",
+                        "note": "no DFPT dielectric record in MP"
+                        if diel_payload
+                        else "dielectric lookup unavailable",
                     }
                 ),
             )
@@ -214,7 +225,9 @@ class DataLayer:
                     source="fixture" if is_fixture else "oqmd",
                     source_id=str(oq_payload.get("entry_id")),
                     retrieved_at=oq_ts,
-                    url=None if is_fixture else f"https://oqmd.org/materials/entry/{oq_payload.get('entry_id')}",
+                    url=None
+                    if is_fixture
+                    else f"https://oqmd.org/materials/entry/{oq_payload.get('entry_id')}",
                     note=src_note,
                 ),
             )
@@ -244,7 +257,9 @@ class DataLayer:
         else:
             literature = LiteratureRecord(
                 status=DataStatus.UNKNOWN,
-                provenance=Provenance(source="openalex", retrieved_at=lit_ts, note="literature lookup unavailable"),
+                provenance=Provenance(
+                    source="openalex", retrieved_at=lit_ts, note="literature lookup unavailable"
+                ),
             )
 
         pc_payload, pc_ts, _ = self.pubchem.hazards(formula, names)

@@ -1,0 +1,71 @@
+{#- PI summary: top candidates, one line of rationale each, the single most important caveat.
+    Plain language. Edit freely; every value comes pre-computed in `result`. -#}
+# Oxide dielectric triage — summary
+
+{% if result.fixture_data %}
+> **SYNTHETIC FIXTURE DATA.** This run used the built-in development fixture, not live public
+> databases. Every number below is illustrative. Do not act on it.
+
+{% endif %}
+{% if not result.guard.proceed %}
+## Request declined
+
+```
+{{ result.warnings[0] }}
+```
+
+_No ranking was run. Nothing below this line is a result._
+
+{% endif %}
+{% if result.deviations %}
+> **Configuration deviations in effect** (read before the shortlist):
+{% for d in result.deviations %}
+> - {{ d.description }} _(origin: {{ d.origin }})_
+{% endfor %}
+
+{% endif %}
+{% set notices = result.guard.findings | selectattr("bin", "equalto", "architecturally_impossible") | list %}
+{% if notices %}
+> **Not possible in this deployment:**
+{% for f in notices %}
+> - "{{ f.matched_text }}" — {{ f.explanation }}
+{% endfor %}
+
+{% endif %}
+**Request:** {{ result.request_text }}
+
+**Profile:** `{{ result.profile_name }}` · **Candidates considered:** {{ result.n_candidates_considered }} · **Passed gates:** {{ result.shortlist | length + result.ranked_beyond_shortlist | length }} · **Shown:** {{ result.shortlist | length }}
+{% if result.criteria.interpretation_notes %}
+**How the request was read:** {{ result.criteria.interpretation_notes | join("; ") }}
+{% endif %}
+
+## Shortlist
+
+{% if not result.shortlist %}
+_No candidate passed every gate under this configuration. See the audit view for the reasons._
+{% endif %}
+{% for sc in result.shortlist %}
+{% set cav = sc | primary_caveat %}
+**{{ sc.rank }}. {{ sc.record.formula }}** ({{ sc.record.crystal_system or "?" }}, `{{ sc.record.material_id }}`) — score {{ sc.adjusted_score | fmt(2) }}, confidence **{{ sc.confidence }}**{% if sc.missing_criteria %}, missing: {{ sc.missing_criteria | join(", ") }}{% endif %}
+
+- Why: {{ sc.rationale }}
+{% if cav %}
+- Main caveat ({{ cav.severity }}): {{ cav.text }}
+{% endif %}
+{% if sc.caveats | length > 1 %}
+- {{ sc.caveats | length - 1 }} further caveat(s) in the audit view.
+{% endif %}
+
+{% endfor %}
+## Read this before running anything
+
+{{ result.scope_limitation }}
+
+Scores are relative within this run and this profile. A candidate ranked on partial data
+(confidence medium/low) has criteria with **no data behind them**; those are named per entry,
+not scored as zero. Band gaps marked "corrected" are scaled DFT values, not measurements.
+
+{% if result.warnings %}
+**Run warnings:** {{ result.warnings | join(" ") }}
+{% endif %}
+_Generated {{ result.generated_at }} · config `{{ result.config_hash }}` · cache `{{ result.cache_fingerprint }}` · language model: {{ result.llm_usage | dictsort | map("join", "=") | join(", ") }}_

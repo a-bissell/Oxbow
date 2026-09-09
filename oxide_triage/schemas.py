@@ -7,7 +7,7 @@ is one of these models. The models are deliberately explicit about *missing* dat
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -20,7 +20,7 @@ SCOPE_LIMITATION = (
 )
 
 
-class DataStatus(str, Enum):
+class DataStatus(StrEnum):
     """Whether a value is backed by data."""
 
     KNOWN = "known"
@@ -138,7 +138,7 @@ class Criteria(BaseModel):
     Every field has a safe default so an empty parse still yields the profile's behaviour.
     """
 
-    top_k: int = Field(default=5, ge=1, le=50)
+    top_k: int | None = Field(default=None, ge=1, le=50)  # None -> profile default
     max_energy_above_hull_ev_atom: float | None = Field(default=None, ge=0)
     min_band_gap_ev: float | None = Field(default=None, ge=0)
     max_elements: int | None = Field(default=None, ge=2, le=6)
@@ -150,7 +150,7 @@ class Criteria(BaseModel):
     interpretation_notes: list[str] = Field(default_factory=list)
 
 
-class RequestBin(str, Enum):
+class RequestBin(StrEnum):
     TRIAGE = "triage"  # ordinary request
     IMPOSSIBLE = "architecturally_impossible"  # Bin 1
     CONFIG_DEVIATION = "configuration_deviation"  # Bin 2 (proceed, surface loudly)

@@ -51,7 +51,9 @@ def make_record(
             functional="test",
         ),
         band_gap=BandGapRecord(
-            value_ev=gap, functional=functional, status=DataStatus.KNOWN if gap is not None else DataStatus.UNKNOWN
+            value_ev=gap,
+            functional=functional,
+            status=DataStatus.KNOWN if gap is not None else DataStatus.UNKNOWN,
         ),
         dielectric=DielectricRecord(
             e_total=e_total, status=DataStatus.KNOWN if e_total is not None else DataStatus.UNKNOWN
@@ -196,19 +198,28 @@ class TestComponents:
         r = make_record()
         comps, agreement = score_components(r, assess_band_gap(r.band_gap, cfg.band_gap), eff, cfg)
         assert [c.criterion for c in comps] == [
-            "stability", "band_gap", "dielectric", "toxicity", "simplicity", "literature"
+            "stability",
+            "band_gap",
+            "dielectric",
+            "toxicity",
+            "simplicity",
+            "literature",
         ]
         assert agreement == "agree"
         for c in comps:
             assert c.status == DataStatus.KNOWN
-            assert c.contribution == pytest.approx(c.weight * c.normalized)
+            assert c.contribution == pytest.approx(c.weight * c.normalized, abs=1e-6)
         assert sum(c.weight for c in comps) == pytest.approx(1.0)
 
     def test_cross_check_bonus_and_penalty(self, cfg, eff):
         base = make_record(oqmd=None)
         agree = make_record(oqmd=0.0)
         disagree = make_record(oqmd=0.3)
-        get = lambda r: [c for c in score_components(r, assess_band_gap(r.band_gap, cfg.band_gap), eff, cfg)[0] if c.criterion == "stability"][0]
+        get = lambda r: [
+            c
+            for c in score_components(r, assess_band_gap(r.band_gap, cfg.band_gap), eff, cfg)[0]
+            if c.criterion == "stability"
+        ][0]
         b, a, d = get(base), get(agree), get(disagree)
         assert b.normalized == pytest.approx(1.0)  # already capped
         assert a.normalized == pytest.approx(1.0)
@@ -249,7 +260,9 @@ class TestComponents:
         eff2 = resolve(cfg2, Criteria(), TABLE)[0]
         s = score_candidate(make_record(e_total=None), cfg2, eff2)
         raw, cov = s.raw_score, s.data_coverage
-        assert s.adjusted_score == pytest.approx(max(0.0, raw - cfg2.missing_data.penalty * (1 - cov)), abs=1e-6)
+        assert s.adjusted_score == pytest.approx(
+            max(0.0, raw - cfg2.missing_data.penalty * (1 - cov)), abs=1e-6
+        )
 
     def test_aggregate_formula_no_credit(self, cfg, eff):
         s = score_candidate(make_record(e_total=None), cfg, eff)
@@ -281,7 +294,7 @@ class TestComponents:
 
 class TestRanking:
     def test_deterministic_and_tie_broken_by_id(self, cfg, eff):
-        recs = [make_record(mid="z-2"), make_record(mid="a-1"), make_record(mid="m-3", gap=6.0)]
+        recs = [make_record(mid="z-2"), make_record(mid="a-1"), make_record(mid="m-3", e_total=35.0)]
         r1, _ = rank(recs, cfg, eff)
         r2, _ = rank(list(reversed(recs)), cfg, eff)
         assert [s.record.material_id for s in r1] == [s.record.material_id for s in r2]

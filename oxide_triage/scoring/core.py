@@ -110,7 +110,9 @@ def evaluate_gates(
                 passed=ok,
                 threshold_label=f"effective gap >= {eff.min_band_gap:g} eV",
                 observed_label=observed,
-                reason=None if ok else f"effective gap {gap.effective_ev:.2f} eV below {eff.min_band_gap:g} eV",
+                reason=None
+                if ok
+                else f"effective gap {gap.effective_ev:.2f} eV below {eff.min_band_gap:g} eV",
             )
         )
         if not ok:
@@ -131,14 +133,20 @@ def evaluate_gates(
         reasons.append(gates[-1].reason or "too many elements")
 
     # Hazard blocklist (tiered) and request exclusions
-    blocked_hazard = sorted(el for el in record.elements if el in eff.blocked_elements and el not in eff.exclude_elements)
+    blocked_hazard = sorted(
+        el for el in record.elements if el in eff.blocked_elements and el not in eff.exclude_elements
+    )
     ok = not blocked_hazard
     gates.append(
         GateResult(
             gate="hazard_blocklist",
             passed=ok,
             threshold_label="no blocked hazard-tier elements"
-            + (f" (allowed despite tier: {', '.join(sorted(eff.allowed_despite_tier))})" if eff.allowed_despite_tier else ""),
+            + (
+                f" (allowed despite tier: {', '.join(sorted(eff.allowed_despite_tier))})"
+                if eff.allowed_despite_tier
+                else ""
+            ),
             observed_label="blocked: " + (", ".join(blocked_hazard) if blocked_hazard else "none"),
             reason=None if ok else f"contains blocked element(s): {', '.join(blocked_hazard)}",
         )
@@ -184,7 +192,9 @@ def evaluate_gates(
 # --------------------------------------------------------------------------------------
 
 
-def _component(criterion: str, weight: float, raw_label: str, normalized: float | None, notes: list[str] | None = None) -> ComponentScore:
+def _component(
+    criterion: str, weight: float, raw_label: str, normalized: float | None, notes: list[str] | None = None
+) -> ComponentScore:
     known = normalized is not None
     return ComponentScore(
         criterion=criterion,
@@ -291,7 +301,9 @@ def score_components(
     h = record.hazard
     if h.status == DataStatus.KNOWN and h.worst_tier is not None:
         tier_score = config.toxicity.tier_scores.get(h.worst_tier, 0.0)
-        notes = [f"{el}: tier {t} ({h.element_basis.get(el, '')})" for el, t in sorted(h.element_tiers.items())]
+        notes = [
+            f"{el}: tier {t} ({h.element_basis.get(el, '')})" for el, t in sorted(h.element_tiers.items())
+        ]
         if h.ghs_hazard_codes:
             notes.append(f"PubChem GHS for compound (CID {h.pubchem_cid}): {', '.join(h.ghs_hazard_codes)}")
         comps.append(
@@ -350,7 +362,9 @@ def score_components(
 # --------------------------------------------------------------------------------------
 
 
-def aggregate(components: list[ComponentScore], config: Config) -> tuple[float | None, float, float | None, list[str], str]:
+def aggregate(
+    components: list[ComponentScore], config: Config
+) -> tuple[float | None, float, float | None, list[str], str]:
     total_w = sum(c.weight for c in components)
     known = [c for c in components if c.status == DataStatus.KNOWN and c.normalized is not None]
     known_w = sum(c.weight for c in known)
@@ -363,6 +377,8 @@ def aggregate(components: list[ComponentScore], config: Config) -> tuple[float |
     adjusted = max(0.0, credit - config.missing_data.penalty * (1.0 - coverage))
     th = config.missing_data.confidence_thresholds
     confidence = "high" if coverage >= th["high"] else "medium" if coverage >= th["medium"] else "low"
+    if missing and confidence == "high":
+        confidence = "medium"  # any criterion without data caps confidence, whatever its weight
     return round(raw, ROUND), round(coverage, ROUND), round(adjusted, ROUND), missing, confidence
 
 
@@ -387,7 +403,9 @@ def score_candidate(record: CandidateRecord, config: Config, eff: Effective) -> 
     )
 
 
-def rank(records: list[CandidateRecord], config: Config, eff: Effective) -> tuple[list[ScoredCandidate], list[ScoredCandidate]]:
+def rank(
+    records: list[CandidateRecord], config: Config, eff: Effective
+) -> tuple[list[ScoredCandidate], list[ScoredCandidate]]:
     scored = [score_candidate(r, config, eff) for r in records]
     passing = [s for s in scored if not s.excluded and s.adjusted_score is not None]
     excluded = [s for s in scored if s.excluded or s.adjusted_score is None]

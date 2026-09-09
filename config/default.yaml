@@ -48,8 +48,10 @@ band_gap:
     fallback: scalar_factor     # used by hse_preferred when no HSE value: scalar_factor | none
   hybrid_functionals: [HSE06, HSE, PBE0, B3LYP]   # treated as "already accurate"
   preference:
-    ideal_ev: 6.0               # normalized score reaches 1.0 here (effective gap)
-    # score is 0 at gates.min_band_gap_ev and rises linearly to 1 at ideal_ev
+    ideal_ev: 5.5               # normalized score reaches 1.0 here (effective gap)
+    # score is 0 at gates.min_band_gap_ev and rises linearly to 1 at ideal_ev.
+    # ~5.5 eV already gives >1 eV band offsets to Si; beyond that the marginal benefit is
+    # small, and a steeper curve over-rewards differences inside the correction's error bar.
 
 stability:
   zero_score_at_ev_atom: 0.10   # E_hull at which the stability score reaches 0
@@ -58,8 +60,10 @@ stability:
   disagreement_penalty: 0.15
 
 dielectric:
-  low: 10.0                     # e_total at/below this scores 0
-  high: 40.0                    # e_total at/above this scores 1
+  low: 8.0                      # e_total at/below this scores 0 (SiO2 ~4, Al2O3 ~10)
+  high: 30.0                    # e_total at/above this scores 1 (HfO2/ZrO2 ~20-25 land mid-high)
+  # Saturating at ~30 is deliberate: for thin-film gate stacks k of 20-30 is the useful range and
+  # much larger k correlates with small gaps and ferroelectric/paraelectric instability.
 
 toxicity:
   table_file: element_hazards.yaml

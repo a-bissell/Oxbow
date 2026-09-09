@@ -104,7 +104,10 @@ class OpenAICompatibleLLM:
             "model": self.model,
             "messages": [
                 {"role": "system", "content": f"{SYSTEM_PREAMBLE}\n\n{system}"},
-                {"role": "user", "content": user + "\n\nReturn JSON matching this schema:\n" + json.dumps(schema)},
+                {
+                    "role": "user",
+                    "content": user + "\n\nReturn JSON matching this schema:\n" + json.dumps(schema),
+                },
             ],
             "temperature": 0,
             "max_tokens": 4096,

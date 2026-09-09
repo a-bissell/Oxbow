@@ -185,7 +185,7 @@ def guard_request(text: str, table: HazardTable) -> GuardDecision:
     if integrity:
         lines = [
             "This request cannot be completed as asked because it would require fabricating evidence:",
-            *[f"  - \"{f.matched_text}\": {f.explanation}" for f in integrity],
+            *[f'  - "{f.matched_text}": {f.explanation}' for f in integrity],
             "",
             "What the tool can do: rank on the data that exists, list every criterion with no data "
             "behind it, and show the literature records it actually retrieved.",
@@ -195,7 +195,7 @@ def guard_request(text: str, table: HazardTable) -> GuardDecision:
     if impossible and not has_triage_intent:
         lines = [
             "This deployment does not have the capability the request needs:",
-            *[f"  - \"{f.matched_text}\": {f.explanation}" for f in impossible],
+            *[f'  - "{f.matched_text}": {f.explanation}' for f in impossible],
             "",
             "It can triage candidate oxides from cached public data (Materials Project, OQMD, "
             "OpenAlex, PubChem) and return a ranked shortlist with caveats.",

@@ -107,9 +107,7 @@ class Cache:
     def count(self, source: str | None = None) -> int:
         if source is None:
             return self._conn.execute("SELECT COUNT(*) FROM records").fetchone()[0]
-        return self._conn.execute(
-            "SELECT COUNT(*) FROM records WHERE source=?", (source,)
-        ).fetchone()[0]
+        return self._conn.execute("SELECT COUNT(*) FROM records WHERE source=?", (source,)).fetchone()[0]
 
     def sources_summary(self) -> dict[str, dict[str, Any]]:
         rows = self._conn.execute(

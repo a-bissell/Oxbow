@@ -270,4 +270,6 @@ class MaterialsProject(CachedSource):
             found = {d["task_id"]: d for d in (page or {}).get("data", [])}
             for t in chunk:
                 doc = found.get(t)
-                self.cache.put(self.name, f"task:{t}", {"run_type": None if doc is None else doc.get("run_type")})
+                self.cache.put(
+                    self.name, f"task:{t}", {"run_type": None if doc is None else doc.get("run_type")}
+                )

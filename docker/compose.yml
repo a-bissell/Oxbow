@@ -1,0 +1,31 @@
+# Base deployment: the app with a persistent cache volume and no language model.
+#
+#   cp .env.example .env            # add MP_API_KEY (and OPENALEX_MAILTO)
+#   docker compose -f docker/compose.yml up --build
+#   docker compose -f docker/compose.yml run --rm app oxide-triage warm-cache
+#   open http://localhost:8501
+#
+# Everything the site admin edits lives in ./config (mounted read-only) and .env.
+name: oxide-triage
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: oxide-triage:latest
+    env_file:
+      - ../.env
+    environment:
+      OXIDE_TRIAGE_CACHE: /data/cache.sqlite
+      # LLM_PROVIDER defaults to `none`: the system is fully functional without a model.
+      LLM_PROVIDER: ${LLM_PROVIDER:-none}
+    volumes:
+      - cache:/data
+      - ../config:/app/config:ro
+    ports:
+      - "${OXIDE_TRIAGE_PORT:-8501}:8501"
+    restart: unless-stopped
+
+volumes:
+  cache:

@@ -65,7 +65,10 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
         )
 
     max_hull = config.gates.max_energy_above_hull_ev_atom
-    if criteria.max_energy_above_hull_ev_atom is not None and criteria.max_energy_above_hull_ev_atom != max_hull:
+    if (
+        criteria.max_energy_above_hull_ev_atom is not None
+        and criteria.max_energy_above_hull_ev_atom != max_hull
+    ):
         deviations.append(
             Deviation(
                 code="request_hull_threshold",
@@ -135,7 +138,7 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
         allowed_despite_tier=frozenset(allowed),
         include_elements=frozenset(criteria.include_elements),
         exclude_elements=frozenset(criteria.exclude_elements),
-        top_k=criteria.top_k if criteria.top_k else config.output.top_k,
+        top_k=criteria.top_k or config.output.top_k,
         on_missing_stability=config.gates.on_missing_stability,
         on_missing_band_gap=config.gates.on_missing_band_gap,
     )

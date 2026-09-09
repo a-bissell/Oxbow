@@ -1,0 +1,153 @@
+{#- Technical / audit view: every score component with weight and contribution, all thresholds,
+    source ids and retrieval timestamps, the DFT functional behind each value, full enumeration
+    of missing data, all caveats with origin, and the scope limitation. -#}
+# Oxide dielectric triage — technical audit
+
+{% if result.fixture_data %}
+> **SYNTHETIC FIXTURE DATA.** This run used the built-in development fixture. Material ids
+> `fx-NNNN` are not Materials Project ids. Nothing below is real data.
+
+{% endif %}
+{% if not result.guard.proceed %}
+## Request declined
+
+```
+{{ result.warnings[0] }}
+```
+
+{% endif %}
+## Run
+
+| | |
+|---|---|
+| Request | {{ result.request_text }} |
+| Profile | `{{ result.profile_name }}` |
+| Config hash | `{{ result.config_hash }}` |
+| Cache fingerprint | `{{ result.cache_fingerprint }}` (offline mode: {{ result.offline }}) |
+| Generated | {{ result.generated_at }} |
+| Candidates considered | {{ result.n_candidates_considered }} |
+| Passed all gates | {{ result.shortlist | length + result.ranked_beyond_shortlist | length }} |
+| Excluded by a gate | {{ result.excluded | length }} |
+| Language model use | {{ result.llm_usage | dictsort | map("join", ": ") | join("; ") }} |
+
+### Request interpretation (front edge, validated)
+
+```json
+{{ result.criteria.model_dump_json(indent=2, exclude_defaults=True) }}
+```
+{% if result.guard.findings %}
+
+### Guard findings
+
+| Bin | Code | Matched | Explanation |
+|---|---|---|---|
+{% for f in result.guard.findings %}
+| {{ f.bin.value }} | `{{ f.code }}` | "{{ f.matched_text }}" | {{ f.explanation }} |
+{% endfor %}
+{% endif %}
+{% if result.deviations %}
+
+### Configuration deviations
+
+{% for d in result.deviations %}
+- **{{ d.code }}** ({{ d.origin }}): {{ d.description }}
+{% endfor %}
+{% endif %}
+
+## Scoring rules in effect
+
+`{{ result.scoring.formula }}`
+
+Missing-data policy: **{{ result.scoring.missing_data_policy }}**, penalty {{ result.scoring.missing_data_penalty }}; confidence thresholds {{ result.scoring.confidence_thresholds }}.
+
+| Criterion | Weight |
+|---|---|
+{% for k, v in result.scoring.weights | dictsort %}
+| {{ k }} | {{ v | fmt(3) }} |
+{% endfor %}
+
+Gates:
+{% for k, v in result.scoring.gates | dictsort %}
+- `{{ k }}` = {{ v }}
+{% endfor %}
+
+## Ranked candidates
+
+{% for sc in result.shortlist + result.ranked_beyond_shortlist %}
+### {{ sc.rank }}. {{ sc.record.formula }} — `{{ sc.record.material_id }}`{% if loop.index > result.shortlist | length %} _(beyond shortlist)_{% endif %}
+
+{{ sc.record.crystal_system or "?" }} {{ sc.record.spacegroup_symbol or "" }} · {{ sc.record.n_elements }} elements ({{ sc.record.elements | join("-") }}) · theoretical structure: {{ sc.record.theoretical }}
+
+**Adjusted score {{ sc.adjusted_score | fmt(4) }}** (raw on available data {{ sc.raw_score | fmt(4) }}, data coverage {{ sc.data_coverage | pct }}, confidence **{{ sc.confidence }}**)
+{% if sc.missing_criteria %}
+**Criteria with NO data:** {{ sc.missing_criteria | join(", ") }}
+{% else %}
+All criteria backed by data.
+{% endif %}
+
+Rationale: {{ sc.rationale }}
+
+| Component | Weight | Observed | Normalised | Contribution | Status |
+|---|---|---|---|---|---|
+{% for c in sc.components %}
+| {{ c.criterion }} | {{ c.weight | fmt(3) }} | {{ c.raw_label }} | {{ c.normalized | fmt(3) }} | {{ c.contribution | fmt(4) }} | {{ c.status.value }} |
+{% endfor %}
+
+{% for c in sc.components if c.notes %}
+- _{{ c.criterion }}_: {{ c.notes | join(" · ") }}
+{% endfor %}
+
+Gates:
+
+| Gate | Threshold | Observed | Result |
+|---|---|---|---|
+{% for g in sc.gates %}
+| {{ g.gate }} | {{ g.threshold_label }} | {{ g.observed_label }} | {{ "pass" if g.passed else ("INDETERMINATE" if g.passed is none else "FAIL") }} |
+{% endfor %}
+
+Band gap: reported {{ sc.band_gap_assessment.reported_ev | fmt(2) }} eV [{{ sc.band_gap_assessment.reported_functional }}] → effective {{ sc.band_gap_assessment.effective_ev | fmt(2) }} eV; strategy `{{ sc.band_gap_assessment.correction_strategy }}`; corrected: {{ sc.band_gap_assessment.corrected }}. {{ sc.band_gap_assessment.correction_note }}
+
+Provenance:
+
+| Field | Source | Source id | Retrieved | Functional / note |
+|---|---|---|---|---|
+{% set r = sc.record %}
+| stability | {{ r.stability.provenance.source if r.stability.provenance else "—" }} | {{ r.stability.provenance.source_id if r.stability.provenance else "—" }} | {{ r.stability.provenance.retrieved_at if r.stability.provenance else "—" }} | {{ r.stability.functional }} |
+| band gap | {{ r.band_gap.provenance.source if r.band_gap.provenance else "—" }} | {{ r.band_gap.provenance.source_id if r.band_gap.provenance else "—" }} | {{ r.band_gap.provenance.retrieved_at if r.band_gap.provenance else "—" }} | {{ r.band_gap.functional }} |
+| dielectric | {{ r.dielectric.provenance.source if r.dielectric.provenance else "—" }} | {{ r.dielectric.provenance.source_id if r.dielectric.provenance else "—" }} | {{ r.dielectric.provenance.retrieved_at if r.dielectric.provenance else "—" }} | {{ r.dielectric.status.value }}{% if r.dielectric.provenance and r.dielectric.provenance.note %}; {{ r.dielectric.provenance.note }}{% endif %} |
+| cross-check | {{ r.cross_check.provenance.source if r.cross_check.provenance else "—" }} | {{ r.cross_check.provenance.source_id if r.cross_check.provenance else "—" }} | {{ r.cross_check.provenance.retrieved_at if r.cross_check.provenance else "—" }} | {{ sc.cross_source_agreement }}{% if r.cross_check.stability_ev_atom is not none %}; OQMD hull distance {{ r.cross_check.stability_ev_atom | fmt(3) }} eV/atom{% endif %} |
+| literature | {{ r.literature.provenance.source if r.literature.provenance else "—" }} | terms: {{ r.literature.query_terms | join(", ") }} | {{ r.literature.provenance.retrieved_at if r.literature.provenance else "—" }} | {{ r.literature.status.value }} |
+| hazard | {{ r.hazard.provenance.source if r.hazard.provenance else "—" }} | {{ r.hazard.provenance.source_id if r.hazard.provenance else "—" }} | {{ r.hazard.provenance.note or "—" }} | PubChem: {{ r.hazard.pubchem_status.value }}{% if r.hazard.pubchem_cid %} (CID {{ r.hazard.pubchem_cid }}){% endif %} |
+{% if r.literature.sample_works %}
+
+Literature sample (retrieved titles; data, not endorsements):
+{% for w in r.literature.sample_works %}
+- {{ w.year or "?" }} — {{ w.title }} ({{ w.work_id }}{% if w.doi %}, {{ w.doi }}{% endif %})
+{% endfor %}
+{% endif %}
+
+Caveats ({{ sc.caveats | length }}):
+{% for c in sc.caveats %}
+- **[{{ c.severity }}] {{ c.code }}** ({{ c.origin }}): {{ c.text }}
+{% endfor %}
+
+{% endfor %}
+## Excluded by a gate ({{ result.excluded | length }})
+
+| Material | Formula | Reason(s) |
+|---|---|---|
+{% for sc in result.excluded %}
+| `{{ sc.record.material_id }}` | {{ sc.record.formula }} | {{ sc.exclusion_reasons | join("; ") }} |
+{% endfor %}
+
+## Scope limitation
+
+{{ result.scope_limitation }}
+{% if result.warnings %}
+
+## Warnings
+
+{% for w in result.warnings %}
+- {{ w }}
+{% endfor %}
+{% endif %}

@@ -85,9 +85,7 @@ class CachedSource:
         self.ttl_days = ttl_days
         self.offline = offline
 
-    def cached(
-        self, key: str, fetch: Callable[[], Any]
-    ) -> tuple[Any | None, str | None, FetchStatus]:
+    def cached(self, key: str, fetch: Callable[[], Any]) -> tuple[Any | None, str | None, FetchStatus]:
         hit = self.cache.get(self.name, key)
         if hit is not None:
             payload, ts = hit
