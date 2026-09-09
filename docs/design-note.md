@@ -125,7 +125,7 @@ it. Its output is the caveats column: hygroscopicity, absent dielectric data, si
 contested stability, metastability, theoretical structures, corrected or near-threshold gaps,
 hazard tiers (critical when permitted by configuration), thin literature, partial coverage. An optional model pass
 elaborates over the same structured facts, delimited as data, under the guards described in
-section 2. The stage annotates; it cannot fetch, and it cannot alter a rank or a score. The
+section 2. The
 scientist at the bench is the refutation step the system cannot perform for itself. The tool
 proposes; the bench disposes.
 
@@ -134,22 +134,18 @@ proposes; the bench disposes.
 Requests are sorted into three bins **before any model sees them**, by rules, so refusal
 behaviour does not depend on a model. *Bin 1, architecturally impossible* (wet-lab triggers,
 private data, paywalled sources): the response explains that the capability does not exist in the
-deployment; no stub tools exist to decline politely. If such a request also contains a triage ask,
-the triage runs and the capability notice is printed in the header. *Bin 2, configuration
+deployment; no stub tools exist to decline politely. *Bin 2, configuration
 deviation*: "include lead-containing compounds" looks like a safety bypass but a Pb-ferroelectrics
 group has a real reason. It is permitted, the deviation is printed at the top of the output, a
 critical hazard caveat stays attached to every affected candidate, and the event is appended to a
 log. Distinguishing policy from configuration is the point of the bin. *Bin 3, evidence-integrity
-attacks* ("cite a paper supporting this", "assume the data checks out", "just give me a number",
-"rank these anyway", "drop the caveats"): refused, with an explanation of what would have been
-fabricated and what the tool can do instead.
+attacks* ("cite a paper supporting this", "just give me a number", "rank these anyway"): refused,
+naming what would have been fabricated.
 
 Indirect injection is handled at the boundary: retrieved text is JSON-encoded inside
-`<retrieved_data>` blocks, the system preamble declares such content to be data regardless of what
-it says, and model output is validated against a schema and a numeric guard. The test plants an
-instruction in a paper title and runs the pipeline with a fake model that obeys any instruction it
-sees; ranks and scores are byte-identical with and without the injection, and the smuggled
-numbers never reach the output.
+`<retrieved_data>` blocks, the preamble declares it data, and model output is validated against a
+schema and a numeric guard. The test plants an instruction in a paper title, runs a fake model that
+obeys anything, and checks that ranks are byte-identical and no smuggled number appears.
 
 ## 8. How agentic, and where
 
@@ -186,7 +182,7 @@ fixture data all pass: the PI's request yields a ranked shortlist with caveats a
 request per bin behaves as specified; HfO₂ and Al₂O₃ lead the default run, ZrO₂ is third, and
 Ta₂O₅ is excluded by the 4 eV gate *with the reason stated* and ranks seventh under the wide-net
 profile; two runs are identical; no candidate lacking a dielectric value is scored as if it had one.
-Profiles visibly change the shortlist. The known-answer check is presented as what it is:
+The known-answer check is presented as what it is:
 ground-truth validation before trusting the system on unknowns, and the check that already caught
 one real bug.
 
