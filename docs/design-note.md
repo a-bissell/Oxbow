@@ -68,9 +68,7 @@ exists. An **element hazard table** in the repo, versioned and with a cited basi
 is the scoring basis for toxicity because it is complete; PubChem is layered on as caveat evidence
 because it is not. Absence is cached (an explicit `{found: false}` row with a timestamp), and
 the functional behind each gap is read from the producing MP task's `run_type`, or recorded as
-`unknown`, never guessed.
- **ICSD** and other closed sources are excluded and the
-README says why; MP's `theoretical` flag stands in for "has an experimentally observed structure".
+`unknown`, never guessed. **ICSD** and other closed sources are excluded and the README says why; MP's `theoretical` flag stands in for "has an experimentally observed structure".
 
 The API surprises the brief warns about are the reason the data layer was built first. The
 environment this prototype was developed in had no egress to any of the four sources, so the
