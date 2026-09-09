@@ -20,11 +20,13 @@ dependencies = [
 [project.optional-dependencies]
 app = ["streamlit>=1.35"]
 llm = ["anthropic>=1.0"]
+mcp = ["mcp>=2.0"]
 dev = ["pytest>=8.0", "ruff>=0.5", "mypy>=1.10"]
-all = ["oxide-triage[app,llm,dev]"]
+all = ["oxide-triage[app,llm,mcp,dev]"]
 
 [project.scripts]
 oxide-triage = "oxide_triage.cli:app"
+oxide-triage-mcp = "oxide_triage.mcp_server:main"
 
 [tool.setuptools.packages.find]
 include = ["oxide_triage*"]
@@ -34,6 +36,7 @@ oxide_triage = ["templates/*.j2", "data/*.yaml", "data/fixtures/*.json", "prompt
 
 [tool.ruff]
 line-length = 110
+extend-exclude = ["*.ipynb"]
 target-version = "py311"
 
 [tool.ruff.lint]

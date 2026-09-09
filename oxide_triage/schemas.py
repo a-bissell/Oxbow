@@ -264,3 +264,6 @@ class TriageResult(BaseModel):
     n_candidates_considered: int = 0
     warnings: list[str] = Field(default_factory=list)
     llm_usage: dict[str, str] = Field(default_factory=dict)  # edge -> provider/model or "none"
+    clarifications: list[str] = Field(default_factory=list)  # questions worth asking before running
+    needs_confirmation: bool = False  # True when clarifications exist and the run was not confirmed
+    selfcheck_status: str | None = None  # passed | failed | not_run | skipped

@@ -17,12 +17,12 @@ COPY pyproject.toml README.md ./
 COPY oxide_triage ./oxide_triage
 COPY config ./config
 COPY eval ./eval
-RUN pip install --upgrade pip && pip install ".[app,llm]"
+RUN pip install --upgrade pip && pip install ".[app,llm,mcp]"
 
 RUN mkdir -p /data && chown -R triage:triage /data /app
 USER triage
 VOLUME ["/data"]
-EXPOSE 8501
+EXPOSE 8501 8765
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
   CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=3).status==200 else 1)"

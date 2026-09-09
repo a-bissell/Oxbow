@@ -27,5 +27,26 @@ services:
       - "${OXIDE_TRIAGE_PORT:-8501}:8501"
     restart: unless-stopped
 
+  # MCP endpoint for Claude Desktop / Cowork / Cursor over the network (streamable HTTP).
+  # Desktop apps on the same machine can instead launch `oxide-triage mcp` over stdio; see
+  # docker/mcp-client-config.example.json.
+  mcp:
+    image: oxide-triage:latest
+    command: ["oxide-triage", "mcp", "--transport", "http", "--host", "0.0.0.0", "--port", "8765"]
+    env_file:
+      - ../.env
+    environment:
+      OXIDE_TRIAGE_CACHE: /data/cache.sqlite
+      OXIDE_TRIAGE_OFFLINE: ${OXIDE_TRIAGE_OFFLINE:-0}
+      LLM_PROVIDER: none          # the MCP client's own model is the front edge
+    volumes:
+      - cache:/data
+      - ../config:/app/config:ro
+    ports:
+      - "127.0.0.1:${OXIDE_TRIAGE_MCP_PORT:-8765}:8765"   # loopback; put a reverse proxy with auth in front for LAN use
+    depends_on:
+      - app
+    restart: unless-stopped
+
 volumes:
   cache:

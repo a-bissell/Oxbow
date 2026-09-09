@@ -141,3 +141,16 @@ llm:
     parse: true      # natural-language request -> Criteria (validated)
     refute: true     # elaborate rule-derived caveats over structured facts
     rationale: false # one-line plain-language rationale per candidate (numeric-guarded)
+
+# ---------------------------------------------------------------------------
+# Self-check: the known-answer test the system runs on itself after every cache warm,
+# fixture load or on-demand material addition. Workhorse dielectrics must surface near the
+# top of an unconstrained run or be excluded by a stated gate; a workhorse missing from the
+# candidate universe is a failure. on_failure: block (serve no shortlist) | warn (banner)
+# ---------------------------------------------------------------------------
+selfcheck:
+  enabled: true
+  on_failure: block
+  workhorses: [HfO2, ZrO2, Al2O3, Ta2O5]
+  leaders: [HfO2, Al2O3]          # expected in the default top 5 when present
+  min_workhorses_in_wide_top10: 3 # under the exploratory profile

@@ -150,6 +150,14 @@ class LLMConfig(BaseModel):
     use_for: LLMUseFor = Field(default_factory=LLMUseFor)
 
 
+class SelfCheckConfig(BaseModel):
+    enabled: bool = True
+    on_failure: Literal["block", "warn"] = "block"
+    workhorses: list[str] = Field(default_factory=lambda: ["HfO2", "ZrO2", "Al2O3", "Ta2O5"])
+    leaders: list[str] = Field(default_factory=lambda: ["HfO2", "Al2O3"])
+    min_workhorses_in_wide_top10: int = Field(default=3, ge=0)
+
+
 class Config(BaseModel):
     profile_name: str
     description: str = ""
@@ -167,10 +175,11 @@ class Config(BaseModel):
     terminology: dict[str, str] = Field(default_factory=dict)
     cache: CacheConfig
     llm: LLMConfig
+    selfcheck: SelfCheckConfig = Field(default_factory=SelfCheckConfig)
 
     def config_hash(self) -> str:
         """Stable hash of everything that affects ranking (excludes cache path / LLM)."""
-        relevant = self.model_dump(exclude={"cache", "llm", "description", "output"})
+        relevant = self.model_dump(exclude={"cache", "llm", "description", "output", "selfcheck"})
         blob = json.dumps(relevant, sort_keys=True, default=str)
         return hashlib.sha256(blob.encode()).hexdigest()[:16]
 

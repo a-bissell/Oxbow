@@ -1,11 +1,14 @@
 """Command line interface.
 
 oxide-triage query "Find promising oxide dielectric candidates ..." --profile conservative
-oxide-triage warm-cache            # needs MP_API_KEY; fetches the candidate universe
+oxide-triage warm-cache            # needs MP_API_KEY; fetches the candidate universe, runs self-check
 oxide-triage load-fixtures         # synthetic demo data, clearly flagged in every output
+oxide-triage add-material SrHfO3   # pull one compound into the universe (online)
+oxide-triage selfcheck             # known-answer check on the current cache
 oxide-triage profiles
 oxide-triage cache-status
-oxide-triage eval                  # runs the evaluation suite against the current cache
+oxide-triage eval                  # runs the evaluation suite
+oxide-triage mcp [--transport http]  # MCP server for Claude Desktop / Cowork / Cursor
 """
 
 from __future__ import annotations
@@ -20,7 +23,8 @@ import typer
 from oxide_triage.cache import Cache
 from oxide_triage.config import list_profiles, load_config
 from oxide_triage.edges.render import render
-from oxide_triage.pipeline import load_fixtures, run_triage, warm_cache
+from oxide_triage.pipeline import add_material, load_fixtures, run_triage, warm_cache
+from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 
 app = typer.Typer(add_completion=False, help=__doc__, no_args_is_help=True)
 
@@ -51,13 +55,22 @@ def query(
     llm: str | None = typer.Option(
         None, "--llm", help="Override provider: none | anthropic | openai_compatible"
     ),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip clarification questions and run."),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
     """Run a triage request and print the rendered result."""
     _setup_logging(verbose)
     overrides = {"llm": {"provider": llm}} if llm else None
     config = load_config(profile, overrides=overrides)
-    result = run_triage(request, config, offline=offline, template=template)
+    result = run_triage(request, config, offline=offline, template=template, confirmed=yes)
+    if result.needs_confirmation:
+        typer.echo("Before running, please confirm:", err=True)
+        for q in result.clarifications:
+            typer.echo(f"  - {q}", err=True)
+        if not sys.stdin.isatty() or not typer.confirm("Proceed?", default=False):
+            typer.echo("Not run. Re-run with --yes to skip the questions.", err=True)
+            raise typer.Exit(code=3)
+        result = run_triage(request, config, offline=offline, template=template, confirmed=True)
     text = render(result, template or config.output.default_template)
     if out:
         out.write_text(text, encoding="utf-8")
@@ -73,7 +86,7 @@ def warm_cache_cmd(
     profile: str = typer.Option("default", "--profile", "-p"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
-    """Fetch the candidate universe and all per-candidate records from the public sources."""
+    """Fetch the candidate universe and all per-candidate records, then run the self-check."""
     _setup_logging(verbose)
     config = load_config(profile)
     typer.echo(f"Warming cache at {config.cache.path} (universe params from profile '{profile}')...")
@@ -85,6 +98,11 @@ def warm_cache_cmd(
             "fixture banner. Use a separate cache path for real runs.",
             err=True,
         )
+    if not summary["selfcheck"]["passed"]:  # type: ignore[index]
+        typer.echo(
+            "SELF-CHECK FAILED. See details above; triage runs will be blocked until it passes.", err=True
+        )
+        raise typer.Exit(code=4)
 
 
 @app.command("load-fixtures")
@@ -93,6 +111,40 @@ def load_fixtures_cmd(profile: str = typer.Option("default", "--profile", "-p"))
     config = load_config(profile)
     n = load_fixtures(config)
     typer.echo(f"Loaded {n} SYNTHETIC fixture materials into {config.cache.path}. All outputs will say so.")
+
+
+@app.command("add-material")
+def add_material_cmd(
+    formula: str = typer.Argument(..., help="Reduced formula, e.g. SrHfO3"),
+    profile: str = typer.Option("default", "--profile", "-p"),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Pull one compound from the public sources into the candidate universe (online only)."""
+    _setup_logging(verbose)
+    config = load_config(profile)
+    result = add_material(formula, config)
+    typer.echo(json.dumps(result, indent=2, default=str))
+    if result.get("error"):
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def selfcheck(profile: str = typer.Option("default", "--profile", "-p")) -> None:
+    """Run the known-answer self-check on the current cache and store the outcome."""
+    config = load_config(profile)
+    cache = Cache(config.cache.path)
+    try:
+        result = run_selfcheck(config, cache)
+    finally:
+        cache.close()
+    typer.echo(
+        f"self-check {'PASSED' if result.passed else 'FAILED'} at {result.checked_at} "
+        f"({result.n_candidates} candidates{', fixture data' if result.fixture else ''})"
+    )
+    for d in result.details:
+        typer.echo(f"  - {d}")
+    if not result.passed:
+        raise typer.Exit(code=4)
 
 
 @app.command()
@@ -118,6 +170,11 @@ def cache_status(profile: str = typer.Option("default", "--profile", "-p")) -> N
     try:
         typer.echo(f"cache: {config.cache.path}")
         typer.echo(f"fixture data loaded: {cache.has_fixture_data}")
+        sc = read_selfcheck(cache)
+        typer.echo(
+            "self-check: "
+            + ("not run" if sc is None else f"{'passed' if sc.passed else 'FAILED'} at {sc.checked_at}")
+        )
         for source, info in cache.sources_summary().items():
             typer.echo(f"  {source:20s} rows={info['n']:<6d} oldest={info['oldest']} newest={info['newest']}")
     finally:
@@ -136,6 +193,21 @@ def eval_cmd(
 
     report = run_all(out_dir=out, use_fixtures=use_fixtures)
     typer.echo(report)
+
+
+@app.command()
+def mcp(
+    transport: str = typer.Option("stdio", "--transport", help="stdio (desktop apps) | http (container)"),
+    host: str = typer.Option("127.0.0.1", "--host"),
+    port: int = typer.Option(8765, "--port"),
+) -> None:
+    """Serve the triage tools over the Model Context Protocol."""
+    from oxide_triage.mcp_server import server
+
+    if transport == "http":
+        server.run(transport="streamable-http", host=host, port=port)
+    else:
+        server.run(transport="stdio")
 
 
 if __name__ == "__main__":  # pragma: no cover

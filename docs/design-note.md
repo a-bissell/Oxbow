@@ -151,12 +151,27 @@ instruction in a paper title and runs the pipeline with a fake model that obeys 
 sees; ranks and scores are byte-identical with and without the injection, and the smuggled
 numbers never reach the output.
 
-## 8. Deployment and privacy
+## 8. How agentic, and where
+
+"Agentic" is earned by deciding what to do next, and this system is deliberately agentic in
+some places and deliberately not in others. It decides at the boundary (refuse, proceed, proceed
+with a logged deviation), asks before acting when a request changes something material (a
+clarify-before-run step in every front end), carries a conversation about a result without
+re-deriving it (`explain`, `rerun` from stored result objects), acquires data on demand
+(`add_material`, online only, values stored as data), and checks itself against ground truth
+after every change to its cache, refusing to serve from a cache that fails. It is not agentic
+where numbers and ranks are concerned: no model, no loop and no runtime choice sits between a
+retrieved value and a score. The **MCP server** makes the split literal. Claude in Desktop or
+Cowork becomes the front edge, turning a scientist's words into tool calls; the guard, the core,
+the self-check gate and the fixture banner run inside the tools and the server's instructions tell
+the client to relay results as given. A client prompt cannot bypass any of it.
+
+## 9. Deployment and privacy
 
 Python 3.11, Pydantic schemas, SQLite, Typer CLI, Streamlit front end, Jinja templates as files
 so a site admin can edit prose without touching code. One YAML config with three named profiles.
-`Dockerfile` plus compose with a persistent cache volume; once warmed the container runs fully
-offline. Keys come from the environment; `.env.example` documents each one.
+`Dockerfile` plus compose with a persistent cache volume and an MCP service on loopback; once
+warmed the containers run fully offline. Keys come from the environment; `.env.example` documents each one.
 
 A second compose overlay runs **vLLM serving Qwen3-8B** beside the app. The model's job is small
 enough (parse a sentence, phrase caveats over given facts) that an 8B local model loses nothing
@@ -164,7 +179,7 @@ against a frontier API, and a centre whose data-governance rules forbid sending 
 external provider keeps every capability. The README tabulates what leaves the site under each
 provider; with `none` or the local overlay the answer is nothing.
 
-## 9. Evaluation
+## 10. Evaluation
 
 Five checks, as pytest tests and as a report (`eval/run_eval.py`, `eval/evaluation.ipynb`). On
 fixture data all pass: the PI's request yields a ranked shortlist with caveats and named gaps; one
@@ -175,11 +190,12 @@ Profiles visibly change the shortlist. The known-answer check is presented as wh
 ground-truth validation before trusting the system on unknowns, and the check that already caught
 one real bug.
 
-## 10. Limitations and next steps
+## 11. Limitations and next steps
 
 The fixture is an approximation; the first live cache warm will test field names, dielectric
 coverage and the functional lookup, and may move defaults. Literature counts from formula-string
 search are noisy for short formulae (flagged per candidate). The hazard table is a screen, not a
 toxicological assessment. Nothing about films is modelled, by design. Next: run against real data
-with the PI's group, retune profiles with them, and add a `warm-cache --formula` path so a
-scientist can pull one specific compound into the universe on demand.
+with the PI's group and retune profiles with them; then let the acquisition step try alternative
+routes when a source has no match (a formula-level OQMD miss could fall back to a chemical-system
+query), under the same rule that the model may choose what to fetch and never what a value is.

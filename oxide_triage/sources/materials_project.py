@@ -163,6 +163,39 @@ class MaterialsProject(CachedSource):
             return [], status
         return list(payload["material_ids"]), status
 
+    def fetch_by_formula(self, formula: str, allowed_elements: set[str]) -> list[str]:
+        """Pull every non-deprecated MP entry for a reduced formula into the cache (online only).
+        Returns the material ids stored. Used for on-demand additions to the universe."""
+        if self.offline:
+            raise SourceError("offline mode: cannot fetch new materials")
+        docs = self._paged(
+            "/materials/summary/",
+            {"formula": formula, "deprecated": "false", "_fields": ",".join(SUMMARY_FIELDS)},
+        )
+        ids: list[str] = []
+        for doc in docs:
+            if any(el not in allowed_elements for el in doc.get("elements", [])):
+                continue
+            self.cache.put(self.name, f"summary:{doc['material_id']}", doc)
+            ids.append(str(doc["material_id"]))
+        self.cache.log(self.name, f"formula:{formula}", "fetched", f"{len(ids)} entries")
+        return sorted(ids)
+
+    def add_to_universe(
+        self, cations: list[str], max_elements: int, hull_ceiling: float, min_gap: float, ids: list[str]
+    ) -> int:
+        """Append material ids to the cached universe for these query parameters."""
+        key = self.universe_key(cations, max_elements, hull_ceiling, min_gap)
+        hit = self.cache.get(self.name, key)
+        payload = hit[0] if hit else {"material_ids": [], "n_returned": 0}
+        current = set(payload.get("material_ids", []))
+        new = [i for i in ids if i not in current]
+        if new:
+            payload["material_ids"] = sorted(current | set(new))
+            payload["added_on_demand"] = sorted(set(payload.get("added_on_demand", [])) | set(new))
+            self.cache.put(self.name, key, payload, hit[1] if hit else None)
+        return len(new)
+
     def summary(self, material_id: str) -> tuple[dict[str, Any] | None, str | None]:
         hit = self.cache.get(self.name, f"summary:{material_id}")
         return (None, None) if hit is None else (hit[0], hit[1])

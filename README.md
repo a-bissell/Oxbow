@@ -16,6 +16,10 @@ The system is useful without any language model at all. With one configured (clo
 local), it reads requests more flexibly and phrases caveats, and nothing it says can change a
 number, a rank or a citation.
 
+It runs three ways from the same code: a CLI, a Streamlit app, and an **MCP server** so
+scientists can drive it from Claude Desktop, Claude Cowork, Cursor or any MCP-capable app. In
+that mode the client's model is the front edge and every guarantee still lives inside the tools.
+
 ---
 
 ## For scientists: running a query
@@ -85,6 +89,44 @@ Things to know before trusting a number:
 * **A shortlist entry is a conjecture.** The caveats are the known counterexamples. You at the
   bench are the refutation step the system cannot perform.
 
+### Following up on a result
+
+Every result is a complete object, so follow-ups never re-derive anything:
+
+* **Explain** a candidate (ranked or excluded): every component with weight and contribution,
+  every gate, the band-gap correction, provenance, all caveats. In the app: *Follow up → Explain*.
+  Over MCP: `explain(result_id, "Ta2O5")`.
+* **Rerun with a change** (gap threshold, hull threshold, element allow/exclude, weights,
+  shortlist length). The change is applied through the same deterministic core and printed as a
+  configuration deviation on the new result. In the app: *Follow up → Rerun*. Over MCP:
+  `rerun(result_id, {"min_band_gap_ev": 3.5})`.
+* **Clarify before running.** When a request changes something material (lifts a hazard block,
+  moves a gate, zeroes a criterion, or contains a part the deployment cannot do) the system asks
+  first. The app shows the questions and a confirm box; the CLI prompts (or `--yes`); over MCP,
+  `triage`/`rerun` return the questions and the client calls again with `confirmed=true`.
+
+### Using it from Claude Desktop, Claude Cowork or Cursor (MCP)
+
+```bash
+pip install -e ".[mcp]"
+oxide-triage mcp                 # stdio server; or: oxide-triage mcp --transport http --port 8765
+```
+
+Add the server to your app's MCP config (see `docker/mcp-client-config.example.json`):
+
+```json
+{"mcpServers": {"oxide-triage": {"command": "oxide-triage", "args": ["mcp"],
+  "env": {"OXIDE_TRIAGE_CACHE": "/absolute/path/cache.sqlite", "OXIDE_TRIAGE_OFFLINE": "1"}}}}
+```
+
+Tools: `parse_request` (how a request will be read, plus clarification questions), `triage`,
+`explain`, `rerun`, `add_material` (pull one compound into the universe; online only),
+`cache_status`, `selfcheck`, `profiles`. Resources: `oxide-triage://result/{id}` (full JSON) and
+`oxide-triage://scope` (the scope limitation). The server's instructions tell the client model
+to relay numbers, ranks and citations as given and to surface the fixture banner. The request
+guard, the deterministic core and the fixture banner run inside the tools, so a client prompt
+cannot bypass them.
+
 ### What it will not do
 
 * **Trigger anything in the lab, read private data, or use paywalled sources.** There is no tool
@@ -124,9 +166,27 @@ Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache p
 | `LLM_PROVIDER` | `none` (default) / `anthropic` / `openai_compatible` | — |
 | `ANTHROPIC_API_KEY` | only if `LLM_PROVIDER=anthropic` | https://console.anthropic.com |
 | `LLM_BASE_URL`, `LLM_MODEL` | only if `LLM_PROVIDER=openai_compatible` | your vLLM/Ollama endpoint |
+| `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT` | MCP server defaults (`stdio`, `127.0.0.1`, `8765`) | — |
 
 Keys are read from the environment only. `.env` is git-ignored; `.env.example` documents every
 variable.
+
+### Self-check before serving
+
+After every `warm-cache`, `load-fixtures` or `add-material`, the system runs the known-answer
+check on itself: the workhorse dielectrics (HfO2, ZrO2, Al2O3, Ta2O5) must surface near the top
+of an unconstrained run or be excluded by a stated gate, and a workhorse missing from the
+candidate universe is a failure (it means the fetch is broken). The outcome is stored in the
+cache and read on every run. By default a failed check **blocks**: no shortlist is served and the
+output says why. `selfcheck.on_failure: warn` downgrades that to a banner. `oxide-triage
+selfcheck` runs it on demand; `oxide-triage cache-status` shows the last outcome.
+
+### Adding a compound on demand
+
+`oxide-triage add-material SrHfO3` (or the `add_material` MCP tool) pulls every non-deprecated
+Materials Project entry for that formula, its OQMD cross-check, literature counts and PubChem
+record into the cache and the candidate universe, then re-runs the self-check. Online only; in
+offline mode the request is declined. The fetched values are data like any other row.
 
 ### Configuration
 
@@ -148,6 +208,13 @@ the shipped policy (profile allowlist, request-level threshold change, lifted ha
 the deviation in the output header and appends it to `deviations.jsonl` next to the cache.
 
 Templates are files in `oxide_triage/templates/*.md.j2` and can be edited without touching Python.
+
+### MCP over the network
+
+`docker/compose.yml` also starts an `mcp` service (streamable HTTP on `127.0.0.1:8765/mcp`,
+loopback only). For LAN access put a reverse proxy with authentication in front of it; the
+server itself has no auth. Desktop apps on the same machine can instead launch `oxide-triage mcp`
+over stdio.
 
 ### Optional: a locally hosted language model
 
@@ -209,7 +276,7 @@ from it carries the fixture banner.
 
 ```bash
 pip install -e ".[all]"
-pytest                       # 74 tests: scoring core, guard, config, refutation, pipeline, injection
+pytest                       # 87 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP
 ruff check . && ruff format .
 python -m eval.run_eval      # evaluation report -> eval/output/report.md
 jupyter lab eval/evaluation.ipynb
@@ -227,13 +294,16 @@ oxide_triage/
   guard.py            request binning (impossible / configuration / integrity)
   edges/              llm providers, request parser, template renderer
   refute.py           rule-derived caveats + guarded model observations
-  pipeline.py         orchestration
+  pipeline.py         orchestration: guard -> parse -> clarify -> self-check gate -> core -> refute
+  session.py          result store, explain, rerun, clarification questions (app + MCP)
+  selfcheck.py        known-answer check run on the cache itself
+  mcp_server.py       MCP tools/resources for Claude Desktop, Cowork, Cursor
   cli.py, app.py      Typer CLI, Streamlit front end
   templates/          pi_summary.md.j2, audit.md.j2
   data/               element_hazards.yaml, cation_allowlist.yaml, compound_aliases.yaml,
                       hygroscopic_oxides.yaml, fixtures/fixture_cache.json
 config/               default.yaml + profiles/
-docker/               Dockerfile, compose.yml, compose.local-llm.yml
+docker/               Dockerfile, compose.yml (app + mcp), compose.local-llm.yml, mcp-client-config.example.json
 eval/                 run_eval.py, evaluation.ipynb
 docs/                 design-note.md
 tests/
