@@ -7,6 +7,7 @@ oxide-triage add-material SrHfO3   # pull one compound into the universe (online
 oxide-triage fill-gaps             # try alternative routes for data the warm could not find (online)
 oxide-triage selfcheck             # known-answer check on the current cache
 oxide-triage report --out report.html    # self-contained HTML report (+ eval checks)
+oxide-triage doctor                # what the tool sees: .env, keys (masked), cache, source reachability
 oxide-triage profiles
 oxide-triage cache-status
 oxide-triage eval                  # runs the evaluation suite
@@ -210,6 +211,82 @@ def selfcheck(profile: str = typer.Option("default", "--profile", "-p")) -> None
         typer.echo(f"  - {d}")
     if not result.passed:
         raise typer.Exit(code=4)
+
+
+@app.command()
+def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
+    """Show what the tool can see: .env files, keys (masked), cache, and whether each public
+    source is reachable. Run this first when something says a key is missing."""
+    import os
+    from pathlib import Path as _P
+
+    from oxide_triage.config import REPO_ROOT, load_dotenv
+
+    loaded = load_dotenv()
+    typer.echo("dotenv files:")
+    for path in (_P.cwd() / ".env", REPO_ROOT / ".env"):
+        typer.echo(f"  {path}: {'found' if path.is_file() else 'absent'}")
+    typer.echo(
+        f"  keys loaded from .env this run: {', '.join(loaded) or 'none (already set or not present)'}"
+    )
+    typer.echo("environment:")
+    for key in (
+        "MP_API_KEY",
+        "OPENALEX_MAILTO",
+        "LLM_PROVIDER",
+        "ANTHROPIC_API_KEY",
+        "LLM_BASE_URL",
+        "LLM_MODEL",
+        "OXIDE_TRIAGE_CACHE",
+        "OXIDE_TRIAGE_OFFLINE",
+        "OXIDE_TRIAGE_RECORD_DIR",
+    ):
+        val = os.environ.get(key)
+        if val is None:
+            shown = "unset"
+        elif "KEY" in key and val:
+            shown = f"set ({len(val)} chars, ends ...{val[-4:]})"
+        else:
+            shown = val or "(empty)"
+        typer.echo(f"  {key}: {shown}")
+    config = load_config(profile)
+    typer.echo(
+        f"config: profile={config.profile_name} cache={config.cache.path} offline={config.cache.offline} llm={config.llm.provider}"
+    )
+    cache = Cache(config.cache.path)
+    try:
+        sc = read_selfcheck(cache)
+        typer.echo(
+            f"cache: {cache.count()} rows, fixture={cache.has_fixture_data}, "
+            f"selfcheck={'not run' if sc is None else ('passed' if sc.passed else 'FAILED')}"
+        )
+    finally:
+        cache.close()
+    if config.cache.offline:
+        typer.echo("reachability: skipped (offline mode)")
+        return
+    import httpx
+
+    probes = {
+        "materials_project": (
+            "https://api.materialsproject.org/heartbeat",
+            {"X-API-KEY": os.environ.get("MP_API_KEY", "")},
+        ),
+        "oqmd": ("https://oqmd.org/oqmdapi/formationenergy?composition=HfO2&limit=1", {}),
+        "openalex": ("https://api.openalex.org/works?per-page=1", {}),
+        "pubchem": ("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/water/cids/JSON", {}),
+    }
+    typer.echo("reachability:")
+    with httpx.Client(timeout=15, trust_env=True) as client:
+        for name, (url, headers) in probes.items():
+            try:
+                r = client.get(url, headers=headers)
+                note = f"HTTP {r.status_code}"
+                if name == "materials_project" and r.status_code in (401, 403):
+                    note += " (key rejected or missing)"
+            except httpx.HTTPError as exc:
+                note = f"unreachable: {type(exc).__name__}"
+            typer.echo(f"  {name}: {note}")
 
 
 @app.command()
