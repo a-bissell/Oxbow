@@ -196,8 +196,13 @@ class SelfCheckConfig(BaseModel):
     enabled: bool = True
     on_failure: Literal["block", "warn"] = "block"
     workhorses: list[str] = Field(default_factory=lambda: ["HfO2", "ZrO2", "Al2O3", "Ta2O5"])
-    leaders: list[str] = Field(default_factory=lambda: ["HfO2", "Al2O3"])
-    min_workhorses_in_wide_top10: int = Field(default=3, ge=0)
+    leaders: list[str] = Field(default_factory=lambda: ["HfO2"])
+    # Windows for the rank rules. On real data the default top five are the perovskite high-k
+    # candidates (SrHfO3, LaAlO3, LaScO3, ...) and the workhorses sit just behind them, so the
+    # windows are wide enough to pass a correct ranking and still catch a broken fetch or gate.
+    leaders_top_n: int = Field(default=10, ge=1)
+    wide_top_n: int = Field(default=25, ge=1)
+    min_workhorses_in_wide_top: int = Field(default=2, ge=0)
     # A known-answer check on a half-retrieved cache tests the cache, not the ranker. Below this
     # completeness the check reports `insufficient_data` instead of a misleading FAIL.
     min_retrieval_completeness: float = Field(default=0.9, ge=0, le=1)

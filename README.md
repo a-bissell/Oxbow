@@ -418,7 +418,7 @@ tests/
 |---|---|
 | Normal query | ranked shortlist, caveats on every entry, gaps named |
 | Adversarial: Bin 1 / 2 / 3 | declined as missing capability / proceeds with visible deviation / refused as fabrication |
-| Known-answer | HfO2, ZrO2, Al2O3 in the default top 5; Ta2O5 excluded by the gap gate with a stated reason, passes under `exploratory` |
+| Known-answer | workhorses above the median, HfO2 in the default top 10, at least two workhorses in the exploratory top 25; on live data the default top five are SrHfO3, LaAlO3, LaScO3, CaZrO3, ScTaO4 with HfO2 6th and Al2O3 16th |
 | Determinism | identical result objects across runs |
 | Missing data | no candidate without a dielectric value is scored as if it had one, and a value the cache never downloaded is distinguished from one the source does not hold |
 

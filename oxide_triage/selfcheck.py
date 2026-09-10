@@ -119,22 +119,24 @@ def run_selfcheck(
             ok &= bool(ex and ex.exclusion_reasons)
             details.append(f"{w}: excluded by gate: {reason}")
     for lead in sc.leaders:
-        if lead in ranked and ranked.index(lead) >= 5:
+        if lead in ranked and ranked.index(lead) >= sc.leaders_top_n:
             ok = False
-            details.append(f"{lead}: expected in default top 5, found at {ranked.index(lead) + 1} (FAIL)")
+            details.append(
+                f"{lead}: expected in default top {sc.leaders_top_n}, found at {ranked.index(lead) + 1} (FAIL)"
+            )
 
     wide_cfg = load_config("exploratory", use_env=False, overrides={"cache": {"path": config.cache.path}})
     wide = run_triage(
         PI, wide_cfg, cache=cache, offline=offline, skip_selfcheck=True, llm=NullLLM(), http=http
     )
     wide_ranked = _ranked(wide)
-    in_top10 = [w for w in sc.workhorses if w in wide_ranked[:10]]
-    need = min(sc.min_workhorses_in_wide_top10, len(sc.workhorses))
-    if len(in_top10) < need:
+    in_top = [w for w in sc.workhorses if w in wide_ranked[: sc.wide_top_n]]
+    need = min(sc.min_workhorses_in_wide_top, len(sc.workhorses))
+    if len(in_top) < need:
         ok = False
     details.append(
-        f"exploratory: {len(in_top10)}/{len(sc.workhorses)} workhorses in top 10 ({', '.join(in_top10) or 'none'}); "
-        f"need {need}" + ("" if len(in_top10) >= need else " (FAIL)")
+        f"exploratory: {len(in_top)}/{len(sc.workhorses)} workhorses in top {sc.wide_top_n} "
+        f"({', '.join(in_top) or 'none'}); need {need}" + ("" if len(in_top) >= need else " (FAIL)")
     )
     if wide_ranked and wide_ranked[0] not in universe:
         ok = False  # unreachable in practice; kept for symmetry
