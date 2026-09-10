@@ -229,12 +229,20 @@ where numbers and ranks are concerned: no model, no loop and no runtime choice s
 retrieved value and a score. The **MCP server** makes the split literal. Claude in Desktop or
 Cowork becomes the front edge, turning a scientist's words into tool calls; the guard, the core,
 the self-check gate and the fixture banner run inside the tools and the server's instructions tell
-the client to relay results as given. A client prompt cannot bypass any of it.
+the client to relay results as given. A client prompt cannot bypass any of it. The **Agent
+page** of the app hosts that same client in-process: a model (Claude, or a local model over the
+OpenAI-compatible protocol) drives the same tools through a tool-use loop, the report it
+produces is shown as cards whose parts seed follow-up questions, and a number guard flags any
+number in a reply that no tool printed. The transcript is append-only and every tool call is
+validated against its schema before it runs, so the conversational front end adds no path by
+which a number could be invented.
 
 ## 9. Deployment and privacy
 
 Python 3.11, Pydantic schemas, SQLite, Typer CLI, Streamlit front end, Jinja templates as files
-so a site admin can edit prose without touching code. One YAML config with three named profiles.
+so a site admin can edit prose without touching code. One YAML config with three named profiles;
+an Admin page edits any of it into a site overrides file, never the shipped YAML, and every
+site departure from the shipped policy is a deviation on the result.
 `Dockerfile` plus compose with a persistent cache volume and an MCP service on loopback; once
 warmed the containers run fully offline. Keys come from the environment; `.env.example` documents each one.
 

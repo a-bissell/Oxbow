@@ -7,10 +7,11 @@
 # CPU-only box, swap the `vllm` service for Ollama (`ollama/ollama`, model `qwen3:8b`) and set
 # LLM_BASE_URL=http://ollama:11434/v1 — the app speaks the same OpenAI-compatible protocol.
 #
-# Why this exists: the model only parses the request and phrases caveats, so an 8B local model
-# is entirely adequate, and a research centre that cannot send request text to a frontier-lab
-# API for privacy or data-governance reasons loses nothing. The deterministic core is identical
-# whichever provider is used, or none.
+# Why this exists: the model only parses the request, phrases caveats and, on the Agent page,
+# turns the scientist's words into tool calls, so an 8B local model is adequate, and a research
+# centre that cannot send request text to a frontier-lab API for privacy or data-governance
+# reasons loses nothing. The deterministic core is identical whichever provider is used, or none.
+# The tool-call parser flags are what the Agent page needs (Qwen3 uses the Hermes format).
 services:
   vllm:
     image: vllm/vllm-openai:latest
@@ -20,6 +21,7 @@ services:
       --gpu-memory-utilization 0.90
       --served-model-name ${LOCAL_LLM_MODEL:-Qwen/Qwen3-8B}
       --enable-reasoning --reasoning-parser qwen3
+      --enable-auto-tool-choice --tool-call-parser hermes
     environment:
       HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
     volumes:
