@@ -1,0 +1,24 @@
+# Exploratory: cast a wider net; accept metastable phases and lower gaps, lean on
+# dielectric constant, and tolerate missing data with a smaller penalty.
+profile_name: exploratory
+description: >
+  Wide net. Metastable phases up to 0.08 eV/atom, effective gap >= 3 eV, up to four
+  elements, dielectric constant weighted up, missing data penalised lightly.
+weights:
+  stability: 0.15
+  band_gap: 0.20
+  dielectric: 0.30
+  toxicity: 0.10
+  simplicity: 0.10
+  literature: 0.15
+gates:
+  max_energy_above_hull_ev_atom: 0.08
+  min_band_gap_ev: 3.0
+  max_elements: 4
+band_gap:
+  preference:
+    ideal_ev: 5.0
+missing_data:
+  penalty: 0.0
+output:
+  top_k: 10

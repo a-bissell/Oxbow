@@ -1,0 +1,58 @@
+# Overlay: locally hosted language model (vLLM + Qwen3-8B). Nothing leaves the site.
+#
+#   docker compose -f docker/compose.yml -f docker/compose.local-llm.yml up --build
+#
+# Requires an NVIDIA GPU with the container toolkit installed (Qwen3-8B in bf16 needs ~18 GB;
+# use --quantization awq with Qwen/Qwen3-8B-AWQ for ~6 GB cards, or --dtype half). For a
+# CPU-only box, swap the `vllm` service for Ollama (`ollama/ollama`, model `qwen3:8b`) and set
+# LLM_BASE_URL=http://ollama:11434/v1 — the app speaks the same OpenAI-compatible protocol.
+#
+# Why this exists: the model only parses the request and phrases caveats, so an 8B local model
+# is entirely adequate, and a research centre that cannot send request text to a frontier-lab
+# API for privacy or data-governance reasons loses nothing. The deterministic core is identical
+# whichever provider is used, or none.
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    command: >
+      --model ${LOCAL_LLM_MODEL:-Qwen/Qwen3-8B}
+      --max-model-len 16384
+      --gpu-memory-utilization 0.90
+      --served-model-name ${LOCAL_LLM_MODEL:-Qwen/Qwen3-8B}
+      --enable-reasoning --reasoning-parser qwen3
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
+    volumes:
+      - hf_cache:/root/.cache/huggingface     # model weights persist across restarts
+    ports:
+      - "127.0.0.1:8000:8000"                 # loopback only; the app reaches it on the compose network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 40
+      start_period: 300s                      # first start downloads weights
+    restart: unless-stopped
+
+  app:
+    environment:
+      LLM_PROVIDER: openai_compatible
+      LLM_BASE_URL: http://vllm:8000/v1
+      LLM_MODEL: ${LOCAL_LLM_MODEL:-Qwen/Qwen3-8B}
+      LLM_API_KEY: not-needed
+      # Belt and braces: even if a proxy is configured in the environment, the local model
+      # server is reached directly (the client also sets trust_env=False).
+      NO_PROXY: vllm,localhost,127.0.0.1
+    depends_on:
+      vllm:
+        condition: service_healthy
+
+volumes:
+  hf_cache:

@@ -1,0 +1,66 @@
+# Elements permitted as cations when pulling the oxide candidate universe from
+# Materials Project. Oxygen must be the *only* anion: compounds containing F, Cl, Br,
+# I, S, Se (as anion), N, H or C are not oxides in the sense this tool means and are
+# excluded by construction. Hazardous elements are included here on purpose: the
+# hazard screen (element_hazards.yaml) decides whether they pass, and a profile may
+# legitimately allow them. Keeping them in the universe means "include lead" is a
+# configuration change, not a re-fetch.
+version: "2026-09-09.1"
+cations:
+  - Li
+  - Na
+  - K
+  - Rb
+  - Cs
+  - Be
+  - Mg
+  - Ca
+  - Sr
+  - Ba
+  - Sc
+  - Y
+  - La
+  - Ce
+  - Pr
+  - Nd
+  - Sm
+  - Eu
+  - Gd
+  - Tb
+  - Dy
+  - Ho
+  - Er
+  - Tm
+  - Yb
+  - Lu
+  - Ti
+  - Zr
+  - Hf
+  - V
+  - Nb
+  - Ta
+  - Cr
+  - Mo
+  - W
+  - Mn
+  - Fe
+  - Co
+  - Ni
+  - Cu
+  - Zn
+  - Cd
+  - B
+  - Al
+  - Ga
+  - In
+  - Tl
+  - Si
+  - Ge
+  - Sn
+  - Pb
+  - P
+  - Sb
+  - Bi
+  - Te
+  - Th
+  - U

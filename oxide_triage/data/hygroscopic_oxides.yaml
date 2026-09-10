@@ -1,0 +1,35 @@
+# Oxides known to hydrate or carbonate under ambient handling. Used by the refutation pass
+# to attach a hygroscopicity caveat. This is a curated list with a stated basis per entry,
+# not a prediction: absence from this list means "not flagged", never "not hygroscopic".
+version: "2026-09-09.1"
+formulas:
+  La2O3: {severity: warning, basis: "converts to La(OH)3 in humid air within hours; well documented for La2O3 gate dielectrics"}
+  CaO:   {severity: warning, basis: "reacts with water to Ca(OH)2; carbonates in air"}
+  SrO:   {severity: warning, basis: "reacts with water to Sr(OH)2; carbonates in air"}
+  BaO:   {severity: warning, basis: "reacts with water to Ba(OH)2; carbonates in air"}
+  Li2O:  {severity: warning, basis: "strongly hygroscopic, forms LiOH"}
+  Na2O:  {severity: warning, basis: "strongly hygroscopic, forms NaOH"}
+  K2O:   {severity: warning, basis: "strongly hygroscopic, forms KOH"}
+  Rb2O:  {severity: warning, basis: "strongly hygroscopic"}
+  Cs2O:  {severity: warning, basis: "strongly hygroscopic"}
+  MgO:   {severity: info, basis: "surface Mg(OH)2 / MgCO3 formation in humid air; bulk films generally acceptable"}
+  Y2O3:  {severity: info, basis: "surface hydroxide/carbonate uptake reported for thin films"}
+  Gd2O3: {severity: info, basis: "moisture uptake reported for rare-earth sesquioxide films"}
+  Sc2O3: {severity: info, basis: "mild; less hygroscopic than La2O3"}
+  Lu2O3: {severity: info, basis: "mild; heavy rare-earth sesquioxides are more moisture resistant than La2O3"}
+  Nd2O3: {severity: warning, basis: "light rare-earth sesquioxide; hydroxide formation in air"}
+  Pr2O3: {severity: warning, basis: "light rare-earth sesquioxide; hydroxide formation in air"}
+  Sm2O3: {severity: warning, basis: "light rare-earth sesquioxide; hydroxide formation in air"}
+  Eu2O3: {severity: info, basis: "moisture uptake reported"}
+  P2O5:  {severity: warning, basis: "extremely hygroscopic; forms phosphoric acid"}
+  B2O3:  {severity: warning, basis: "hygroscopic; forms boric acid"}
+# Any binary oxide whose cation is in this list is flagged even if the formula is absent above.
+binary_cation_rule:
+  Li: warning
+  Na: warning
+  K: warning
+  Rb: warning
+  Cs: warning
+  Ca: warning
+  Sr: warning
+  Ba: warning

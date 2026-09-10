@@ -1,0 +1,2445 @@
+{
+ "_README": "SYNTHETIC DEVELOPMENT FIXTURE. Values are hand-written approximations of publicly reported magnitudes (PBE band gaps, hull distances, DFPT dielectric constants, literature counts) chosen to exercise the pipeline: known workhorses, gate failures, missing dielectric data, cross-source disagreement, hazardous elements, hygroscopic oxides. Material ids are fx-NNNN and never correspond to Materials Project ids. Do not use for real triage; build the real cache with `oxide-triage warm-cache`.",
+ "version": "fixture-2026-09-09.1",
+ "materials": [
+  {
+   "material_id": "fx-0001",
+   "formula_pretty": "HfO2",
+   "elements": [
+    "Hf",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Monoclinic",
+    "symbol": "P2_1/c"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.86,
+   "is_stable": true,
+   "band_gap": 4.02,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0001"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 22.0,
+    "e_electronic": 4.7,
+    "e_ionic": 17.3,
+    "n": 2.17
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.82,
+    "entry_id": 100001,
+    "name": "HfO2"
+   },
+   "literature": {
+    "total_works": 12400,
+    "thin_film_works": 4600,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-HfO2-0",
+      "title": "Atomic layer deposition of hafnium oxide thin films for gate dielectric applications",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-HfO2-1",
+      "title": "Ferroelectricity in hafnium oxide thin films",
+      "year": 2011,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-HfO2-2",
+      "title": "Crystallization behavior of sputtered HfO2 films",
+      "year": 2012,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "HfO2"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 292779,
+    "ghs_codes": [],
+    "matched_name": "HfO2"
+   }
+  },
+  {
+   "material_id": "fx-0002",
+   "formula_pretty": "HfO2",
+   "elements": [
+    "Hf",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fm-3m"
+   },
+   "energy_above_hull": 0.078,
+   "formation_energy_per_atom": -3.78,
+   "is_stable": false,
+   "band_gap": 3.75,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": true,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0002"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": null,
+   "literature": {
+    "total_works": 12400,
+    "thin_film_works": 4600,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-HfO2-0",
+      "title": "Atomic layer deposition of hafnium oxide thin films for gate dielectric applications",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-HfO2-1",
+      "title": "Ferroelectricity in hafnium oxide thin films",
+      "year": 2011,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-HfO2-2",
+      "title": "Crystallization behavior of sputtered HfO2 films",
+      "year": 2012,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "HfO2"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 292779,
+    "ghs_codes": [],
+    "matched_name": "HfO2"
+   }
+  },
+  {
+   "material_id": "fx-0003",
+   "formula_pretty": "ZrO2",
+   "elements": [
+    "Zr",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Monoclinic",
+    "symbol": "P2_1/c"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.72,
+   "is_stable": true,
+   "band_gap": 3.62,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0003"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 20.5,
+    "e_electronic": 4.9,
+    "e_ionic": 15.6,
+    "n": 2.21
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.7,
+    "entry_id": 100003,
+    "name": "ZrO2"
+   },
+   "literature": {
+    "total_works": 31000,
+    "thin_film_works": 8200,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-ZrO2-0",
+      "title": "Zirconia thin films grown by atomic layer deposition",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-ZrO2-1",
+      "title": "Dielectric properties of sputtered ZrO2 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "ZrO2"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 62395,
+    "ghs_codes": [],
+    "matched_name": "ZrO2"
+   }
+  },
+  {
+   "material_id": "fx-0004",
+   "formula_pretty": "Al2O3",
+   "elements": [
+    "Al",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Trigonal",
+    "symbol": "R-3c"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.44,
+   "is_stable": true,
+   "band_gap": 6.12,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0004"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 9.8,
+    "e_electronic": 3.2,
+    "e_ionic": 6.6,
+    "n": 1.79
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.41,
+    "entry_id": 100004,
+    "name": "Al2O3"
+   },
+   "literature": {
+    "total_works": 61000,
+    "thin_film_works": 15200,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Al2O3-0",
+      "title": "Al2O3 thin films by trimethylaluminum and water ALD",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Al2O3-1",
+      "title": "Alumina passivation layers for silicon solar cells",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Al2O3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 9989226,
+    "ghs_codes": [],
+    "matched_name": "Al2O3"
+   }
+  },
+  {
+   "material_id": "fx-0005",
+   "formula_pretty": "Ta2O5",
+   "elements": [
+    "Ta",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Orthorhombic",
+    "symbol": "Pmm2"
+   },
+   "energy_above_hull": 0.012,
+   "formation_energy_per_atom": -2.92,
+   "is_stable": false,
+   "band_gap": 2.62,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": true,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0005"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 28.0,
+    "e_electronic": 4.8,
+    "e_ionic": 23.2,
+    "n": 2.19
+   },
+   "oqmd": {
+    "stability": 0.092,
+    "delta_e": -2.85,
+    "entry_id": 100005,
+    "name": "Ta2O5"
+   },
+   "literature": {
+    "total_works": 14500,
+    "thin_film_works": 6100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Ta2O5-0",
+      "title": "Tantalum pentoxide thin films for capacitor dielectrics",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Ta2O5-1",
+      "title": "Crystallisation of Ta2O5 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Ta2O5"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 518712,
+    "ghs_codes": [],
+    "matched_name": "Ta2O5"
+   }
+  },
+  {
+   "material_id": "fx-0006",
+   "formula_pretty": "MgO",
+   "elements": [
+    "Mg",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fm-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.0,
+   "is_stable": true,
+   "band_gap": 4.45,
+   "is_gap_direct": true,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0006"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 9.7,
+    "e_electronic": 3.0,
+    "e_ionic": 6.7,
+    "n": 1.73
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -2.98,
+    "entry_id": 100006,
+    "name": "MgO"
+   },
+   "literature": {
+    "total_works": 82000,
+    "thin_film_works": 12100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-MgO-0",
+      "title": "Epitaxial MgO thin films on GaAs",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-MgO-1",
+      "title": "Magnesium oxide tunnel barriers",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "MgO"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 14792,
+    "ghs_codes": [
+     "H319"
+    ],
+    "matched_name": "MgO"
+   }
+  },
+  {
+   "material_id": "fx-0007",
+   "formula_pretty": "SiO2",
+   "elements": [
+    "Si",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Trigonal",
+    "symbol": "P3_221"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.1,
+   "is_stable": true,
+   "band_gap": 5.62,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0007"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 4.5,
+    "e_electronic": 2.4,
+    "e_ionic": 2.1,
+    "n": 1.55
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.06,
+    "entry_id": 100007,
+    "name": "SiO2"
+   },
+   "literature": {
+    "total_works": 210000,
+    "thin_film_works": 41000,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-SiO2-0",
+      "title": "Thermal oxidation of silicon",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-SiO2-1",
+      "title": "Low-temperature silica films by PECVD",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "SiO2"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 24261,
+    "ghs_codes": [],
+    "matched_name": "SiO2"
+   }
+  },
+  {
+   "material_id": "fx-0008",
+   "formula_pretty": "TiO2",
+   "elements": [
+    "Ti",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Tetragonal",
+    "symbol": "P4_2/mnm"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.32,
+   "is_stable": true,
+   "band_gap": 1.78,
+   "is_gap_direct": true,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0008"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 86.0,
+    "e_electronic": 7.5,
+    "e_ionic": 78.5,
+    "n": 2.74
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.3,
+    "entry_id": 100008,
+    "name": "TiO2"
+   },
+   "literature": {
+    "total_works": 255000,
+    "thin_film_works": 61000,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-TiO2-0",
+      "title": "Titania thin films by ALD",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-TiO2-1",
+      "title": "Rutile TiO2 films for high-k applications",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "TiO2"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 26042,
+    "ghs_codes": [],
+    "matched_name": "TiO2"
+   }
+  },
+  {
+   "material_id": "fx-0009",
+   "formula_pretty": "Y2O3",
+   "elements": [
+    "Y",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Ia-3"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.92,
+   "is_stable": true,
+   "band_gap": 4.1,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0009"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.9,
+    "entry_id": 100009,
+    "name": "Y2O3"
+   },
+   "literature": {
+    "total_works": 20500,
+    "thin_film_works": 5100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Y2O3-0",
+      "title": "Y2O3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Y2O3-1",
+      "title": "Dielectric properties of Y2O3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Y2O3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 159416,
+    "ghs_codes": [],
+    "matched_name": "Y2O3"
+   }
+  },
+  {
+   "material_id": "fx-0010",
+   "formula_pretty": "La2O3",
+   "elements": [
+    "La",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Trigonal",
+    "symbol": "P-3m1"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.72,
+   "is_stable": true,
+   "band_gap": 3.82,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0010"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.7,
+    "entry_id": 100010,
+    "name": "La2O3"
+   },
+   "literature": {
+    "total_works": 15200,
+    "thin_film_works": 3050,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-La2O3-0",
+      "title": "La2O3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-La2O3-1",
+      "title": "Dielectric properties of La2O3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "La2O3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 14827,
+    "ghs_codes": [
+     "H315",
+     "H319",
+     "H335"
+    ],
+    "matched_name": "La2O3"
+   }
+  },
+  {
+   "material_id": "fx-0011",
+   "formula_pretty": "Sc2O3",
+   "elements": [
+    "Sc",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Ia-3"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.92,
+   "is_stable": true,
+   "band_gap": 3.92,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0011"
+    }
+   ],
+   "run_type": null,
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.9,
+    "entry_id": 100011,
+    "name": "Sc2O3"
+   },
+   "literature": {
+    "total_works": 4100,
+    "thin_film_works": 920,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Sc2O3-0",
+      "title": "Sc2O3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Sc2O3-1",
+      "title": "Dielectric properties of Sc2O3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Sc2O3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 518715,
+    "ghs_codes": [],
+    "matched_name": "Sc2O3"
+   }
+  },
+  {
+   "material_id": "fx-0012",
+   "formula_pretty": "Gd2O3",
+   "elements": [
+    "Gd",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Ia-3"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.74,
+   "is_stable": true,
+   "band_gap": 4.02,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0012"
+    }
+   ],
+   "run_type": "GGA+U",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.71,
+    "entry_id": 100012,
+    "name": "Gd2O3"
+   },
+   "literature": {
+    "total_works": 8100,
+    "thin_film_works": 1800,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Gd2O3-0",
+      "title": "Gd2O3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Gd2O3-1",
+      "title": "Dielectric properties of Gd2O3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Gd2O3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 159426,
+    "ghs_codes": [],
+    "matched_name": "Gd2O3"
+   }
+  },
+  {
+   "material_id": "fx-0013",
+   "formula_pretty": "Lu2O3",
+   "elements": [
+    "Lu",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Ia-3"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.81,
+   "is_stable": true,
+   "band_gap": 4.22,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0013"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.79,
+    "entry_id": 100013,
+    "name": "Lu2O3"
+   },
+   "literature": {
+    "total_works": 1550,
+    "thin_film_works": 410,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Lu2O3-0",
+      "title": "Lu2O3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Lu2O3-1",
+      "title": "Dielectric properties of Lu2O3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Lu2O3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 160052,
+    "ghs_codes": [],
+    "matched_name": "Lu2O3"
+   }
+  },
+  {
+   "material_id": "fx-0014",
+   "formula_pretty": "BeO",
+   "elements": [
+    "Be",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Hexagonal",
+    "symbol": "P6_3mc"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.12,
+   "is_stable": true,
+   "band_gap": 7.52,
+   "is_gap_direct": true,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0014"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 7.0,
+    "e_electronic": 3.0,
+    "e_ionic": 4.0,
+    "n": 1.73
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.1,
+    "entry_id": 100014,
+    "name": "BeO"
+   },
+   "literature": {
+    "total_works": 6100,
+    "thin_film_works": 1200,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-BeO-0",
+      "title": "BeO thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-BeO-1",
+      "title": "Dielectric properties of BeO films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "BeO"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 14775,
+    "ghs_codes": [
+     "H330",
+     "H350",
+     "H372",
+     "H315",
+     "H319",
+     "H335"
+    ],
+    "matched_name": "BeO"
+   }
+  },
+  {
+   "material_id": "fx-0015",
+   "formula_pretty": "ThO2",
+   "elements": [
+    "Th",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fm-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -4.1,
+   "is_stable": true,
+   "band_gap": 4.52,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0015"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -4.05,
+    "entry_id": 100015,
+    "name": "ThO2"
+   },
+   "literature": {
+    "total_works": 9200,
+    "thin_film_works": 1000,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-ThO2-0",
+      "title": "ThO2 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-ThO2-1",
+      "title": "Dielectric properties of ThO2 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "ThO2"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 14808,
+    "ghs_codes": [
+     "H302",
+     "H373"
+    ],
+    "matched_name": "ThO2"
+   }
+  },
+  {
+   "material_id": "fx-0016",
+   "formula_pretty": "CaO",
+   "elements": [
+    "Ca",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fm-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.32,
+   "is_stable": true,
+   "band_gap": 3.64,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0016"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 12.0,
+    "e_electronic": 3.3,
+    "e_ionic": 8.7,
+    "n": 1.82
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.3,
+    "entry_id": 100016,
+    "name": "CaO"
+   },
+   "literature": {
+    "total_works": 41000,
+    "thin_film_works": 2100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-CaO-0",
+      "title": "CaO thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-CaO-1",
+      "title": "Dielectric properties of CaO films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "CaO"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 14778,
+    "ghs_codes": [
+     "H315",
+     "H318",
+     "H335"
+    ],
+    "matched_name": "CaO"
+   }
+  },
+  {
+   "material_id": "fx-0017",
+   "formula_pretty": "SrO",
+   "elements": [
+    "Sr",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fm-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.1,
+   "is_stable": true,
+   "band_gap": 3.32,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0017"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 14.0,
+    "e_electronic": 3.5,
+    "e_ionic": 10.5,
+    "n": 1.87
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.08,
+    "entry_id": 100017,
+    "name": "SrO"
+   },
+   "literature": {
+    "total_works": 10200,
+    "thin_film_works": 900,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-SrO-0",
+      "title": "SrO thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-SrO-1",
+      "title": "Dielectric properties of SrO films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "SrO"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 73975,
+    "ghs_codes": [
+     "H314"
+    ],
+    "matched_name": "SrO"
+   }
+  },
+  {
+   "material_id": "fx-0018",
+   "formula_pretty": "BaO",
+   "elements": [
+    "Ba",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fm-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -2.92,
+   "is_stable": true,
+   "band_gap": 2.12,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0018"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 34.0,
+    "e_electronic": 4.0,
+    "e_ionic": 30.0,
+    "n": 2.0
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -2.9,
+    "entry_id": 100018,
+    "name": "BaO"
+   },
+   "literature": {
+    "total_works": 12100,
+    "thin_film_works": 820,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-BaO-0",
+      "title": "BaO thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-BaO-1",
+      "title": "Dielectric properties of BaO films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "BaO"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 62392,
+    "ghs_codes": [
+     "H302",
+     "H314"
+    ],
+    "matched_name": "BaO"
+   }
+  },
+  {
+   "material_id": "fx-0019",
+   "formula_pretty": "Ga2O3",
+   "elements": [
+    "Ga",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Monoclinic",
+    "symbol": "C2/m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -2.32,
+   "is_stable": true,
+   "band_gap": 2.02,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0019"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 10.5,
+    "e_electronic": 3.6,
+    "e_ionic": 6.9,
+    "n": 1.9
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -2.3,
+    "entry_id": 100019,
+    "name": "Ga2O3"
+   },
+   "literature": {
+    "total_works": 40500,
+    "thin_film_works": 15300,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Ga2O3-0",
+      "title": "Ga2O3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Ga2O3-1",
+      "title": "Dielectric properties of Ga2O3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Ga2O3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 5379600,
+    "ghs_codes": [],
+    "matched_name": "Ga2O3"
+   }
+  },
+  {
+   "material_id": "fx-0020",
+   "formula_pretty": "CeO2",
+   "elements": [
+    "Ce",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fm-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.72,
+   "is_stable": true,
+   "band_gap": 2.02,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0020"
+    }
+   ],
+   "run_type": "GGA+U",
+   "dielectric": {
+    "e_total": 22.0,
+    "e_electronic": 5.5,
+    "e_ionic": 16.5,
+    "n": 2.35
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.68,
+    "entry_id": 100020,
+    "name": "CeO2"
+   },
+   "literature": {
+    "total_works": 121000,
+    "thin_film_works": 8100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-CeO2-0",
+      "title": "CeO2 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-CeO2-1",
+      "title": "Dielectric properties of CeO2 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "CeO2"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 73963,
+    "ghs_codes": [],
+    "matched_name": "CeO2"
+   }
+  },
+  {
+   "material_id": "fx-0021",
+   "formula_pretty": "SrTiO3",
+   "elements": [
+    "Sr",
+    "Ti",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Pm-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.42,
+   "is_stable": true,
+   "band_gap": 1.82,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0021"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 85.0,
+    "e_electronic": 6.2,
+    "e_ionic": 78.8,
+    "n": 2.49
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.4,
+    "entry_id": 100021,
+    "name": "SrTiO3"
+   },
+   "literature": {
+    "total_works": 91000,
+    "thin_film_works": 30500,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-SrTiO3-0",
+      "title": "SrTiO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-SrTiO3-1",
+      "title": "Dielectric properties of SrTiO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "SrTiO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 6337436,
+    "ghs_codes": [],
+    "matched_name": "SrTiO3"
+   }
+  },
+  {
+   "material_id": "fx-0022",
+   "formula_pretty": "BaTiO3",
+   "elements": [
+    "Ba",
+    "Ti",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Tetragonal",
+    "symbol": "P4mm"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.32,
+   "is_stable": true,
+   "band_gap": 1.83,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0022"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 60.0,
+    "e_electronic": 6.0,
+    "e_ionic": 54.0,
+    "n": 2.45
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.3,
+    "entry_id": 100022,
+    "name": "BaTiO3"
+   },
+   "literature": {
+    "total_works": 152000,
+    "thin_film_works": 40200,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-BaTiO3-0",
+      "title": "BaTiO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-BaTiO3-1",
+      "title": "Dielectric properties of BaTiO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "BaTiO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 6101006,
+    "ghs_codes": [
+     "H302"
+    ],
+    "matched_name": "BaTiO3"
+   }
+  },
+  {
+   "material_id": "fx-0023",
+   "formula_pretty": "PbTiO3",
+   "elements": [
+    "Pb",
+    "Ti",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Tetragonal",
+    "symbol": "P4mm"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -2.92,
+   "is_stable": true,
+   "band_gap": 1.92,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0023"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 50.0,
+    "e_electronic": 7.0,
+    "e_ionic": 43.0,
+    "n": 2.65
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -2.9,
+    "entry_id": 100023,
+    "name": "PbTiO3"
+   },
+   "literature": {
+    "total_works": 61000,
+    "thin_film_works": 20100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-PbTiO3-0",
+      "title": "PbTiO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-PbTiO3-1",
+      "title": "Dielectric properties of PbTiO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "PbTiO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 23684945,
+    "ghs_codes": [
+     "H360",
+     "H373",
+     "H302"
+    ],
+    "matched_name": "PbTiO3"
+   }
+  },
+  {
+   "material_id": "fx-0024",
+   "formula_pretty": "PbZrO3",
+   "elements": [
+    "Pb",
+    "Zr",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Orthorhombic",
+    "symbol": "Pbam"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.12,
+   "is_stable": true,
+   "band_gap": 2.42,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0024"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.1,
+    "entry_id": 100024,
+    "name": "PbZrO3"
+   },
+   "literature": {
+    "total_works": 20100,
+    "thin_film_works": 6050,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-PbZrO3-0",
+      "title": "PbZrO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-PbZrO3-1",
+      "title": "Dielectric properties of PbZrO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "PbZrO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": null
+  },
+  {
+   "material_id": "fx-0025",
+   "formula_pretty": "LaAlO3",
+   "elements": [
+    "La",
+    "Al",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Trigonal",
+    "symbol": "R-3c"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.62,
+   "is_stable": true,
+   "band_gap": 3.72,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0025"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 25.0,
+    "e_electronic": 4.6,
+    "e_ionic": 20.4,
+    "n": 2.14
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.6,
+    "entry_id": 100025,
+    "name": "LaAlO3"
+   },
+   "literature": {
+    "total_works": 25200,
+    "thin_film_works": 12100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-LaAlO3-0",
+      "title": "LaAlO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-LaAlO3-1",
+      "title": "Dielectric properties of LaAlO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "LaAlO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": null
+  },
+  {
+   "material_id": "fx-0026",
+   "formula_pretty": "MgAl2O4",
+   "elements": [
+    "Mg",
+    "Al",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fd-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.42,
+   "is_stable": true,
+   "band_gap": 5.12,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0026"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 8.5,
+    "e_electronic": 2.9,
+    "e_ionic": 5.6,
+    "n": 1.7
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.4,
+    "entry_id": 100026,
+    "name": "MgAl2O4"
+   },
+   "literature": {
+    "total_works": 20300,
+    "thin_film_works": 3050,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-MgAl2O4-0",
+      "title": "MgAl2O4 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-MgAl2O4-1",
+      "title": "Dielectric properties of MgAl2O4 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "MgAl2O4"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 6337051,
+    "ghs_codes": [],
+    "matched_name": "MgAl2O4"
+   }
+  },
+  {
+   "material_id": "fx-0027",
+   "formula_pretty": "SrHfO3",
+   "elements": [
+    "Sr",
+    "Hf",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Orthorhombic",
+    "symbol": "Pnma"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.52,
+   "is_stable": true,
+   "band_gap": 3.72,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0027"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 20.0,
+    "e_electronic": 4.5,
+    "e_ionic": 15.5,
+    "n": 2.12
+   },
+   "oqmd": null,
+   "literature": {
+    "total_works": 2500,
+    "thin_film_works": 900,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-SrHfO3-0",
+      "title": "SrHfO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-SrHfO3-1",
+      "title": "Dielectric properties of SrHfO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "SrHfO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": null
+  },
+  {
+   "material_id": "fx-0028",
+   "formula_pretty": "SrZrO3",
+   "elements": [
+    "Sr",
+    "Zr",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Orthorhombic",
+    "symbol": "Pnma"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.52,
+   "is_stable": true,
+   "band_gap": 3.52,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0028"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 24.0,
+    "e_electronic": 4.5,
+    "e_ionic": 19.5,
+    "n": 2.12
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.5,
+    "entry_id": 100028,
+    "name": "SrZrO3"
+   },
+   "literature": {
+    "total_works": 5100,
+    "thin_film_works": 1200,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-SrZrO3-0",
+      "title": "SrZrO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-SrZrO3-1",
+      "title": "Dielectric properties of SrZrO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "SrZrO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 6336744,
+    "ghs_codes": [],
+    "matched_name": "SrZrO3"
+   }
+  },
+  {
+   "material_id": "fx-0029",
+   "formula_pretty": "BaZrO3",
+   "elements": [
+    "Ba",
+    "Zr",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Pm-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.42,
+   "is_stable": true,
+   "band_gap": 3.22,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0029"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 40.0,
+    "e_electronic": 4.8,
+    "e_ionic": 35.2,
+    "n": 2.19
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.4,
+    "entry_id": 100029,
+    "name": "BaZrO3"
+   },
+   "literature": {
+    "total_works": 12200,
+    "thin_film_works": 2000,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-BaZrO3-0",
+      "title": "BaZrO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-BaZrO3-1",
+      "title": "Dielectric properties of BaZrO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "BaZrO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 6336816,
+    "ghs_codes": [
+     "H302"
+    ],
+    "matched_name": "BaZrO3"
+   }
+  },
+  {
+   "material_id": "fx-0030",
+   "formula_pretty": "LiNbO3",
+   "elements": [
+    "Li",
+    "Nb",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Trigonal",
+    "symbol": "R3c"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -2.92,
+   "is_stable": true,
+   "band_gap": 3.52,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0030"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -2.9,
+    "entry_id": 100030,
+    "name": "LiNbO3"
+   },
+   "literature": {
+    "total_works": 101000,
+    "thin_film_works": 30100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-LiNbO3-0",
+      "title": "LiNbO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-LiNbO3-1",
+      "title": "Dielectric properties of LiNbO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "LiNbO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 9926208,
+    "ghs_codes": [],
+    "matched_name": "LiNbO3"
+   }
+  },
+  {
+   "material_id": "fx-0031",
+   "formula_pretty": "LaLuO3",
+   "elements": [
+    "La",
+    "Lu",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Orthorhombic",
+    "symbol": "Pnma"
+   },
+   "energy_above_hull": 0.005,
+   "formation_energy_per_atom": -3.72,
+   "is_stable": false,
+   "band_gap": 4.02,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": true,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0031"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": null,
+   "literature": {
+    "total_works": 620,
+    "thin_film_works": 300,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-LaLuO3-0",
+      "title": "LaLuO3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-LaLuO3-1",
+      "title": "Dielectric properties of LaLuO3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "LaLuO3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": null
+  },
+  {
+   "material_id": "fx-0032",
+   "formula_pretty": "HfSiO4",
+   "elements": [
+    "Hf",
+    "Si",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Tetragonal",
+    "symbol": "I4_1/amd"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.62,
+   "is_stable": true,
+   "band_gap": 5.52,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0032"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.6,
+    "entry_id": 100032,
+    "name": "HfSiO4"
+   },
+   "literature": {
+    "total_works": 3100,
+    "thin_film_works": 1500,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-HfSiO4-0",
+      "title": "HfSiO4 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-HfSiO4-1",
+      "title": "Dielectric properties of HfSiO4 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "HfSiO4"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": null
+  },
+  {
+   "material_id": "fx-0033",
+   "formula_pretty": "ZrSiO4",
+   "elements": [
+    "Zr",
+    "Si",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Tetragonal",
+    "symbol": "I4_1/amd"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.52,
+   "is_stable": true,
+   "band_gap": 4.52,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0033"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.5,
+    "entry_id": 100033,
+    "name": "ZrSiO4"
+   },
+   "literature": {
+    "total_works": 8100,
+    "thin_film_works": 1000,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-ZrSiO4-0",
+      "title": "ZrSiO4 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-ZrSiO4-1",
+      "title": "Dielectric properties of ZrSiO4 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "ZrSiO4"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 66306,
+    "ghs_codes": [],
+    "matched_name": "ZrSiO4"
+   }
+  },
+  {
+   "material_id": "fx-0034",
+   "formula_pretty": "Bi2O3",
+   "elements": [
+    "Bi",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Monoclinic",
+    "symbol": "P2_1/c"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -1.92,
+   "is_stable": true,
+   "band_gap": 2.32,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0034"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": {
+    "e_total": 40.0,
+    "e_electronic": 6.0,
+    "e_ionic": 34.0,
+    "n": 2.45
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -1.9,
+    "entry_id": 100034,
+    "name": "Bi2O3"
+   },
+   "literature": {
+    "total_works": 30500,
+    "thin_film_works": 8100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Bi2O3-0",
+      "title": "Bi2O3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Bi2O3-1",
+      "title": "Dielectric properties of Bi2O3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Bi2O3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 14776,
+    "ghs_codes": [],
+    "matched_name": "Bi2O3"
+   }
+  },
+  {
+   "material_id": "fx-0035",
+   "formula_pretty": "Y3Al5O12",
+   "elements": [
+    "Y",
+    "Al",
+    "O"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Ia-3d"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.72,
+   "is_stable": true,
+   "band_gap": 4.62,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0035"
+    }
+   ],
+   "run_type": "GGA",
+   "dielectric": null,
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.7,
+    "entry_id": 100035,
+    "name": "Y3Al5O12"
+   },
+   "literature": {
+    "total_works": 40100,
+    "thin_film_works": 5050,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Y3Al5O12-0",
+      "title": "Y3Al5O12 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Y3Al5O12-1",
+      "title": "Dielectric properties of Y3Al5O12 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Y3Al5O12"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": null
+  },
+  {
+   "material_id": "fx-0036",
+   "formula_pretty": "Cr2O3",
+   "elements": [
+    "Cr",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Trigonal",
+    "symbol": "R-3c"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -2.72,
+   "is_stable": true,
+   "band_gap": 2.82,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0036"
+    }
+   ],
+   "run_type": "GGA+U",
+   "dielectric": {
+    "e_total": 12.0,
+    "e_electronic": 6.5,
+    "e_ionic": 5.5,
+    "n": 2.55
+   },
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -2.7,
+    "entry_id": 100036,
+    "name": "Cr2O3"
+   },
+   "literature": {
+    "total_works": 50500,
+    "thin_film_works": 12100,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Cr2O3-0",
+      "title": "Cr2O3 thin films prepared by sputtering",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-Cr2O3-1",
+      "title": "Dielectric properties of Cr2O3 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "Cr2O3"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 517277,
+    "ghs_codes": [],
+    "matched_name": "Cr2O3"
+   }
+  }
+ ]
+}
