@@ -1,0 +1,107 @@
+# Element-level hazard screen. Hand-curated, versioned, documented.
+#
+# This is a coarse *screen*, not a toxicological assessment. It classifies elements by
+# the hazard of their common oxide forms and by regulatory status, so that a shortlist
+# does not silently contain lead or thallium. Compound-level GHS data from PubChem is
+# layered on top where a record exists and is surfaced as a caveat, never as a score.
+#
+# Tiers
+#   0  benign for routine thin-film work (standard lab hygiene)
+#   1  caution: known occupational hazard, sensitiser, or notable toxicity of oxide/salts;
+#      permitted by default but always listed in the caveats
+#   2  hazardous or regulated: RoHS-restricted heavy metals, IARC Group 1 carcinogens in
+#      oxide form, acute toxins, or radioactive. Blocked by default; a profile may
+#      explicitly allow an element (surfaced as a deviation).
+#
+# `basis` cites the reason in a form a chemist can check. Abbreviations:
+#   RoHS   Directive 2011/65/EU restricted substances (Pb, Cd, Hg, Cr(VI))
+#   IARC   IARC Monographs carcinogen group for the element/its compounds
+#   GHS    typical GHS hazard statements for the common oxide (from PubChem)
+#   RAD    all isotopes radioactive / no stable isotope
+version: "2026-09-09.1"
+elements:
+  # ---- Tier 0 -------------------------------------------------------------
+  Al: {tier: 0, basis: "Al2O3 not classified; inert ceramic"}
+  Si: {tier: 0, basis: "SiO2 (amorphous) not classified; crystalline silica dust is a respirable hazard (IARC 1) but not relevant to films"}
+  Ti: {tier: 0, basis: "TiO2 GHS not classified in bulk; nanoparticle inhalation IARC 2B, dust caution only"}
+  Zr: {tier: 0, basis: "ZrO2 not classified"}
+  Hf: {tier: 0, basis: "HfO2 not classified"}
+  Mg: {tier: 0, basis: "MgO not classified"}
+  Ca: {tier: 0, basis: "CaO GHS H315/H318 (corrosive when hydrated), not toxic"}
+  Sr: {tier: 0, basis: "SrO irritant; stable Sr not toxic"}
+  Y:  {tier: 0, basis: "Y2O3 not classified"}
+  La: {tier: 0, basis: "La2O3 not classified; hygroscopic"}
+  Sc: {tier: 0, basis: "Sc2O3 not classified"}
+  Ta: {tier: 0, basis: "Ta2O5 not classified; biocompatible"}
+  Nb: {tier: 0, basis: "Nb2O5 not classified"}
+  Zn: {tier: 0, basis: "ZnO GHS H400/H410 aquatic; low human toxicity"}
+  Sn: {tier: 0, basis: "SnO2 not classified"}
+  Ga: {tier: 0, basis: "Ga2O3 not classified"}
+  Ge: {tier: 0, basis: "GeO2 low toxicity"}
+  Ce: {tier: 0, basis: "CeO2 not classified"}
+  Gd: {tier: 0, basis: "Gd2O3 not classified"}
+  Lu: {tier: 0, basis: "Lu2O3 not classified"}
+  Dy: {tier: 0, basis: "Dy2O3 not classified"}
+  Er: {tier: 0, basis: "Er2O3 not classified"}
+  Yb: {tier: 0, basis: "Yb2O3 not classified"}
+  Ho: {tier: 0, basis: "Ho2O3 not classified"}
+  Tm: {tier: 0, basis: "Tm2O3 not classified"}
+  Nd: {tier: 0, basis: "Nd2O3 not classified"}
+  Sm: {tier: 0, basis: "Sm2O3 not classified"}
+  Pr: {tier: 0, basis: "Pr2O3 / Pr6O11 not classified"}
+  Eu: {tier: 0, basis: "Eu2O3 not classified"}
+  Tb: {tier: 0, basis: "Tb2O3 not classified"}
+  K:  {tier: 0, basis: "K2O caustic (H314) but not toxic; hygroscopic"}
+  Na: {tier: 0, basis: "Na2O caustic (H314) but not toxic; hygroscopic"}
+  Li: {tier: 0, basis: "Li2O caustic; low toxicity"}
+  Rb: {tier: 0, basis: "Rb2O caustic; low toxicity"}
+  Cs: {tier: 0, basis: "Cs2O caustic; low toxicity (stable Cs)"}
+  B:  {tier: 0, basis: "B2O3 GHS H360 (reprotoxic, boric acid) at high dose; low acute toxicity"}
+  P:  {tier: 0, basis: "P2O5 corrosive (H314); not toxic"}
+  Fe: {tier: 0, basis: "Fe2O3 not classified"}
+  W:  {tier: 0, basis: "WO3 low toxicity"}
+  Mo: {tier: 0, basis: "MoO3 GHS H319/H335 irritant, IARC 2B for MoO3 dust; low systemic toxicity"}
+  In: {tier: 0, basis: "In2O3 low toxicity; ITO dust is a respiratory hazard (indium lung), handle films with care"}
+  # ---- Tier 1 -------------------------------------------------------------
+  Ba: {tier: 1, basis: "Soluble Ba salts acutely toxic (H301/H332); BaO H302/H314; hygroscopic"}
+  Bi: {tier: 1, basis: "Bi2O3 low acute toxicity; flagged because Bi-based films often co-process with Pb"}
+  Sb: {tier: 1, basis: "Sb2O3 IARC 2B; GHS H351"}
+  V:  {tier: 1, basis: "V2O5 GHS H302/H332/H341/H361/H372; IARC 2B"}
+  Cr: {tier: 1, basis: "Cr(III) oxide benign; Cr(VI) is RoHS-restricted and IARC 1. Oxidation state not resolved by this screen"}
+  Mn: {tier: 1, basis: "MnO2 GHS H302/H332; chronic inhalation neurotoxicity"}
+  Co: {tier: 1, basis: "Co oxides GHS H317/H334/H350i; IARC 2B"}
+  Ni: {tier: 1, basis: "NiO IARC 1 (nickel compounds, inhalation); GHS H350i/H317/H372"}
+  Cu: {tier: 1, basis: "CuO GHS H302/H410; low chronic risk"}
+  Ag: {tier: 1, basis: "Ag2O oxidiser; argyria on chronic exposure"}
+  Te: {tier: 1, basis: "TeO2 GHS H360; tellurium compounds toxic, garlic breath"}
+  Se: {tier: 1, basis: "SeO2 GHS H301/H331/H373; essential trace element but toxic"}
+  Re: {tier: 1, basis: "Re2O7 corrosive; limited toxicology"}
+  Ru: {tier: 1, basis: "RuO4 volatile and highly toxic; RuO2 benign. Screen is conservative"}
+  Rh: {tier: 1, basis: "Rhodium compounds sensitisers; limited data"}
+  Pd: {tier: 1, basis: "Pd compounds sensitisers"}
+  Pt: {tier: 1, basis: "Pt salts potent sensitisers (H317/H334)"}
+  Ir: {tier: 1, basis: "Limited toxicology"}
+  Au: {tier: 1, basis: "Au compounds sensitisers; oxides unstable"}
+  # ---- Tier 2 -------------------------------------------------------------
+  Pb: {tier: 2, basis: "RoHS; IARC 2A (inorganic Pb); PbO GHS H360/H362/H373/H302/H332"}
+  Cd: {tier: 2, basis: "RoHS; IARC 1; CdO GHS H330/H350/H341/H361/H372"}
+  Hg: {tier: 2, basis: "RoHS; HgO GHS H300/H310/H330/H373"}
+  As: {tier: 2, basis: "IARC 1; As2O3 GHS H300/H350/H410"}
+  Tl: {tier: 2, basis: "Tl2O3 GHS H300/H330/H373; acutely toxic"}
+  Be: {tier: 2, basis: "IARC 1; BeO GHS H330/H350i/H372, chronic beryllium disease"}
+  Os: {tier: 2, basis: "OsO4 volatile, GHS H300/H310/H330/H314"}
+  U:  {tier: 2, basis: "RAD; nephrotoxic"}
+  Th: {tier: 2, basis: "RAD (alpha emitter)"}
+  Ra: {tier: 2, basis: "RAD"}
+  Ac: {tier: 2, basis: "RAD"}
+  Pa: {tier: 2, basis: "RAD"}
+  Np: {tier: 2, basis: "RAD"}
+  Pu: {tier: 2, basis: "RAD"}
+  Am: {tier: 2, basis: "RAD"}
+  Cm: {tier: 2, basis: "RAD"}
+  Po: {tier: 2, basis: "RAD"}
+  Tc: {tier: 2, basis: "RAD (no stable isotope)"}
+  Pm: {tier: 2, basis: "RAD (no stable isotope)"}
+# Elements not listed here are treated as tier 1 (caution) with basis "not in table";
+# the caveat "hazard table has no entry for X" is emitted so the gap is visible.
+default_tier: 1

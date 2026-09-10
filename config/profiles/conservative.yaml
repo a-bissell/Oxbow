@@ -1,0 +1,21 @@
+# Conservative: only what is very likely to survive a first deposition attempt.
+# Tight stability, high gap bar, strong toxicity weighting, binary oxides preferred.
+profile_name: conservative
+description: >
+  Strict screen. Stable (E_hull <= 0.02 eV/atom), effective gap >= 5 eV, binaries and
+  simple ternaries only, tier-1 hazards also blocked, literature evidence weighted up.
+weights:
+  stability: 0.30
+  band_gap: 0.25
+  dielectric: 0.10
+  toxicity: 0.15
+  simplicity: 0.10
+  literature: 0.10
+gates:
+  max_energy_above_hull_ev_atom: 0.02
+  min_band_gap_ev: 5.0
+  max_elements: 3
+toxicity:
+  blocklist_tiers: [1, 2]
+missing_data:
+  penalty: 0.10

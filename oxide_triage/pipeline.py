@@ -1,0 +1,342 @@
+"""Orchestration. Read top to bottom, this is the whole system:
+
+    guard  ->  parse (front edge)  ->  clarify?  ->  self-check gate  ->  data layer (cache)
+           ->  deterministic core  ->  refutation (annotates)  ->  render (back edge, templates)
+
+The language model, if configured, is invoked in exactly two places (parse, refute) and its
+output is validated before use. The core never sees it. When the system is driven through MCP,
+the client's model plays the front-edge role and this module is still the enforcement point.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+from oxide_triage.acquire import AcquisitionReport, fill_gaps, make_planner, read_report
+from oxide_triage.cache import Cache
+from oxide_triage.config import Config, load_cation_allowlist, load_hazard_table
+from oxide_triage.edges.llm import LLMClient, make_llm
+from oxide_triage.edges.parse import parse_request
+from oxide_triage.edges.render import rationale_line
+from oxide_triage.guard import guard_request
+from oxide_triage.refute import refute, rule_caveats
+from oxide_triage.schemas import Criteria, GuardDecision, TriageResult
+from oxide_triage.scoring.core import explanation, rank
+from oxide_triage.scoring.settings import blocked_by_policy, resolve
+from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
+from oxide_triage.session import clarifications
+from oxide_triage.sources.assemble import DataLayer
+from oxide_triage.sources.base import SourceError
+from oxide_triage.sources.fixtures import load_fixture
+
+log = logging.getLogger(__name__)
+
+
+def _now() -> str:
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
+
+
+def _log_deviations(config: Config, result: TriageResult) -> None:
+    if not result.deviations:
+        return
+    path = Path(config.cache.path).with_name("deviations.jsonl")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(
+                json.dumps(
+                    {
+                        "ts": result.generated_at,
+                        "profile": result.profile_name,
+                        "request": result.request_text,
+                        "deviations": [d.model_dump() for d in result.deviations],
+                    }
+                )
+                + "\n"
+            )
+    except OSError as exc:  # logging must never break a run
+        log.warning("could not write deviation log: %s", exc)
+    for d in result.deviations:
+        log.warning("configuration deviation [%s/%s]: %s", d.origin, d.code, d.description)
+
+
+def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
+    """Return (status, blocking_message). status: passed | failed | not_run | skipped."""
+    if not config.selfcheck.enabled:
+        return "skipped", None
+    sc = read_selfcheck(cache)
+    if sc is None:
+        return "not_run", None
+    if sc.passed:
+        return "passed", None
+    msg = (
+        "SELF-CHECK FAILED on this cache: the known-answer test did not pass ("
+        + "; ".join(sc.details)
+        + f"). Checked {sc.checked_at}. "
+    )
+    if config.selfcheck.on_failure == "block":
+        return (
+            "failed",
+            msg + "No shortlist is served from a cache that fails ground-truth validation. "
+            "Inspect with `oxide-triage selfcheck`, fix the cache or the profile, or set selfcheck.on_failure to warn.",
+        )
+    return "failed", None
+
+
+def run_triage(
+    request_text: str,
+    config: Config,
+    cache: Cache | None = None,
+    offline: bool | None = None,
+    llm: LLMClient | None = None,
+    template: str | None = None,
+    criteria: Criteria | None = None,
+    confirmed: bool = True,
+    skip_selfcheck: bool = False,
+) -> TriageResult:
+    """Run one triage request.
+
+    ``criteria`` bypasses the parser (used by reruns with changed settings; the guard still runs
+    on the original text). ``confirmed=False`` makes the run stop and return its clarification
+    questions instead of a shortlist whenever there are any.
+    """
+    table = load_hazard_table(config.toxicity.table_file)
+    llm = llm or make_llm(config.llm)
+    blocked = blocked_by_policy(config, table)
+    guard: GuardDecision = guard_request(request_text, table, blocked)
+    if criteria is None:
+        criteria, parser_label = parse_request(request_text, config, table, llm, blocked)
+    else:
+        parser_label = "supplied (rerun)"
+    if template:
+        criteria.output_template = template  # type: ignore[assignment]
+    eff, deviations = resolve(config, criteria, table)
+    questions = clarifications(criteria, deviations, guard, config)
+    llm_usage = {"parse": parser_label, "refute": "not run", "render": "templates only"}
+
+    own_cache = cache is None
+    cache = cache or Cache(config.cache.path)
+    try:
+        base: dict[str, Any] = dict(
+            request_text=request_text,
+            criteria=criteria,
+            guard=guard,
+            profile_name=config.profile_name,
+            config_hash=config.config_hash(),
+            generated_at=_now(),
+            fixture_data=cache.has_fixture_data,
+            offline=bool(config.cache.offline if offline is None else offline),
+            deviations=deviations,
+            scoring=explanation(config, eff),
+            llm_usage=llm_usage,
+            clarifications=questions,
+            selfcheck_status="not_evaluated",
+        )
+        if not guard.proceed:
+            return TriageResult(
+                **base,
+                cache_fingerprint=cache.fingerprint([]),
+                warnings=[guard.refusal_message or "request declined"],
+            )
+        if questions and not confirmed:
+            return TriageResult(
+                **base,
+                cache_fingerprint=cache.fingerprint([]),
+                needs_confirmation=True,
+                warnings=[
+                    "Run not started: confirmation needed for the questions listed under clarifications."
+                ],
+            )
+        status, block_msg = ("skipped", None) if skip_selfcheck else _selfcheck_gate(config, cache)
+        base["selfcheck_status"] = status
+        if block_msg:
+            return TriageResult(**base, cache_fingerprint=cache.fingerprint([]), warnings=[block_msg])
+
+        layer = DataLayer.from_config(config, cache=cache, offline=offline)
+        try:
+            records = layer.build_candidates()
+        finally:
+            layer.close()
+        ranked, excluded = rank(records, config, eff)
+        shortlist, beyond = ranked[: eff.top_k], ranked[eff.top_k :]
+
+        llm_usage["refute"] = refute(shortlist, eff, config, llm)
+        for sc in beyond + excluded:
+            sc.caveats = rule_caveats(sc, eff, config)
+        for sc in ranked:
+            sc.rationale = rationale_line(sc)
+
+        warnings = list(layer.warnings)
+        if status == "not_run" and not skip_selfcheck:
+            warnings.append(
+                "Self-check has not been run on this cache; run `oxide-triage selfcheck` before trusting results."
+            )
+        elif status == "failed":
+            warnings.append(
+                "Self-check FAILED on this cache (selfcheck.on_failure=warn). Treat this shortlist with suspicion."
+            )
+
+        base.update(fixture_data=cache.has_fixture_data, offline=layer.offline)
+        last = read_report(cache)
+        base["acquisition_summary"] = last.summary() if last else None
+        result = TriageResult(
+            **base,
+            cache_fingerprint=cache.fingerprint(),
+            shortlist=shortlist,
+            ranked_beyond_shortlist=beyond,
+            excluded=excluded,
+            n_candidates_considered=len(records),
+            warnings=warnings,
+        )
+        _log_deviations(config, result)
+        return result
+    finally:
+        if own_cache:
+            cache.close()
+
+
+def warm_cache(config: Config, cache: Cache | None = None) -> dict[str, object]:
+    """Fetch the candidate universe and every per-candidate record into the cache (online),
+    then run the self-check."""
+    own = cache is None
+    cache = cache or Cache(config.cache.path)
+    try:
+        layer = DataLayer.from_config(config, cache=cache, offline=False)
+        try:
+            records = layer.build_candidates()
+            report = run_acquisition(config, cache, layer=layer, records=records)
+            if report is not None and report.n_filled:
+                records = layer.build_candidates()
+        finally:
+            layer.close()
+        check = run_selfcheck(config, cache)
+        return {
+            "candidates": len(records),
+            "warnings": list(layer.warnings),
+            "sources": cache.sources_summary(),
+            "fixture_data": cache.has_fixture_data,
+            "acquisition": None if report is None else report.summary(),
+            "selfcheck": check.model_dump(),
+        }
+    finally:
+        if own:
+            cache.close()
+
+
+def load_fixtures(config: Config, cache: Cache | None = None) -> int:
+    own = cache is None
+    cache = cache or Cache(config.cache.path)
+    try:
+        n = load_fixture(cache, config)
+        run_selfcheck(config, cache)
+        return n
+    finally:
+        if own:
+            cache.close()
+
+
+def add_material(formula: str, config: Config, cache: Cache | None = None) -> dict[str, object]:
+    """On-demand acquisition: pull one compound's records from the public sources into the
+    universe (online only), then re-run the self-check. The fetched values are data like any
+    other row; nothing about them is chosen by whoever asked."""
+    own = cache is None
+    cache = cache or Cache(config.cache.path)
+    layer = None
+    try:
+        layer = DataLayer.from_config(config, cache=cache, offline=False)
+        allowed = set(load_cation_allowlist(config.candidates.cation_allowlist_file)) | {"O"}
+        try:
+            ids = layer.mp.fetch_by_formula(formula, allowed)
+        except SourceError as exc:
+            return {"formula": formula, "added": [], "error": str(exc)}
+        if not ids:
+            return {
+                "formula": formula,
+                "added": [],
+                "error": "no non-deprecated oxide entry with allowed elements found",
+            }
+        c = config.candidates
+        n_new = layer.mp.add_to_universe(
+            layer.cations,
+            c.max_elements_query,
+            c.energy_above_hull_ceiling_ev_atom,
+            c.min_reported_gap_ev,
+            ids,
+        )
+        # Build the per-candidate records now so the next query is answered from cache, then
+        # try alternative routes for whatever the first pass could not find.
+        records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
+        report = run_acquisition(config, cache, layer=layer, records=records)
+        if report is not None and report.n_filled:
+            records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
+        check = run_selfcheck(config, cache)
+        return {
+            "formula": formula,
+            "added": ids,
+            "new_to_universe": n_new,
+            "records": [
+                {
+                    "material_id": r.material_id,
+                    "formula": r.formula,
+                    "e_hull": r.stability.energy_above_hull_ev_atom,
+                    "band_gap": r.band_gap.value_ev,
+                    "functional": r.band_gap.functional,
+                    "dielectric": r.dielectric.status.value,
+                }
+                for r in records
+            ],
+            "acquisition": None if report is None else report.summary(),
+            "selfcheck_passed": check.passed,
+        }
+    finally:
+        if layer is not None:
+            layer.close()
+        if own:
+            cache.close()
+
+
+def run_acquisition(
+    config: Config,
+    cache: Cache | None = None,
+    layer: DataLayer | None = None,
+    records: list | None = None,
+    llm: LLMClient | None = None,
+) -> AcquisitionReport | None:
+    """Gap-filling pass over the cache (online only). Returns None when disabled or offline."""
+    if not config.acquisition.enabled:
+        return None
+    own = cache is None and layer is None
+    cache = cache or (layer.cache if layer else Cache(config.cache.path))
+    own_layer = layer is None
+    try:
+        layer = layer or DataLayer.from_config(config, cache=cache, offline=False)
+        if layer.offline:
+            return None
+        records = records if records is not None else layer.build_candidates()
+        planner = make_planner(config.acquisition.planner, llm or make_llm(config.llm))
+        report = fill_gaps(layer, records, planner=planner, budget=config.acquisition.budget)
+        log.info(
+            "acquisition: %d gaps, %d filled, %d unfillable, planner %s",
+            report.n_gaps,
+            report.n_filled,
+            len(report.unfillable),
+            report.planner,
+        )
+        return report
+    finally:
+        if own_layer and layer is not None:
+            layer.close()
+        if own:
+            cache.close()
+
+
+def criteria_only(request_text: str, config: Config) -> Criteria:
+    """Parse without running: handy for the UI to echo the interpretation live."""
+    table = load_hazard_table(config.toxicity.table_file)
+    return parse_request(request_text, config, table, make_llm(config.llm), blocked_by_policy(config, table))[
+        0
+    ]
