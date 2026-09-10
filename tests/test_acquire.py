@@ -66,6 +66,9 @@ def make_layer(
     layer.oqmd = OQMD(cache, 90, offline, http=http)  # type: ignore[arg-type]
     layer.openalex = OpenAlex(cache, 90, offline, http=http, sample_size=2)  # type: ignore[arg-type]
     layer.pubchem = PubChem(cache, 90, offline, http=http)  # type: ignore[arg-type]
+    # The fixture already holds real hull phases per element system, so the interface
+    # criterion never needs the network here; an empty page is the answer for anything else.
+    http.when("/materials/thermo/", None, {"data": []})
     return layer, cache
 
 

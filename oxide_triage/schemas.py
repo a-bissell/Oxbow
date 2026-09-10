@@ -15,9 +15,10 @@ from pydantic import BaseModel, Field
 
 SCOPE_LIMITATION = (
     "This system ranks on thermodynamic and electronic criteria computed from public "
-    "databases. Deposition feasibility, film morphology, substrate compatibility and "
-    "hygroscopic degradation under ambient handling are not modeled and must be assessed "
-    "by the experimentalist."
+    "databases, including the bulk thermodynamic stability of each oxide in contact with the "
+    "configured substrate. Deposition feasibility, reaction kinetics, interlayer formation, film "
+    "morphology, epitaxy and hygroscopic degradation under ambient handling are not modeled and "
+    "must be assessed by the experimentalist."
 )
 
 
@@ -133,6 +134,21 @@ class HazardRecord(BaseModel):
     provenance: Provenance | None = None
 
 
+class InterfaceRecord(BaseModel):
+    """Thermodynamic stability of the oxide in contact with a substrate, computed from the
+    convex hull of the oxide's elements plus the substrate's (see ``scoring/hull.py``).
+    ``reaction_energy_ev_atom`` is the most exothermic reaction found, 0 when none."""
+
+    substrate: str | None = None
+    reaction_energy_ev_atom: float | None = None
+    x_substrate: float | None = None  # atom fraction of substrate at the most exothermic point
+    products: list[str] = Field(default_factory=list)  # hull phases the pair would form
+    thermo_type: str | None = None
+    n_phases: int | None = None  # stable phases in the hull the answer came from
+    status: DataStatus = DataStatus.NOT_RETRIEVED
+    provenance: Provenance | None = None
+
+
 class CandidateRecord(BaseModel):
     material_id: str
     formula: str
@@ -147,6 +163,7 @@ class CandidateRecord(BaseModel):
     cross_check: CrossCheckRecord = Field(default_factory=CrossCheckRecord)
     literature: LiteratureRecord = Field(default_factory=LiteratureRecord)
     hazard: HazardRecord = Field(default_factory=HazardRecord)
+    interface: InterfaceRecord = Field(default_factory=InterfaceRecord)
     is_fixture: bool = False
 
 

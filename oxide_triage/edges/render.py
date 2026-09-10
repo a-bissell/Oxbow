@@ -55,6 +55,12 @@ def rationale_line(sc: ScoredCandidate) -> str:
         bits.append("dielectric constant not retrieved")
     else:
         bits.append("dielectric constant unknown")
+    iface = r.interface
+    if iface.status == DataStatus.KNOWN and iface.reaction_energy_ev_atom is not None:
+        if iface.reaction_energy_ev_atom >= -1e-9:
+            bits.append(f"stable against {iface.substrate}")
+        else:
+            bits.append(f"reacts with {iface.substrate} ({iface.reaction_energy_ev_atom:+.2f} eV/atom)")
     tier = r.hazard.worst_tier
     if tier == 0:
         bits.append("benign elements")

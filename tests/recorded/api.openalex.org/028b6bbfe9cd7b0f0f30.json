@@ -1,0 +1,52 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(BaZrO3 OR \"barium zirconate\")",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 3188,
+   "db_response_time_ms": 50,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (BaZrO3 or stemmed \"barium zirconate\")",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "BaZrO3"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"barium zirconate\""
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:BaZrO3|%22barium zirconate%22&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1116/1.591472",
+    "id": "https://openalex.org/W2019017977",
+    "publication_year": 2000,
+    "title": "Band offsets of wide-band-gap oxides and implications for future electronic devices"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

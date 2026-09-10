@@ -82,11 +82,15 @@ Ideas / planned work for this project.
       saturation went from 50 to 500 thin-film works because the brief asks for public evidence
       and the first curve gave HfO2 (6,975) and LaScO3 (29) the same score. README walks the
       live ranking under both.
-- [ ] **Interface stability with silicon as a criterion** — the discriminator the top of the
-      list lacks. Materials Project's interface-reactions endpoint is gone from the current API,
-      but the chemsys thermo entries (e.g. Hf-O-Si) are public, so the reaction energy of an
-      oxide with Si against the hull is computable here. Needs a small convex-hull routine
-      without pymatgen.
+- [x] **Interface stability with silicon as a criterion** — done 2026-09-10
+      (`interface`, weight 0.15; `scoring/hull.py`, numpy + scipy `linprog`): the most
+      exothermic reaction of the oxide with the configured substrate against the Materials
+      Project hull of oxide + substrate, one cached hull per element system (217 for the live
+      universe, fetched in a minute). Reproduces Hubbard & Schlom 1996: HfO2, Al2O3, Y2O3, LaAlO3,
+      SrHfO3 at 0 against Si; ZrO2 inside the 0.05 eV/atom DFT tolerance; Ta2O5, TiO2, the
+      titanates react and the caveat names the products. Follow-ups:
+      - [ ] Let a request name the substrate ("on germanium", "on SrTiO3").
+      - [ ] Multi-substrate view: the same shortlist against Si, Ge and a perovskite side by side.
 
 ## Known limitations (by design, not planned work)
 

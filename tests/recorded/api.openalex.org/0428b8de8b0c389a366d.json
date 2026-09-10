@@ -1,0 +1,42 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Y3TaO7)",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 31,
+   "db_response_time_ms": 13,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (Y3TaO7)",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "(Y3TaO7)"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:%28Y3TaO7%29&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/0022-4596(79)90150-6",
+    "id": "https://openalex.org/W1596474702",
+    "publication_year": 1979,
+    "title": "Fluorite-related phases Ln3MO7, Ln = rare earth, Y or Sc, M = Nb, Sb, or Ta"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

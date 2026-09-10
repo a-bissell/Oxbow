@@ -29,11 +29,13 @@ from oxide_triage.schemas import (
     DataStatus,
     DielectricRecord,
     HazardRecord,
+    InterfaceRecord,
     LiteratureRecord,
     Provenance,
     StabilityRecord,
     WorkRef,
 )
+from oxide_triage.scoring.hull import interface_reaction, parse_formula
 from oxide_triage.sources.base import Http, SourceError, status_for
 from oxide_triage.sources.hazards import hazard_record
 from oxide_triage.sources.materials_project import THERMO_FUNCTIONAL_LABEL, MaterialsProject
@@ -294,6 +296,7 @@ class DataLayer:
                 if doc and doc.get("formula_pretty") and doc["formula_pretty"] not in formulas:
                     formulas.append(str(doc["formula_pretty"]))
             self.mp.prefetch_run_types(task_ids)
+            self.prefetch_interface_systems(ids)
             self.prefetch_formula_sources(
                 formulas,
                 workers=self.config.candidates.fetch_workers,
@@ -415,6 +418,7 @@ class DataLayer:
         names = self.aliases.get(formula, [])
         literature = self._literature(formula, names, is_fixture, fetch=warm)
         hazard = self._hazard(elements, formula, names, fetch=warm)
+        interface = self._interface(formula, elements, is_fixture, fetch=not self.offline)
 
         return CandidateRecord(
             material_id=mid,
@@ -430,7 +434,86 @@ class DataLayer:
             cross_check=cross,
             literature=literature,
             hazard=hazard,
+            interface=interface,
             is_fixture=is_fixture,
+        )
+
+    # ---- interface stability (hull of oxide + substrate, from MP thermo) ----------------
+
+    def _interface_system(self, elements: list[str]) -> list[str]:
+        return sorted(set(elements) | set(parse_formula(self.config.interface.substrate)))
+
+    def prefetch_interface_systems(self, material_ids: list[str]) -> dict[str, int]:
+        """One hull per element system (plus the substrate), batched. Cheap on MP and
+        shared by every polymorph and every compound in the same system."""
+        if self.offline:
+            return {}
+        systems: dict[str, list[str]] = {}
+        for mid in material_ids:
+            doc, _ = self.mp.summary(mid)
+            if doc:
+                sys_ = self._interface_system([str(e) for e in doc.get("elements", [])])
+                systems["-".join(sys_)] = sys_
+        counts = self.mp.prefetch_thermo(list(systems.values()), self.config.interface.thermo_type)
+        if counts.get("fetched") or counts.get("failed"):
+            log.info(
+                "interface hulls: %d systems fetched, %d failed",
+                counts.get("fetched", 0),
+                counts.get("failed", 0),
+            )
+        return counts
+
+    def _interface(self, formula: str, elements: list[str], is_fixture: bool, fetch: bool) -> InterfaceRecord:
+        cfg = self.config.interface
+        system = self._interface_system(elements)
+        if fetch:
+            payload, ts, fetch_status = self.mp.stable_phases(system, cfg.thermo_type)
+        else:
+            payload, ts, fetch_status = self.mp.stable_phases_cached(system)
+        prov = Provenance(
+            source="fixture" if is_fixture else self.mp.name,
+            source_id="-".join(system),
+            retrieved_at=ts,
+            url=None if is_fixture else "https://api.materialsproject.org/materials/thermo/",
+            note=(
+                "synthetic fixture record; hull phases are real MP thermo data"
+                if is_fixture
+                else f"convex hull of {'-'.join(system)} ({cfg.thermo_type}), stable phases only"
+            ),
+        )
+        if not payload or not payload.get("phases"):
+            status = status_for(fetch_status, False)
+            return InterfaceRecord(
+                substrate=cfg.substrate,
+                status=status,
+                provenance=prov.model_copy(
+                    update={
+                        "note": _why(
+                            status,
+                            f"MP holds no hull phases for {'-'.join(system)}",
+                            f"hull for {'-'.join(system)} never fetched here ({fetch_status})",
+                        )
+                    }
+                ),
+            )
+        outcome = interface_reaction(formula, dict(payload["phases"]), cfg.substrate)
+        if outcome is None:
+            return InterfaceRecord(
+                substrate=cfg.substrate,
+                status=DataStatus.ABSENT,
+                provenance=prov.model_copy(
+                    update={"note": f"substrate {cfg.substrate} is not a hull phase in this system"}
+                ),
+            )
+        return InterfaceRecord(
+            substrate=cfg.substrate,
+            reaction_energy_ev_atom=outcome.reaction_energy_ev_atom,
+            x_substrate=outcome.x_substrate,
+            products=outcome.products,
+            thermo_type=str(payload.get("thermo_type") or cfg.thermo_type),
+            n_phases=outcome.n_phases,
+            status=DataStatus.KNOWN,
+            provenance=prov,
         )
 
     # ---- formula-keyed records (OQMD, OpenAlex, PubChem) ------------------------------
@@ -563,6 +646,7 @@ class DataLayer:
             record.cross_check.status is DataStatus.NOT_RETRIEVED
             or record.literature.status is DataStatus.NOT_RETRIEVED
             or record.hazard.pubchem_status is DataStatus.NOT_RETRIEVED
+            or record.interface.status is DataStatus.NOT_RETRIEVED
         )
 
     def fill_formula_sources(
@@ -585,6 +669,15 @@ class DataLayer:
             if formulas
             else {}
         )
+        if any(r.interface.status is DataStatus.NOT_RETRIEVED for r in todo):
+            self.mp.prefetch_thermo(
+                [
+                    self._interface_system(r.elements)
+                    for r in todo
+                    if r.interface.status is DataStatus.NOT_RETRIEVED
+                ],
+                self.config.interface.thermo_type,
+            )
         out: list[CandidateRecord] = []
         for r in records:
             if not self.needs_formula_sources(r):
@@ -608,7 +701,14 @@ class DataLayer:
             hazard = r.hazard
             if hazard.pubchem_status is DataStatus.NOT_RETRIEVED:
                 hazard = self._hazard(r.elements, r.formula, names, fetch=True)
-            out.append(r.model_copy(update={"cross_check": cross, "literature": lit, "hazard": hazard}))
+            iface = r.interface
+            if iface.status is DataStatus.NOT_RETRIEVED:
+                iface = self._interface(r.formula, r.elements, r.is_fixture, fetch=True)
+            out.append(
+                r.model_copy(
+                    update={"cross_check": cross, "literature": lit, "hazard": hazard, "interface": iface}
+                )
+            )
         counts["resolved"] = sum(1 for r in out if not self.needs_formula_sources(r))
         return out, counts
 

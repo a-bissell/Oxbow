@@ -11,6 +11,7 @@ weights:
   stability: 0.20
   band_gap: 0.10
   dielectric: 0.35
+  interface: 0.10
   toxicity: 0.10
   simplicity: 0.05
   literature: 0.20

@@ -1,0 +1,155 @@
+{
+ "params": {
+  "composition": "Mg2SiO4",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -2.69385593954977,
+    "entry_id": 5356,
+    "name": "Mg2SiO4",
+    "spacegroup": "I4/mmm",
+    "stability": 0.38481145821427987
+   },
+   {
+    "delta_e": -2.90730393669262,
+    "entry_id": 5355,
+    "name": "Mg2SiO4",
+    "spacegroup": "Pbam",
+    "stability": 0.17136346107142986
+   },
+   {
+    "delta_e": -3.01278179740691,
+    "entry_id": 5352,
+    "name": "Mg2SiO4",
+    "spacegroup": "Fd-3m",
+    "stability": 0.06588560035713975
+   },
+   {
+    "delta_e": -3.01255874669262,
+    "entry_id": 5354,
+    "name": "Mg2SiO4",
+    "spacegroup": "C2/m",
+    "stability": 0.06610865107142994
+   },
+   {
+    "delta_e": -3.07866739776405,
+    "entry_id": 2545,
+    "name": "Mg2SiO4",
+    "spacegroup": "Pnma",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.03276211562119,
+    "entry_id": 11777,
+    "name": "Mg2SiO4",
+    "spacegroup": "Imma",
+    "stability": 0.04590528214286005
+   },
+   {
+    "delta_e": -3.03242676812119,
+    "entry_id": 22512,
+    "name": "Mg2SiO4",
+    "spacegroup": "C2/m",
+    "stability": 0.04624062964286013
+   },
+   {
+    "delta_e": -2.93098804169262,
+    "entry_id": 5353,
+    "name": "Mg2SiO4",
+    "spacegroup": "P2/m",
+    "stability": 0.1476793560714298
+   },
+   {
+    "delta_e": -2.85203901812119,
+    "entry_id": 40405,
+    "name": "Mg2SiO4",
+    "spacegroup": "C2/m",
+    "stability": 0.2266283796428601
+   },
+   {
+    "delta_e": -3.07368496454977,
+    "entry_id": 73555,
+    "name": "Mg2SiO4",
+    "spacegroup": "Pnma",
+    "stability": 0.0049824332142800465
+   },
+   {
+    "delta_e": -2.73411043276405,
+    "entry_id": 73551,
+    "name": "Mg2SiO4",
+    "spacegroup": "Imma",
+    "stability": 0.34455696499999977
+   },
+   {
+    "delta_e": -3.07191182347834,
+    "entry_id": 1280735,
+    "name": "Mg2SiO4",
+    "spacegroup": "Pnma",
+    "stability": 0.006755574285710164
+   },
+   {
+    "delta_e": -3.01271337740691,
+    "entry_id": 1283764,
+    "name": "Mg2SiO4",
+    "spacegroup": "Fd-3m",
+    "stability": 0.06595402035714004
+   },
+   {
+    "delta_e": -2.990335340264051,
+    "entry_id": 1819155,
+    "name": "Mg2SiO4",
+    "spacegroup": "Fddd",
+    "stability": 0.08833205749999884
+   },
+   {
+    "delta_e": -2.8660407595497657,
+    "entry_id": 2015838,
+    "name": "Mg2SiO4",
+    "spacegroup": "Cmc21",
+    "stability": 0.2126266382142843
+   },
+   {
+    "delta_e": -3.009245505978337,
+    "entry_id": 2016052,
+    "name": "Mg2SiO4",
+    "spacegroup": "I-42d",
+    "stability": 0.06942189178571301
+   },
+   {
+    "delta_e": -2.94413911633548,
+    "entry_id": 2046603,
+    "name": "Mg2SiO4",
+    "spacegroup": "P1",
+    "stability": 0.13452828142856976
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 17,
+   "data_returned": 17,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Mg2SiO4&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 16:11:10"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

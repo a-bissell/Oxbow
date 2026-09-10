@@ -1,0 +1,162 @@
+{
+ "params": {
+  "composition": "YAlO3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.47172005552725,
+    "entry_id": 5235,
+    "name": "YAlO3",
+    "spacegroup": "P63/mmc",
+    "stability": 0.10489235030000055
+   },
+   {
+    "delta_e": -3.43652663252725,
+    "entry_id": 352578,
+    "name": "YAlO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.1400857733000005
+   },
+   {
+    "delta_e": -1.54607975252725,
+    "entry_id": 353107,
+    "name": "YAlO3",
+    "spacegroup": "Pm-3m",
+    "stability": 2.0305326533000003
+   },
+   {
+    "delta_e": -3.55769735102725,
+    "entry_id": 14913,
+    "name": "YAlO3",
+    "spacegroup": "Pnma",
+    "stability": 0.01891505480000033
+   },
+   {
+    "delta_e": -3.43425641452725,
+    "entry_id": 680264,
+    "name": "YAlO3",
+    "spacegroup": "P4mm",
+    "stability": 0.14235599130000054
+   },
+   {
+    "delta_e": -3.40287926652725,
+    "entry_id": 678647,
+    "name": "YAlO3",
+    "spacegroup": "R-3",
+    "stability": 0.17373313930000034
+   },
+   {
+    "delta_e": -3.40282779152725,
+    "entry_id": 678648,
+    "name": "YAlO3",
+    "spacegroup": "R-3",
+    "stability": 0.17378461430000058
+   },
+   {
+    "delta_e": -3.32358617802725,
+    "entry_id": 681885,
+    "name": "YAlO3",
+    "spacegroup": "Pnma",
+    "stability": 0.2530262278000004
+   },
+   {
+    "delta_e": -3.55969178202725,
+    "entry_id": 681884,
+    "name": "YAlO3",
+    "spacegroup": "Pnma",
+    "stability": 0.016920623800000367
+   },
+   {
+    "delta_e": -3.32414019052725,
+    "entry_id": 825406,
+    "name": "YAlO3",
+    "spacegroup": "R-3c",
+    "stability": 0.2524722153000005
+   },
+   {
+    "delta_e": -3.53304757152725,
+    "entry_id": 827328,
+    "name": "YAlO3",
+    "spacegroup": "R-3c",
+    "stability": 0.04356483430000058
+   },
+   {
+    "delta_e": -3.49148287719392,
+    "entry_id": 1289749,
+    "name": "YAlO3",
+    "spacegroup": "P63cm",
+    "stability": 0.08512952863333023
+   },
+   {
+    "delta_e": -3.326284696527252,
+    "entry_id": 1523802,
+    "name": "YAlO3",
+    "spacegroup": "R-3c",
+    "stability": 0.25032770929999826
+   },
+   {
+    "delta_e": -3.437967148527253,
+    "entry_id": 1710060,
+    "name": "YAlO3",
+    "spacegroup": "R-3m",
+    "stability": 0.13864525729999722
+   },
+   {
+    "delta_e": -3.5336618605272525,
+    "entry_id": 1710964,
+    "name": "YAlO3",
+    "spacegroup": "Imma",
+    "stability": 0.042950545299997867
+   },
+   {
+    "delta_e": -3.533704541527252,
+    "entry_id": 1711034,
+    "name": "YAlO3",
+    "spacegroup": "Imma",
+    "stability": 0.042907864299998266
+   },
+   {
+    "delta_e": -3.512221925527252,
+    "entry_id": 1713141,
+    "name": "YAlO3",
+    "spacegroup": "I4/mcm",
+    "stability": 0.06439048029999839
+   },
+   {
+    "delta_e": -3.4375567685272523,
+    "entry_id": 1719160,
+    "name": "YAlO3",
+    "spacegroup": "P4/mmm",
+    "stability": 0.13905563729999804
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 18,
+   "data_returned": 18,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=YAlO3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 16:08:17"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}
