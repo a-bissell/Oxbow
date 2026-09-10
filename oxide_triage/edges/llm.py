@@ -69,13 +69,16 @@ class AnthropicLLM:
 
     def complete_json(self, system: str, user: str, schema: dict[str, Any]) -> dict[str, Any] | None:
         try:
-            resp = self._client.messages.create(
+            # Streamed even for short answers: it is the SDK's recommended default and it is not
+            # subject to the response-decompression path that non-streaming calls go through.
+            with self._client.messages.stream(
                 model=self.model,
                 max_tokens=4096,
                 system=f"{SYSTEM_PREAMBLE}\n\n{system}",
                 messages=[{"role": "user", "content": user}],
                 output_config={"format": {"type": "json_schema", "schema": schema}},
-            )
+            ) as stream:
+                resp = stream.get_final_message()
         except self._anthropic.APIError as exc:
             log.warning("Anthropic call failed: %s", exc)
             return None

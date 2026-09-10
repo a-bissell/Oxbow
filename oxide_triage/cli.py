@@ -12,6 +12,7 @@ oxide-triage profiles
 oxide-triage cache-status
 oxide-triage eval                  # runs the evaluation suite
 oxide-triage mcp [--transport http]  # MCP server for Claude Desktop / Cowork / Cursor
+oxide-triage serve                 # web app: the assistant and the admin panel on http://127.0.0.1:8000
 """
 
 from __future__ import annotations
@@ -386,3 +387,31 @@ def mcp(
 
 if __name__ == "__main__":  # pragma: no cover
     app()
+
+
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", "--host", help="Bind address (0.0.0.0 inside a container)."),
+    port: int = typer.Option(8000, "--port"),
+    offline: bool | None = typer.Option(
+        None, "--offline/--online", help="Force cache-only or allow fetches."
+    ),
+    open_browser: bool = typer.Option(False, "--open", help="Open the app in a browser once serving."),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Serve the web app: the assistant, the results canvas and the admin panel."""
+    _setup_logging(verbose)
+    try:
+        import uvicorn
+
+        from oxide_triage.server.app import create_app
+    except ImportError as exc:  # pragma: no cover
+        typer.echo(f"The web app needs the 'web' extra: pip install -e '.[web]' ({exc})", err=True)
+        raise typer.Exit(2) from exc
+    if open_browser:
+        import threading
+        import webbrowser
+
+        threading.Timer(1.0, lambda: webbrowser.open(f"http://{host}:{port}")).start()
+    typer.echo(f"Oxide Triage on http://{host}:{port}  (API docs at /api/docs)")
+    uvicorn.run(create_app(offline=offline), host=host, port=port, log_level="info" if verbose else "warning")

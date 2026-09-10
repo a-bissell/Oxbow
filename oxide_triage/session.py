@@ -132,7 +132,9 @@ def explain_candidate(result: TriageResult, key: str) -> str:
     return "\n".join(lines)
 
 
-def apply_changes(criteria: Criteria, changes: dict[str, Any]) -> tuple[Criteria, list[str]]:
+def apply_changes(
+    criteria: Criteria, changes: dict[str, Any], note_prefix: str = "rerun"
+) -> tuple[Criteria, list[str]]:
     """Return new criteria with ``changes`` applied, plus notes describing each change.
     Unknown keys are rejected so a client cannot reach fields the schema does not expose."""
     unknown = sorted(set(changes) - CHANGEABLE)
@@ -150,7 +152,7 @@ def apply_changes(criteria: Criteria, changes: dict[str, Any]) -> tuple[Criteria
             data[k] = {**data.get(k, {}), **{kk: float(vv) for kk, vv in v.items()}}
         else:
             data[k] = v
-        notes.append(f"rerun: {k} = {v!r}")
+        notes.append(f"{note_prefix}: {k} = {v!r}")
     data["interpretation_notes"] = list(criteria.interpretation_notes) + notes
     return Criteria.model_validate(data), notes
 
@@ -181,3 +183,105 @@ def clarifications(
             + "). Proceed with the triage part only?"
         )
     return qs
+
+
+def compare_candidates(result: TriageResult, keys: list[str]) -> str:
+    """Side-by-side gates and score components for two or more candidates of one result."""
+    picked: list[ScoredCandidate] = []
+    missing: list[str] = []
+    for k in keys:
+        sc = find_candidate(result, k)
+        (picked if sc is not None else missing).append(sc if sc is not None else k)  # type: ignore[arg-type]
+    if missing:
+        known = sorted({s.record.formula for s in all_candidates(result)})
+        return f"No candidate {', '.join(missing)} in this result. Known formulas: {', '.join(known)}"
+    if len(picked) < 2:
+        return "Name at least two candidates to compare."
+    heads = [f"{sc.record.formula} ({sc.record.material_id})" for sc in picked]
+    lines = ["# Comparison: " + " vs ".join(sc.record.formula for sc in picked), ""]
+    if result.fixture_data:
+        lines.append("> SYNTHETIC FIXTURE DATA: every value below is illustrative.")
+        lines.append("")
+    lines.append("| | " + " | ".join(heads) + " |")
+    lines.append("|---|" + "---|" * len(picked))
+
+    def row(label: str, cells: list[str]) -> None:
+        lines.append(f"| {label} | " + " | ".join(cells) + " |")
+
+    row("rank", [str(sc.rank) if sc.rank else "excluded" for sc in picked])
+    row("adjusted score", ["—" if sc.adjusted_score is None else f"{sc.adjusted_score:.4f}" for sc in picked])
+    row("confidence", [sc.confidence for sc in picked])
+    row("data coverage", [f"{sc.data_coverage:.0%}" for sc in picked])
+    names = list(dict.fromkeys(c.criterion for sc in picked for c in sc.components))
+    for name in names:
+        cells = []
+        for sc in picked:
+            c = next((x for x in sc.components if x.criterion == name), None)
+            if c is None:
+                cells.append("—")
+            elif c.contribution is None:
+                cells.append(f"{c.raw_label} ({c.status.value})")
+            else:
+                cells.append(f"{c.raw_label} → {c.contribution:.4f}")
+        row(name, cells)
+    gates = list(dict.fromkeys(g.gate for sc in picked for g in sc.gates))
+    for gate in gates:
+        cells = []
+        for sc in picked:
+            g = next((x for x in sc.gates if x.gate == gate), None)
+            if g is None:
+                cells.append("—")
+            else:
+                res = "pass" if g.passed else ("indeterminate" if g.passed is None else "FAIL")
+                cells.append(f"{g.observed_label} · {res}")
+        row(f"gate: {gate}", cells)
+    lines.append("")
+    for sc in picked:
+        top = [c for c in sc.caveats if c.code != "fixture_data"][:2]
+        if top:
+            lines.append(
+                f"{sc.record.formula} caveats: " + "; ".join(f"[{c.severity}] {c.text}" for c in top)
+            )
+    diffs = []
+    a, b = picked[0], picked[1]
+    for ca in a.components:
+        cb = next((x for x in b.components if x.criterion == ca.criterion), None)
+        if cb and ca.contribution is not None and cb.contribution is not None:
+            diffs.append(
+                (abs(ca.contribution - cb.contribution), ca.criterion, ca.contribution - cb.contribution)
+            )
+    if diffs:
+        diffs.sort(reverse=True)
+        d, crit, delta = diffs[0]
+        lead = a.record.formula if delta > 0 else b.record.formula
+        lines.append("")
+        lines.append(
+            f"Largest difference between {a.record.formula} and {b.record.formula}: {crit} "
+            f"({d:.4f} in favour of {lead})."
+        )
+    return "\n".join(lines)
+
+
+def list_candidates(result: TriageResult, section: str = "shortlist", limit: int = 25) -> str:
+    """Compact listing of one section of a result: shortlist | beyond | excluded."""
+    if section == "shortlist":
+        rows = result.shortlist
+    elif section in {"beyond", "ranked_beyond_shortlist"}:
+        rows = result.ranked_beyond_shortlist
+    elif section == "excluded":
+        rows = result.excluded
+    else:
+        return "section must be one of shortlist, beyond, excluded"
+    if not rows:
+        return f"No candidates in section '{section}'."
+    lines = [f"{section}: {len(rows)} candidates" + (f", first {limit}" if len(rows) > limit else "")]
+    for sc in rows[:limit]:
+        r = sc.record
+        if sc.excluded:
+            lines.append(f"- {r.formula} ({r.material_id}): excluded, " + "; ".join(sc.exclusion_reasons))
+        else:
+            score = "—" if sc.adjusted_score is None else f"{sc.adjusted_score:.3f}"
+            lines.append(
+                f"- #{sc.rank} {r.formula} ({r.material_id}): score {score}, confidence {sc.confidence}"
+            )
+    return "\n".join(lines)

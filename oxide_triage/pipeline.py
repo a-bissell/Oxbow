@@ -35,7 +35,7 @@ from oxide_triage.schemas import CandidateRecord, Criteria, GuardDecision, Scope
 from oxide_triage.scoring.core import explanation, rank, retrieval_completeness
 from oxide_triage.scoring.settings import blocked_by_policy, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
-from oxide_triage.session import clarifications
+from oxide_triage.session import apply_changes, clarifications
 from oxide_triage.sources.assemble import DataLayer
 from oxide_triage.sources.base import SourceError
 from oxide_triage.sources.fixtures import load_fixture
@@ -135,6 +135,7 @@ def run_triage(
     skip_selfcheck: bool = False,
     http: Any | None = None,
     progress: ProgressFn | None = None,
+    overrides: dict[str, Any] | None = None,
 ) -> TriageResult:
     """Run one triage request.
 
@@ -142,7 +143,10 @@ def run_triage(
     on the original text). ``confirmed=False`` makes the run stop and return its clarification
     questions instead of a shortlist whenever there are any. ``http`` replaces every client's
     transport (a replay of recorded responses in tests). ``progress`` observes the stages of a
-    run (see ``oxide_triage.progress``) and cannot affect the result.
+    run (see ``oxide_triage.progress``) and cannot affect the result. ``overrides`` are
+    criteria fields set by a front end's controls (shortlist length, gates, families) and are
+    applied after parsing through the same validated path as a rerun, so they surface as
+    deviations like anything else the request changes.
     """
     table = load_hazard_table(config.toxicity.table_file)
     llm = llm or make_llm(config.llm)
@@ -153,12 +157,21 @@ def run_triage(
         criteria, parser_label = parse_request(request_text, config, table, llm, blocked)
     else:
         parser_label = "supplied (rerun)"
+    asked = criteria  # what the request itself says: only that needs confirming
+    if overrides:
+        # Values set on a front end's controls were chosen deliberately, so they are applied
+        # without a clarification question; they still surface as deviations on the result.
+        criteria, _ = apply_changes(criteria, overrides, note_prefix="scope")
     if not criteria.families and config.candidates.default_families:
         criteria.families = list(config.candidates.default_families)
     if template:
         criteria.output_template = template  # type: ignore[assignment]
     eff, deviations = resolve(config, criteria, table)
-    questions = clarifications(criteria, deviations, guard, config)
+    if overrides:
+        _, asked_devs = resolve(config, asked, table)
+        questions = clarifications(asked, asked_devs, guard, config)
+    else:
+        questions = clarifications(criteria, deviations, guard, config)
     llm_usage = {"parse": parser_label, "refute": "not run", "render": "templates only"}
 
     own_cache = cache is None
