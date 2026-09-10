@@ -185,8 +185,9 @@ docker compose -f docker/compose.yml run --rm app oxide-triage warm-cache   # ~m
 ```
 
 The cache lives in a named volume (`/data/cache.sqlite`). `./config` is mounted read-only so
-profiles can be edited on the host without rebuilding. Once warmed, the container runs fully
-offline (`OXIDE_TRIAGE_OFFLINE=1`).
+profiles can be edited on the host without rebuilding; the Admin page's site overrides go to
+`/data/site.yaml` in the same volume (`OXIDE_TRIAGE_ADMIN=1 docker compose ...` to enable
+editing). Once warmed, the container runs fully offline (`OXIDE_TRIAGE_OFFLINE=1`).
 
 ### Install without Docker
 
@@ -204,6 +205,8 @@ Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache p
 | `ANTHROPIC_API_KEY` | only if `LLM_PROVIDER=anthropic` | https://console.anthropic.com |
 | `LLM_BASE_URL`, `LLM_MODEL` | only if `LLM_PROVIDER=openai_compatible` | your vLLM/Ollama endpoint |
 | `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT` | MCP server defaults (`stdio`, `127.0.0.1`, `8765`) | — |
+| `OXIDE_TRIAGE_ADMIN` | `1` enables editing and cache operations on the Admin page (read-only otherwise) | — |
+| `OXIDE_TRIAGE_SITE_CONFIG` | path of the site overrides file (default `site.yaml` next to the cache; `off` disables) | — |
 
 Keys are read from the environment. A `.env` file in the current directory or the repository root
 is loaded automatically by the CLI, the app and the MCP server (existing environment variables win).
@@ -291,6 +294,21 @@ Fetch pressure on the public sources is set per source under `candidates.fetch` 
 the warm's thread pool, `max_rps` for a request-rate cap that also covers retries and the
 per-query literature fill); the defaults are what OQMD, PubChem and OpenAlex tolerated in practice.
 
+A site changes any of it without touching those files. The app's **Admin** page (and a hand
+edit) writes a generated **site overrides file**, `site.yaml` next to the cache (`data/site.yaml`;
+`/data/site.yaml` in Docker; `OXIDE_TRIAGE_SITE_CONFIG` to relocate it, `off` to disable it).
+Its `base` section is applied as if `default.yaml` had been edited, its `profiles.<name>` sections
+as if that profile file had been; environment variables still win over both. The page shows every
+value beside what it falls back to and where that comes from, validates the result and shows the
+ranking hash before and after, and re-runs the self-check when the policy moved. A site change to
+the ranking policy prints a `site` deviation on every result, like a request or profile deviation
+does. `oxide-triage config --changed-only` lists what the site file changes and `oxide-triage
+doctor` reports the file. Editing and the page's cache operations need `OXIDE_TRIAGE_ADMIN=1`;
+without it the page is read-only. There is no per-user login: with the flag set, anyone who can
+reach the port can change the site policy, so keep it off on a shared network or put an
+authenticating proxy in front. `data/` is git-ignored, so version the file by downloading it from
+the page or by pointing `OXIDE_TRIAGE_SITE_CONFIG` at a tracked path.
+
 Profiles in `config/profiles/` are partial overrides:
 
 | Profile | What it changes |
@@ -300,8 +318,9 @@ Profiles in `config/profiles/` are partial overrides:
 | `ferroelectric-research` | gap ≥ 2.5 eV, **Pb and Bi permitted** (surfaced as a deviation on every run), dielectric weighted 0.35, audit view default |
 
 `oxide-triage profiles` prints the effective gates and weights of each. Any run that departs from
-the shipped policy (profile allowlist, request-level threshold change, lifted hazard block) prints
-the deviation in the output header and appends it to `deviations.jsonl` next to the cache.
+the shipped policy (profile allowlist, site override, request-level threshold change, lifted
+hazard block) prints the deviation in the output header and appends it to `deviations.jsonl` next
+to the cache; the Admin page shows that log.
 
 Templates are files in `oxide_triage/templates/*.md.j2` and can be edited without touching Python.
 
@@ -375,7 +394,7 @@ from it carries the fixture banner.
 
 ```bash
 pip install -e ".[all]"
-pytest                       # 175 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, chat agent, acquisition, HTML report, record/replay
+pytest                       # 195 tests: scoring core, guard, config + site overrides, refutation, pipeline, injection, session, self-check, MCP, chat agent, admin page, acquisition, HTML report, record/replay
 ruff check . && ruff format .
 python -m eval.run_eval      # evaluation report -> eval/output/report.md
 jupyter lab eval/evaluation.ipynb
@@ -386,7 +405,8 @@ jupyter lab eval/evaluation.ipynb
 ```
 oxide_triage/
   schemas.py          typed contracts; UNKNOWN is a first-class data state
-  config.py           YAML loading, profiles, env overrides, curated tables
+  config.py           YAML loading, profiles, site overrides file, env overrides, provenance, curated tables
+  doctor.py           environment (keys masked), site file, source probes, deviations log (CLI + Admin page)
   cache.py            SQLite cache with timestamps, fixture flag, fingerprint
   sources/            materials_project, oqmd, openalex, pubchem, hazards, assemble, fixtures
   scoring/            bandgap correction, settings resolution, gates + components + ranking
@@ -401,7 +421,8 @@ oxide_triage/
   acquire.py          adaptive acquisition: gaps -> allowlisted routes -> report
   formula.py          formula parsing for cross-database stoichiometry matching
   mcp_server.py       MCP tools/resources for Claude Desktop, Cowork, Cursor
-  cli.py, app.py      Typer CLI, Streamlit entry point (pages in ui/: sidebar, triage_page, agent_page, report_cards)
+  cli.py, app.py      Typer CLI, Streamlit entry point (pages in ui/: sidebar, triage_page, agent_page,
+                      report_cards, admin_page, admin_form)
   templates/          pi_summary.md.j2, audit.md.j2, report.html.j2
   evaluation.py       the five evaluation checks (also `python -m eval.run_eval`)
   data/               element_hazards.yaml, cation_allowlist.yaml, compound_aliases.yaml,

@@ -1,7 +1,15 @@
-"""Configuration: one YAML, named profiles, environment overrides, validated schema.
+"""Configuration: one YAML, named profiles, a site overrides file, environment overrides,
+validated schema.
 
 Loading order (later wins):
-    config/default.yaml  ->  config/profiles/<name>.yaml  ->  env vars  ->  CLI/request overrides
+    config/default.yaml -> site.base -> config/profiles/<name>.yaml -> site.profiles[<name>]
+                        -> env vars -> CLI/request overrides
+
+The shipped YAML files are never written by the application. A site's edits (made on the
+Admin page, or by hand) live in one generated file, ``site.yaml`` next to the cache:
+``base`` holds edits to default.yaml, ``profiles.<name>`` edits to that profile file. Every
+site departure from the shipped policy is recorded on the loaded ``Config`` and surfaced as a
+deviation on every run, and the self-check judges the policy actually in force.
 
 Every deviation from the base profile that a *request* introduces is recorded separately
 (see ``pipeline.apply_criteria``) so it can be surfaced in the output header.
@@ -12,18 +20,38 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import logging
 import os
 import re
+from collections.abc import Collection, Iterable
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, get_origin
 
 import yaml
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic.fields import FieldInfo
+
+log = logging.getLogger(__name__)
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 DATA_DIR = PACKAGE_DIR / "data"
 REPO_ROOT = PACKAGE_DIR.parent
 DEFAULT_CONFIG_DIR = REPO_ROOT / "config"
+
+SITE_CONFIG_ENV = "OXIDE_TRIAGE_SITE_CONFIG"
+ADMIN_ENV = "OXIDE_TRIAGE_ADMIN"
+TRUTHY = {"1", "true", "yes", "on"}
+
+# Dotted config path -> environment variable that overrides it. The single source of truth for
+# ``_env_overrides`` and for the Admin page, which disables these fields while the variable is set.
+ENV_KEYS: dict[str, str] = {
+    "cache.path": "OXIDE_TRIAGE_CACHE",
+    "cache.offline": "OXIDE_TRIAGE_OFFLINE",
+    "llm.provider": "LLM_PROVIDER",
+    "llm.model": "LLM_MODEL",
+    "llm.base_url": "LLM_BASE_URL",
+}
 
 CRITERIA = ("stability", "band_gap", "dielectric", "toxicity", "simplicity", "literature")
 
@@ -201,6 +229,14 @@ class AgentConfig(BaseModel):
     tool_result_max_chars: int = Field(default=20000, ge=1000)  # tool output shown to the model
 
 
+class SiteOverride(BaseModel):
+    """One leaf the site file changed relative to the shipped configuration."""
+
+    key: str  # dotted path, e.g. gates.min_band_gap_ev
+    shipped: Any = None
+    value: Any = None
+
+
 class Config(BaseModel):
     profile_name: str
     description: str = ""
@@ -221,6 +257,9 @@ class Config(BaseModel):
     selfcheck: SelfCheckConfig = Field(default_factory=SelfCheckConfig)
     acquisition: AcquisitionConfig = Field(default_factory=AcquisitionConfig)
     agent: AgentConfig = Field(default_factory=AgentConfig)
+    # Provenance, filled by the loader; excluded from dumps and therefore from the hash.
+    site_overrides: list[SiteOverride] = Field(default_factory=list, exclude=True)
+    site_config_path: str | None = Field(default=None, exclude=True)
 
     def config_hash(self) -> str:
         """Stable hash of everything that affects ranking (excludes cache path / LLM / agent)."""
@@ -230,17 +269,143 @@ class Config(BaseModel):
         blob = json.dumps(relevant, sort_keys=True, default=str)
         return hashlib.sha256(blob.encode()).hexdigest()[:16]
 
+    def policy_overrides(self) -> list[SiteOverride]:
+        """Site overrides that change the ranking policy (shown as a deviation on every run)."""
+        return [o for o in self.site_overrides if is_policy_key(o.key)]
+
+
+# --------------------------------------------------------------------------------------
+# Schema walking: the leaf paths of Config, used by the site layer and the Admin page
+# --------------------------------------------------------------------------------------
+
+
+def leaf_fields(model: type[BaseModel] = Config, prefix: str = "") -> dict[str, FieldInfo]:
+    """Dotted path -> FieldInfo for every leaf of ``model``. Nested models are descended;
+    dict- and list-typed fields are leaves. Loader-internal fields (``exclude=True``) are skipped."""
+    out: dict[str, FieldInfo] = {}
+    for name, info in model.model_fields.items():
+        if info.exclude:
+            continue
+        path = f"{prefix}.{name}" if prefix else name
+        ann = info.annotation
+        if isinstance(ann, type) and issubclass(ann, BaseModel):
+            out.update(leaf_fields(ann, path))
+        else:
+            out[path] = info
+    return out
+
+
+LEAF_PATHS: frozenset[str] = frozenset(leaf_fields(Config))
+DICT_PATHS: frozenset[str] = frozenset(
+    p for p, f in leaf_fields(Config).items() if get_origin(f.annotation) is dict
+)
+READ_ONLY_PATHS: frozenset[str] = frozenset(
+    {"profile_name", "toxicity.table_file", "candidates.cation_allowlist_file", "cache.path"}
+)
+# What counts as ranking *policy*: a site change here prints a deviation on every result.
+POLICY_SECTIONS: frozenset[str] = frozenset(
+    {
+        "weights",
+        "gates",
+        "band_gap",
+        "stability",
+        "dielectric",
+        "toxicity",
+        "simplicity",
+        "missing_data",
+        "literature",
+    }
+)
+POLICY_EXTRA: frozenset[str] = frozenset(
+    {
+        "candidates.max_elements_query",
+        "candidates.energy_above_hull_ceiling_ev_atom",
+        "candidates.min_reported_gap_ev",
+    }
+)
+
+
+def is_policy_key(path: str) -> bool:
+    return path.split(".", 1)[0] in POLICY_SECTIONS or path in POLICY_EXTRA
+
+
+def flatten_leaves(
+    data: dict[str, Any], leaf_paths: Collection[str] = LEAF_PATHS, prefix: str = ""
+) -> dict[str, Any]:
+    """Flatten a config layer to dotted leaf paths, stopping at dict-typed leaves (so
+    ``terminology`` is one entry, not one per alias). Paths the schema does not know are kept,
+    so a caller can reject them."""
+    out: dict[str, Any] = {}
+    for key, value in data.items():
+        path = f"{prefix}.{key}" if prefix else str(key)
+        if path in leaf_paths or not isinstance(value, dict):
+            out[path] = value
+        else:
+            out.update(flatten_leaves(value, leaf_paths, path))
+    return out
+
+
+def _set_path(target: dict[str, Any], path: str, value: Any) -> None:
+    parts = path.split(".")
+    node = target
+    for part in parts[:-1]:
+        node = node.setdefault(part, {})
+    node[parts[-1]] = value
+
+
+def _pop_path(target: dict[str, Any], path: str) -> bool:
+    """Remove ``path`` from a nested dict, pruning emptied parents. True if it was present."""
+    parts = path.split(".")
+    node = target
+    trail: list[dict[str, Any]] = []
+    for part in parts[:-1]:
+        nxt = node.get(part)
+        if not isinstance(nxt, dict):
+            return False
+        trail.append(node)
+        node = nxt
+    if parts[-1] not in node:
+        return False
+    del node[parts[-1]]
+    for parent, part in zip(reversed(trail), reversed(parts[:-1]), strict=True):
+        if not parent[part]:
+            del parent[part]
+        else:
+            break
+    return True
+
+
+def diff_layer(reference: dict[str, Any], edited: dict[str, Any]) -> dict[str, Any]:
+    """The nested dict of leaves where ``edited`` differs from ``reference`` (whole dicts for
+    dict-typed leaves; read-only paths dropped). This is what the site file stores."""
+    ref = flatten_leaves(reference)
+    out: dict[str, Any] = {}
+    for path, value in flatten_leaves(edited).items():
+        if path in READ_ONLY_PATHS:
+            continue
+        if path not in ref or ref[path] != value:
+            _set_path(out, path, copy.deepcopy(value))
+    return out
+
 
 # --------------------------------------------------------------------------------------
 # Loading
 # --------------------------------------------------------------------------------------
 
 
-def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+def deep_merge(
+    base: dict[str, Any],
+    override: dict[str, Any],
+    replace_at: Collection[str] = (),
+    _prefix: str = "",
+) -> dict[str, Any]:
+    """Recursive merge, ``override`` winning. A dict at a dotted path in ``replace_at`` is
+    assigned whole instead of merged, which is how a site layer deletes an entry."""
     out = copy.deepcopy(base)
     for key, value in override.items():
-        if isinstance(value, dict) and isinstance(out.get(key), dict):
-            out[key] = deep_merge(out[key], value)
+        path = f"{_prefix}.{key}" if _prefix else str(key)
+        if isinstance(value, dict) and isinstance(out.get(key), dict) and path not in replace_at:
+            out[key] = deep_merge(out[key], value, replace_at, path)
         else:
             out[key] = copy.deepcopy(value)
     return out
@@ -294,26 +459,229 @@ def load_dotenv(paths: list[Path] | None = None) -> list[str]:
     return loaded
 
 
+def _env_flag(name: str) -> bool | None:
+    """True/False for a set boolean variable, None when unset or empty."""
+    raw = os.environ.get(name)
+    if raw is None or raw.strip() == "":
+        return None
+    return raw.strip().lower() in TRUTHY
+
+
+def admin_enabled() -> bool:
+    """Editing on the Admin page and its operations are enabled by OXIDE_TRIAGE_ADMIN."""
+    return bool(_env_flag(ADMIN_ENV))
+
+
+def env_locked(path: str) -> str | None:
+    """The environment variable currently overriding ``path``, if any."""
+    var = ENV_KEYS.get(path)
+    if var is None:
+        return None
+    raw = os.environ.get(var)
+    return var if raw is not None and raw != "" else None
+
+
 def _env_overrides() -> dict[str, Any]:
     """Environment variables that a container admin sets without editing YAML."""
     out: dict[str, Any] = {}
-    cache: dict[str, Any] = {}
-    if path := os.environ.get("OXIDE_TRIAGE_CACHE"):
-        cache["path"] = path
-    if (off := os.environ.get("OXIDE_TRIAGE_OFFLINE")) is not None and off != "":
-        cache["offline"] = off.strip().lower() in {"1", "true", "yes", "on"}
-    if cache:
-        out["cache"] = cache
-    llm: dict[str, Any] = {}
-    if provider := os.environ.get("LLM_PROVIDER"):
-        llm["provider"] = provider.strip().lower()
-    if model := os.environ.get("LLM_MODEL"):
-        llm["model"] = model
-    if base_url := os.environ.get("LLM_BASE_URL"):
-        llm["base_url"] = base_url
-    if llm:
-        out["llm"] = llm
+    for path, var in ENV_KEYS.items():
+        raw = os.environ.get(var)
+        if raw is None or raw == "":
+            continue
+        value: Any = raw
+        if path == "cache.offline":
+            value = _env_flag(var)
+        elif path == "llm.provider":
+            value = raw.strip().lower()
+        _set_path(out, path, value)
     return out
+
+
+# --------------------------------------------------------------------------------------
+# Site overrides: the one file the application writes
+# --------------------------------------------------------------------------------------
+
+SITE_HEADER = (
+    "# Site configuration overrides, written by the Admin page (oxide-triage).\n"
+    "# `base` holds edits to config/default.yaml (every profile); `profiles.<name>` holds edits to\n"
+    "# that profile. Delete a key to restore the shipped value. Keys read from the environment\n"
+    "# (OXIDE_TRIAGE_CACHE, OXIDE_TRIAGE_OFFLINE, LLM_*) win over anything here.\n"
+)
+_SITE_STRIPPED = ("profile_name", "cache.path")
+
+
+def _clean_layer(layer: dict[str, Any], name: str) -> dict[str, Any]:
+    layer = copy.deepcopy(layer)
+    for path in _SITE_STRIPPED:
+        if _pop_path(layer, path):
+            log.warning("%s: '%s' cannot be set in the site file; ignored", name, path)
+    unknown = [p for p in flatten_leaves(layer) if p not in LEAF_PATHS]
+    if unknown:
+        raise ValueError(f"{name}: unknown configuration key '{unknown[0]}'")
+    return layer
+
+
+class SiteOverrides(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    version: Literal[1] = 1
+    base: dict[str, Any] = Field(default_factory=dict)
+    profiles: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _clean(self) -> SiteOverrides:
+        self.base = _clean_layer(self.base, "site.base")
+        self.profiles = {
+            n: _clean_layer(layer or {}, f"site.profiles.{n}") for n, layer in self.profiles.items()
+        }
+        return self
+
+    def layer_for(self, profile: str) -> dict[str, Any]:
+        return self.profiles.get(profile, {})
+
+    def is_empty(self) -> bool:
+        return not self.base and not any(self.profiles.values())
+
+    def to_yaml(self) -> str:
+        data = self.model_dump()
+        data["profiles"] = {n: layer for n, layer in data["profiles"].items() if layer}
+        return SITE_HEADER + yaml.safe_dump(data, sort_keys=False, allow_unicode=True)
+
+
+def site_config_path(config_dir: Path = DEFAULT_CONFIG_DIR) -> Path | None:
+    """Where the site file lives: OXIDE_TRIAGE_SITE_CONFIG, else ``site.yaml`` next to the cache
+    named by OXIDE_TRIAGE_CACHE or default.yaml. ``off`` (or empty) disables it; no file for an
+    in-memory cache."""
+    raw = os.environ.get(SITE_CONFIG_ENV)
+    if raw is not None:
+        raw = raw.strip()
+        if raw == "" or raw.lower() in {"off", "none", "0"}:
+            return None
+        return Path(raw)
+    cache_path = os.environ.get("OXIDE_TRIAGE_CACHE") or str(
+        _read_yaml(config_dir / "default.yaml").get("cache", {}).get("path", "")
+    )
+    if not cache_path or cache_path == ":memory:":
+        return None
+    return Path(cache_path).with_name("site.yaml")
+
+
+def load_site_overrides(path: Path | None) -> SiteOverrides:
+    if path is None or not path.is_file():
+        return SiteOverrides()
+    return SiteOverrides.model_validate(_read_yaml(path))
+
+
+def save_site_overrides(path: Path, overrides: SiteOverrides) -> None:
+    """Atomic write (temp file + rename) so a reader never sees a half-written file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(overrides.to_yaml(), encoding="utf-8")
+    os.replace(tmp, path)
+
+
+class _Auto:
+    def __repr__(self) -> str:  # pragma: no cover
+        return "AUTO"
+
+
+AUTO = _Auto()
+LAYER_NAMES = ("default", "site.base", "profile", "site.profile", "env", "overrides")
+_SITE_LAYERS = frozenset({"site.base", "site.profile"})
+
+
+@dataclass(frozen=True)
+class ConfigLayers:
+    """The layers behind one effective Config, in merge order, with provenance helpers."""
+
+    profile: str
+    site_path: Path | None
+    layers: tuple[tuple[str, dict[str, Any]], ...]
+    effective: Config
+
+    def merge(self, names: Iterable[str]) -> dict[str, Any]:
+        wanted = set(names)
+        out: dict[str, Any] = {}
+        for name, layer in self.layers:
+            if name in wanted:
+                out = deep_merge(out, layer, DICT_PATHS if name in _SITE_LAYERS else ())
+        return out
+
+    def shipped(self) -> dict[str, Any]:
+        return self.merge(("default", "profile"))
+
+    def with_site(self) -> dict[str, Any]:
+        return self.merge(("default", "site.base", "profile", "site.profile"))
+
+    def origin_of(self, path: str) -> str:
+        """Name of the last layer that sets ``path``."""
+        origin = "default"
+        for name, layer in self.layers:
+            if path in flatten_leaves(layer):
+                origin = name
+        return origin
+
+    def reference_for(self, scope: str) -> dict[str, Any]:
+        """What the scope's edits are measured against: shipped default.yaml for ``base``;
+        default + site.base + the profile file for a profile scope."""
+        if scope == "base":
+            return self.merge(("default",))
+        return self.merge(("default", "site.base", "profile"))
+
+    def current_for(self, scope: str) -> dict[str, Any]:
+        if scope == "base":
+            return self.merge(("default", "site.base"))
+        return self.with_site()
+
+
+def config_layers(
+    profile: str | None = None,
+    config_dir: Path = DEFAULT_CONFIG_DIR,
+    overrides: dict[str, Any] | None = None,
+    use_env: bool = True,
+    site_config: Path | None | _Auto = AUTO,
+) -> ConfigLayers:
+    """Load every layer and the effective Config. ``site_config``: AUTO discovers the site file
+    (only when ``use_env`` is true), None loads the shipped configuration only, a Path is always
+    read."""
+    if use_env:
+        load_dotenv()
+    name = profile or "default"
+    default = _read_yaml(config_dir / "default.yaml")
+    prof: dict[str, Any] = {}
+    if name != "default":
+        profile_path = config_dir / "profiles" / f"{name}.yaml"
+        if not profile_path.exists():
+            available = ", ".join(list_profiles(config_dir)) or "(none)"
+            raise FileNotFoundError(f"Unknown profile '{name}'. Available: {available}")
+        prof = _read_yaml(profile_path)
+    if isinstance(site_config, _Auto):
+        site_path = site_config_path(config_dir) if use_env else None
+    else:
+        site_path = site_config
+    site = load_site_overrides(site_path)
+    layers = (
+        ("default", default),
+        ("site.base", site.base),
+        ("profile", prof),
+        ("site.profile", site.layer_for(name)),
+        ("env", _env_overrides() if use_env else {}),
+        ("overrides", overrides or {}),
+    )
+    merged: dict[str, Any] = {}
+    for lname, layer in layers:
+        merged = deep_merge(merged, layer, DICT_PATHS if lname in _SITE_LAYERS else ())
+    cfg = Config.model_validate(merged)
+    result = ConfigLayers(profile=name, site_path=site_path, layers=layers, effective=cfg)
+    shipped = flatten_leaves(result.shipped())
+    with_site = flatten_leaves(result.with_site())
+    cfg.site_overrides = [
+        SiteOverride(key=k, shipped=shipped.get(k), value=v)
+        for k, v in with_site.items()
+        if shipped.get(k) != v
+    ]
+    cfg.site_config_path = str(site_path) if site_path is not None else None
+    return result
 
 
 def load_config(
@@ -321,21 +689,22 @@ def load_config(
     config_dir: Path = DEFAULT_CONFIG_DIR,
     overrides: dict[str, Any] | None = None,
     use_env: bool = True,
+    site_config: Path | None | _Auto = AUTO,
 ) -> Config:
-    if use_env:
-        load_dotenv()
-    data = _read_yaml(config_dir / "default.yaml")
-    if profile and profile != "default":
-        profile_path = config_dir / "profiles" / f"{profile}.yaml"
-        if not profile_path.exists():
-            available = ", ".join(list_profiles(config_dir)) or "(none)"
-            raise FileNotFoundError(f"Unknown profile '{profile}'. Available: {available}")
-        data = deep_merge(data, _read_yaml(profile_path))
-    if use_env:
-        data = deep_merge(data, _env_overrides())
-    if overrides:
-        data = deep_merge(data, overrides)
-    return Config.model_validate(data)
+    return config_layers(profile, config_dir, overrides, use_env, site_config).effective
+
+
+def preview_config(profile: str, site: SiteOverrides, config_dir: Path = DEFAULT_CONFIG_DIR) -> Config:
+    """The Config a given site overrides object would produce for ``profile`` (shipped files plus
+    the site layers, no environment). Used by the Admin page to validate and to compare hashes
+    before anything is written."""
+    name = profile or "default"
+    merged = _read_yaml(config_dir / "default.yaml")
+    merged = deep_merge(merged, site.base, DICT_PATHS)
+    if name != "default":
+        merged = deep_merge(merged, _read_yaml(config_dir / "profiles" / f"{name}.yaml"))
+    merged = deep_merge(merged, site.layer_for(name), DICT_PATHS)
+    return Config.model_validate(merged)
 
 
 # --------------------------------------------------------------------------------------

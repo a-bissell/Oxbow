@@ -174,7 +174,9 @@ which a number could be invented.
 ## 9. Deployment and privacy
 
 Python 3.11, Pydantic schemas, SQLite, Typer CLI, Streamlit front end, Jinja templates as files
-so a site admin can edit prose without touching code. One YAML config with three named profiles.
+so a site admin can edit prose without touching code. One YAML config with three named profiles;
+an Admin page edits any of it into a site overrides file, never the shipped YAML, and every
+site departure from the shipped policy is a deviation on the result.
 `Dockerfile` plus compose with a persistent cache volume and an MCP service on loopback; once
 warmed the containers run fully offline. Keys come from the environment; `.env.example` documents each one.
 

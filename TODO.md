@@ -31,8 +31,15 @@ Ideas / planned work for this project.
 
 ## UI
 
-- [ ] **Admin UI panel** — a settings screen for changing app/project configuration; a third
-      page next to Triage and Agent in `oxide_triage/app.py`.
+- [x] **Admin UI panel** — done 2026-09-10: the "Admin" page. Every knob of the configuration,
+      generated from the schema, edited against the shipped policy and saved to a site overrides
+      file (`site.yaml` next to the cache; the shipped YAML is never written). Pending changes
+      show the ranking hash before/after; a policy change prints a `site` deviation on every
+      result and re-runs the self-check. Cache operations, the deviations log and the
+      environment (keys masked) live on the same page. `OXIDE_TRIAGE_ADMIN=1` gates editing.
+      Follow-ups:
+      - [ ] Site-defined profiles (new named profiles created from the page).
+      - [ ] Real authentication in front of the Admin page (a proxy today).
 - [x] **Interactive Agent UI** — done 2026-09-10: the Streamlit "Agent" page and
       `oxide-triage chat`. The model drives the same tools the MCP server exposes (Anthropic
       tool use, or OpenAI-compatible function calling for the local overlay); the report is

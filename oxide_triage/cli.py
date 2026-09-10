@@ -7,7 +7,8 @@ oxide-triage add-material SrHfO3   # pull one compound into the universe (online
 oxide-triage fill-gaps             # try alternative routes for data the warm could not find (online)
 oxide-triage selfcheck             # known-answer check on the current cache
 oxide-triage report --out report.html    # self-contained HTML report (+ eval checks)
-oxide-triage doctor                # what the tool sees: .env, keys (masked), cache, source reachability
+oxide-triage doctor                # what the tool sees: .env, keys (masked), site file, cache, source reachability
+oxide-triage config                # effective configuration with the origin of every value (default / profile / site / env)
 oxide-triage chat                  # talk to the agent in the terminal (needs a language model provider)
 oxide-triage profiles
 oxide-triage cache-status
@@ -218,12 +219,13 @@ def selfcheck(profile: str = typer.Option("default", "--profile", "-p")) -> None
 
 @app.command()
 def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
-    """Show what the tool can see: .env files, keys (masked), cache, and whether each public
-    source is reachable. Run this first when something says a key is missing."""
-    import os
+    """Show what the tool can see: .env files, keys (masked), the site overrides file, cache, and
+    whether each public source is reachable. Run this first when something says a key is missing."""
     from pathlib import Path as _P
 
     from oxide_triage.config import REPO_ROOT, load_dotenv
+    from oxide_triage.doctor import env_status, probe_sources, site_file_status
+    from oxide_triage.edges.llm import chat_availability
 
     loaded = load_dotenv()
     typer.echo("dotenv files:")
@@ -233,32 +235,21 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
         f"  keys loaded from .env this run: {', '.join(loaded) or 'none (already set or not present)'}"
     )
     typer.echo("environment:")
-    for key in (
-        "MP_API_KEY",
-        "OPENALEX_API_KEY",
-        "OPENALEX_MAILTO",
-        "LLM_PROVIDER",
-        "ANTHROPIC_API_KEY",
-        "LLM_BASE_URL",
-        "LLM_MODEL",
-        "OXIDE_TRIAGE_CACHE",
-        "OXIDE_TRIAGE_OFFLINE",
-        "OXIDE_TRIAGE_RECORD_DIR",
-    ):
-        val = os.environ.get(key)
-        if val is None:
-            shown = "unset"
-        elif "KEY" in key and val:
-            shown = f"set ({len(val)} chars, ends ...{val[-4:]})"
-        else:
-            shown = val or "(empty)"
+    for key, shown in env_status():
         typer.echo(f"  {key}: {shown}")
     config = load_config(profile)
     typer.echo(
         f"config: profile={config.profile_name} cache={config.cache.path} offline={config.cache.offline} llm={config.llm.provider}"
     )
-    from oxide_triage.edges.llm import chat_availability
-
+    site = site_file_status(config)
+    if site["path"] is None:
+        typer.echo("site file: disabled (OXIDE_TRIAGE_SITE_CONFIG=off or in-memory cache)")
+    else:
+        state = "present" if site["present"] else "absent"
+        typer.echo(
+            f"site file: {site['path']} ({state}, {'writable' if site['writable'] else 'not writable'}, "
+            f"{site['overrides']} override(s) in effect for this profile)"
+        )
     chat_ok, chat_why = chat_availability(config.llm)
     typer.echo(f"chat: {'ready (' + chat_why + ')' if chat_ok else 'unavailable (' + chat_why + ')'}")
     cache = Cache(config.cache.path)
@@ -273,41 +264,53 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
     if config.cache.offline:
         typer.echo("reachability: skipped (offline mode)")
         return
-    import httpx
-
-    probes = {
-        "materials_project": (
-            "https://api.materialsproject.org/heartbeat",
-            {"X-API-KEY": os.environ.get("MP_API_KEY", "")},
-        ),
-        "oqmd": ("https://oqmd.org/oqmdapi/formationenergy?composition=HfO2&limit=1", {}),
-        "openalex": (
-            "https://api.openalex.org/works?per-page=1",
-            {"Authorization": f"Bearer {k}"} if (k := os.environ.get("OPENALEX_API_KEY")) else {},
-        ),
-        "pubchem": ("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/water/cids/JSON", {}),
-    }
     typer.echo("reachability:")
-    with httpx.Client(timeout=15, trust_env=True) as client:
-        for name, (url, headers) in probes.items():
-            try:
-                r = client.get(url, headers=headers)
-                note = f"HTTP {r.status_code}"
-                if name == "materials_project" and r.status_code in (401, 403):
-                    note += " (key rejected or missing)"
-                if name == "openalex":
-                    if r.status_code == 401:
-                        note += " (OPENALEX_API_KEY rejected)"
-                    elif r.status_code == 429:
-                        note += " (daily budget spent; resets midnight UTC)"
-                    if (left := r.headers.get("x-ratelimit-remaining-usd")) is not None:
-                        limit = r.headers.get("x-ratelimit-limit-usd", "?")
-                        note += f", budget ${left} of ${limit}/day left"
-                        if not os.environ.get("OPENALEX_API_KEY"):
-                            note += " (anonymous; set OPENALEX_API_KEY for the account budget)"
-            except httpx.HTTPError as exc:
-                note = f"unreachable: {type(exc).__name__}"
-            typer.echo(f"  {name}: {note}")
+    for name, note in probe_sources().items():
+        typer.echo(f"  {name}: {note}")
+
+
+@app.command("config")
+def config_cmd(
+    profile: str = typer.Option("default", "--profile", "-p"),
+    json_out: bool = typer.Option(False, "--json", help="Machine-readable output."),
+    changed_only: bool = typer.Option(
+        False, "--changed-only", help="Only values not from the shipped files."
+    ),
+) -> None:
+    """Print the effective configuration and where each value comes from: default.yaml, the
+    profile file, the site overrides file (base or profile section), or an environment variable."""
+    from oxide_triage.config import config_layers, flatten_leaves
+
+    layers = config_layers(profile)
+    values = flatten_leaves(layers.effective.model_dump())
+    rows = []
+    for key in sorted(values):
+        origin = layers.origin_of(key)
+        if changed_only and origin in {"default", "profile"}:
+            continue
+        rows.append({"key": key, "value": values[key], "origin": origin})
+    if json_out:
+        typer.echo(
+            json.dumps(
+                {
+                    "profile": layers.profile,
+                    "site_file": str(layers.site_path) if layers.site_path else None,
+                    "config_hash": layers.effective.config_hash(),
+                    "values": rows,
+                },
+                indent=2,
+                default=str,
+            )
+        )
+        return
+    typer.echo(f"profile: {layers.profile}   config hash: {layers.effective.config_hash()}")
+    typer.echo(f"site file: {layers.site_path or 'disabled'}")
+    if not rows:
+        typer.echo("no values outside the shipped files" if changed_only else "no values")
+        return
+    width = max(len(r["key"]) for r in rows)
+    for r in rows:
+        typer.echo(f"  {r['key']:{width}s}  {r['origin']:13s}  {r['value']}")
 
 
 @app.command()

@@ -107,3 +107,192 @@ def test_load_config_reads_dotenv_from_cwd(tmp_path, monkeypatch):
     import os
 
     assert cfg.cache.offline is True and os.environ["MP_API_KEY"] == "fromfile"
+
+
+# ---- site overrides ------------------------------------------------------------------------
+
+import logging  # noqa: E402
+
+import yaml  # noqa: E402
+
+from oxide_triage.config import (  # noqa: E402
+    DICT_PATHS,
+    SiteOverrides,
+    config_layers,
+    diff_layer,
+    is_policy_key,
+    load_site_overrides,
+    save_site_overrides,
+    site_config_path,
+)
+
+
+def _site(tmp_path, data):
+    path = tmp_path / "site.yaml"
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    return path
+
+
+def test_site_layers_merge_in_order(tmp_path):
+    site = _site(
+        tmp_path,
+        {
+            "base": {"gates": {"min_band_gap_ev": 4.5, "max_elements": 2}, "output": {"top_k": 7}},
+            "profiles": {
+                "conservative": {"gates": {"max_elements": 5}},
+                "default": {"output": {"top_k": 9}},
+            },
+        },
+    )
+    default = load_config("default", use_env=False, site_config=site)
+    cons = load_config("conservative", use_env=False, site_config=site)
+    expl = load_config("exploratory", use_env=False, site_config=site)
+    assert default.gates.min_band_gap_ev == 4.5 and default.output.top_k == 9  # site.profiles.default
+    assert cons.gates.min_band_gap_ev == 5.0  # the profile file beats site.base
+    assert cons.gates.max_elements == 5  # site.profiles.conservative beats the profile file
+    assert cons.output.top_k == 7  # site.base reaches every profile
+    assert expl.gates.max_elements == 4 and expl.output.top_k == 10  # profile values untouched
+
+
+def test_site_discovery_rules(tmp_path, monkeypatch):
+    site = _site(tmp_path, {"base": {"output": {"top_k": 3}}})
+    assert load_config(use_env=False).output.top_k == 5  # pristine without an explicit path
+    assert load_config(use_env=False, site_config=site).output.top_k == 3
+    monkeypatch.setenv("OXIDE_TRIAGE_SITE_CONFIG", str(site))
+    assert load_config().output.top_k == 3 and load_config().site_config_path == str(site)
+    monkeypatch.setenv("OXIDE_TRIAGE_SITE_CONFIG", "off")
+    assert load_config().output.top_k == 5 and load_config().site_config_path is None
+    monkeypatch.delenv("OXIDE_TRIAGE_SITE_CONFIG")
+    monkeypatch.setenv("OXIDE_TRIAGE_CACHE", str(tmp_path / "cache.sqlite"))
+    assert site_config_path() == tmp_path / "site.yaml"
+    assert load_config().output.top_k == 3  # discovered next to the cache
+    monkeypatch.setenv("OXIDE_TRIAGE_CACHE", ":memory:")
+    assert site_config_path() is None
+
+
+def test_env_beats_site(tmp_path, monkeypatch):
+    site = _site(tmp_path, {"base": {"cache": {"offline": True}, "llm": {"model": "site-model"}}})
+    monkeypatch.setenv("OXIDE_TRIAGE_SITE_CONFIG", str(site))
+    monkeypatch.setenv("OXIDE_TRIAGE_OFFLINE", "0")
+    monkeypatch.setenv("LLM_MODEL", "env-model")
+    cfg = load_config()
+    assert cfg.cache.offline is False and cfg.llm.model == "env-model"
+    layers = config_layers()
+    assert layers.origin_of("llm.model") == "env" and layers.origin_of("cache.offline") == "env"
+
+
+def test_site_strips_reserved_keys_and_rejects_unknown(tmp_path, caplog):
+    site = _site(
+        tmp_path, {"base": {"profile_name": "hacked", "cache": {"path": "/elsewhere", "ttl_days": 7}}}
+    )
+    with caplog.at_level(logging.WARNING, logger="oxide_triage.config"):
+        cfg = load_config(use_env=False, site_config=site)
+    assert cfg.profile_name == "default" and cfg.cache.path == "data/cache.sqlite" and cfg.cache.ttl_days == 7
+    assert "profile_name" in caplog.text and "cache.path" in caplog.text
+    bad = _site(tmp_path, {"base": {"weights": {"stabilty": 1}}})
+    with pytest.raises(ValueError, match="site.base: unknown configuration key 'weights.stabilty'"):
+        load_config(use_env=False, site_config=bad)
+    bad2 = _site(tmp_path, {"profiles": {"conservative": {"gates": {"min_gap": 1}}}})
+    with pytest.raises(
+        ValueError, match="site.profiles.conservative: unknown configuration key 'gates.min_gap'"
+    ):
+        load_config("conservative", use_env=False, site_config=bad2)
+
+
+def test_site_dict_leaves_replace_but_profiles_merge(tmp_path):
+    site = _site(
+        tmp_path,
+        {
+            "base": {
+                "terminology": {"hafnia": "HfO2"},
+                "candidates": {"fetch": {"pubchem": {"workers": 2}}},
+                "simplicity": {"scores": {2: 1.0, 3: 0.5}},
+            }
+        },
+    )
+    cfg = load_config(use_env=False, site_config=site)
+    assert cfg.terminology == {"hafnia": "HfO2"}  # alias list replaced, others gone
+    assert set(cfg.candidates.fetch) == {"pubchem"} and cfg.candidates.fetch["pubchem"].workers == 2
+    assert cfg.simplicity.scores == {2: 1.0, 3: 0.5}
+    # a profile file still deep-merges (exploratory sets band_gap.preference only)
+    expl = load_config("exploratory", use_env=False, site_config=site)
+    assert expl.band_gap.correction.scalar_factor == 1.4 and expl.band_gap.preference.ideal_ev == 5.0
+    assert "candidates.fetch" in DICT_PATHS and "terminology" in DICT_PATHS
+
+
+def test_site_round_trip_and_atomic_write(tmp_path):
+    so = SiteOverrides(
+        base={"simplicity": {"scores": {2: 1.0, 3: 0.4}}, "gates": {"min_band_gap_ev": 4.5}},
+        profiles={"conservative": {"output": {"top_k": 3}}, "exploratory": {}},
+    )
+    path = tmp_path / "nested" / "site.yaml"
+    save_site_overrides(path, so)
+    text = path.read_text(encoding="utf-8")
+    assert (
+        text.startswith("# Site configuration overrides")
+        and not (tmp_path / "nested" / "site.yaml.tmp").exists()
+    )
+    back = load_site_overrides(path)
+    assert back.base == so.base and back.profiles == {"conservative": {"output": {"top_k": 3}}}
+    assert list(back.base["simplicity"]["scores"]) == [2, 3]  # int keys survive YAML
+    assert load_site_overrides(tmp_path / "missing.yaml").is_empty()
+
+
+def test_site_overrides_recorded_and_hash_semantics(tmp_path):
+    site = _site(
+        tmp_path,
+        {
+            "base": {
+                "weights": {"stability": 0.5},
+                "cache": {"ttl_days": 1},
+                "llm": {"model": "m"},
+                "agent": {"max_tool_rounds": 2},
+            }
+        },
+    )
+    base = load_config(use_env=False)
+    cfg = load_config(use_env=False, site_config=site)
+    keys = {o.key: (o.shipped, o.value) for o in cfg.site_overrides}
+    assert keys == {
+        "weights.stability": (0.25, 0.5),
+        "cache.ttl_days": (90, 1),
+        "llm.model": (None, "m"),
+        "agent.max_tool_rounds": (8, 2),
+    }
+    assert [o.key for o in cfg.policy_overrides()] == ["weights.stability"]
+    assert cfg.config_hash() != base.config_hash()
+    runtime_only = (
+        _site(tmp_path / "r", {"base": {"cache": {"ttl_days": 1}, "llm": {"model": "m"}}})
+        if (tmp_path / "r").mkdir() is None
+        else None
+    )
+    assert load_config(use_env=False, site_config=runtime_only).config_hash() == base.config_hash()
+    assert "site_overrides" not in cfg.model_dump() and "site_config_path" not in cfg.model_dump_json()
+
+
+def test_diff_layer_and_origins(tmp_path):
+    site = _site(
+        tmp_path,
+        {"base": {"gates": {"min_band_gap_ev": 4.5}}, "profiles": {"conservative": {"output": {"top_k": 3}}}},
+    )
+    layers = config_layers("conservative", use_env=False, site_config=site)
+    assert layers.origin_of("gates.min_band_gap_ev") == "profile"  # conservative.yaml sets it
+    assert layers.origin_of("gates.max_elements") == "profile"
+    assert layers.origin_of("output.top_k") == "site.profile"
+    assert layers.origin_of("dielectric.low") == "default"
+    base_layers = config_layers("default", use_env=False, site_config=site)
+    assert base_layers.origin_of("gates.min_band_gap_ev") == "site.base"
+    reference = base_layers.reference_for("base")
+    edited = base_layers.current_for("base")
+    edited["gates"]["max_elements"] = 2
+    edited["profile_name"] = "renamed"
+    edited["terminology"] = {"hafnia": "HfO2"}
+    diff = diff_layer(reference, edited)
+    assert diff == {"gates": {"min_band_gap_ev": 4.5, "max_elements": 2}, "terminology": {"hafnia": "HfO2"}}
+
+
+def test_is_policy_key():
+    assert is_policy_key("weights.stability") and is_policy_key("gates.min_band_gap_ev")
+    assert is_policy_key("candidates.min_reported_gap_ev") and is_policy_key("literature.fetch")
+    assert not is_policy_key("candidates.fetch") and not is_policy_key("terminology")
+    assert not is_policy_key("cache.ttl_days") and not is_policy_key("agent.max_tool_rounds")

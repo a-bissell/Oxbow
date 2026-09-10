@@ -233,7 +233,7 @@ class Deviation(BaseModel):
 
     code: str
     description: str
-    origin: Literal["request", "profile", "cli"]
+    origin: Literal["request", "profile", "cli", "site"]
 
 
 class ScoringExplanation(BaseModel):

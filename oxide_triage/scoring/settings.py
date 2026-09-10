@@ -28,6 +28,18 @@ class Effective:
     on_missing_band_gap: str = "exclude"
 
 
+def _fmt(value: object) -> str:
+    if isinstance(value, bool) or value is None:
+        return str(value)
+    if isinstance(value, int | float):
+        return f"{value:g}"
+    if isinstance(value, list):
+        return "[" + ", ".join(_fmt(v) for v in value) + "]"
+    if isinstance(value, dict):
+        return "{" + ", ".join(f"{k}: {_fmt(v)}" for k, v in value.items()) + "}"
+    return str(value)
+
+
 def _blocked_by_tier(table: HazardTable, tiers: list[int]) -> set[str]:
     return {el for el, t in table.tiers.items() if t in tiers}
 
@@ -44,6 +56,21 @@ def blocked_by_policy(config: Config, table: HazardTable) -> frozenset[str]:
 def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Effective, list[Deviation]]:
     deviations: list[Deviation] = []
     tox = config.toxicity
+
+    # ---- site-level deviations: the site file changed the shipped ranking policy ------
+    policy = config.policy_overrides()
+    if policy:
+        changes = "; ".join(f"{o.key} {_fmt(o.shipped)} -> {_fmt(o.value)}" for o in policy)
+        deviations.append(
+            Deviation(
+                code="site_override",
+                description=(
+                    f"Site configuration overrides the shipped policy for profile "
+                    f"'{config.profile_name}': {changes}."
+                ),
+                origin="site",
+            )
+        )
 
     # ---- profile-level deviations from the shipped default policy ------------------
     profile_allow = set(tox.element_allowlist)
