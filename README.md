@@ -16,9 +16,11 @@ The system is useful without any language model at all. With one configured (clo
 local), it reads requests more flexibly and phrases caveats, and nothing it says can change a
 number, a rank or a citation.
 
-It runs three ways from the same code: a CLI, a Streamlit app, and an **MCP server** so
-scientists can drive it from Claude Desktop, Claude Cowork, Cursor or any MCP-capable app. In
-that mode the client's model is the front edge and every guarantee still lives inside the tools.
+It runs three ways from the same code: a CLI, a **web app** (an assistant that talks about a
+results canvas, plus an admin panel), and an **MCP server** so scientists can drive it from
+Claude Desktop, Claude Cowork, Cursor or any MCP-capable app. In the web app and over MCP a
+model may orchestrate the tools and phrase the answer; every guarantee still lives inside the
+tools, and without any model the assistant is driven by rules and works the same way.
 
 ---
 
@@ -32,12 +34,49 @@ oxide-triage load-fixtures          # synthetic demo data; every output says so
 oxide-triage query --offline        # the PI's request, default profile, PI summary
 oxide-triage query --offline --profile exploratory --template audit
 oxide-triage report --offline --out triage_report.html   # self-contained HTML report
-streamlit run oxide_triage/app.py   # browser front end
+oxide-triage serve --open           # the web app: assistant, results canvas, admin panel
 ```
 
 The fixture is a hand-written approximation of ~35 well-known oxides for development and demos.
 Every output produced from it carries a **SYNTHETIC FIXTURE DATA** banner. Real runs need the
 cache warmed from the public sources (see the admin section).
+
+
+### The web app
+
+`oxide-triage serve` (port 8000 by default) opens on a single text box. Ask in plain English,
+or pick a suggested request. Under the box is the **scope strip**: the profile, the material
+families in scope, the shortlist length and the two gates. Every chip is a popover; a value you
+change there applies to the next request without a clarification question, and is printed on
+the result as a configuration deviation like anything else a request changes.
+
+A request opens the **conversation** beside the **canvas**. The conversation shows every tool
+call the assistant made, one line each, with progress while data is fetched; the canvas shows
+the result object: shortlist cards with score, confidence, missing-data chips and the main
+caveat; tabs for the candidates ranked below the shortlist, everything excluded with the gate
+that excluded it, a data-gap map, and the scoring rules; and the report downloads. Click a
+candidate to **focus** it: the canvas shows every score component, every gate, the caveats and
+the provenance, and the composer gets a context chip so the next question is about that
+material. Ask "why is HfO2 sixth?", "compare HfO2 with SrHfO3", "rerun with top 10" or
+"include lead compounds"; a rerun shows what moved in and out of the shortlist, and a change
+that lifts a hazard block or moves a gate is held until you confirm it in the conversation.
+
+**Material families** narrow the cached universe per request: a material is in scope when every
+cation in it belongs to a selected family. The families and their rationale live in
+`oxide_triage/data/cation_allowlist.yaml` beside the fetch allowlist.
+
+The assistant has two drivers. With `LLM_PROVIDER=anthropic` and an `ANTHROPIC_API_KEY`, a Claude
+model (`claude-sonnet-5` by default; `AGENT_MODEL` or `LLM_MODEL` overrides) orchestrates the
+same tools the MCP server exposes and phrases the answer. Without a key, a rule-based driver
+routes each message by intent (new request, explain, compare, rerun with a change, what was
+excluded) and narrates from the result object. Both produce the same visible steps and the same
+canvas, and if the model is unreachable mid-conversation the rules answer that turn and say so.
+
+The **admin panel** (top right) edits profiles, the default families, what the edge model is
+used for, per-source fetch limits and retrieval floors, runs the cache jobs (warm, demo fixture,
+self-check, gap filling, add a compound) with a live log, and lists the deviations log. Edits
+are written to `config/site.yaml`, merged between the shipped defaults and each profile; the
+shipped YAML is never rewritten, and every field shows the shipped value where it differs.
 
 ### Writing a request
 
@@ -102,16 +141,19 @@ Things to know before trusting a number:
 Every result is a complete object, so follow-ups never re-derive anything:
 
 * **Explain** a candidate (ranked or excluded): every component with weight and contribution,
-  every gate, the band-gap correction, provenance, all caveats. In the app: *Follow up → Explain*.
-  Over MCP: `explain(result_id, "Ta2O5")`.
+  every gate, the band-gap correction, provenance, all caveats. In the app: click the candidate,
+  or ask why it ranks where it does. Over MCP: `explain(result_id, "Ta2O5")`.
+* **Compare** two or more candidates side by side, with the largest difference named. In the
+  app: *Compare with …* on a focused candidate, or ask. Over MCP: `compare(result_id, [...])`.
 * **Rerun with a change** (gap threshold, hull threshold, element allow/exclude, weights,
-  shortlist length). The change is applied through the same deterministic core and printed as a
-  configuration deviation on the new result. In the app: *Follow up → Rerun*. Over MCP:
-  `rerun(result_id, {"min_band_gap_ev": 3.5})`.
+  shortlist length, families). The change is applied through the same deterministic core and
+  printed as a configuration deviation on the new result; the app shows what moved in and out of
+  the shortlist. Over MCP: `rerun(result_id, {"min_band_gap_ev": 3.5})`.
 * **Clarify before running.** When a request changes something material (lifts a hazard block,
   moves a gate, zeroes a criterion, or contains a part the deployment cannot do) the system asks
-  first. The app shows the questions and a confirm box; the CLI prompts (or `--yes`); over MCP,
-  `triage`/`rerun` return the questions and the client calls again with `confirmed=true`.
+  first. The app holds the run and shows the questions with a confirm button; the CLI prompts
+  (or `--yes`); over MCP, `triage`/`rerun` return the questions and the client calls again with
+  `confirmed=true`.
 
 ### Using it from Claude Desktop, Claude Cowork or Cursor (MCP)
 
@@ -128,7 +170,7 @@ Add the server to your app's MCP config (see `docker/mcp-client-config.example.j
 ```
 
 Tools: `parse_request` (how a request will be read, plus clarification questions), `triage`,
-`explain`, `rerun`, `add_material` (pull one compound into the universe; online only),
+`explain`, `compare`, `rerun`, `add_material` (pull one compound into the universe; online only),
 `fill_gaps` (adaptive acquisition pass), `cache_status`, `selfcheck`, `profiles`. Resources: `oxide-triage://result/{id}` (full JSON) and
 `oxide-triage://scope` (the scope limitation). The server's instructions tell the client model
 to relay numbers, ranks and citations as given and to surface the fixture banner. The request
@@ -153,7 +195,7 @@ cannot bypass them.
 cp .env.example .env                 # set MP_API_KEY (free); OPENALEX_API_KEY is optional
 docker compose -f docker/compose.yml up --build -d
 docker compose -f docker/compose.yml run --rm app oxide-triage warm-cache   # ~minutes; rate-limit aware
-# open http://localhost:8501
+# open http://localhost:8000
 ```
 
 The cache lives in a named volume (`/data/cache.sqlite`). `./config` is mounted read-only so
@@ -162,7 +204,8 @@ offline (`OXIDE_TRIAGE_OFFLINE=1`).
 
 ### Install without Docker
 
-Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache path defaults to
+Python 3.11+. `pip install -e ".[web,llm]"`, then the same commands (`oxide-triage serve` for
+the web app). The front end is prebuilt and committed; Node is only needed to change it. The cache path defaults to
 `data/cache.sqlite` (override with `OXIDE_TRIAGE_CACHE`).
 
 ### Keys and environment
@@ -307,7 +350,11 @@ Profiles in `config/profiles/` are partial overrides:
 the shipped policy (profile allowlist, request-level threshold change, lifted hazard block) prints
 the deviation in the output header and appends it to `deviations.jsonl` next to the cache.
 
-Templates are files in `oxide_triage/templates/*.md.j2` and can be edited without touching Python.
+Site-level edits made in the admin panel are written to `config/site.yaml` (`base` for every
+profile, `profiles.<name>` per profile) and merged between the shipped defaults and each
+profile, so the shipped files are never rewritten and `git diff` never shows local policy.
+`OXIDE_TRIAGE_SITE_CONFIG` moves that file. Templates are files in
+`oxide_triage/templates/*.md.j2` and can be edited without touching Python.
 
 ### MCP over the network
 
@@ -376,8 +423,10 @@ from it carries the fixture banner.
 
 ```bash
 pip install -e ".[all]"
-pytest                       # 114 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, acquisition, HTML report, record/replay
+pytest                       # 195 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, acquisition, HTML report, record/replay, scope, web app
 ruff check . && ruff format .
+cd ui && npm install && npm run build   # rebuild the front end into oxide_triage/ui/dist (commit the result)
+npm run dev                             # front-end dev server on :5173, proxying /api to a running `oxide-triage serve`
 python -m eval.run_eval      # evaluation report -> eval/output/report.md
 jupyter lab eval/evaluation.ipynb
 ```
@@ -395,12 +444,16 @@ oxide_triage/
   edges/              llm providers, request parser, template renderer
   refute.py           rule-derived caveats + guarded model observations
   pipeline.py         orchestration: guard -> parse -> clarify -> self-check gate -> core -> refute
-  session.py          result store, explain, rerun, clarification questions (app + MCP)
+  session.py          result store, explain, compare, rerun, clarification questions (app + MCP)
   selfcheck.py        known-answer check run on the cache itself
   acquire.py          adaptive acquisition: gaps -> allowlisted routes -> report
+ui/                   React + TypeScript front end (Vite); `npm run build` writes oxide_triage/ui/dist
   formula.py          formula parsing for cross-database stoichiometry matching
   mcp_server.py       MCP tools/resources for Claude Desktop, Cowork, Cursor
-  cli.py, app.py      Typer CLI, Streamlit front end
+  cli.py              Typer CLI (query, report, warm-cache, serve, mcp, ...)
+  server/             web backend: FastAPI app, conversation store, tool registry, agent turn loop, admin jobs
+  ui/dist             the built front end, served by the backend
+  progress.py         observation-only progress events for long runs
   templates/          pi_summary.md.j2, audit.md.j2, report.html.j2
   evaluation.py       the five evaluation checks (also `python -m eval.run_eval`)
   data/               element_hazards.yaml, cation_allowlist.yaml, compound_aliases.yaml,

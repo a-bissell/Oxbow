@@ -36,7 +36,13 @@ from oxide_triage.pipeline import run_triage
 from oxide_triage.schemas import TriageResult
 from oxide_triage.scoring.settings import resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
-from oxide_triage.session import ResultStore, apply_changes, clarifications, explain_candidate
+from oxide_triage.session import (
+    ResultStore,
+    apply_changes,
+    clarifications,
+    compare_candidates,
+    explain_candidate,
+)
 
 INSTRUCTIONS = (
     "Oxide dielectric triage for thin-film experiments, computed deterministically from cached "
@@ -175,6 +181,20 @@ def explain(result_id: str, candidate: str) -> str:
     if result is None:
         return f"Unknown result_id '{result_id}'. Known: {', '.join(_store.ids()) or 'none'}."
     return explain_candidate(result, candidate)
+
+
+@server.tool(
+    description=(
+        "Compare two or more candidates of a previous result side by side: rank, score, every component "
+        "with its contribution, every gate, the main caveats, and the largest difference named. Candidates "
+        "are formulas or material ids."
+    )
+)
+def compare(result_id: str, candidates: list[str]) -> str:
+    result = _store.get(result_id)
+    if result is None:
+        return f"Unknown result_id '{result_id}'. Known: {', '.join(_store.ids()) or 'none'}."
+    return compare_candidates(result, candidates)
 
 
 @server.tool(

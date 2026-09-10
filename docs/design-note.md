@@ -233,7 +233,7 @@ the client to relay results as given. A client prompt cannot bypass any of it.
 
 ## 9. Deployment and privacy
 
-Python 3.11, Pydantic schemas, SQLite, Typer CLI, Streamlit front end, Jinja templates as files
+Python 3.11, Pydantic schemas, SQLite, Typer CLI, a FastAPI + React web app (built bundle committed, so a pip install is the whole deployment), Jinja templates as files
 so a site admin can edit prose without touching code. One YAML config with three named profiles.
 `Dockerfile` plus compose with a persistent cache volume and an MCP service on loopback; once
 warmed the containers run fully offline. Keys come from the environment; `.env.example` documents each one.

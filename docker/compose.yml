@@ -3,7 +3,7 @@
 #   cp .env.example .env            # add MP_API_KEY (and OPENALEX_MAILTO)
 #   docker compose -f docker/compose.yml up --build
 #   docker compose -f docker/compose.yml run --rm app oxide-triage warm-cache
-#   open http://localhost:8501
+#   open http://localhost:8000
 #
 # Everything the site admin edits lives in ./config (mounted read-only) and .env.
 name: oxide-triage
@@ -24,7 +24,7 @@ services:
       - cache:/data
       - ../config:/app/config:ro
     ports:
-      - "${OXIDE_TRIAGE_PORT:-8501}:8501"
+      - "${OXIDE_TRIAGE_PORT:-8000}:8000"
     restart: unless-stopped
 
   # MCP endpoint for Claude Desktop / Cowork / Cursor over the network (streamable HTTP).
