@@ -82,6 +82,9 @@ class AnthropicLLM:
         except self._anthropic.APIError as exc:
             log.warning("Anthropic call failed: %s", exc)
             return None
+        except Exception as exc:  # transport-level faults (e.g. a broken decompressor) must fail closed
+            log.warning("Anthropic call failed (%s): %s", type(exc).__name__, exc)
+            return None
         if resp.stop_reason == "refusal":
             log.warning("Anthropic refused the request (%s); falling back to rules", resp.stop_details)
             return None
