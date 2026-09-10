@@ -27,29 +27,27 @@ class OQMD(CachedSource):
         super().__init__(cache, ttl_days, offline)
         self.http = http or Http(timeout_s=60, user_agent="oxide-triage/0.1 (oqmd-client)")
 
+    def fetch_composition(self, formula: str) -> dict[str, Any]:
+        """HTTP only (thread-safe, no cache writes): best OQMD entry for a reduced formula."""
+        page = self.http.get_json(BASE_URL, params={"composition": formula, "fields": FIELDS, "limit": 50})
+        entries = (page or {}).get("data", []) if isinstance(page, dict) else []
+        usable = [e for e in entries if e.get("stability") is not None]
+        if not usable:
+            return {"found": False, "n_entries": len(entries)}
+        best = min(usable, key=lambda e: float(e["stability"]))
+        return {
+            "found": True,
+            "n_entries": len(entries),
+            "entry_id": best.get("entry_id"),
+            "name": best.get("name"),
+            "stability": float(best["stability"]),
+            "delta_e": None if best.get("delta_e") is None else float(best["delta_e"]),
+            "spacegroup": best.get("spacegroup"),
+        }
+
     def lookup(self, formula: str) -> tuple[dict[str, Any] | None, str | None, str]:
         """Best (lowest-stability) OQMD entry for a reduced formula, cached as one record."""
-
-        def fetch() -> dict[str, Any]:
-            page = self.http.get_json(
-                BASE_URL, params={"composition": formula, "fields": FIELDS, "limit": 50}
-            )
-            entries = (page or {}).get("data", []) if isinstance(page, dict) else []
-            usable = [e for e in entries if e.get("stability") is not None]
-            if not usable:
-                return {"found": False, "n_entries": len(entries)}
-            best = min(usable, key=lambda e: float(e["stability"]))
-            return {
-                "found": True,
-                "n_entries": len(entries),
-                "entry_id": best.get("entry_id"),
-                "name": best.get("name"),
-                "stability": float(best["stability"]),
-                "delta_e": None if best.get("delta_e") is None else float(best["delta_e"]),
-                "spacegroup": best.get("spacegroup"),
-            }
-
-        return self.cached(f"formula:{formula}", fetch)
+        return self.cached(f"formula:{formula}", lambda: self.fetch_composition(formula))
 
     # ---- alternative acquisition route --------------------------------------------------
 

@@ -8,6 +8,9 @@ from __future__ import annotations
 
 import logging
 import os
+import time
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -30,6 +33,7 @@ from oxide_triage.schemas import (
     StabilityRecord,
     WorkRef,
 )
+from oxide_triage.sources.base import SourceError
 from oxide_triage.sources.hazards import hazard_record
 from oxide_triage.sources.materials_project import THERMO_FUNCTIONAL_LABEL, MaterialsProject
 from oxide_triage.sources.openalex import OpenAlex
@@ -138,6 +142,81 @@ class DataLayer:
             )
         return sorted(rebuilt)
 
+    # ---- concurrent prefetch of formula-keyed sources -------------------------------
+
+    def prefetch_formula_sources(self, formulas: list[str], workers: int = 4) -> dict[str, int]:
+        """Fetch OQMD, OpenAlex and PubChem records for every formula not yet cached, with a
+        bounded thread pool per source. Threads do HTTP only; the main thread writes the cache
+        (SQLite connections are not shared across threads). Polymorphs share a formula, so each
+        formula is fetched once. Failures leave no row; the sequential path retries them once."""
+        if self.offline or not formulas or workers <= 0:
+            return {}
+        jobs: list[tuple[str, str, Callable[[], dict]]] = []
+        for f in dict.fromkeys(formulas):  # dedupe, keep order: polymorphs share a formula
+            names = self.aliases.get(f, [])
+            if self.cache.get(self.oqmd.name, f"formula:{f}") is None:
+                jobs.append((self.oqmd.name, f, lambda f=f: self.oqmd.fetch_composition(f)))
+            if self.cache.get(self.openalex.name, f"formula:{f}") is None:
+                jobs.append((self.openalex.name, f, lambda f=f, n=names: self.openalex.fetch_evidence(f, n)))
+            if self.cache.get(self.pubchem.name, f"formula:{f}") is None:
+                jobs.append((self.pubchem.name, f, lambda f=f, n=names: self.pubchem.fetch_hazards(f, n)))
+        if not jobs:
+            return {}
+        counts = {"fetched": 0, "failed": 0}
+        started = time.monotonic()
+        log.info(
+            "prefetch: %d requests across %d formulas, %d workers per source",
+            len(jobs),
+            len(formulas),
+            workers,
+        )
+        # one pool per source so a slow source cannot starve the others
+        by_source: dict[str, list[tuple[str, str, Callable[[], dict]]]] = {}
+        for job in jobs:
+            by_source.setdefault(job[0], []).append(job)
+        pools = {src: ThreadPoolExecutor(max_workers=workers, thread_name_prefix=src) for src in by_source}
+        try:
+            futures = {}
+            for src, src_jobs in by_source.items():
+                for source, formula, fn in src_jobs:
+                    futures[pools[src].submit(fn)] = (source, formula)
+            done = 0
+            for fut in as_completed(futures):
+                source, formula = futures[fut]
+                done += 1
+                try:
+                    payload = fut.result()
+                except SourceError as exc:
+                    counts["failed"] += 1
+                    self.cache.log(source, f"formula:{formula}", "fetch_failed", str(exc))
+                except Exception as exc:  # a bad response shape must not kill the warm
+                    counts["failed"] += 1
+                    self.cache.log(
+                        source, f"formula:{formula}", "fetch_failed", f"{type(exc).__name__}: {exc}"
+                    )
+                else:
+                    self.cache.put(source, f"formula:{formula}", payload)
+                    self.cache.log(source, f"formula:{formula}", "fetched")
+                    counts["fetched"] += 1
+                if done % 100 == 0 or done == len(futures):
+                    elapsed = time.monotonic() - started
+                    eta = elapsed / done * (len(futures) - done)
+                    log.info(
+                        "  prefetch %d/%d  ok %d  failed %d  elapsed %dm%02ds  eta %dm%02ds",
+                        done,
+                        len(futures),
+                        counts["fetched"],
+                        counts["failed"],
+                        elapsed // 60,
+                        elapsed % 60,
+                        eta // 60,
+                        eta % 60,
+                    )
+        finally:
+            for pool in pools.values():
+                pool.shutdown(wait=True)
+        return counts
+
     # ---- per-candidate assembly -----------------------------------------------------
 
     def build_candidates(self) -> list[CandidateRecord]:
@@ -147,19 +226,42 @@ class DataLayer:
         if not self.offline:
             self.mp.prefetch_dielectric(ids)
             task_ids = []
+            formulas: list[str] = []
             for mid in ids:
                 doc, _ = self.mp.summary(mid)
                 if doc and (tid := MaterialsProject.band_gap_task_id(doc)):
                     task_ids.append(tid)
+                if doc and doc.get("formula_pretty") and doc["formula_pretty"] not in formulas:
+                    formulas.append(str(doc["formula_pretty"]))
             self.mp.prefetch_run_types(task_ids)
+            self.prefetch_formula_sources(formulas, workers=self.config.candidates.fetch_workers)
 
         is_fixture = self.cache.has_fixture_data
         records: list[CandidateRecord] = []
-        for mid in ids:
+        total = len(ids)
+        started = time.monotonic()
+        if not self.offline:
+            log.info(
+                "universe: %d candidates; fetching per-candidate records (OQMD, OpenAlex, PubChem)", total
+            )
+        for i, mid in enumerate(ids, 1):
             doc, ts = self.mp.summary(mid)
             if doc is None:
                 continue
             records.append(self._record(doc, ts, is_fixture))
+            if not self.offline and (i % 25 == 0 or i == total):
+                elapsed = time.monotonic() - started
+                eta = elapsed / i * (total - i)
+                log.info(
+                    "  %d/%d %s  elapsed %dm%02ds  eta %dm%02ds",
+                    i,
+                    total,
+                    records[-1].formula,
+                    elapsed // 60,
+                    elapsed % 60,
+                    eta // 60,
+                    eta % 60,
+                )
         records.sort(key=lambda r: r.material_id)
         return records
 

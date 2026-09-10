@@ -123,6 +123,7 @@ class CandidatesConfig(BaseModel):
     energy_above_hull_ceiling_ev_atom: float = Field(ge=0)
     min_reported_gap_ev: float = Field(ge=0)
     literature_sample_size: int = Field(ge=0, le=25)
+    fetch_workers: int = Field(default=4, ge=0, le=16)  # threads per source for the warm
 
 
 class OutputConfig(BaseModel):
