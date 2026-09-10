@@ -21,7 +21,7 @@ flowchart LR
         G[Guard<br/>rule-based bins] --> P[Parser<br/>rules, optional LLM fill-in<br/>validated schema]
     end
     subgraph CORE["Deterministic core — no model, no network, no clock"]
-        D[Data layer<br/>SQLite cache] --> S[Gates + 6 scored criteria<br/>missing-data policy] --> R[Rank<br/>tie-break by id]
+        D[Data layer<br/>SQLite cache] --> S[Gates + 7 scored criteria<br/>missing-data policy] --> R[Rank<br/>tie-break by id]
     end
     subgraph EDGE_OUT["Back edge"]
         F[Refutation<br/>rule caveats, optional LLM<br/>over delimited facts<br/>numeric guard] --> T[Templates<br/>PI summary · audit · JSON]
@@ -59,7 +59,9 @@ Public sources only, each cached in SQLite with a retrieval timestamp. **Materia
 supplies the candidate universe: oxygen plus one or two cations from a versioned allowlist,
 experimentally observed structures only, so hydroxides, oxyhalides and hypothetical polymorphs
 are excluded by construction; hazardous cations stay *in* the universe so that "include lead" is
-a configuration change, not a re-fetch. **OQMD** gives an independent hull distance. **OpenAlex**
+a configuration change, not a re-fetch. Its thermo entries also give, per element system
+plus the substrate, every phase on the convex hull, from which the interface criterion is
+computed here. **OQMD** gives an independent hull distance. **OpenAlex**
 gives works matching the compound and the thin-film subset. **PubChem** gives GHS statements
 where a record exists. An **element hazard table** in the repo, versioned with a cited basis per
 element, is the scoring basis for toxicity because it is complete; PubChem is caveat evidence
@@ -102,9 +104,21 @@ is served. Only one of the two states is fixable by warming the cache, and the o
 
 ## 5. Ranking
 
-Six criteria, each a weight and a normalised score in [0, 1]: stability (with a cross-source
+Seven criteria, each a weight and a normalised score in [0, 1]: stability (with a cross-source
 agreement bonus and disagreement penalty), effective band gap, dielectric constant where known,
-hazard tier, compositional simplicity, literature evidence (thin-film-weighted, log-saturating).
+stability of the interface with the substrate, hazard tier, compositional simplicity, literature
+evidence (thin-film-weighted, log-saturating).
+
+The interface criterion is the one the others cannot do without. Among good oxides the first
+six saturate, and what separated HfO2 from the field in practice was that it does not react
+with silicon. That is a hull question (Hubbard and Schlom, 1996): mix the oxide with the
+substrate, find the lowest-energy combination of stable phases at each composition by a small
+linear programme over Materials Project's thermo entries, and report the most exothermic
+reaction. HfO2, Al2O3, Y2O3, LaAlO3 and SrHfO3 come out at zero against Si; ZrO2 within DFT
+error of zero; Ta2O5, TiO2 and the titanate perovskites react, with the products named in the
+caveat. The reference is the hull at the oxide's own composition, so a metastable polymorph is
+not charged twice, and reactions inside a stated tolerance count as none because hull energies
+carry that much error. Bulk thermodynamics only, and the scope statement says so.
 Hard gates exclude before scoring with a stated reason; every contribution is in the audit view;
 ties break on material id. Materials Project holds several phases of many oxides, so after
 ranking a compound's best phase leads one row and its other passing phases collapse under it
@@ -201,9 +215,8 @@ reports `INCONCLUSIVE` on a sparse cache and reserves `FAIL` for a wrong known a
 Polymorphs are grouped by formula after ranking, with the leading phase's numbers shown and
 the others listed under it; which phase a film adopts is still not modelled. Literature counts from formula-string search are noisy for
 short formulae, and flagged. The hazard table is a screen, not a toxicological assessment.
-Nothing about films is modelled, by design. Near the top of the list the criteria stop
-discriminating, which the tiers make visible; the discriminator that matters in practice,
-stability of the oxide's interface with silicon, is computable from the same public hull data
-and is the next criterion. Then: confirm the cation list and the dielectric curve with the PI's
-group, retune profiles with them against the live data, and add the JARVIS-DFT bulk dataset as
-a second dielectric route.
+Nothing about films is modelled beyond the bulk thermodynamics of the interface: no kinetics,
+no interlayer thickness, no epitaxy, and the substrate is one phase at a time (Si by default;
+any hull phase can be configured). Next: confirm the cation list, the dielectric curve and the
+interface tolerance with the PI's group, retune profiles with them against the live data, add
+the JARVIS-DFT bulk dataset as a second dielectric route, and let a request name the substrate.

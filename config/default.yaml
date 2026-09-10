@@ -16,6 +16,7 @@ weights:
   stability: 0.25
   band_gap: 0.25
   dielectric: 0.15
+  interface: 0.15                 # stability in contact with the substrate (see `interface:` below)
   toxicity: 0.15
   simplicity: 0.10
   literature: 0.10
@@ -74,6 +75,25 @@ toxicity:
 
 simplicity:
   scores: {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}   # by number of distinct elements
+
+interface:
+  # Thermodynamic stability of the oxide in contact with the substrate, from the convex hull of
+  # the oxide's elements plus the substrate's (Hubbard & Schlom, J. Mater. Res. 11, 2757 (1996);
+  # the screening that explains why HfO2 became the gate oxide). The hull comes from Materials
+  # Project's thermo data, cached per element system. Score 1 when no reaction lowers the energy,
+  # 0 at zero_score_at_ev_atom: HfO2, Al2O3, Y2O3 and LaAlO3 are at 0 eV/atom against Si; ZrO2
+  # is marginal (-0.03); Ta2O5 (-0.28), TiO2 (-0.15) and Nb2O5 (-0.50) react. Bulk thermodynamics
+  # only: kinetics, interlayers and epitaxy are not modelled.
+  substrate: Si                   # an element or a hull-phase formula (Ge, SrTiO3, ...)
+  # DFT formation energies carry errors of a few tens of meV/atom, so a reaction less exothermic
+  # than the tolerance is treated as no reaction: ZrO2 against Si comes out at -0.03 to -0.07
+  # depending on the functional, and Hubbard & Schlom classed it stable. The score falls from 1
+  # at -tolerance to 0 at -(tolerance + zero_score_at_ev_atom). The caveat threshold below is
+  # separate and smaller, so a marginal case is still flagged in words.
+  tolerance_ev_atom: 0.05
+  zero_score_at_ev_atom: 0.20
+  caveat_below_ev_atom: 0.02      # a reaction more exothermic than this gets a caveat naming the products
+  thermo_type: GGA_GGA+U_R2SCAN   # MP thermo scheme; matches the summary formation energies
 
 literature:
   # The brief says "prefer public evidence", so the curve must still separate well-studied
@@ -218,6 +238,9 @@ selfcheck:
   on_failure: block
   min_retrieval_completeness: 0.9   # below this, the known-answer check reports insufficient_data, not FAIL
   workhorses: [HfO2, ZrO2, Al2O3, Ta2O5]
+  # Each workhorse must rank in the upper half of the passing compounds unless the interface
+  # criterion explains the drop: Ta2O5 reacts with Si (-0.30 eV/atom on the hull), which is why it
+  # is a capacitor dielectric on TiN rather than a gate oxide, and the check says so by name.
   # Leaders must sit in the default top leaders_top_n. Al2O3 is a workhorse but not a leader:
   # its dielectric constant (~10) sits at the bottom of the dielectric preference, so under a
   # dielectric-weighted default it lands around 16th of ~500, correctly.

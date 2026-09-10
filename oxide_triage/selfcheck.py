@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 from oxide_triage.cache import Cache, utcnow_iso
 from oxide_triage.config import Config, load_config
 from oxide_triage.edges.llm import NullLLM
+from oxide_triage.schemas import DataStatus
 
 if TYPE_CHECKING:  # pragma: no cover
     from oxide_triage.schemas import TriageResult
@@ -115,10 +116,29 @@ def run_selfcheck(
         elif w in ranked:
             pos = ranked.index(w) + 1
             upper = pos <= len(ranked) / 2
-            ok &= upper
-            details.append(
-                f"{w}: default rank {pos}/{len(ranked)}" + ("" if upper else " (below median: FAIL)")
-            )
+            if upper:
+                details.append(f"{w}: default rank {pos}/{len(ranked)}")
+            else:
+                # A workhorse below the median is a ranker fault unless a criterion that carries
+                # its own evidence explains it. The interface criterion does for Ta2O5: it reacts
+                # with Si (-0.30 eV/atom on the hull), which is why it is a capacitor dielectric on
+                # TiN and not a gate oxide, and a Si-substrate triage should say so, not hide it.
+                sc_w = next(s for s in res.shortlist + res.ranked_beyond_shortlist if s.record.formula == w)
+                iface = sc_w.record.interface
+                ic = default_cfg.interface
+                explained = (
+                    iface.status is DataStatus.KNOWN
+                    and iface.reaction_energy_ev_atom is not None
+                    and iface.reaction_energy_ev_atom < -ic.tolerance_ev_atom
+                )
+                if explained:
+                    details.append(
+                        f"{w}: default rank {pos}/{len(ranked)} (below median, explained: reacts with "
+                        f"{iface.substrate} at {iface.reaction_energy_ev_atom:+.2f} eV/atom on the hull)"
+                    )
+                else:
+                    ok = False
+                    details.append(f"{w}: default rank {pos}/{len(ranked)} (below median: FAIL)")
         else:
             ex = next((s for s in res.excluded if s.record.formula == w), None)
             reason = ex.exclusion_reasons[0] if ex and ex.exclusion_reasons else "no stated reason (FAIL)"

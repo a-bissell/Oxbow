@@ -122,7 +122,10 @@ def test_known_answer_workhorses_surface_near_top(cache):
     wide = run(PI, cache=cache, profile="exploratory")
     top = [s.record.formula for s in wide.shortlist + wide.ranked_beyond_shortlist]
     assert WORKHORSES <= set(top)
-    assert {"HfO2", "ZrO2", "Ta2O5"} <= set(top[:10]), top[:10]
+    # Ta2O5 reacts with Si (-0.30 eV/atom on the hull), so the interface criterion pushes it
+    # below the top ten of a wide net; the configured self-check asks for it in the top 25.
+    assert {"HfO2", "ZrO2"} <= set(top[:10]), top[:10]
+    assert "Ta2O5" in top[:25], top[:25]
     assert top[0] not in {"LaLuO3", "Y3Al5O12", "HfSiO4", "ZrSiO4"}, "exotic first is a bug"
 
 

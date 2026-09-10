@@ -10,7 +10,7 @@
   "meta": {
    "cost_usd": 0.001,
    "count": 32,
-   "db_response_time_ms": 63,
+   "db_response_time_ms": 49,
    "groups_count": null,
    "page": 1,
    "per_page": 5,

@@ -15,6 +15,7 @@ from oxide_triage.schemas import (
     DataStatus,
     DielectricRecord,
     HazardRecord,
+    InterfaceRecord,
     LiteratureRecord,
     StabilityRecord,
 )
@@ -43,6 +44,7 @@ def make_record(
     oqmd: float | None = 0.0,
     thin_film: int | None = 100,
     total: int | None = 1000,
+    interface: float | None = 0.0,  # reaction energy with Si; None = unknown
 ) -> CandidateRecord:
     elements = elements or ["Hf", "O"]
     tiers = {el: TABLE.lookup(el)[0] for el in elements if el != "O"}
@@ -72,6 +74,14 @@ def make_record(
             total_works=total,
             thin_film_works=thin_film,
             status=DataStatus.KNOWN if thin_film is not None else DataStatus.ABSENT,
+        ),
+        interface=InterfaceRecord(
+            substrate="Si",
+            reaction_energy_ev_atom=interface,
+            products=[] if not interface else ["SiO2", "HfSi"],
+            thermo_type="test",
+            n_phases=6,
+            status=DataStatus.KNOWN if interface is not None else DataStatus.ABSENT,
         ),
         hazard=HazardRecord(
             element_tiers=tiers,
@@ -208,6 +218,7 @@ class TestComponents:
             "stability",
             "band_gap",
             "dielectric",
+            "interface",
             "toxicity",
             "simplicity",
             "literature",
@@ -280,14 +291,16 @@ class TestComponents:
         assert s.adjusted_score == pytest.approx(raw * cov - cfg.missing_data.penalty * (1 - cov), abs=1e-6)
 
     def test_all_unknown_gives_none_score(self, cfg, eff):
-        r = make_record(e_hull=None, gap=None, e_total=None, oqmd=None, thin_film=None, total=None)
+        r = make_record(
+            e_hull=None, gap=None, e_total=None, oqmd=None, thin_film=None, total=None, interface=None
+        )
         r.hazard.status = DataStatus.ABSENT
         comps, _ = score_components(r, assess_band_gap(r.band_gap, cfg.band_gap), eff, cfg)
         raw, cov, adj, missing, _absent, _nr, _gap, conf = aggregate(comps, cfg)
         # simplicity is always computable, so coverage is exactly its weight
-        assert cov == pytest.approx(eff.weights["simplicity"])
+        assert cov == pytest.approx(eff.weights["simplicity"], abs=1e-5)
         assert conf == "low"
-        assert set(missing) == {"stability", "band_gap", "dielectric", "toxicity", "literature"}
+        assert set(missing) == {"stability", "band_gap", "dielectric", "interface", "toxicity", "literature"}
 
     def test_toxicity_tiers(self, cfg, eff):
         t0 = score_candidate(make_record(), cfg, eff)
@@ -354,7 +367,7 @@ class TestRetrievalProvenance:
         # only the unfetched candidate is off the common footing
         assert a.comparable is True and a.retrieval_gap == 0.0
         assert u.comparable is False
-        assert u.retrieval_gap == pytest.approx(eff.weights["dielectric"])
+        assert u.retrieval_gap == pytest.approx(eff.weights["dielectric"], abs=1e-5)
 
     def test_component_carries_the_reason_in_its_note(self, cfg, eff):
         a, u = self._pair(cfg, eff)

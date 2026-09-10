@@ -1,0 +1,11 @@
+{
+ "params": {},
+ "response": {
+  "IdentifierList": {
+   "CID": [
+    16212444
+   ]
+  }
+ },
+ "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/barium%20zirconate/cids/JSON"
+}

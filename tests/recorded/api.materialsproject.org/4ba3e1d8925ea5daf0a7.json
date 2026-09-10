@@ -1,0 +1,322 @@
+{
+ "params": {
+  "_fields": "formula_pretty,chemsys,formation_energy_per_atom",
+  "_limit": 1000,
+  "_skip": 0,
+  "chemsys": "Bi-Ge,Bi-Ge-O,Bi-Ge-O-Si,Bi-Ge-Si,Bi-O,Bi-O-Si,Bi-O-Si-Sr,Bi-O-Sr,Bi-Si,Bi-Si-Sr,Bi-Sr,Ge-La,Ge-La-O,Ge-La-O-Si,Ge-La-Si,Ge-O,Ge-O-Si,Ge-Si,Hf-O,Hf-O-Pb,Hf-O-Pb-Si,Hf-O-Si,Hf-Pb,Hf-Pb-Si,Hf-Si,La-Lu,La-Lu-O,La-Lu-O-Si,La-Lu-Si,La-O,La-O-Si,La-Si,Lu-O,Lu-O-Pr,Lu-O-Pr-Si,Lu-O-Si,Lu-Pr,Lu-Pr-Si,Lu-Si,O-Pb,O-Pb-Si,O-Pr,O-Pr-Si,O-Si,O-Si-Sr,O-Sr,Pb-Si,Pr-Si,Si-Sr",
+  "energy_above_hull_max": 0.0,
+  "thermo_types": "GGA_GGA+U_R2SCAN"
+ },
+ "response": {
+  "data": [
+   {
+    "chemsys": "Bi-Ge-O",
+    "formation_energy_per_atom": -1.93059506552631,
+    "formula_pretty": "Ge3(BiO3)4"
+   },
+   {
+    "chemsys": "Bi-O",
+    "formation_energy_per_atom": -1.5692018181818215,
+    "formula_pretty": "Bi4O7"
+   },
+   {
+    "chemsys": "Bi-O",
+    "formation_energy_per_atom": -1.4597641266666674,
+    "formula_pretty": "BiO2"
+   },
+   {
+    "chemsys": "Bi-O",
+    "formation_energy_per_atom": -1.6417272150000037,
+    "formula_pretty": "Bi2O3"
+   },
+   {
+    "chemsys": "Bi-O-Si",
+    "formation_energy_per_atom": -2.464400845000001,
+    "formula_pretty": "Si3(BiO3)4"
+   },
+   {
+    "chemsys": "Bi-O-Sr",
+    "formation_energy_per_atom": -1.5647277949999996,
+    "formula_pretty": "Sr4Bi2O"
+   },
+   {
+    "chemsys": "Bi-O-Sr",
+    "formation_energy_per_atom": -2.260618635000001,
+    "formula_pretty": "SrBiO3"
+   },
+   {
+    "chemsys": "Bi-O-Sr",
+    "formation_energy_per_atom": -2.3535075472222236,
+    "formula_pretty": "Sr2Bi2O5"
+   },
+   {
+    "chemsys": "Bi-O-Sr",
+    "formation_energy_per_atom": -2.1110147628571454,
+    "formula_pretty": "Sr(BiO2)2"
+   },
+   {
+    "chemsys": "Bi-O-Sr",
+    "formation_energy_per_atom": -2.3815041635,
+    "formula_pretty": "Sr5(BiO4)3"
+   },
+   {
+    "chemsys": "Bi-Sr",
+    "formation_energy_per_atom": -1.0424866965624986,
+    "formula_pretty": "Sr5Bi3"
+   },
+   {
+    "chemsys": "Bi-Sr",
+    "formation_energy_per_atom": -0.8123474224999996,
+    "formula_pretty": "Sr2Bi3"
+   },
+   {
+    "chemsys": "Bi-Sr",
+    "formation_energy_per_atom": -1.0097883628571394,
+    "formula_pretty": "Sr11Bi10"
+   },
+   {
+    "chemsys": "Ge-La",
+    "formation_energy_per_atom": -0.9505458049999973,
+    "formula_pretty": "LaGe"
+   },
+   {
+    "chemsys": "Ge-La",
+    "formation_energy_per_atom": -0.820686564999999,
+    "formula_pretty": "La5Ge3"
+   },
+   {
+    "chemsys": "Ge-La",
+    "formation_energy_per_atom": -0.8611345237499997,
+    "formula_pretty": "La3Ge5"
+   },
+   {
+    "chemsys": "Ge-La-O",
+    "formation_energy_per_atom": -3.330141265312501,
+    "formula_pretty": "La2GeO5"
+   },
+   {
+    "chemsys": "Ge-La-O",
+    "formation_energy_per_atom": -0.9317179606000019,
+    "formula_pretty": "La15Ge9O"
+   },
+   {
+    "chemsys": "Ge-La-O",
+    "formation_energy_per_atom": -3.5552805675000156,
+    "formula_pretty": "La4GeO8"
+   },
+   {
+    "chemsys": "Ge-La-O",
+    "formation_energy_per_atom": -3.0366694590909087,
+    "formula_pretty": "La2Ge2O7"
+   },
+   {
+    "chemsys": "Ge-La-O",
+    "formation_energy_per_atom": -1.3334342105555583,
+    "formula_pretty": "La5Ge3O"
+   },
+   {
+    "chemsys": "Ge-O",
+    "formation_energy_per_atom": -2.1566556633333342,
+    "formula_pretty": "GeO2"
+   },
+   {
+    "chemsys": "Hf-O",
+    "formation_energy_per_atom": -4.019811040833332,
+    "formula_pretty": "HfO2"
+   },
+   {
+    "chemsys": "Hf-O-Si",
+    "formation_energy_per_atom": -3.655536861666677,
+    "formula_pretty": "HfSiO4"
+   },
+   {
+    "chemsys": "Hf-Pb",
+    "formation_energy_per_atom": -0.07151459250000869,
+    "formula_pretty": "Hf3Pb"
+   },
+   {
+    "chemsys": "Hf-Si",
+    "formation_energy_per_atom": -0.8552623112500015,
+    "formula_pretty": "HfSi"
+   },
+   {
+    "chemsys": "Hf-Si",
+    "formation_energy_per_atom": -0.7910358300000032,
+    "formula_pretty": "Hf2Si"
+   },
+   {
+    "chemsys": "Hf-Si",
+    "formation_energy_per_atom": -0.8442939000000024,
+    "formula_pretty": "Hf3Si2"
+   },
+   {
+    "chemsys": "La-O",
+    "formation_energy_per_atom": -3.8759289195,
+    "formula_pretty": "La2O3"
+   },
+   {
+    "chemsys": "La-O-Si",
+    "formation_energy_per_atom": -3.6739524936363632,
+    "formula_pretty": "La2Si2O7"
+   },
+   {
+    "chemsys": "La-O-Si",
+    "formation_energy_per_atom": -3.7784762018749998,
+    "formula_pretty": "La2SiO5"
+   },
+   {
+    "chemsys": "La-Si",
+    "formation_energy_per_atom": -0.7082368199999985,
+    "formula_pretty": "LaSi2"
+   },
+   {
+    "chemsys": "La-Si",
+    "formation_energy_per_atom": -0.8145220474999988,
+    "formula_pretty": "LaSi"
+   },
+   {
+    "chemsys": "La-Si",
+    "formation_energy_per_atom": -0.7718091263888911,
+    "formula_pretty": "La5Si4"
+   },
+   {
+    "chemsys": "La-Si",
+    "formation_energy_per_atom": -0.6790210318749992,
+    "formula_pretty": "La5Si3"
+   },
+   {
+    "chemsys": "Lu-O",
+    "formation_energy_per_atom": -4.123783570916665,
+    "formula_pretty": "Lu2O3"
+   },
+   {
+    "chemsys": "Lu-O-Si",
+    "formation_energy_per_atom": -3.863396421979168,
+    "formula_pretty": "Lu2SiO5"
+   },
+   {
+    "chemsys": "Lu-O-Si",
+    "formation_energy_per_atom": -3.72417785166666,
+    "formula_pretty": "Lu2Si2O7"
+   },
+   {
+    "chemsys": "Lu-Si",
+    "formation_energy_per_atom": -0.8594091058333326,
+    "formula_pretty": "LuSi"
+   },
+   {
+    "chemsys": "Lu-Si",
+    "formation_energy_per_atom": -0.7849800697916649,
+    "formula_pretty": "Lu5Si3"
+   },
+   {
+    "chemsys": "O-Pb",
+    "formation_energy_per_atom": -1.4699723370312494,
+    "formula_pretty": "PbO"
+   },
+   {
+    "chemsys": "O-Pb",
+    "formation_energy_per_atom": -1.4469811542857107,
+    "formula_pretty": "Pb3O4"
+   },
+   {
+    "chemsys": "O-Pb",
+    "formation_energy_per_atom": -1.299647031666666,
+    "formula_pretty": "PbO2"
+   },
+   {
+    "chemsys": "O-Pb-Si",
+    "formation_energy_per_atom": -2.4153270594444445,
+    "formula_pretty": "Si2Pb3O7"
+   },
+   {
+    "chemsys": "O-Pb-Si",
+    "formation_energy_per_atom": -2.5959264841666823,
+    "formula_pretty": "SiPbO3"
+   },
+   {
+    "chemsys": "O-Pr",
+    "formation_energy_per_atom": -3.7292703694166662,
+    "formula_pretty": "Pr2O3"
+   },
+   {
+    "chemsys": "O-Pr-Si",
+    "formation_energy_per_atom": -3.6058864407575744,
+    "formula_pretty": "Pr2Si2O7"
+   },
+   {
+    "chemsys": "O-Si",
+    "formation_energy_per_atom": -3.2728313438888907,
+    "formula_pretty": "SiO2"
+   },
+   {
+    "chemsys": "O-Si-Sr",
+    "formation_energy_per_atom": -1.4580645675000006,
+    "formula_pretty": "Sr3SiO"
+   },
+   {
+    "chemsys": "O-Si-Sr",
+    "formation_energy_per_atom": -3.4412264730000004,
+    "formula_pretty": "SrSiO3"
+   },
+   {
+    "chemsys": "O-Si-Sr",
+    "formation_energy_per_atom": -3.4220247182142813,
+    "formula_pretty": "Sr2SiO4"
+   },
+   {
+    "chemsys": "O-Sr",
+    "formation_energy_per_atom": -3.0756235274999995,
+    "formula_pretty": "SrO"
+   },
+   {
+    "chemsys": "O-Sr",
+    "formation_energy_per_atom": -2.2044791333333316,
+    "formula_pretty": "SrO2"
+   },
+   {
+    "chemsys": "Pr-Si",
+    "formation_energy_per_atom": -0.5727084449999978,
+    "formula_pretty": "Pr3Si2"
+   },
+   {
+    "chemsys": "Pr-Si",
+    "formation_energy_per_atom": -0.5506375322222207,
+    "formula_pretty": "PrSi2"
+   },
+   {
+    "chemsys": "Pr-Si",
+    "formation_energy_per_atom": -0.6986131045833321,
+    "formula_pretty": "PrSi"
+   },
+   {
+    "chemsys": "Si-Sr",
+    "formation_energy_per_atom": -0.4077188266666691,
+    "formula_pretty": "SrSi2"
+   },
+   {
+    "chemsys": "Si-Sr",
+    "formation_energy_per_atom": -0.4330730366666676,
+    "formula_pretty": "Sr2Si"
+   },
+   {
+    "chemsys": "Si-Sr",
+    "formation_energy_per_atom": -0.5268471175000009,
+    "formula_pretty": "SrSi"
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "thermo_id",
+    "material_id",
+    "last_updated"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-10T21:07:50.211478+00:00",
+   "total_doc": 59
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/thermo/"
+}

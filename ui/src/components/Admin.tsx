@@ -297,6 +297,21 @@ function ProfilesPage() {
               </FieldRow>
             </div>
             <div className="card panel">
+              <span className="label">Interface with the substrate</span>
+              <FieldRow label="Substrate" help="An element or a hull-phase formula; the oxide's reaction with it is computed from the Materials Project hull (Hubbard & Schlom 1996)" shipped={sh("interface.substrate")}>
+                <input className="input" value={String(get(edited, "interface.substrate") ?? "")} onChange={(e) => update("interface.substrate", e.target.value)} />
+              </FieldRow>
+              <FieldRow label="Tolerance (eV/atom)" help="A reaction less exothermic than this is DFT noise and scores as no reaction" shipped={sh("interface.tolerance_ev_atom")}>
+                <Num value={get(edited, "interface.tolerance_ev_atom")} step={0.01} min={0} onChange={(v) => update("interface.tolerance_ev_atom", v)} />
+              </FieldRow>
+              <FieldRow label="Score reaches 0 at (eV/atom beyond the tolerance)" shipped={sh("interface.zero_score_at_ev_atom")}>
+                <Num value={get(edited, "interface.zero_score_at_ev_atom")} step={0.01} min={0.001} onChange={(v) => update("interface.zero_score_at_ev_atom", v)} />
+              </FieldRow>
+              <FieldRow label="Caveat below (eV/atom)" help="A reaction more exothermic than this gets a caveat naming the products" shipped={sh("interface.caveat_below_ev_atom")}>
+                <Num value={get(edited, "interface.caveat_below_ev_atom")} step={0.01} min={0} onChange={(v) => update("interface.caveat_below_ev_atom", v)} />
+              </FieldRow>
+            </div>
+            <div className="card panel">
               <span className="label">Hazards</span>
               <FieldRow label="Blocked hazard tiers" help="Elements in these tiers fail the hazard gate" shipped={sh("toxicity.blocklist_tiers")}>
                 <ListInput value={(get(edited, "toxicity.blocklist_tiers") ?? []).map(String)} onChange={(v) => update("toxicity.blocklist_tiers", v.map(Number).filter((n) => !Number.isNaN(n)))} />

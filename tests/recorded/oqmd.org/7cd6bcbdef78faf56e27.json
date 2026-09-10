@@ -1,0 +1,253 @@
+{
+ "params": {
+  "composition": "CaO",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.19367239793938,
+    "entry_id": 5181,
+    "name": "CaO",
+    "spacegroup": "Fm-3m",
+    "stability": 0.0022793949999972973
+   },
+   {
+    "delta_e": -3.12330115043938,
+    "entry_id": 20481,
+    "name": "CaO",
+    "spacegroup": "P63mc",
+    "stability": 0.07265064249999709
+   },
+   {
+    "delta_e": -2.70517752793938,
+    "entry_id": 306347,
+    "name": "CaO",
+    "spacegroup": "Pm-3m",
+    "stability": 0.4907742649999971
+   },
+   {
+    "delta_e": -3.19509996293938,
+    "entry_id": 327431,
+    "name": "CaO",
+    "spacegroup": "R-3m",
+    "stability": 0.0008518299999971113
+   },
+   {
+    "delta_e": -2.54878605293938,
+    "entry_id": 337889,
+    "name": "CaO",
+    "spacegroup": "P4/mmm",
+    "stability": 0.647165739999997
+   },
+   {
+    "delta_e": -0.341045242939377,
+    "entry_id": 24007,
+    "name": "CaO",
+    "spacegroup": "Fd-3m",
+    "stability": 2.8549065500000004
+   },
+   {
+    "delta_e": -3.19590231293938,
+    "entry_id": 1105532,
+    "name": "CaO",
+    "spacegroup": "Fm-3m",
+    "stability": 4.9479999997270596e-05
+   },
+   {
+    "delta_e": -3.00939812793938,
+    "entry_id": 1219015,
+    "name": "CaO",
+    "spacegroup": "F-43m",
+    "stability": 0.18655366499999726
+   },
+   {
+    "delta_e": -2.94246159293938,
+    "entry_id": 1228694,
+    "name": "CaO",
+    "spacegroup": "P-6m2",
+    "stability": 0.2534901999999972
+   },
+   {
+    "delta_e": -2.81882380793938,
+    "entry_id": 1343581,
+    "name": "CaO",
+    "spacegroup": "Cmca",
+    "stability": 0.37712798499999733
+   },
+   {
+    "delta_e": -2.82082641543938,
+    "entry_id": 1343625,
+    "name": "CaO",
+    "spacegroup": "P4/nmm",
+    "stability": 0.3751253774999972
+   },
+   {
+    "delta_e": -3.19530234627271,
+    "entry_id": 1343913,
+    "name": "CaO",
+    "spacegroup": "P3121",
+    "stability": 0.0006494466666673304
+   },
+   {
+    "delta_e": -3.19477676793938,
+    "entry_id": 1442031,
+    "name": "CaO",
+    "spacegroup": "Immm",
+    "stability": 0.0011750249999971096
+   },
+   {
+    "delta_e": -3.19188479293938,
+    "entry_id": 1443174,
+    "name": "CaO",
+    "spacegroup": "I4/mmm",
+    "stability": 0.004066999999997378
+   },
+   {
+    "delta_e": -3.19360934293938,
+    "entry_id": 1444347,
+    "name": "CaO",
+    "spacegroup": "Immm",
+    "stability": 0.0023424499999973314
+   },
+   {
+    "delta_e": -3.19362870293938,
+    "entry_id": 1444451,
+    "name": "CaO",
+    "spacegroup": "C2/m",
+    "stability": 0.0023230899999973076
+   },
+   {
+    "delta_e": -3.06210145543938,
+    "entry_id": 1442200,
+    "name": "CaO",
+    "spacegroup": "P63/mmc",
+    "stability": 0.13385033749999709
+   },
+   {
+    "delta_e": -3.19487260543938,
+    "entry_id": 1442287,
+    "name": "CaO",
+    "spacegroup": "Pmn21",
+    "stability": 0.0010791874999971363
+   },
+   {
+    "delta_e": -2.67407576293938,
+    "entry_id": 1442541,
+    "name": "CaO",
+    "spacegroup": "P42/mmc",
+    "stability": 0.5218760299999974
+   },
+   {
+    "delta_e": -3.12543386043938,
+    "entry_id": 1443822,
+    "name": "CaO",
+    "spacegroup": "P63/mmc",
+    "stability": 0.07051793249999738
+   },
+   {
+    "delta_e": -3.19517889418938,
+    "entry_id": 1439998,
+    "name": "CaO",
+    "spacegroup": "Pnma",
+    "stability": 0.0007728987499970863
+   },
+   {
+    "delta_e": -3.19494165668938,
+    "entry_id": 1441810,
+    "name": "CaO",
+    "spacegroup": "Pbcm",
+    "stability": 0.001010136249997462
+   },
+   {
+    "delta_e": -3.19556887793938,
+    "entry_id": 1443085,
+    "name": "CaO",
+    "spacegroup": "Pca21",
+    "stability": 0.00038291499999720813
+   },
+   {
+    "delta_e": -2.81807829168938,
+    "entry_id": 1443347,
+    "name": "CaO",
+    "spacegroup": "Cmc21",
+    "stability": 0.3778735012499972
+   },
+   {
+    "delta_e": -2.988847990439378,
+    "entry_id": 1443988,
+    "name": "CaO",
+    "spacegroup": "Pm-3n",
+    "stability": 0.20710380249999938
+   },
+   {
+    "delta_e": -2.9004987979393775,
+    "entry_id": 1479342,
+    "name": "CaO",
+    "spacegroup": "C2/c",
+    "stability": 0.2954529949999998
+   },
+   {
+    "delta_e": -3.1164044379393774,
+    "entry_id": 1407262,
+    "name": "CaO",
+    "spacegroup": "Cmcm",
+    "stability": 0.07954735499999988
+   },
+   {
+    "delta_e": -3.1959517929393773,
+    "entry_id": 1990195,
+    "name": "CaO",
+    "spacegroup": "Fm-3m",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -2.7048966779393773,
+    "entry_id": 2029493,
+    "name": "CaO",
+    "spacegroup": "Pm-3m",
+    "stability": 0.491055115
+   },
+   {
+    "delta_e": -3.009931027939377,
+    "entry_id": 2029496,
+    "name": "CaO",
+    "spacegroup": "F-43m",
+    "stability": 0.1860207650000003
+   },
+   {
+    "delta_e": -3.1958587029393772,
+    "entry_id": 2168911,
+    "name": "CaO",
+    "spacegroup": "Fm-3m",
+    "stability": 9.309000000001788e-05
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 31,
+   "data_returned": 31,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=CaO&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 16:09:13"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

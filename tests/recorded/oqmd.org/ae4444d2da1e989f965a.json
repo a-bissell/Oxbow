@@ -1,0 +1,50 @@
+{
+ "params": {
+  "composition": "HfSiO4",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.4748656347525,
+    "entry_id": 5991,
+    "name": "HfSiO4",
+    "spacegroup": "I41/amd",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.39222578808584,
+    "entry_id": 1349055,
+    "name": "HfSiO4",
+    "spacegroup": "I41/a",
+    "stability": 0.08263984666666024
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 2,
+   "data_returned": 2,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=HfSiO4&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 16:08:49"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}
