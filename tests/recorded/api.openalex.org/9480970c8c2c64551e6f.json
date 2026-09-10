@@ -1,0 +1,121 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(CaO OR \"calcium oxide\") AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 933,
+   "db_response_time_ms": 72,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    (CaO or stemmed \"calcium oxide\")\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "CaO"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"calcium oxide\""
+        }
+       ],
+       "join": "or"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:CaO|%22calcium oxide%22,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1038/nature07110",
+    "id": "https://openalex.org/W3213157473",
+    "publication_year": 2008,
+    "title": "Medium-scale carbon nanotube thin-film integrated circuits on flexible plastic substrates"
+   },
+   {
+    "doi": "https://doi.org/10.1126/science.268.5218.1738",
+    "id": "https://openalex.org/W2058557544",
+    "publication_year": 1995,
+    "title": "A Combinatorial Approach to Materials Discovery"
+   },
+   {
+    "doi": "https://doi.org/10.1002/jbm.820240306",
+    "id": "https://openalex.org/W2150628505",
+    "publication_year": 1990,
+    "title": "Ca, P\u2010rich layer formed on high\u2010strength bioactive glass\u2010ceramic A\u2010W"
+   },
+   {
+    "doi": "https://doi.org/10.1002/adfm.201503726",
+    "id": "https://openalex.org/W2268679735",
+    "publication_year": 2015,
+    "title": "CaO\u2010Templated Growth of Hierarchical Porous Graphene for High\u2010Power Lithium\u2013Sulfur Battery Applications"
+   },
+   {
+    "doi": "https://doi.org/10.1002/jbm.820251105",
+    "id": "https://openalex.org/W1979146632",
+    "publication_year": 1991,
+    "title": "Apatite formation on the surface of ceravital\u2010type glass\u2010ceramic in the body"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

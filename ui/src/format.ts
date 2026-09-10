@@ -20,6 +20,7 @@ export const CRITERIA_LABELS: Record<string, string> = {
   stability: "stability",
   band_gap: "band gap",
   dielectric: "dielectric",
+  interface: "interface (vs substrate)",
   toxicity: "toxicity",
   simplicity: "simplicity",
   literature: "literature",

@@ -1,0 +1,57 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(HfSiO4 OR hafnon OR \"hafnium silicate\")",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 669,
+   "db_response_time_ms": 23,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (HfSiO4 or stemmed \"hafnium silicate\" or hafnon)",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "HfSiO4"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"hafnium silicate\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "hafnon"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:HfSiO4|%22hafnium silicate%22|hafnon&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1116/1.591472",
+    "id": "https://openalex.org/W2019017977",
+    "publication_year": 2000,
+    "title": "Band offsets of wide-band-gap oxides and implications for future electronic devices"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

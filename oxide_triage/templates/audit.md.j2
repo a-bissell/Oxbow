@@ -101,7 +101,7 @@ Gates:
 ## Ranked candidates
 
 {% for sc in result.shortlist + result.ranked_beyond_shortlist %}
-### {{ sc.rank }}. {{ sc.record.formula }} — `{{ sc.record.material_id }}`{% if loop.index > result.shortlist | length %} _(beyond shortlist)_{% endif %}
+### {{ sc.rank }}. {{ sc.record.formula }} — `{{ sc.record.material_id }}`{% if sc.tier is not none %} · tier {{ sc.tier }}{% endif %}{% if loop.index > result.shortlist | length %} _(beyond shortlist)_{% endif %}
 
 {{ sc.record.crystal_system or "?" }} {{ sc.record.spacegroup_symbol or "" }} · {{ sc.record.n_elements }} elements ({{ sc.record.elements | join("-") }}) · theoretical structure: {{ sc.record.theoretical }}
 

@@ -28,7 +28,7 @@ from oxide_triage.config import (
 from oxide_triage.edges.llm import LLMClient, make_llm
 from oxide_triage.edges.parse import parse_request
 from oxide_triage.edges.render import rationale_line
-from oxide_triage.grouping import group_polymorphs, polymorph_caveat
+from oxide_triage.grouping import assign_tiers, group_polymorphs, polymorph_caveat
 from oxide_triage.guard import guard_request
 from oxide_triage.progress import ProgressFn, emit
 from oxide_triage.refute import refute, rule_caveats
@@ -320,6 +320,7 @@ def run_triage(
         collapsed: list[ScoredCandidate] = []
         if config.output.group_polymorphs:
             ranked, collapsed = group_polymorphs(ranked)
+        assign_tiers(ranked, config.output.tie_band)
         shortlist, beyond = ranked[: eff.top_k], ranked[eff.top_k :]
 
         emit(progress, "refute", f"Arguing against each of the {len(shortlist)} shortlisted candidates")
@@ -390,6 +391,7 @@ def run_triage(
             ranked_beyond_shortlist=beyond,
             excluded=excluded,
             collapsed_polymorphs=collapsed,
+            tie_band=config.output.tie_band,
             n_candidates_considered=len(records),
             scope=scope_info,
             warnings=warnings,

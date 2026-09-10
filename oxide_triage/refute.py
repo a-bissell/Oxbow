@@ -51,6 +51,27 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
     def add(code: str, severity: str, text: str, **evidence: Any) -> None:
         out.append(Caveat(code=code, severity=severity, text=text, origin="rule", evidence=evidence))  # type: ignore[arg-type]
 
+    # Interface with the substrate ---------------------------------------------------------
+    iface = r.interface
+    ic = config.interface
+    if (
+        iface.status == DataStatus.KNOWN
+        and iface.reaction_energy_ev_atom is not None
+        and iface.reaction_energy_ev_atom < -ic.caveat_below_ev_atom
+    ):
+        e_rxn = iface.reaction_energy_ev_atom
+        prods = ", ".join(iface.products[:4]) or "other hull phases"
+        add(
+            "substrate_reaction",
+            "critical" if e_rxn <= -(ic.tolerance_ev_atom + ic.zero_score_at_ev_atom) else "warning",
+            f"Bulk thermodynamics says {r.formula} reacts with {iface.substrate}: {e_rxn:+.3f} eV/atom at "
+            f"{(iface.x_substrate or 0):.0%} {iface.substrate}, forming {prods}. Expect an interlayer or use a "
+            f"barrier; reaction kinetics and epitaxy are not modelled (hull: {iface.thermo_type}).",
+            reaction_energy_ev_atom=e_rxn,
+            substrate=iface.substrate,
+            products=list(iface.products),
+        )
+
     # Hygroscopicity ---------------------------------------------------------------------
     entry = HYGROSCOPIC.get("formulas", {}).get(r.formula)
     if entry:

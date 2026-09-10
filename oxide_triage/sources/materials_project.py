@@ -23,6 +23,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from itertools import combinations
 from typing import Any
 
 from oxide_triage.cache import Cache
@@ -315,6 +316,95 @@ class MaterialsProject(CachedSource):
             }
 
         return self.cached(f"dielectric:{material_id}", fetch)
+
+    # ---- hull phases for the interface criterion --------------------------------------
+
+    @staticmethod
+    def chemsys(elements: list[str] | set[str]) -> str:
+        return "-".join(sorted(elements))
+
+    @staticmethod
+    def _subsystems(elements: list[str]) -> list[str]:
+        out: list[str] = []
+        for k in range(2, len(elements) + 1):
+            out.extend("-".join(sorted(c)) for c in combinations(elements, k))
+        return out
+
+    def _thermo_payload(self, docs: list[dict[str, Any]], thermo_type: str) -> dict[str, Any]:
+        phases: dict[str, float] = {}
+        for d in docs:
+            f, e = d.get("formula_pretty"), d.get("formation_energy_per_atom")
+            if not f or e is None:
+                continue
+            if f not in phases or float(e) < phases[f]:
+                phases[f] = round(float(e), 4)
+        return {"thermo_type": thermo_type, "phases": phases}
+
+    def stable_phases(
+        self, elements: list[str], thermo_type: str
+    ) -> tuple[dict[str, Any] | None, str | None, str]:
+        """Every phase on the hull of ``elements`` and each of its subsystems (MP's ``chemsys``
+        filter matches an element set exactly, so the binaries must be asked for by name), as
+        formula -> formation energy per atom. One cache row per element system."""
+        key = f"thermo:{self.chemsys(elements)}"
+
+        def fetch() -> dict[str, Any]:
+            docs = self._paged(
+                "/materials/thermo/",
+                {
+                    "chemsys": ",".join(self._subsystems(sorted(elements))),
+                    "thermo_types": thermo_type,
+                    "energy_above_hull_max": 0.0,
+                    "_fields": "formula_pretty,chemsys,formation_energy_per_atom",
+                },
+            )
+            return self._thermo_payload(docs, thermo_type)
+
+        return self.cached(key, fetch)
+
+    def stable_phases_cached(self, elements: list[str]) -> tuple[dict[str, Any] | None, str | None, str]:
+        return self.peek(f"thermo:{self.chemsys(elements)}")
+
+    def prefetch_thermo(
+        self, systems: list[list[str]], thermo_type: str, per_request: int = 8
+    ) -> dict[str, int]:
+        """Batch the hull lookups: several element systems' subsystems per request, split back
+        by ``chemsys`` on the way into the cache."""
+        missing = [
+            sorted(e) for e in systems if self.cache.get(self.name, f"thermo:{self.chemsys(e)}") is None
+        ]
+        missing = list({self.chemsys(e): e for e in missing}.values())
+        counts = {"fetched": 0, "failed": 0}
+        if self.offline or not missing:
+            return counts
+        for i in range(0, len(missing), per_request):
+            batch = missing[i : i + per_request]
+            subs = sorted({sub for els in batch for sub in self._subsystems(els)})
+            try:
+                docs = self._paged(
+                    "/materials/thermo/",
+                    {
+                        "chemsys": ",".join(subs),
+                        "thermo_types": thermo_type,
+                        "energy_above_hull_max": 0.0,
+                        "_fields": "formula_pretty,chemsys,formation_energy_per_atom",
+                    },
+                )
+            except SourceError as exc:
+                counts["failed"] += len(batch)
+                for els in batch:
+                    self.cache.log(self.name, f"thermo:{self.chemsys(els)}", "fetch_failed", str(exc))
+                continue
+            by_sub: dict[str, list[dict[str, Any]]] = {}
+            for d in docs:
+                by_sub.setdefault(str(d.get("chemsys") or ""), []).append(d)
+            for els in batch:
+                mine = [d for sub in self._subsystems(els) for d in by_sub.get(sub, [])]
+                key = f"thermo:{self.chemsys(els)}"
+                self.cache.put(self.name, key, self._thermo_payload(mine, thermo_type))
+                self.cache.log(self.name, key, "fetched")
+                counts["fetched"] += 1
+        return counts
 
     def prefetch_dielectric(self, material_ids: list[str]) -> None:
         """Batch the dielectric lookups (one request per 100 ids) into the cache."""

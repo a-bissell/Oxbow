@@ -101,8 +101,20 @@ def explain_candidate(result: TriageResult, key: str) -> str:
         )
     else:
         n_pass = len(result.shortlist) + len(result.ranked_beyond_shortlist)
+        tier_note = ""
+        if sc.tier is not None:
+            peers = [
+                x.record.formula
+                for x in result.shortlist + result.ranked_beyond_shortlist
+                if x.tier == sc.tier and x.record.material_id != r.material_id
+            ]
+            tier_note = f" Tier {sc.tier}" + (
+                f", effectively tied with {', '.join(peers[:6])}{' and others' if len(peers) > 6 else ''}; the order inside a tier is arbitrary."
+                if peers
+                else ", alone in its tier."
+            )
         lines.append(
-            f"**Rank {sc.rank} of {n_pass} passing compounds.** Adjusted score {sc.adjusted_score:.4f} "
+            f"**Rank {sc.rank} of {n_pass} passing compounds.**{tier_note} Adjusted score {sc.adjusted_score:.4f} "
             f"(raw on available data {sc.raw_score:.4f}, coverage {sc.data_coverage:.0%}, confidence {sc.confidence})."
         )
         if sc.polymorphs:
@@ -301,7 +313,8 @@ def list_candidates(result: TriageResult, section: str = "shortlist", limit: int
         else:
             score = "—" if sc.adjusted_score is None else f"{sc.adjusted_score:.3f}"
             phases = f", +{len(sc.polymorphs)} other phase(s)" if sc.polymorphs else ""
+            tier = f", tier {sc.tier}" if sc.tier is not None else ""
             lines.append(
-                f"- #{sc.rank} {r.formula} ({r.material_id}): score {score}, confidence {sc.confidence}{phases}"
+                f"- #{sc.rank} {r.formula} ({r.material_id}): score {score}{tier}, confidence {sc.confidence}{phases}"
             )
     return "\n".join(lines)

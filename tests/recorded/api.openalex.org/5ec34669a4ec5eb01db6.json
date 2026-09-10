@@ -1,0 +1,111 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Mg2SiO4) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 22,
+   "db_response_time_ms": 85,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    Mg2SiO4\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "Mg2SiO4"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:Mg2SiO4,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1086/192321",
+    "id": "https://openalex.org/W2054322235",
+    "publication_year": 1996,
+    "title": "Ultraviolet and Infrared Refractive Indices of Amorphous Silicates"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.biombioe.2011.08.023",
+    "id": "https://openalex.org/W2029490568",
+    "publication_year": 2011,
+    "title": "Synthesis of multiwalled carbon nanotubes from bamboo charcoal and the roles of minerals on their growth"
+   },
+   {
+    "doi": "https://doi.org/10.1086/157482",
+    "id": "https://openalex.org/W2029873636",
+    "publication_year": 1979,
+    "title": "Mid-infrared optical properties of vapor-condensed magnesium silicates"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.4870411",
+    "id": "https://openalex.org/W1989420772",
+    "publication_year": 2014,
+    "title": "Automated high-pressure titration system with in situ infrared spectroscopic detection"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.jcrysgro.2006.09.036",
+    "id": "https://openalex.org/W2080032995",
+    "publication_year": 2006,
+    "title": "Epitaxial Mg2SiO4 thin films with a spinel structure grown on Si substrates"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

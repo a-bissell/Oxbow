@@ -1,0 +1,295 @@
+{
+ "params": {
+  "composition": "BaZrO3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.47419320952725,
+    "entry_id": 5221,
+    "name": "BaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.003656786000002299
+   },
+   {
+    "delta_e": -3.47695680952725,
+    "entry_id": 351177,
+    "name": "BaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.0008931860000020997
+   },
+   {
+    "delta_e": -0.517136343527252,
+    "entry_id": 351765,
+    "name": "BaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 2.960713652
+   },
+   {
+    "delta_e": -2.59129293352725,
+    "entry_id": 679945,
+    "name": "BaZrO3",
+    "spacegroup": "P4mm",
+    "stability": 0.8865570620000023
+   },
+   {
+    "delta_e": -3.37830311452725,
+    "entry_id": 678328,
+    "name": "BaZrO3",
+    "spacegroup": "R-3",
+    "stability": 0.09954688100000197
+   },
+   {
+    "delta_e": -3.37829089252725,
+    "entry_id": 678329,
+    "name": "BaZrO3",
+    "spacegroup": "R-3",
+    "stability": 0.09955910300000204
+   },
+   {
+    "delta_e": -3.47686888402725,
+    "entry_id": 681566,
+    "name": "BaZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0009811115000020187
+   },
+   {
+    "delta_e": -3.16611127502725,
+    "entry_id": 681565,
+    "name": "BaZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.31173872050000195
+   },
+   {
+    "delta_e": -3.47661194352725,
+    "entry_id": 679946,
+    "name": "BaZrO3",
+    "spacegroup": "P4mm",
+    "stability": 0.0012380520000023765
+   },
+   {
+    "delta_e": -3.47641006152725,
+    "entry_id": 825496,
+    "name": "BaZrO3",
+    "spacegroup": "R-3c",
+    "stability": 0.0014399340000021965
+   },
+   {
+    "delta_e": -2.86389882752725,
+    "entry_id": 827417,
+    "name": "BaZrO3",
+    "spacegroup": "R-3c",
+    "stability": 0.613951168000002
+   },
+   {
+    "delta_e": -3.12990161119392,
+    "entry_id": 1289692,
+    "name": "BaZrO3",
+    "spacegroup": "P63cm",
+    "stability": 0.347948384333332
+   },
+   {
+    "delta_e": -3.18767296852725,
+    "entry_id": 1322906,
+    "name": "BaZrO3",
+    "spacegroup": "Fd-3m",
+    "stability": 0.29017702700000214
+   },
+   {
+    "delta_e": -3.34409508302725,
+    "entry_id": 1349232,
+    "name": "BaZrO3",
+    "spacegroup": "P63/mmc",
+    "stability": 0.13375491250000238
+   },
+   {
+    "delta_e": -3.47408832352725,
+    "entry_id": 1439827,
+    "name": "BaZrO3",
+    "spacegroup": "R3m",
+    "stability": 0.003761672000002214
+   },
+   {
+    "delta_e": -3.47453540152725,
+    "entry_id": 1441677,
+    "name": "BaZrO3",
+    "spacegroup": "Amm2",
+    "stability": 0.0033145940000021135
+   },
+   {
+    "delta_e": -2.42326923752725,
+    "entry_id": 1444284,
+    "name": "BaZrO3",
+    "spacegroup": "Amm2",
+    "stability": 1.054580758000002
+   },
+   {
+    "delta_e": -3.47657579752725,
+    "entry_id": 1442741,
+    "name": "BaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.001274198000002169
+   },
+   {
+    "delta_e": -1.70067614552725,
+    "entry_id": 1444280,
+    "name": "BaZrO3",
+    "spacegroup": "P4/mmm",
+    "stability": 1.777173850000002
+   },
+   {
+    "delta_e": -3.47593627852725,
+    "entry_id": 1441926,
+    "name": "BaZrO3",
+    "spacegroup": "Imma",
+    "stability": 0.0019137170000020909
+   },
+   {
+    "delta_e": -3.47632893152725,
+    "entry_id": 1440324,
+    "name": "BaZrO3",
+    "spacegroup": "I4/mcm",
+    "stability": 0.0015210640000020703
+   },
+   {
+    "delta_e": -2.876368978527252,
+    "entry_id": 1523688,
+    "name": "BaZrO3",
+    "spacegroup": "R-3c",
+    "stability": 0.6014810170000002
+   },
+   {
+    "delta_e": -3.268018482527252,
+    "entry_id": 1362680,
+    "name": "BaZrO3",
+    "spacegroup": "P21/m",
+    "stability": 0.20983151300000014
+   },
+   {
+    "delta_e": -3.4757746885272525,
+    "entry_id": 1444426,
+    "name": "BaZrO3",
+    "spacegroup": "C2/m",
+    "stability": 0.002075306999999693
+   },
+   {
+    "delta_e": -1.7011680995272527,
+    "entry_id": 1709704,
+    "name": "BaZrO3",
+    "spacegroup": "P4/mmm",
+    "stability": 1.7766818959999995
+   },
+   {
+    "delta_e": -2.4233658275272516,
+    "entry_id": 1710022,
+    "name": "BaZrO3",
+    "spacegroup": "Amm2",
+    "stability": 1.0544841680000006
+   },
+   {
+    "delta_e": -3.477849995527252,
+    "entry_id": 1708543,
+    "name": "BaZrO3",
+    "spacegroup": "C2/m",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.473834344527252,
+    "entry_id": 1724956,
+    "name": "BaZrO3",
+    "spacegroup": "P4/mbm",
+    "stability": 0.004015651000000009
+   },
+   {
+    "delta_e": -3.472755329527253,
+    "entry_id": 1725741,
+    "name": "BaZrO3",
+    "spacegroup": "Ima2",
+    "stability": 0.005094665999999304
+   },
+   {
+    "delta_e": -3.289011022193919,
+    "entry_id": 1770039,
+    "name": "BaZrO3",
+    "spacegroup": "R-3m",
+    "stability": 0.1888389733333331
+   },
+   {
+    "delta_e": -3.363913015027252,
+    "entry_id": 1812443,
+    "name": "BaZrO3",
+    "spacegroup": "R-3m",
+    "stability": 0.11393698050000012
+   },
+   {
+    "delta_e": -3.474982429527252,
+    "entry_id": 1871055,
+    "name": "BaZrO3",
+    "spacegroup": "P-1",
+    "stability": 0.0028675660000003766
+   },
+   {
+    "delta_e": -3.4748722465272524,
+    "entry_id": 1873388,
+    "name": "BaZrO3",
+    "spacegroup": "R3",
+    "stability": 0.0029777489999998075
+   },
+   {
+    "delta_e": -3.474633637527252,
+    "entry_id": 2019310,
+    "name": "BaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.0032163579999999747
+   },
+   {
+    "delta_e": -3.471166723527253,
+    "entry_id": 2016081,
+    "name": "BaZrO3",
+    "spacegroup": "I4/mcm",
+    "stability": 0.006683271999999185
+   },
+   {
+    "delta_e": -3.477187235527252,
+    "entry_id": 2170957,
+    "name": "BaZrO3",
+    "spacegroup": "I4/mcm",
+    "stability": 0.0006627599999999845
+   },
+   {
+    "delta_e": -0.5154881675272527,
+    "entry_id": 2176679,
+    "name": "BaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 2.9623618279999997
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 37,
+   "data_returned": 37,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=BaZrO3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 16:09:20"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

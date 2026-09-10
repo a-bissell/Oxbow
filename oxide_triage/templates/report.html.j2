@@ -126,6 +126,7 @@ comparing candidates against each other.</div>
     <span class="rank">{{ sc.rank }}</span>
     <span class="formula">{{ r.formula }}</span>
     <span class="tag">{{ r.material_id }} · {{ r.crystal_system or "?" }} {{ r.spacegroup_symbol or "" }}</span>
+    {% if sc.tier is not none %}<span class="pill gray" title="Candidates within {{ result.tie_band }} of a tier's leader share the tier; the order inside a tier is arbitrary.">tier {{ sc.tier }}</span>{% endif %}
     <span class="pill {{ sc.confidence }}">confidence {{ sc.confidence }}</span>
     {% if sc.absent_criteria %}<span class="pill gray">no data: {{ sc.absent_criteria | join(", ") }}</span>{% endif %}
     {% if sc.not_retrieved_criteria %}<span class="pill warn" title="Never downloaded into this cache; the score is lowered by data the system failed to collect, so this rank is not comparable.">never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}</span>{% endif %}

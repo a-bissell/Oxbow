@@ -53,7 +53,7 @@ ENV_KEYS: dict[str, str] = {
     "llm.base_url": "LLM_BASE_URL",
 }
 
-CRITERIA = ("stability", "band_gap", "dielectric", "toxicity", "simplicity", "literature")
+CRITERIA = ("stability", "band_gap", "dielectric", "interface", "toxicity", "simplicity", "literature")
 
 
 class Weights(BaseModel):
@@ -63,6 +63,9 @@ class Weights(BaseModel):
     toxicity: float = Field(ge=0)
     simplicity: float = Field(ge=0)
     literature: float = Field(ge=0)
+    interface: float = Field(
+        default=0.0, ge=0
+    )  # default 0 so a site file written before the criterion still loads
 
     def normalized(self) -> dict[str, float]:
         raw = self.model_dump()
@@ -124,6 +127,21 @@ class ToxicityConfig(BaseModel):
 
 class SimplicityConfig(BaseModel):
     scores: dict[int, float]
+
+
+class InterfaceConfig(BaseModel):
+    """Stability of the oxide in contact with a substrate, from the convex hull of oxide plus
+    substrate (Hubbard & Schlom 1996). Score 1 at no reaction, 0 at ``zero_score_at_ev_atom``."""
+
+    substrate: str = "Si"  # an element or a hull-phase formula (Si, Ge, SrTiO3, ...)
+    tolerance_ev_atom: float = Field(
+        default=0.05, ge=0
+    )  # a reaction inside this band is DFT noise, not a reaction
+    zero_score_at_ev_atom: float = Field(default=0.20, gt=0)  # measured beyond the tolerance
+    thermo_type: str = "GGA_GGA+U_R2SCAN"  # MP thermo scheme; the default matches the summary energies
+    caveat_below_ev_atom: float = Field(
+        default=0.02, ge=0
+    )  # a reaction more exothermic than this gets a caveat
 
 
 class LiteratureConfig(BaseModel):
@@ -189,6 +207,9 @@ class OutputConfig(BaseModel):
     top_k: int = Field(ge=1, le=50)
     verbosity: Literal["terse", "normal", "verbose"]
     group_polymorphs: bool = True  # one row per compound; other passing phases collapse under it
+    tie_band: float = Field(
+        default=0.04, ge=0.0, le=1.0
+    )  # candidates within this of a tier's leader share the tier
 
 
 class CacheConfig(BaseModel):
@@ -277,6 +298,7 @@ class Config(BaseModel):
     toxicity: ToxicityConfig
     simplicity: SimplicityConfig
     literature: LiteratureConfig
+    interface: InterfaceConfig = Field(default_factory=InterfaceConfig)
     missing_data: MissingDataConfig
     retrieval: RetrievalConfig = Field(default_factory=RetrievalConfig)
     candidates: CandidatesConfig

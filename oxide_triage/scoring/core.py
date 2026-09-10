@@ -351,6 +351,49 @@ def score_components(
             )
         )
 
+    # Interface: stability in contact with the substrate ---------------------------------
+    iface = record.interface
+    ic = config.interface
+    if iface.status == DataStatus.KNOWN and iface.reaction_energy_ev_atom is not None:
+        e_rxn = iface.reaction_energy_ev_atom
+        norm = clamp01(1.0 + (e_rxn + ic.tolerance_ev_atom) / ic.zero_score_at_ev_atom)
+        if e_rxn >= -1e-9:
+            label = f"stable against {iface.substrate} (no hull reaction)"
+        else:
+            prods = " + ".join(iface.products[:4]) or "hull phases"
+            label = f"reacts with {iface.substrate}: {e_rxn:+.3f} eV/atom -> {prods}"
+        comps.append(
+            _component(
+                "interface",
+                w["interface"],
+                label,
+                norm,
+                [
+                    f"score = clamp(1 + (E_rxn + {ic.tolerance_ev_atom:g}) / {ic.zero_score_at_ev_atom:g}); "
+                    f"reactions inside {ic.tolerance_ev_atom:g} eV/atom count as none; most exothermic reaction of the "
+                    f"oxide with {iface.substrate} against the {iface.thermo_type} hull "
+                    f"({iface.n_phases} stable phases)"
+                    + (
+                        f", at {iface.x_substrate:.0%} {iface.substrate}"
+                        if iface.x_substrate is not None
+                        else ""
+                    ),
+                    "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled",
+                ],
+            )
+        )
+    else:
+        comps.append(
+            _component(
+                "interface",
+                w["interface"],
+                f"stability against {ic.substrate} unavailable",
+                None,
+                [_missing_note(iface.status, "no hull data for this element system")],
+                status=iface.status,
+            )
+        )
+
     # Toxicity ------------------------------------------------------------------------
     h = record.hazard
     if h.status == DataStatus.KNOWN and h.worst_tier is not None:

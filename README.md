@@ -156,59 +156,89 @@ Things to know before trusting a number:
 * **A shortlist entry is a conjecture.** The caveats are the known counterexamples. You at the
   bench are the refutation step the system cannot perform.
 
-### Reading the live ranking: why LaAlO3 leads HfO2
+### Reading the live ranking: why LaAlO3 leads HfO2, and why that is a tie
 
-On the live cache the default profile's top five are LaAlO3, SrHfO3, LaScO3, CaZrO3 and HfO2,
-with ZrO2 sixth and Al2O3 eleventh of 317 compounds. A materials scientist will want to know
-why the workhorse gate oxide is fifth, and the answer is one curve.
+On the live cache the default profile's shortlist is LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2,
+with Al2O3 ninth of 317 compounds and Ta2O5 ninety-ninth. Three things about that list need
+explaining: why the industry's gate oxide is second, why the first three are printed as one
+tier, and why a workhorse dielectric sits at ninety-nine.
 
-All five leaders are on the convex hull with OQMD agreeing, carry corrected gaps between 5.4 and
-5.8 eV, contain only benign elements, and have saturated literature counts. So stability, band
-gap, toxicity and literature contribute the same to each of them, and the order is decided by
-the two criteria that differ: the dielectric constant and compositional simplicity.
+All of the leaders are on the convex hull with OQMD agreeing, carry corrected gaps between 5.2
+and 5.8 eV, and contain only benign elements. So stability, band gap and toxicity contribute
+the same to each of them, and the order is decided by the criteria that still differ at the
+top: the dielectric constant, the interface with silicon, compositional simplicity, and
+literature. Contributions below are after normalisation (seven weights summing to one).
 
-| Compound | ε (DFPT) | dielectric contribution | simplicity contribution | score |
-|---|---|---|---|---|
-| LaAlO3 | 29.7 | 0.148 | 0.060 (ternary) | 0.958 |
-| SrHfO3 | 32.7 | 0.150 | 0.060 | 0.949 |
-| HfO2 (monoclinic) | 18.7 | 0.073 | 0.100 (binary) | 0.923 |
-| ZrO2 | 27.8 | 0.135 | 0.100 | 0.916 |
-| SiO2 | 12.7 | 0.032 | 0.100 | 0.877 |
-| Al2O3 | 9.7 | 0.012 | 0.100 | 0.862 |
+| Compound | ε (DFPT) | dielectric | interface with Si (E_rxn, eV/atom) | simplicity | literature (thin-film works) | score | tier |
+|---|---|---|---|---|---|---|---|
+| LaAlO3 | 29.7 | 0.129 | 0.130 (0.00) | 0.052 | 0.087 (4,002) | 0.963 | 1 |
+| HfO2 (monoclinic) | 18.7 | 0.064 | 0.130 (0.00) | 0.087 | 0.087 (6,975) | 0.933 | 1 |
+| SrHfO3 | 32.7 | 0.130 | 0.130 (0.00) | 0.052 | 0.051 (32) | 0.929 | 1 |
+| LaScO3 | 34.4 | 0.130 | 0.130 (−0.01) | 0.052 | 0.048 (29) | 0.920 | 2 |
+| ZrO2 | 27.8 | 0.117 | 0.118 (−0.07) | 0.087 | 0.087 (10,643) | 0.914 | 2 |
+| SiO2 | 12.7 | 0.028 | 0.130 (0.00) | 0.087 | 0.087 (46,183) | 0.893 | 2 |
+| Al2O3 | 9.7 | 0.010 | 0.130 (0.00) | 0.087 | 0.087 (48,146) | 0.880 | 3 |
+| CaZrO3 | 48.7 | 0.130 | 0.085 (−0.12) | 0.052 | 0.058 (44) | 0.870 | 3 |
+| Ta2O5 | 33.8 | 0.130 | 0.000 (−0.30) | 0.087 | 0.087 (3,298) | 0.695 | 7 |
 
-The dielectric score is linear from ε = 8 (scores 0) to ε = 30 (scores 1), at weight 0.15.
-LaAlO3 at ε 29.7 collects almost the full 0.15; monoclinic HfO2 at ε 18.7 collects half of it.
-The binary bonus gives HfO2 0.04 back, and the difference, 0.035, is the whole gap between
-first and fifth. Al2O3 and SiO2 are perfect on everything except this curve, which gives them
-nearly nothing, and that is why the two most-deposited dielectrics in any fab sit ninth and
-eleventh. The known-answer check accepts this (HfO2 must be in the top ten, and it is fifth),
-but the placement is a judgement about what a triage list is for, not a fact about the data.
+**The dielectric curve** is linear from ε = 8 (scores 0) to ε = 30 (scores 1). LaAlO3 at ε 29.7
+collects almost all of it; monoclinic HfO2 at ε 18.7 collects half. The binary bonus gives HfO2
+0.035 back, and the difference, 0.03, is the whole gap between first and second. Al2O3 and SiO2
+are perfect on everything except this curve, which gives them nearly nothing, and that is why
+the two most-deposited dielectrics in any fab sit sixth and ninth.
 
-Two things a scientist should weigh before agreeing with it. The ε values are DFPT bulk totals,
-ionic plus electronic; CaZrO3's 48.7 is dominated by its lattice term, which a high-frequency
-device does not see, and the model observations in the audit view say so. And the HfO2 row is
-the on-hull monoclinic phase, whose modest k is well known; the higher-k tetragonal and
-orthorhombic phases that gate stacks actually exploit are not on the hull and are not what this
-row describes.
+**The interface criterion** is what separates the perovskites from each other and puts Ta2O5
+where it is. It asks whether the oxide reacts with silicon in bulk thermodynamics: the most
+exothermic reaction against the Materials Project convex hull of oxide plus Si, the screening
+Hubbard and Schlom published in 1996. LaAlO3, HfO2, SrHfO3, SiO2, MgO and Al2O3 come out at
+zero: nothing on the hull is lower than oxide next to silicon. ZrO2 at −0.07 eV/atom is inside
+the tolerance that covers DFT error and scores 0.9. CaZrO3 and SrZrO3 would form silicates and
+zirconium silicides (−0.12), and Ta2O5 forms SiO2 plus tantalum silicides at −0.30 eV/atom,
+which is why it is a capacitor dielectric on TiN and not a gate oxide on Si. The caveat on each
+reactive row names the products. Set `weights.interface` to 0 and CaZrO3 returns to sixth and
+Ta2O5 to twenty-fourth: the criterion is doing exactly one thing, and it is the thing that
+decided the real history.
 
-The curve is one knob, `dielectric.high` in `config/default.yaml`, and it moves the answer:
+**A gap of 0.03 is not an order.** The gaps are corrected DFT values, the dielectric constants
+are DFPT, the hull energies carry tens of meV of error, the literature counts are log-scaled
+proxies; none of that supports ranking two candidates 0.02 apart. So the output prints tiers: a
+tier is every candidate within `output.tie_band` (0.04) of its leader, and the order inside a
+tier is stated to be arbitrary. LaAlO3, HfO2 and SrHfO3 are tier 1. The honest reading of the
+live shortlist is "these three are equally good on public data; pick by what the bench cares
+about."
 
-| Setting | Top of the list | Where HfO2 lands |
-|---|---|---|
-| `high: 30` (shipped) | LaAlO3, SrHfO3, LaScO3, CaZrO3 | 5th |
-| `high: 20` (k of 20 is enough) | HfO2, LaAlO3, SrHfO3 | 1st, score 0.984 |
-| `high: 60` (reward high k) | CaZrO3, HfO2, SrZrO3 | 2nd |
-| `weights.dielectric: 0.30` | LaAlO3, SrHfO3, LaScO3 | 8th |
-| `conservative` profile | LaAlO3, HfO2, SrHfO3, LaScO3, SiO2 | 2nd |
+**The literature curve was changed once, and here is the before and after.** The brief says
+"prefer public evidence". The first curve saturated at 50 thin-film works, so HfO2 with 6,975
+and LaScO3 with 29 scored the same, and HfO2 was fifth. Raising the saturation to 500 (a log
+curve, so 6,975 still earns only the maximum) is what moved HfO2 to second: the most-studied
+thin-film dielectrics on earth now earn credit for it. That is a legitimate bias for a tool
+that triages *before* experiments, and the wrong one for discovery, which the design note says
+this is not. The reason is written beside the number in `config/default.yaml`.
 
-The `conservative` profile weights dielectric at 0.10 and stability at 0.30 and requires a 5 eV
-effective gap, which is why HfO2 is second there and ZrO2, at 5.18 eV corrected, drops to
-24th on the gate rather than on any preference. The shipped setting of 30 is argued in the
-comment beside it: for a gate stack, k between 20 and 30 is the useful range, and much larger k
-tends to come with smaller gaps and paraelectric instability. A group that disagrees changes
-the number in the admin panel and every result prints the deviation. That is the point of the
-profiles: the ranking is a stated preference over public numbers, and the preference is the
-part a PI is meant to own.
+Two things a scientist should weigh before agreeing with any of it. The ε values are DFPT bulk
+totals, ionic plus electronic; CaZrO3's 48.7 is dominated by its lattice term, which a
+high-frequency device does not see, and the model observations in the audit view say so. And
+the HfO2 row is the on-hull monoclinic phase, whose modest k is well known; the higher-k
+tetragonal and orthorhombic phases that gate stacks actually exploit are not on the hull and
+are not what this row describes.
+
+The settings that move the answer, each one number in the admin panel:
+
+| Setting | Tier 1 | HfO2 | Ta2O5 |
+|---|---|---|---|
+| shipped | LaAlO3, HfO2, SrHfO3 | 2nd | 99th |
+| `weights.interface: 0` | LaAlO3, HfO2, SrHfO3 | 2nd | 24th |
+| `dielectric.high: 20` (k of 20 is enough) | HfO2, LaAlO3 | 1st | 103rd |
+| `conservative` profile | LaAlO3, HfO2, SrHfO3, SiO2 | 2nd | excluded on the 5 eV gate |
+| `exploratory` profile | LaAlO3, ZrO2 | 8th | 9th |
+
+The `conservative` profile weights stability at 0.30 and requires a 5 eV effective gap, which is
+why ZrO2, at 5.18 eV corrected, drops to 22nd there on the gate rather than on any preference.
+The shipped dielectric saturation of 30 is argued in the comment beside it: for a gate stack, k
+between 20 and 30 is the useful range, and much larger k tends to come with smaller gaps and
+paraelectric instability. A group that disagrees changes the number in the admin panel and
+every result prints the deviation. That is the point of the profiles: the ranking is a stated
+preference over public numbers, and the preference is the part a PI is meant to own.
 
 ### Following up on a result
 
@@ -581,6 +611,7 @@ request wording itself. Sites for which that is unacceptable should use the loca
 | Source | Used for | Access |
 |---|---|---|
 | Materials Project (REST) | candidate universe, E_hull, formation energy, band gap + functional, DFPT dielectric, symmetry, theoretical flag | free API key |
+| Materials Project thermo (hull phases per element system + substrate) | stability of the oxide in contact with the substrate: the most exothermic reaction with Si against the convex hull, computed here without pymatgen (`scoring/hull.py`); this is the Hubbard & Schlom 1996 screening | free API key |
 | OQMD | independent hull distance; agreement is evidence, disagreement is a caveat | public |
 | OpenAlex | literature evidence: works matching the compound, and the thin-film subset | public |
 | PubChem | compound-level GHS hazard statements where a record exists | public |

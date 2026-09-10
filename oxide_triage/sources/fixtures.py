@@ -95,6 +95,11 @@ def load_fixture(cache: Cache, config: Config, path: Path = FIXTURE_PATH) -> int
         ):
             universe.append(mid)
 
+    # Hull phases per element system plus Si, for the interface criterion. Real MP thermo
+    # data (the fixture README says so); keyed exactly as the live client stores them.
+    for chemsys, payload in (data.get("thermo") or {}).items():
+        cache.put(mp, f"thermo:{chemsys}", payload, FIXTURE_TS)
+
     key = MaterialsProject.universe_key(
         cations,
         c.max_elements_query,

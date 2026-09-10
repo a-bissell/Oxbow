@@ -1,4 +1,6 @@
-"""Polymorph grouping: one shortlist row per compound.
+"""Polymorph grouping and tiering: post-core steps that change no score.
+
+Grouping: one shortlist row per compound.
 
 Runs after the deterministic core and changes no score. The core ranks *materials*
 (Materials Project entries), and many oxides have several phases that each pass the gates,
@@ -83,3 +85,23 @@ def polymorph_caveat(sc: ScoredCandidate) -> Caveat | None:
             "hull_spread_ev_atom": round(spread, 4),
         },
     )
+
+
+def assign_tiers(ranked: list[ScoredCandidate], band: float) -> None:
+    """Tier 1 is the leader and everyone within ``band`` of it; tier 2 starts at the first
+    candidate outside that band and is measured from *its* score, and so on. Measuring from
+    the tier's leader rather than chaining neighbour to neighbour keeps a tier bounded, so a
+    long run of candidates 0.01 apart does not become one tier. Ranks inside a tier are kept
+    for reference but the templates say they are arbitrary. ``band`` 0 gives every rank its
+    own tier."""
+    tier = 0
+    leader_score: float | None = None
+    for sc in ranked:
+        score = sc.adjusted_score
+        if score is None:
+            sc.tier = None
+            continue
+        if leader_score is None or leader_score - score > band:
+            tier += 1
+            leader_score = score
+        sc.tier = tier
