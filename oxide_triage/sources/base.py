@@ -37,6 +37,10 @@ class SourceError(Exception):
 
 
 VOLATILE_PARAMS = {"mailto"}  # excluded from recording keys; never affect the response shape
+# Longest a single retry will wait on a Retry-After header. OpenAlex answers an exhausted daily
+# budget with 429 + Retry-After of ~22 hours; sleeping that long would silently hang every worker.
+# Beyond this cap the request is given up immediately with the header value in the error.
+MAX_RETRY_AFTER_S = 60.0
 RECORD_ENV = "OXIDE_TRIAGE_RECORD_DIR"
 
 
@@ -138,6 +142,13 @@ class Http:
                 retry_after = resp.headers.get("Retry-After")
                 delay = float(retry_after) if retry_after and retry_after.isdigit() else None
                 last_exc = SourceError(f"HTTP {resp.status_code} from {url}")
+                if delay is not None and delay > MAX_RETRY_AFTER_S:
+                    # The server is telling us to come back much later (quota exhausted, not a
+                    # burst). Retrying now is pointless and waiting would stall the whole warm.
+                    raise SourceError(
+                        f"HTTP {resp.status_code} from {url}: Retry-After {int(delay)}s exceeds "
+                        f"{int(MAX_RETRY_AFTER_S)}s; giving up. {resp.text[:160]}"
+                    )
                 self._sleep(attempt, delay)
                 continue
             if resp.status_code == 404:

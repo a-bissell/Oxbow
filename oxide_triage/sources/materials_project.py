@@ -7,9 +7,11 @@ Endpoints (https://api.materialsproject.org, header ``X-API-KEY``):
 
 Known domain surprises this module makes explicit rather than hiding:
   * ``band_gap`` in the summary is whatever functional MP chose for that material
-    (GGA, GGA+U, increasingly r2SCAN; HSE is rare). We follow ``origins`` to the task
-    that produced the value and record its ``run_type``. If that lookup fails the
-    functional is stored as ``unknown``, never guessed.
+    (GGA, GGA+U, increasingly r2SCAN; HSE is rare). We follow the ``electronic_structure``
+    entry in ``origins`` to the task that produced the value and record its ``run_type``.
+    Task ids there are opaque hashes (e.g. ``aaafsrgu``), which ``/materials/tasks/``
+    accepts with or without the ``mp-`` prefix. If that lookup fails the functional is
+    stored as ``unknown``, never guessed.
   * Dielectric coverage is a fraction of the database. Absence is cached as an explicit
     ``{"found": false}`` record so "unknown" has a retrieval timestamp too.
   * The thermodynamic hull in current MP mixes GGA/GGA+U/r2SCAN; the functional label on
@@ -320,11 +322,18 @@ class MaterialsProject(CachedSource):
 
     # ---- functional behind the band gap ---------------------------------------------
 
-    @staticmethod
-    def band_gap_task_id(summary_doc: dict[str, Any]) -> str | None:
-        for origin in summary_doc.get("origins") or []:
-            if origin.get("name") == "band_gap" and origin.get("task_id"):
-                return str(origin["task_id"])
+    # Origin names that identify the calculation the summary band gap came from. The live API
+    # labels it ``electronic_structure`` (there is no ``band_gap`` origin); the older name is
+    # kept as a fallback so synthetic fixtures and any future rename keep resolving.
+    BAND_GAP_ORIGIN_NAMES = ("electronic_structure", "band_gap")
+
+    @classmethod
+    def band_gap_task_id(cls, summary_doc: dict[str, Any]) -> str | None:
+        origins = summary_doc.get("origins") or []
+        for name in cls.BAND_GAP_ORIGIN_NAMES:
+            for origin in origins:
+                if origin.get("name") == name and origin.get("task_id"):
+                    return str(origin["task_id"])
         return None
 
     def run_type(self, task_id: str) -> tuple[str, str | None, str]:
