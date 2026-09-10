@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -155,11 +156,30 @@ class DataLayer:
 
         is_fixture = self.cache.has_fixture_data
         records: list[CandidateRecord] = []
-        for mid in ids:
+        total = len(ids)
+        started = time.monotonic()
+        if not self.offline:
+            log.info(
+                "universe: %d candidates; fetching per-candidate records (OQMD, OpenAlex, PubChem)", total
+            )
+        for i, mid in enumerate(ids, 1):
             doc, ts = self.mp.summary(mid)
             if doc is None:
                 continue
             records.append(self._record(doc, ts, is_fixture))
+            if not self.offline and (i % 25 == 0 or i == total):
+                elapsed = time.monotonic() - started
+                eta = elapsed / i * (total - i)
+                log.info(
+                    "  %d/%d %s  elapsed %dm%02ds  eta %dm%02ds",
+                    i,
+                    total,
+                    records[-1].formula,
+                    elapsed // 60,
+                    elapsed % 60,
+                    eta // 60,
+                    eta % 60,
+                )
         records.sort(key=lambda r: r.material_id)
         return records
 

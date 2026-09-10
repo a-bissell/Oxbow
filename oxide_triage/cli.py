@@ -40,10 +40,12 @@ PI_REQUEST = (
 
 def _setup_logging(verbose: bool) -> None:
     logging.basicConfig(
-        level=logging.DEBUG if verbose else logging.WARNING,
+        level=logging.INFO if verbose else logging.WARNING,
         format="%(levelname)s %(name)s: %(message)s",
         stream=sys.stderr,
     )
+    for noisy in ("httpcore", "httpx", "anthropic", "urllib3"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
 
 
 @app.command()
