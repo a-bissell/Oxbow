@@ -1,0 +1,64 @@
+{
+ "params": {
+  "composition": "ZrSiO4",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.2966693072525,
+    "entry_id": 16769,
+    "name": "ZrSiO4",
+    "spacegroup": "I41/a",
+    "stability": 0.0797310725
+   },
+   {
+    "delta_e": -3.3764003797525,
+    "entry_id": 3208,
+    "name": "ZrSiO4",
+    "spacegroup": "I41/amd",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.2258102930858357,
+    "entry_id": 1441507,
+    "name": "ZrSiO4",
+    "spacegroup": "Cmcm",
+    "stability": 0.1505900866666643
+   },
+   {
+    "delta_e": -3.192813235585836,
+    "entry_id": 2014800,
+    "name": "ZrSiO4",
+    "spacegroup": "P2/c",
+    "stability": 0.1835871441666641
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 4,
+   "data_returned": 4,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=ZrSiO4&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:50"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

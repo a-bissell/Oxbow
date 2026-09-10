@@ -1,0 +1,211 @@
+{
+ "params": {
+  "composition": "LaScO3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.58511604252725,
+    "entry_id": 350902,
+    "name": "LaScO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.20377806500000029
+   },
+   {
+    "delta_e": -2.02150118052725,
+    "entry_id": 350806,
+    "name": "LaScO3",
+    "spacegroup": "Pm-3m",
+    "stability": 1.7673929270000004
+   },
+   {
+    "delta_e": -3.78848055952725,
+    "entry_id": 16888,
+    "name": "LaScO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0004135480000000413
+   },
+   {
+    "delta_e": -3.64850814452725,
+    "entry_id": 679910,
+    "name": "LaScO3",
+    "spacegroup": "P4mm",
+    "stability": 0.1403859630000004
+   },
+   {
+    "delta_e": -3.11059954052725,
+    "entry_id": 679909,
+    "name": "LaScO3",
+    "spacegroup": "P4mm",
+    "stability": 0.678294567
+   },
+   {
+    "delta_e": -3.67719538152725,
+    "entry_id": 678293,
+    "name": "LaScO3",
+    "spacegroup": "R-3",
+    "stability": 0.11169872600000019
+   },
+   {
+    "delta_e": -3.67704261752725,
+    "entry_id": 678292,
+    "name": "LaScO3",
+    "spacegroup": "R-3",
+    "stability": 0.11185149000000028
+   },
+   {
+    "delta_e": -3.55661538252725,
+    "entry_id": 681529,
+    "name": "LaScO3",
+    "spacegroup": "Pnma",
+    "stability": 0.23227872500000002
+   },
+   {
+    "delta_e": -3.78889410752725,
+    "entry_id": 681530,
+    "name": "LaScO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.76014910752725,
+    "entry_id": 826252,
+    "name": "LaScO3",
+    "spacegroup": "R-3c",
+    "stability": 0.028745000000000243
+   },
+   {
+    "delta_e": -3.44323480652725,
+    "entry_id": 826921,
+    "name": "LaScO3",
+    "spacegroup": "R-3c",
+    "stability": 0.3456593010000004
+   },
+   {
+    "delta_e": -3.58308853852725,
+    "entry_id": 1200847,
+    "name": "LaScO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.20580556900000024
+   },
+   {
+    "delta_e": -3.58307236852725,
+    "entry_id": 1200947,
+    "name": "LaScO3",
+    "spacegroup": "P4/mmm",
+    "stability": 0.20582173900000011
+   },
+   {
+    "delta_e": -3.31996449102725,
+    "entry_id": 1322144,
+    "name": "LaScO3",
+    "spacegroup": "Fd-3m",
+    "stability": 0.4689296165000001
+   },
+   {
+    "delta_e": -3.4503510415272522,
+    "entry_id": 1523762,
+    "name": "LaScO3",
+    "spacegroup": "R-3c",
+    "stability": 0.33854306599999795
+   },
+   {
+    "delta_e": -3.581688882527252,
+    "entry_id": 1710592,
+    "name": "LaScO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.20720522499999827
+   },
+   {
+    "delta_e": -3.7647571965272526,
+    "entry_id": 1708559,
+    "name": "LaScO3",
+    "spacegroup": "Imma",
+    "stability": 0.024136910999997596
+   },
+   {
+    "delta_e": -3.760984250527252,
+    "entry_id": 1710096,
+    "name": "LaScO3",
+    "spacegroup": "R-3c",
+    "stability": 0.02790985699999826
+   },
+   {
+    "delta_e": -3.728440579527253,
+    "entry_id": 1710511,
+    "name": "LaScO3",
+    "spacegroup": "I4/mcm",
+    "stability": 0.06045352799999737
+   },
+   {
+    "delta_e": -3.581145974527252,
+    "entry_id": 1719642,
+    "name": "LaScO3",
+    "spacegroup": "R-3m",
+    "stability": 0.20774813299999817
+   },
+   {
+    "delta_e": -3.770038434527252,
+    "entry_id": 1716639,
+    "name": "LaScO3",
+    "spacegroup": "Imma",
+    "stability": 0.01885567299999824
+   },
+   {
+    "delta_e": -3.581142240527253,
+    "entry_id": 1723809,
+    "name": "LaScO3",
+    "spacegroup": "Pmmm",
+    "stability": 0.20775186699999715
+   },
+   {
+    "delta_e": -3.760925931527253,
+    "entry_id": 1810110,
+    "name": "LaScO3",
+    "spacegroup": "R3c",
+    "stability": 0.027968175999997236
+   },
+   {
+    "delta_e": -3.7870945525272526,
+    "entry_id": 1811812,
+    "name": "LaScO3",
+    "spacegroup": "P21/c",
+    "stability": 0.0017995549999976213
+   },
+   {
+    "delta_e": -3.6684282905272516,
+    "entry_id": 2031636,
+    "name": "LaScO3",
+    "spacegroup": "P4mm",
+    "stability": 0.12046581699999859
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 25,
+   "data_returned": 25,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=LaScO3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:22:09"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

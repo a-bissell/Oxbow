@@ -1,0 +1,22 @@
+{
+ "params": {
+  "_fields": "material_id,e_total,e_electronic,e_ionic,n",
+  "_limit": 8,
+  "material_ids": "mp-aaacqkdv,mp-aaacqkkc,mp-aaacqmol,mp-aaacqndx,mp-aaacqnko,mp-aaacqowj,mp-aaacqpce,mp-aaacqpcx"
+ },
+ "response": {
+  "data": [],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "material_id",
+    "last_updated"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-10T03:19:59.532146+00:00",
+   "total_doc": 0
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/dielectric/"
+}

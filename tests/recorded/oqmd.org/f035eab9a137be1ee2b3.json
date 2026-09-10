@@ -1,0 +1,78 @@
+{
+ "params": {
+  "composition": "La2Zr2O7",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.73661171874103,
+    "entry_id": 3029,
+    "name": "La2Zr2O7",
+    "spacegroup": "Fd-3m",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.35571949510466,
+    "entry_id": 114388,
+    "name": "La2Zr2O7",
+    "spacegroup": "Fd-3m",
+    "stability": 0.3808922236363701
+   },
+   {
+    "delta_e": -3.73248512828648,
+    "entry_id": 1317991,
+    "name": "La2Zr2O7",
+    "spacegroup": "Fd-3m",
+    "stability": 0.004126590454549994
+   },
+   {
+    "delta_e": -3.6317457964683,
+    "entry_id": 1330251,
+    "name": "La2Zr2O7",
+    "spacegroup": "C2/m",
+    "stability": 0.10486592227272995
+   },
+   {
+    "delta_e": -3.6643629114683,
+    "entry_id": 1323388,
+    "name": "La2Zr2O7",
+    "spacegroup": "Imma",
+    "stability": 0.07224880727273009
+   },
+   {
+    "delta_e": -3.65175861828648,
+    "entry_id": 1378419,
+    "name": "La2Zr2O7",
+    "spacegroup": "Cmc21",
+    "stability": 0.0848531004545503
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 6,
+   "data_returned": 6,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=La2Zr2O7&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:41"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

@@ -1,0 +1,218 @@
+{
+ "params": {
+  "composition": "Al2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.25358295452725,
+    "entry_id": 14842,
+    "name": "Al2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.011483072999999955
+   },
+   {
+    "delta_e": -2.98481908552725,
+    "entry_id": 20393,
+    "name": "Al2O3",
+    "spacegroup": "Cmcm",
+    "stability": 0.2802469419999998
+   },
+   {
+    "delta_e": -3.17539857752725,
+    "entry_id": 21959,
+    "name": "Al2O3",
+    "spacegroup": "P1",
+    "stability": 0.08966744999999987
+   },
+   {
+    "delta_e": -2.07939081952725,
+    "entry_id": 353709,
+    "name": "Al2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 1.1856752079999997
+   },
+   {
+    "delta_e": -3.14775106002725,
+    "entry_id": 21554,
+    "name": "Al2O3",
+    "spacegroup": "Pbcn",
+    "stability": 0.11731496750000003
+   },
+   {
+    "delta_e": -3.17165137852725,
+    "entry_id": 20392,
+    "name": "Al2O3",
+    "spacegroup": "Pbcn",
+    "stability": 0.09341464899999963
+   },
+   {
+    "delta_e": -3.26491653252725,
+    "entry_id": 678197,
+    "name": "Al2O3",
+    "spacegroup": "R-3",
+    "stability": 0.000149495000000055
+   },
+   {
+    "delta_e": -3.26506602752725,
+    "entry_id": 1234774,
+    "name": "Al2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.24662224227725,
+    "entry_id": 15109,
+    "name": "Al2O3",
+    "spacegroup": "Pna21",
+    "stability": 0.018443785249999678
+   },
+   {
+    "delta_e": -3.26312754352725,
+    "entry_id": 686852,
+    "name": "Al2O3",
+    "spacegroup": "C2/c",
+    "stability": 0.0019384839999996295
+   },
+   {
+    "delta_e": -3.26352335452725,
+    "entry_id": 675522,
+    "name": "Al2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.0015426729999998834
+   },
+   {
+    "delta_e": -2.94114793790225,
+    "entry_id": 1277514,
+    "name": "Al2O3",
+    "spacegroup": "Ia-3d",
+    "stability": 0.3239180896249998
+   },
+   {
+    "delta_e": -3.14097267619392,
+    "entry_id": 1343736,
+    "name": "Al2O3",
+    "spacegroup": "C2",
+    "stability": 0.12409335133332977
+   },
+   {
+    "delta_e": -3.16416475652725,
+    "entry_id": 1343950,
+    "name": "Al2O3",
+    "spacegroup": "Cc",
+    "stability": 0.10090127099999968
+   },
+   {
+    "delta_e": -3.23558995077725,
+    "entry_id": 1343849,
+    "name": "Al2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.02947607674999997
+   },
+   {
+    "delta_e": -3.23550782952725,
+    "entry_id": 1343368,
+    "name": "Al2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.029558197999999702
+   },
+   {
+    "delta_e": -3.23554285252725,
+    "entry_id": 1343447,
+    "name": "Al2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.029523175000000013
+   },
+   {
+    "delta_e": -3.05471227952725,
+    "entry_id": 1440429,
+    "name": "Al2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.21035374799999973
+   },
+   {
+    "delta_e": -3.205616495527253,
+    "entry_id": 1443057,
+    "name": "Al2O3",
+    "spacegroup": "Cmc21",
+    "stability": 0.05944953199999681
+   },
+   {
+    "delta_e": -3.103111396027253,
+    "entry_id": 1758783,
+    "name": "Al2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.1619546314999969
+   },
+   {
+    "delta_e": -2.390129506527253,
+    "entry_id": 2023625,
+    "name": "Al2O3",
+    "spacegroup": "Pn-3m",
+    "stability": 0.8749365209999969
+   },
+   {
+    "delta_e": -3.2541469499022533,
+    "entry_id": 2065183,
+    "name": "Al2O3",
+    "spacegroup": "C2/c",
+    "stability": 0.010919077624996554
+   },
+   {
+    "delta_e": -3.264947964527253,
+    "entry_id": 2108574,
+    "name": "Al2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.00011806299999683745
+   },
+   {
+    "delta_e": -2.390124837527252,
+    "entry_id": 2108579,
+    "name": "Al2O3",
+    "spacegroup": "Pn-3m",
+    "stability": 0.8749411899999977
+   },
+   {
+    "delta_e": -3.174893163527252,
+    "entry_id": 2108575,
+    "name": "Al2O3",
+    "spacegroup": "P1",
+    "stability": 0.09017286399999769
+   },
+   {
+    "delta_e": -3.1785306005272522,
+    "entry_id": 2168633,
+    "name": "Al2O3",
+    "spacegroup": "C2221",
+    "stability": 0.08653542699999761
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 26,
+   "data_returned": 26,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Al2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:50"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

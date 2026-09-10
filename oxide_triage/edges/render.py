@@ -38,6 +38,8 @@ def rationale_line(sc: ScoredCandidate) -> str:
             stab += ", OQMD agrees"
         elif sc.cross_source_agreement == "disagree":
             stab += ", OQMD disagrees"
+        elif sc.cross_source_agreement == "untested":
+            stab += ", no cross-check run"
         bits.append(stab)
     bg = sc.band_gap_assessment
     if bg.effective_ev is not None:
@@ -49,6 +51,8 @@ def rationale_line(sc: ScoredCandidate) -> str:
             bits.append(f"gap {bg.effective_ev:.1f} eV ({bg.reported_functional})")
     if r.dielectric.status == DataStatus.KNOWN and r.dielectric.e_total is not None:
         bits.append(f"dielectric constant {r.dielectric.e_total:.0f} (DFPT)")
+    elif r.dielectric.status == DataStatus.NOT_RETRIEVED:
+        bits.append("dielectric constant not retrieved")
     else:
         bits.append("dielectric constant unknown")
     tier = r.hazard.worst_tier

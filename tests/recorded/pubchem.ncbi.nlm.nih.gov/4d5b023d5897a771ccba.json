@@ -1,0 +1,11 @@
+{
+ "params": {},
+ "response": {
+  "IdentifierList": {
+   "CID": [
+    292779
+   ]
+  }
+ },
+ "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/hafnia/cids/JSON"
+}

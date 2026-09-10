@@ -1,0 +1,78 @@
+{
+ "params": {
+  "composition": "ScNbO4",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.28530504558584,
+    "entry_id": 19068,
+    "name": "ScNbO4",
+    "spacegroup": "P2/c",
+    "stability": 0.007750133333329856
+   },
+   {
+    "delta_e": -3.29305517891917,
+    "entry_id": 1362882,
+    "name": "ScNbO4",
+    "spacegroup": "C2",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.24472702891917,
+    "entry_id": 1382188,
+    "name": "ScNbO4",
+    "spacegroup": "C2/c",
+    "stability": 0.048328150000000125
+   },
+   {
+    "delta_e": -3.24550201808584,
+    "entry_id": 1383388,
+    "name": "ScNbO4",
+    "spacegroup": "C2/c",
+    "stability": 0.047553160833329944
+   },
+   {
+    "delta_e": -3.2915015880858363,
+    "entry_id": 1743881,
+    "name": "ScNbO4",
+    "spacegroup": "C2/m",
+    "stability": 0.001553590833333729
+   },
+   {
+    "delta_e": -3.13760165891917,
+    "entry_id": 1745327,
+    "name": "ScNbO4",
+    "spacegroup": "I41/amd",
+    "stability": 0.15545352
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 6,
+   "data_returned": 6,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=ScNbO4&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:23:25"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

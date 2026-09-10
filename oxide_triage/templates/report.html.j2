@@ -52,6 +52,7 @@
   .pill.medium { background: var(--warn-soft); color: var(--warn); }
   .pill.low { background: var(--crit-soft); color: var(--crit); }
   .pill.gray { background: var(--line); color: var(--muted); }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
   .bar { position: relative; height: 10px; background: var(--line); border-radius: 5px; overflow: hidden; min-width: 120px; }
   .bar > span { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 5px; }
   .bar.unknown > span { background: repeating-linear-gradient(45deg, var(--unknown), var(--unknown) 4px, transparent 4px, transparent 8px); width: 100% !important; }
@@ -103,6 +104,14 @@
 {% for w in result.warnings if result.guard.proceed and not result.needs_confirmation %}
 <div class="banner info">{{ w }}</div>
 {% endfor %}
+{% if result.retrieval and not result.retrieval.comparable %}
+<div class="banner warn"><strong>Incomplete retrieval — the order below is not a ranking</strong>
+Only {{ result.retrieval.completeness | pct }} of the data this ranking needed was downloaded into
+the cache; {{ result.retrieval.n_fully_retrieved }} of {{ result.retrieval.n_ranked }} candidates
+have a complete record. Missing data lowers a candidate's score, so position here partly reflects
+which downloads finished rather than which materials are better. Warm the cache and re-run before
+comparing candidates against each other.</div>
+{% endif %}
 {% if result.criteria.interpretation_notes %}
 <p class="sub">How the request was read: {{ result.criteria.interpretation_notes | join("; ") }}</p>
 {% endif %}
@@ -118,7 +127,8 @@
     <span class="formula">{{ r.formula }}</span>
     <span class="tag">{{ r.material_id }} · {{ r.crystal_system or "?" }} {{ r.spacegroup_symbol or "" }}</span>
     <span class="pill {{ sc.confidence }}">confidence {{ sc.confidence }}</span>
-    {% if sc.missing_criteria %}<span class="pill gray">no data: {{ sc.missing_criteria | join(", ") }}</span>{% endif %}
+    {% if sc.absent_criteria %}<span class="pill gray">no data: {{ sc.absent_criteria | join(", ") }}</span>{% endif %}
+    {% if sc.not_retrieved_criteria %}<span class="pill warn" title="Never downloaded into this cache; the score is lowered by data the system failed to collect, so this rank is not comparable.">never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}</span>{% endif %}
   </div>
   <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
     <div class="bar" style="flex:1"><span style="width:{{ (100 * (sc.adjusted_score or 0)) | round(1) }}%"></span></div>
@@ -187,7 +197,7 @@
 <div class="wrap"><table>
   <tr><th>#</th><th>Formula</th><th>Score</th><th>Coverage</th><th>Confidence</th><th>Missing</th><th>Main caveat</th></tr>
   {% for sc in result.ranked_beyond_shortlist %}{% set cav = sc | primary_caveat %}
-  <tr><td class="mono">{{ sc.rank }}</td><td>{{ sc.record.formula }} <span class="tag">{{ sc.record.material_id }}</span></td><td class="mono">{{ sc.adjusted_score | fmt(3) }}</td><td class="mono">{{ sc.data_coverage | pct }}</td><td>{{ sc.confidence }}</td><td>{{ sc.missing_criteria | join(", ") or "—" }}</td><td>{{ cav.code if cav else "—" }}</td></tr>
+  <tr><td class="mono">{{ sc.rank }}</td><td>{{ sc.record.formula }} <span class="tag">{{ sc.record.material_id }}</span></td><td class="mono">{{ sc.adjusted_score | fmt(3) }}</td><td class="mono">{{ sc.data_coverage | pct }}</td><td>{{ sc.confidence }}</td><td>{{ sc.absent_criteria | join(", ") or "—" }}{% if sc.not_retrieved_criteria %} <b>(not downloaded: {{ sc.not_retrieved_criteria | join(", ") }})</b>{% endif %}</td><td>{{ cav.code if cav else "—" }}</td></tr>
   {% endfor %}
 </table></div>
 {% endif %}

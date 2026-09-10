@@ -67,6 +67,24 @@
 
 `{{ result.scoring.formula }}`
 
+{% if result.retrieval %}
+## Retrieval completeness
+
+{{ result.retrieval.note }}
+
+| | |
+|---|---|
+| Scoring weight retrieved | {{ result.retrieval.completeness | pct }} |
+| Candidates with complete data | {{ result.retrieval.n_fully_retrieved }} / {{ result.retrieval.n_ranked }} |
+| Ranks comparable across candidates | {{ "yes" if result.retrieval.comparable else "NO" }} |
+{% for k, v in result.retrieval.not_retrieved_by_criterion | dictsort %}
+| Never retrieved: {{ k }} | {{ v }} candidates |
+{% endfor %}
+{% for k, v in result.retrieval.absent_by_criterion | dictsort %}
+| No record in source: {{ k }} | {{ v }} candidates |
+{% endfor %}
+
+{% endif %}
 Missing-data policy: **{{ result.scoring.missing_data_policy }}**, penalty {{ result.scoring.missing_data_penalty }}; confidence thresholds {{ result.scoring.confidence_thresholds }}.
 
 | Criterion | Weight |
@@ -88,9 +106,15 @@ Gates:
 {{ sc.record.crystal_system or "?" }} {{ sc.record.spacegroup_symbol or "" }} · {{ sc.record.n_elements }} elements ({{ sc.record.elements | join("-") }}) · theoretical structure: {{ sc.record.theoretical }}
 
 **Adjusted score {{ sc.adjusted_score | fmt(4) }}** (raw on available data {{ sc.raw_score | fmt(4) }}, data coverage {{ sc.data_coverage | pct }}, confidence **{{ sc.confidence }}**)
-{% if sc.missing_criteria %}
-**Criteria with NO data:** {{ sc.missing_criteria | join(", ") }}
-{% else %}
+{% if sc.absent_criteria %}
+**Criteria the sources hold no record for:** {{ sc.absent_criteria | join(", ") }} _(a fact about the data; warming the cache will not change it)_
+{% endif %}
+{% if sc.not_retrieved_criteria %}
+**Criteria NEVER RETRIEVED into this cache:** {{ sc.not_retrieved_criteria | join(", ") }} — {{ sc.retrieval_gap | pct }} of the scoring weight.
+This score is lowered by data the system failed to collect, not by anything known about the
+material, so **this rank is not comparable** with candidates whose retrieval completed.
+{% endif %}
+{% if not sc.missing_criteria %}
 All criteria backed by data.
 {% endif %}
 

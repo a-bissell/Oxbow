@@ -1,0 +1,92 @@
+{
+ "params": {
+  "composition": "LaTaO4",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.52239331058584,
+    "entry_id": 4999,
+    "name": "LaTaO4",
+    "spacegroup": "Cmc21",
+    "stability": 0.010826834166659971
+   },
+   {
+    "delta_e": -3.5332201447525,
+    "entry_id": 3787,
+    "name": "LaTaO4",
+    "spacegroup": "P21/c",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.5130906485025,
+    "entry_id": 107313,
+    "name": "LaTaO4",
+    "spacegroup": "Pbca",
+    "stability": 0.0201294962499996
+   },
+   {
+    "delta_e": -3.5230960672525,
+    "entry_id": 1348897,
+    "name": "LaTaO4",
+    "spacegroup": "I41/a",
+    "stability": 0.010124077499999995
+   },
+   {
+    "delta_e": -3.52947611141917,
+    "entry_id": 1386630,
+    "name": "LaTaO4",
+    "spacegroup": "Pc",
+    "stability": 0.0037440333333296216
+   },
+   {
+    "delta_e": -3.4720006747525027,
+    "entry_id": 1739342,
+    "name": "LaTaO4",
+    "spacegroup": "I41/amd",
+    "stability": 0.061219469999997056
+   },
+   {
+    "delta_e": -3.5271910422525026,
+    "entry_id": 1753826,
+    "name": "LaTaO4",
+    "spacegroup": "C2/c",
+    "stability": 0.006029102499997219
+   },
+   {
+    "delta_e": -3.5312593664191696,
+    "entry_id": 1818906,
+    "name": "LaTaO4",
+    "spacegroup": "P2/c",
+    "stability": 0.001960778333330193
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 8,
+   "data_returned": 8,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=LaTaO4&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:24:35"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

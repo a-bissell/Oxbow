@@ -1,0 +1,191 @@
+{
+ "params": {
+  "_fields": "material_id,e_total,e_electronic,e_ionic,n",
+  "_limit": 100,
+  "material_ids": "mp-aaaaakhd,mp-aaaaakjb,mp-aaaaakjg,mp-aaaaaklc,mp-aaaaakls,mp-aaaaakmp,mp-aaaaakqr,mp-aaaaakwh,mp-aaaaakxj,mp-aaaaakyv,mp-aaaaaldr,mp-aaaaaldy,mp-aaaaalgh,mp-aaaaalhg,mp-aaaaalhw,mp-aaaaalie,mp-aaaaalih,mp-aaaaalkh,mp-aaaaalmr,mp-aaaaalom,mp-aaaaalvr,mp-aaaaalxd,mp-aaaaalxi,mp-aaaaalxz,mp-aaaaambq,mp-aaaaamec,mp-aaaaamgr,mp-aaaaamip,mp-aaaaamja,mp-aaaaamjg,mp-aaaaamsw,mp-aaaaaneg,mp-aaaaanhe,mp-aaaaanov,mp-aaaaanst,mp-aaaaanwu,mp-aaaaaoao,mp-aaaaaohe,mp-aaaaaolb,mp-aaaaaolf,mp-aaaaaolg,mp-aaaaapjq,mp-aaaaapld,mp-aaaaapls,mp-aaaaapwv,mp-aaaaaqbj,mp-aaaaaqtl,mp-aaaaarhk,mp-aaaaarkv,mp-aaaaarzf,mp-aaaaasay,mp-aaaaasaz,mp-aaaaascq,mp-aaaaaseo,mp-aaaaasep,mp-aaaaaskn,mp-aaaaassl,mp-aaaaasxv,mp-aaaaatas,mp-aaaaatdj,mp-aaaaatdk,mp-aaaaatdl,mp-aaaaatuk,mp-aaaaauba,mp-aaaaauet,mp-aaaaaufo,mp-aaaaaumi,mp-aaaaaunf,mp-aaaaaunr,mp-aaaaaurr,mp-aaaaautm,mp-aaaaauxo,mp-aaaaauxp,mp-aaaaauxq,mp-aaaaauxy,mp-aaaaauyi,mp-aaaaavau,mp-aaaaavcg,mp-aaaaavew,mp-aaaaavex,mp-aaaaavfh,mp-aaaaavhj,mp-aaaaavhk,mp-aaaaavld,mp-aaaaavpo,mp-aaaaavrl,mp-aaaaavsm,mp-aaaaavts,mp-aaaaavzh,mp-aaaaawdn,mp-aaaaawdo,mp-aaaaawhy,mp-aaaaawmr,mp-aaaaawnp,mp-aaaaawod,mp-aaaaawrb,mp-aaaaawxw,mp-aaaaaxbb,mp-aaaaaxbc,mp-aaaaaxbd"
+ },
+ "response": {
+  "data": [
+   {
+    "e_electronic": 2.2259073,
+    "e_ionic": 1.7795414499999993,
+    "e_total": 4.00544875,
+    "material_id": "mp-aaaaakhd",
+    "n": 1.4919474856709936
+   },
+   {
+    "e_electronic": 2.4226816466666663,
+    "e_ionic": 2.1634500966674506,
+    "e_total": 4.586131743334117,
+    "material_id": "mp-aaaaakjg",
+    "n": 1.5564965938500046
+   },
+   {
+    "e_electronic": 3.1635806566666957,
+    "e_ionic": 5.81563784665186,
+    "e_total": 8.979218503318556,
+    "material_id": "mp-aaaaaklc",
+    "n": 1.7786457366959547
+   },
+   {
+    "e_electronic": 2.218063313333333,
+    "e_ionic": 10.526614096666664,
+    "e_total": 12.74467741,
+    "material_id": "mp-aaaaalie",
+    "n": 1.4893163912793457
+   },
+   {
+    "e_electronic": 2.884535453333333,
+    "e_ionic": 2.7851740600000006,
+    "e_total": 5.669709513333333,
+    "material_id": "mp-aaaaalom",
+    "n": 1.6983920199215885
+   },
+   {
+    "e_electronic": 4.998441657917222,
+    "e_ionic": 13.769953012567209,
+    "e_total": 18.76839467048443,
+    "material_id": "mp-aaaaalxi",
+    "n": 2.2357194944619554
+   },
+   {
+    "e_electronic": 2.18123263,
+    "e_ionic": 1.763401486666667,
+    "e_total": 3.9446341166666667,
+    "material_id": "mp-aaaaalxz",
+    "n": 1.4768996682239453
+   },
+   {
+    "e_electronic": 4.5323481700000015,
+    "e_ionic": 39.04330006000001,
+    "e_total": 43.57564823000001,
+    "material_id": "mp-aaaaamip",
+    "n": 2.128931227165406
+   },
+   {
+    "e_electronic": 3.7018840933333337,
+    "e_ionic": 7.920229736666666,
+    "e_total": 11.622113829999998,
+    "material_id": "mp-aaaaamja",
+    "n": 1.9240280905780283
+   },
+   {
+    "e_electronic": 5.133909156666667,
+    "e_ionic": 28.599637760000004,
+    "e_total": 33.73354691666667,
+    "material_id": "mp-aaaaaohe",
+    "n": 2.265813133660114
+   },
+   {
+    "e_electronic": 3.1368044166666667,
+    "e_ionic": 4.803083310000001,
+    "e_total": 7.939887726666668,
+    "material_id": "mp-aaaaaolb",
+    "n": 1.771102599136105
+   },
+   {
+    "e_electronic": 4.676929256666667,
+    "e_ionic": 13.200719620000001,
+    "e_total": 17.877648876666665,
+    "material_id": "mp-aaaaaolf",
+    "n": 2.162620923016021
+   },
+   {
+    "e_electronic": 5.6278684166682025,
+    "e_ionic": 28.124727059683817,
+    "e_total": 33.75259547635202,
+    "material_id": "mp-aaaaapjq",
+    "n": 2.3723128833836826
+   },
+   {
+    "e_electronic": 2.3523041700000005,
+    "e_ionic": 2.1694495833339222,
+    "e_total": 4.521753753333923,
+    "material_id": "mp-aaaaaqbj",
+    "n": 1.533722324933689
+   },
+   {
+    "e_electronic": 4.530342309999955,
+    "e_ionic": 19.294558496627264,
+    "e_total": 23.824900806627216,
+    "material_id": "mp-aaaaaqtl",
+    "n": 2.128460079494082
+   },
+   {
+    "e_electronic": 4.274646223333334,
+    "e_ionic": 11.86659701,
+    "e_total": 16.14124323333333,
+    "material_id": "mp-aaaaarkv",
+    "n": 2.0675217588536605
+   },
+   {
+    "e_electronic": 4.459663496666668,
+    "e_ionic": 117.30954922999997,
+    "e_total": 121.76921272666664,
+    "material_id": "mp-aaaaaseo",
+    "n": 2.1117915372182616
+   },
+   {
+    "e_electronic": 3.744745716666666,
+    "e_ionic": 8.00648519,
+    "e_total": 11.751230906666665,
+    "material_id": "mp-aaaaauba",
+    "n": 1.9351345474324688
+   },
+   {
+    "e_electronic": 3.726891333333334,
+    "e_ionic": 7.957252059999999,
+    "e_total": 11.684143393333335,
+    "material_id": "mp-aaaaauet",
+    "n": 1.9305158205343291
+   },
+   {
+    "e_electronic": 3.2199016666666664,
+    "e_ionic": 8.768294106666666,
+    "e_total": 11.98819577333333,
+    "material_id": "mp-aaaaaunf",
+    "n": 1.7944084447713309
+   },
+   {
+    "e_electronic": 5.640935119999999,
+    "e_ionic": 39.19548141334628,
+    "e_total": 44.836416533346274,
+    "material_id": "mp-aaaaavld",
+    "n": 2.375065287523692
+   },
+   {
+    "e_electronic": 3.76264989,
+    "e_ionic": 8.084236223333335,
+    "e_total": 11.846886113333335,
+    "material_id": "mp-aaaaavrl",
+    "n": 1.9397551108322926
+   },
+   {
+    "e_electronic": 3.7217058133333336,
+    "e_ionic": 7.932574466666666,
+    "e_total": 11.65428028,
+    "material_id": "mp-aaaaavts",
+    "n": 1.9291723130226945
+   },
+   {
+    "e_electronic": 5.568321443333333,
+    "e_ionic": 39.62176692670085,
+    "e_total": 45.19008837003418,
+    "material_id": "mp-aaaaawxw",
+    "n": 2.3597291038026658
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "material_id",
+    "last_updated"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-10T03:19:59.107140+00:00",
+   "total_doc": 24
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/dielectric/"
+}

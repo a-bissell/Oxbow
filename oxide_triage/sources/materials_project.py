@@ -143,41 +143,60 @@ class MaterialsProject(CachedSource):
     # ---- candidate universe ---------------------------------------------------------
 
     @staticmethod
-    def universe_key(cations: list[str], max_elements: int, hull_ceiling: float, min_gap: float) -> str:
-        spec = json.dumps(
-            {"cations": sorted(cations), "max_el": max_elements, "hull": hull_ceiling, "gap": min_gap},
-            sort_keys=True,
-        )
-        return "universe:" + hashlib.sha256(spec.encode()).hexdigest()[:12]
+    def universe_key(
+        cations: list[str],
+        max_elements: int,
+        hull_ceiling: float,
+        min_gap: float,
+        observed_only: bool = False,
+    ) -> str:
+        spec: dict[str, Any] = {
+            "cations": sorted(cations),
+            "max_el": max_elements,
+            "hull": hull_ceiling,
+            "gap": min_gap,
+        }
+        if observed_only:  # key unchanged for the historical (all-entries) universe
+            spec["observed"] = True
+        return "universe:" + hashlib.sha256(json.dumps(spec, sort_keys=True).encode()).hexdigest()[:12]
 
     def fetch_universe(
-        self, cations: list[str], max_elements: int, hull_ceiling: float, min_gap: float
+        self,
+        cations: list[str],
+        max_elements: int,
+        hull_ceiling: float,
+        min_gap: float,
+        observed_only: bool = False,
     ) -> tuple[list[str], str]:
-        """Return (material_ids, status). Summaries are cached one row per material."""
-        key = self.universe_key(cations, max_elements, hull_ceiling, min_gap)
+        """Return (material_ids, status). Summaries are cached one row per material.
+        ``observed_only`` keeps entries MP matches to an experimentally observed structure
+        (``theoretical: false``); the flag is per entry, see ``CandidatesConfig``."""
+        key = self.universe_key(cations, max_elements, hull_ceiling, min_gap, observed_only)
         allowed = set(cations) | {"O"}
         excluded = server_side_exclusions(allowed)
 
         def fetch() -> dict[str, Any]:
-            docs = self._paged(
-                "/materials/summary/",
-                {
-                    "elements": "O",
-                    "exclude_elements": excluded,
-                    "nelements_min": 2,
-                    "nelements_max": max_elements,
-                    "energy_above_hull_max": hull_ceiling,
-                    "band_gap_min": min_gap,
-                    "deprecated": "false",
-                    "_fields": ",".join(SUMMARY_FIELDS),
-                },
-            )
+            params: dict[str, Any] = {
+                "elements": "O",
+                "exclude_elements": excluded,
+                "nelements_min": 2,
+                "nelements_max": max_elements,
+                "energy_above_hull_max": hull_ceiling,
+                "band_gap_min": min_gap,
+                "deprecated": "false",
+                "_fields": ",".join(SUMMARY_FIELDS),
+            }
+            if observed_only:
+                params["theoretical"] = "false"
+            docs = self._paged("/materials/summary/", params)
             ids = []
             for doc in docs:
                 # The local allowlist filter is authoritative: the server-side exclusion list
                 # is truncated to the API's 60-character limit.
                 if any(el not in allowed for el in doc.get("elements", [])):
                     continue
+                if observed_only and doc.get("theoretical") is True:
+                    continue  # the local filter is authoritative here too
                 self.cache.put(self.name, f"summary:{doc['material_id']}", doc)
                 ids.append(doc["material_id"])
             if not ids:
@@ -185,7 +204,7 @@ class MaterialsProject(CachedSource):
             return {"material_ids": sorted(ids), "n_returned": len(docs)}
 
         payload, _ts, status = self.cached(key, fetch)
-        extra = self.on_demand_ids(cations, max_elements, hull_ceiling, min_gap)
+        extra = self.on_demand_ids(cations, max_elements, hull_ceiling, min_gap, observed_only)
         if payload is None:
             return sorted(extra), status
         return sorted(set(payload["material_ids"]) | set(extra)), status
@@ -209,12 +228,19 @@ class MaterialsProject(CachedSource):
         return sorted(ids)
 
     def add_to_universe(
-        self, cations: list[str], max_elements: int, hull_ceiling: float, min_gap: float, ids: list[str]
+        self,
+        cations: list[str],
+        max_elements: int,
+        hull_ceiling: float,
+        min_gap: float,
+        ids: list[str],
+        observed_only: bool = False,
     ) -> int:
         """Record on-demand additions for these universe parameters. They live in a separate
         ``ondemand:`` row and are merged in by ``fetch_universe``, so they can never stand in for,
-        or mask, the real universe query."""
-        key = "ondemand:" + self.universe_key(cations, max_elements, hull_ceiling, min_gap)
+        or mask, the real universe query. Additions bypass ``observed_only`` on purpose: someone
+        asked for that compound by name."""
+        key = "ondemand:" + self.universe_key(cations, max_elements, hull_ceiling, min_gap, observed_only)
         hit = self.cache.get(self.name, key)
         current = set(hit[0].get("material_ids", [])) if hit else set()
         new = [i for i in ids if i not in current]
@@ -223,9 +249,14 @@ class MaterialsProject(CachedSource):
         return len(new)
 
     def on_demand_ids(
-        self, cations: list[str], max_elements: int, hull_ceiling: float, min_gap: float
+        self,
+        cations: list[str],
+        max_elements: int,
+        hull_ceiling: float,
+        min_gap: float,
+        observed_only: bool = False,
     ) -> list[str]:
-        key = "ondemand:" + self.universe_key(cations, max_elements, hull_ceiling, min_gap)
+        key = "ondemand:" + self.universe_key(cations, max_elements, hull_ceiling, min_gap, observed_only)
         hit = self.cache.get(self.name, key)
         return list(hit[0].get("material_ids", [])) if hit else []
 

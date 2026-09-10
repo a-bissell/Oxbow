@@ -1,0 +1,92 @@
+{
+ "params": {
+  "composition": "Lu2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.86784545552725,
+    "entry_id": 20298,
+    "name": "Lu2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.09378891099999986
+   },
+   {
+    "delta_e": -3.95325200652725,
+    "entry_id": 6311,
+    "name": "Lu2O3",
+    "spacegroup": "I213",
+    "stability": 0.008382360000000144
+   },
+   {
+    "delta_e": -3.00431244552725,
+    "entry_id": 351264,
+    "name": "Lu2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.9573219210000001
+   },
+   {
+    "delta_e": -3.90451584686059,
+    "entry_id": 20310,
+    "name": "Lu2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.05711851966665993
+   },
+   {
+    "delta_e": -3.91297765652725,
+    "entry_id": 427779,
+    "name": "Lu2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.048656709999999936
+   },
+   {
+    "delta_e": -3.96163436652725,
+    "entry_id": 7279,
+    "name": "Lu2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.90908190952725,
+    "entry_id": 1440975,
+    "name": "Lu2O3",
+    "spacegroup": "C2/c",
+    "stability": 0.052552457
+   },
+   {
+    "delta_e": -3.839859444527253,
+    "entry_id": 1763603,
+    "name": "Lu2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.12177492199999707
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 8,
+   "data_returned": 8,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Lu2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:52"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

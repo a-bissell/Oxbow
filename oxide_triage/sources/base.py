@@ -5,8 +5,9 @@ Every client follows the same contract:
     payload, retrieved_at, status = source.cached(key, fetch_fn)
 
 ``status`` is one of ``cached``, ``fetched``, ``stale_cached``, ``missing_offline``,
-``fetch_failed``. A ``None`` payload with ``missing_offline`` / ``fetch_failed`` becomes
-``DataStatus.UNKNOWN`` downstream: the pipeline never invents a value to fill the hole.
+``fetch_failed``, ``not_fetched``. ``status_for`` translates that outcome into a
+``DataStatus``: a source that answered with no record becomes ``ABSENT``, a fetch that never
+completed becomes ``NOT_RETRIEVED``. The pipeline never invents a value to fill either hole.
 
 Retrieved text (titles, descriptions) is stored verbatim and treated as *data*. Nothing in
 this package ever interprets it as an instruction.
@@ -27,10 +28,27 @@ from typing import Any
 import httpx
 
 from oxide_triage.cache import Cache
+from oxide_triage.schemas import DataStatus
 
 log = logging.getLogger(__name__)
 
-FetchStatus = str  # cached | fetched | stale_cached | missing_offline | fetch_failed
+FetchStatus = str  # cached | fetched | stale_cached | missing_offline | fetch_failed | not_fetched
+
+# Outcomes that mean the source actually answered us. Anything else means we never heard back,
+# so a hole in the resulting record is a fact about this cache rather than about the source.
+ANSWERED: frozenset[str] = frozenset({"fetched", "cached", "stale_cached"})
+
+
+def status_for(fetch_status: FetchStatus, found: bool) -> DataStatus:
+    """Map a fetch outcome plus whether the payload held a record onto a ``DataStatus``.
+
+    This is the single place the operational vocabulary of the fetch layer is translated into
+    the data vocabulary the scorer and the report speak. See ``DataStatus`` for why a fetch
+    that never completed must not look like a source that holds no record.
+    """
+    if found:
+        return DataStatus.KNOWN
+    return DataStatus.ABSENT if fetch_status in ANSWERED else DataStatus.NOT_RETRIEVED
 
 
 class SourceError(Exception):
@@ -204,6 +222,14 @@ class CachedSource:
         self.cache = cache
         self.ttl_days = ttl_days
         self.offline = offline
+
+    def peek(self, key: str) -> tuple[Any | None, str | None, FetchStatus]:
+        """Cache-only read: never fetches, never logs. ``not_fetched`` when nothing is cached,
+        which ``status_for`` maps to NOT_RETRIEVED (a fact about this cache, not the source)."""
+        hit = self.cache.get(self.name, key)
+        if hit is None:
+            return None, None, "not_fetched"
+        return hit[0], hit[1], "cached"
 
     def cached(self, key: str, fetch: Callable[[], Any]) -> tuple[Any | None, str | None, FetchStatus]:
         hit = self.cache.get(self.name, key)

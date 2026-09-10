@@ -1,0 +1,281 @@
+{
+ "params": {
+  "composition": "SrZrO3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.44306304152725,
+    "entry_id": 5219,
+    "name": "SrZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.05846878450000004
+   },
+   {
+    "delta_e": -3.47810130352725,
+    "entry_id": 1945,
+    "name": "SrZrO3",
+    "spacegroup": "Cmcm",
+    "stability": 0.023430522499999995
+   },
+   {
+    "delta_e": -3.44734544352725,
+    "entry_id": 350473,
+    "name": "SrZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.054186382500000185
+   },
+   {
+    "delta_e": -0.982560899527252,
+    "entry_id": 43082,
+    "name": "SrZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 2.518970926499998
+   },
+   {
+    "delta_e": -3.48850291552725,
+    "entry_id": 1944,
+    "name": "SrZrO3",
+    "spacegroup": "I4/mcm",
+    "stability": 0.013028910500000102
+   },
+   {
+    "delta_e": -3.49939103802725,
+    "entry_id": 20245,
+    "name": "SrZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.002140788000000171
+   },
+   {
+    "delta_e": -3.44949071952725,
+    "entry_id": 679828,
+    "name": "SrZrO3",
+    "spacegroup": "P4mm",
+    "stability": 0.052041106499999934
+   },
+   {
+    "delta_e": -2.75104944752725,
+    "entry_id": 679829,
+    "name": "SrZrO3",
+    "spacegroup": "P4mm",
+    "stability": 0.7504823785000001
+   },
+   {
+    "delta_e": -3.45671616152725,
+    "entry_id": 678179,
+    "name": "SrZrO3",
+    "spacegroup": "R-3",
+    "stability": 0.044815664500000185
+   },
+   {
+    "delta_e": -3.45637051952725,
+    "entry_id": 678178,
+    "name": "SrZrO3",
+    "spacegroup": "R-3",
+    "stability": 0.045161306500000276
+   },
+   {
+    "delta_e": -3.50153182602725,
+    "entry_id": 681448,
+    "name": "SrZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.22924127952725,
+    "entry_id": 681449,
+    "name": "SrZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.2722905465000003
+   },
+   {
+    "delta_e": -3.44275784502725,
+    "entry_id": 7414,
+    "name": "SrZrO3",
+    "spacegroup": "P213",
+    "stability": 0.05877398100000031
+   },
+   {
+    "delta_e": -3.49366581152725,
+    "entry_id": 827061,
+    "name": "SrZrO3",
+    "spacegroup": "R-3c",
+    "stability": 0.00786601450000024
+   },
+   {
+    "delta_e": -2.98714260152725,
+    "entry_id": 827429,
+    "name": "SrZrO3",
+    "spacegroup": "R-3c",
+    "stability": 0.5143892244999999
+   },
+   {
+    "delta_e": -3.50134799052725,
+    "entry_id": 1276694,
+    "name": "SrZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.00018383550000011795
+   },
+   {
+    "delta_e": -3.26263351919392,
+    "entry_id": 1289664,
+    "name": "SrZrO3",
+    "spacegroup": "P63cm",
+    "stability": 0.23889830683333013
+   },
+   {
+    "delta_e": -3.20459729802725,
+    "entry_id": 1322870,
+    "name": "SrZrO3",
+    "spacegroup": "Fd-3m",
+    "stability": 0.296934528
+   },
+   {
+    "delta_e": -3.35540021652725,
+    "entry_id": 1348031,
+    "name": "SrZrO3",
+    "spacegroup": "C2221",
+    "stability": 0.14613160950000026
+   },
+   {
+    "delta_e": -3.49214377552725,
+    "entry_id": 1441936,
+    "name": "SrZrO3",
+    "spacegroup": "Imma",
+    "stability": 0.009388050500000134
+   },
+   {
+    "delta_e": -3.47777063052725,
+    "entry_id": 1442417,
+    "name": "SrZrO3",
+    "spacegroup": "P4/mbm",
+    "stability": 0.02376119550000011
+   },
+   {
+    "delta_e": -2.990267188527253,
+    "entry_id": 1523751,
+    "name": "SrZrO3",
+    "spacegroup": "R-3c",
+    "stability": 0.511264637499997
+   },
+   {
+    "delta_e": -3.444425697527253,
+    "entry_id": 1709680,
+    "name": "SrZrO3",
+    "spacegroup": "P4/mmm",
+    "stability": 0.057106128499996966
+   },
+   {
+    "delta_e": -3.485239870527253,
+    "entry_id": 1710425,
+    "name": "SrZrO3",
+    "spacegroup": "Ima2",
+    "stability": 0.01629195549999718
+   },
+   {
+    "delta_e": -3.451482985527253,
+    "entry_id": 1712647,
+    "name": "SrZrO3",
+    "spacegroup": "Amm2",
+    "stability": 0.05004884049999703
+   },
+   {
+    "delta_e": -3.443464627527252,
+    "entry_id": 1719418,
+    "name": "SrZrO3",
+    "spacegroup": "Cmmm",
+    "stability": 0.058067198499998085
+   },
+   {
+    "delta_e": -3.4889291265272524,
+    "entry_id": 1721293,
+    "name": "SrZrO3",
+    "spacegroup": "C2/m",
+    "stability": 0.012602699499997705
+   },
+   {
+    "delta_e": -3.3444176855272523,
+    "entry_id": 1776277,
+    "name": "SrZrO3",
+    "spacegroup": "P21/m",
+    "stability": 0.15711414049999783
+   },
+   {
+    "delta_e": -3.4454744095272525,
+    "entry_id": 2015216,
+    "name": "SrZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.056057416499997625
+   },
+   {
+    "delta_e": -3.4254380175272523,
+    "entry_id": 2032703,
+    "name": "SrZrO3",
+    "spacegroup": "P4mm",
+    "stability": 0.0760938084999978
+   },
+   {
+    "delta_e": -3.4775143855272526,
+    "entry_id": 2015517,
+    "name": "SrZrO3",
+    "spacegroup": "P4/mbm",
+    "stability": 0.024017440499997544
+   },
+   {
+    "delta_e": -3.491895755527252,
+    "entry_id": 2015520,
+    "name": "SrZrO3",
+    "spacegroup": "Imma",
+    "stability": 0.009636070499998262
+   },
+   {
+    "delta_e": -3.475337284527253,
+    "entry_id": 2032705,
+    "name": "SrZrO3",
+    "spacegroup": "Pmc21",
+    "stability": 0.026194541499997115
+   },
+   {
+    "delta_e": -3.4964996545272533,
+    "entry_id": 2172319,
+    "name": "SrZrO3",
+    "spacegroup": "Imma",
+    "stability": 0.005032171499996796
+   },
+   {
+    "delta_e": -0.9770829275272526,
+    "entry_id": 2175979,
+    "name": "SrZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 2.5244488984999975
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 35,
+   "data_returned": 35,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=SrZrO3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:43"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

@@ -79,12 +79,6 @@ literature:
   thin_film_saturation: 50      # thin-film works at which the sub-score saturates
   total_saturation: 500
   thin_film_weight: 0.7         # remainder goes to total works
-  # OpenAlex meters a daily budget ($0.10/day per IP anonymously, $1/day with a free account's
-  # key; a full-text search costs $0.001 and each formula needs two). Fetching every formula at
-  # warm time would take days, so by default counts are fetched at query time for the
-  # top-ranked candidates only; everything below the pool scores "literature unknown".
-  fetch: on_demand              # on_demand | warm | never
-  on_demand_pool: 25            # ranked candidates fetched per query (~50 searches, $0.05)
 
 # How an UNKNOWN criterion affects ranking. It is always displayed as unknown (never as
 # zero) and always lowers the confidence label. For the ranking arithmetic:
@@ -103,8 +97,24 @@ missing_data:
 # Candidate universe (what is pulled from Materials Project into the cache)
 # ---------------------------------------------------------------------------
 candidates:
+  # cation_allowlist.yaml is the dielectric-minded list (rationale per family inside the file);
+  # cation_allowlist_wide.yaml is the original wide list for profiles that want it.
   cation_allowlist_file: cation_allowlist.yaml
   max_elements_query: 3
+  # Experimentally observed structures only (MP theoretical: false). On the first live warm this
+  # removed 40% of the universe and a third of the dielectric-bearing entries, nearly all
+  # hypothetical polymorphs. The group will deposit films of what comes out, so a structure
+  # nobody has synthesised is a discovery target, not a triage candidate.
+  observed_only: true
+  # Where the formula-keyed sources (OQMD, PubChem, OpenAlex) are fetched. Materials Project
+  # warms in minutes; OQMD answers an uncached composition in 10-50 s and OpenAlex meters a
+  # daily budget ($0.10/day per IP, $1/day with a free key, $0.001 per search, two per
+  # formula), so warming them for thousands of formulas takes hours to days. on_demand: the
+  # warm fetches MP only, and each query fills the top-ranked pool, re-ranking until the pool
+  # is settled; candidates below the pool carry no cross-check, literature or compound-hazard
+  # data and the output says so. warm: fetch them for every formula during warm-cache.
+  formula_sources: on_demand
+  on_demand_pool: 25            # ranked candidates filled per query, never fewer than top_k
   # The first live warm at 0.20 eV/atom and 1.0 eV pulled 7,124 candidates. No shipped profile
   # gates above 0.08 eV/atom or below 2.5 eV effective (1.8 eV before a 1.4x correction), so
   # anything outside these bounds could never be ranked. Widen them if you add a looser profile.
@@ -163,6 +173,14 @@ llm:
     rationale: false # one-line plain-language rationale per candidate (numeric-guarded)
 
 # ---------------------------------------------------------------------------
+# Retrieval completeness. Missing data lowers a score, so on a partly-warmed cache the
+# ranking partly reflects which fetches finished rather than which materials are better.
+# These floors decide when the system says so, and when it refuses to rank at all.
+retrieval:
+  min_completeness_warn: 0.95   # below this fraction of retrieved scoring weight, warn on every result
+  min_completeness_serve: 0.0   # below this, refuse to serve a ranking (0.0 disables the block)
+
+# ---------------------------------------------------------------------------
 # Self-check: the known-answer test the system runs on itself after every cache warm,
 # fixture load or on-demand material addition. Workhorse dielectrics must surface near the
 # top of an unconstrained run or be excluded by a stated gate; a workhorse missing from the
@@ -171,9 +189,19 @@ llm:
 selfcheck:
   enabled: true
   on_failure: block
+  min_retrieval_completeness: 0.9   # below this, the known-answer check reports insufficient_data, not FAIL
   workhorses: [HfO2, ZrO2, Al2O3, Ta2O5]
-  leaders: [HfO2, Al2O3]          # expected in the default top 5 when present
-  min_workhorses_in_wide_top10: 3 # under the exploratory profile
+  # Leaders must sit in the default top leaders_top_n. Al2O3 is a workhorse but not a leader:
+  # its dielectric constant (~10) sits at the bottom of the dielectric preference, so under a
+  # dielectric-weighted default it lands around 16th of ~500, correctly.
+  leaders: [HfO2]
+  # Rank windows. On the first live warm the default top five were SrHfO3, LaAlO3, LaScO3, CaZrO3
+  # and ScTaO4 (k of 25-49), with HfO2 6th, ZrO2 7th and Al2O3 16th of 497: a correct ranking
+  # for the request, since the dielectric curve saturates at k=30. The windows pass that and
+  # still fail on a workhorse that vanished from the universe or sank below the median.
+  leaders_top_n: 10
+  wide_top_n: 25                    # under the exploratory profile ...
+  min_workhorses_in_wide_top: 2     # ... at least this many workhorses in that window
 
 # ---------------------------------------------------------------------------
 # Adaptive acquisition: after a cache warm, gaps in the retrieved data (no OQMD match, no

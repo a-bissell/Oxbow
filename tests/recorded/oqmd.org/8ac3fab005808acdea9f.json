@@ -1,0 +1,386 @@
+{
+ "params": {
+  "composition": "TiO2",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.21575255518126,
+    "entry_id": 2475,
+    "name": "TiO2",
+    "spacegroup": "P42/mnm",
+    "stability": 0.02688833666666035
+   },
+   {
+    "delta_e": -3.24264089184792,
+    "entry_id": 2575,
+    "name": "TiO2",
+    "spacegroup": "I41/amd",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.14918320295904,
+    "entry_id": 7500,
+    "name": "TiO2",
+    "spacegroup": "P3121",
+    "stability": 0.09345768888888006
+   },
+   {
+    "delta_e": -3.21667801934793,
+    "entry_id": 3070,
+    "name": "TiO2",
+    "spacegroup": "Pbcn",
+    "stability": 0.025962872499990297
+   },
+   {
+    "delta_e": -3.24131977934792,
+    "entry_id": 7408,
+    "name": "TiO2",
+    "spacegroup": "C2/m",
+    "stability": 0.001321112500000332
+   },
+   {
+    "delta_e": -3.19191928684792,
+    "entry_id": 13527,
+    "name": "TiO2",
+    "spacegroup": "Pnma",
+    "stability": 0.050721605000000114
+   },
+   {
+    "delta_e": -3.18895634351459,
+    "entry_id": 19782,
+    "name": "TiO2",
+    "spacegroup": "P21/c",
+    "stability": 0.05368454833333036
+   },
+   {
+    "delta_e": -2.97996224851459,
+    "entry_id": 117322,
+    "name": "TiO2",
+    "spacegroup": "Pnma",
+    "stability": 0.26267864333333035
+   },
+   {
+    "delta_e": -3.23777071851459,
+    "entry_id": 112497,
+    "name": "TiO2",
+    "spacegroup": "C2/m",
+    "stability": 0.0048701733333302855
+   },
+   {
+    "delta_e": -3.18758475268126,
+    "entry_id": 97161,
+    "name": "TiO2",
+    "spacegroup": "P21/c",
+    "stability": 0.05505613916665997
+   },
+   {
+    "delta_e": -3.04780699018126,
+    "entry_id": 84685,
+    "name": "TiO2",
+    "spacegroup": "Pmm2",
+    "stability": 0.19483390166666004
+   },
+   {
+    "delta_e": -3.19863375101459,
+    "entry_id": 31247,
+    "name": "TiO2",
+    "spacegroup": "P21/m",
+    "stability": 0.044007140833330016
+   },
+   {
+    "delta_e": -2.98335983851459,
+    "entry_id": 117323,
+    "name": "TiO2",
+    "spacegroup": "Pnma",
+    "stability": 0.2592810533333303
+   },
+   {
+    "delta_e": -3.22870923851459,
+    "entry_id": 5979,
+    "name": "TiO2",
+    "spacegroup": "Pbca",
+    "stability": 0.013931653333330019
+   },
+   {
+    "delta_e": -3.22241984018126,
+    "entry_id": 695461,
+    "name": "TiO2",
+    "spacegroup": "I41/amd",
+    "stability": 0.020221051666660106
+   },
+   {
+    "delta_e": -3.08305939434792,
+    "entry_id": 695460,
+    "name": "TiO2",
+    "spacegroup": "Fd-3m",
+    "stability": 0.15958149750000006
+   },
+   {
+    "delta_e": -3.08555424684792,
+    "entry_id": 695465,
+    "name": "TiO2",
+    "spacegroup": "I41/amd",
+    "stability": 0.15708664500000014
+   },
+   {
+    "delta_e": -3.24205361601459,
+    "entry_id": 695464,
+    "name": "TiO2",
+    "spacegroup": "C2/m",
+    "stability": 0.0005872758333302919
+   },
+   {
+    "delta_e": -3.18446927518126,
+    "entry_id": 1236880,
+    "name": "TiO2",
+    "spacegroup": "Fd-3m",
+    "stability": 0.05817161666666015
+   },
+   {
+    "delta_e": -3.00711859101459,
+    "entry_id": 1280931,
+    "name": "TiO2",
+    "spacegroup": "Pa-3",
+    "stability": 0.23552230083333026
+   },
+   {
+    "delta_e": -3.09833483018126,
+    "entry_id": 1343459,
+    "name": "TiO2",
+    "spacegroup": "P-1",
+    "stability": 0.14430606166666005
+   },
+   {
+    "delta_e": -3.18531607851459,
+    "entry_id": 1343580,
+    "name": "TiO2",
+    "spacegroup": "I4/m",
+    "stability": 0.05732481333332995
+   },
+   {
+    "delta_e": -2.96350138184793,
+    "entry_id": 1440466,
+    "name": "TiO2",
+    "spacegroup": "Fm-3m",
+    "stability": 0.27913950999999004
+   },
+   {
+    "delta_e": -2.32394583184792,
+    "entry_id": 1441306,
+    "name": "TiO2",
+    "spacegroup": "I4/mmm",
+    "stability": 0.9186950600000001
+   },
+   {
+    "delta_e": -3.09538998851459,
+    "entry_id": 1440185,
+    "name": "TiO2",
+    "spacegroup": "P-3m1",
+    "stability": 0.14725090333333002
+   },
+   {
+    "delta_e": -1.38542254851459,
+    "entry_id": 1443748,
+    "name": "TiO2",
+    "spacegroup": "Cmmm",
+    "stability": 1.8572183433333302
+   },
+   {
+    "delta_e": -3.21664393518126,
+    "entry_id": 1439691,
+    "name": "TiO2",
+    "spacegroup": "Pnnm",
+    "stability": 0.025996956666660243
+   },
+   {
+    "delta_e": -2.48777707351459,
+    "entry_id": 1440197,
+    "name": "TiO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.7548638183333303
+   },
+   {
+    "delta_e": -2.51320863018126,
+    "entry_id": 1442047,
+    "name": "TiO2",
+    "spacegroup": "Cmcm",
+    "stability": 0.72943226166666
+   },
+   {
+    "delta_e": -2.68212039351459,
+    "entry_id": 1441819,
+    "name": "TiO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.5605204983333301
+   },
+   {
+    "delta_e": -3.09983235018126,
+    "entry_id": 1442388,
+    "name": "TiO2",
+    "spacegroup": "P42/nmc",
+    "stability": 0.14280854166666002
+   },
+   {
+    "delta_e": -3.08181677184792,
+    "entry_id": 1442562,
+    "name": "TiO2",
+    "spacegroup": "P63mc",
+    "stability": 0.16082412000000001
+   },
+   {
+    "delta_e": -3.05264117018126,
+    "entry_id": 1442805,
+    "name": "TiO2",
+    "spacegroup": "Pn-3m",
+    "stability": 0.18999972166666002
+   },
+   {
+    "delta_e": -3.21056345184792,
+    "entry_id": 1443656,
+    "name": "TiO2",
+    "spacegroup": "Pnnm",
+    "stability": 0.032077440000000124
+   },
+   {
+    "delta_e": -3.082264996847924,
+    "entry_id": 1441633,
+    "name": "TiO2",
+    "spacegroup": "P41212",
+    "stability": 0.16037589499999605
+   },
+   {
+    "delta_e": -3.1422224218479244,
+    "entry_id": 1443408,
+    "name": "TiO2",
+    "spacegroup": "Pca21",
+    "stability": 0.10041846999999571
+   },
+   {
+    "delta_e": -3.0756520868479256,
+    "entry_id": 1441609,
+    "name": "TiO2",
+    "spacegroup": "P1",
+    "stability": 0.16698880499999458
+   },
+   {
+    "delta_e": -0.18906735018125786,
+    "entry_id": 1589736,
+    "name": "TiO2",
+    "spacegroup": "Fd-3m",
+    "stability": 3.0535735416666623
+   },
+   {
+    "delta_e": -3.1685242940701466,
+    "entry_id": 1776774,
+    "name": "TiO2",
+    "spacegroup": "C222",
+    "stability": 0.07411659777777357
+   },
+   {
+    "delta_e": -3.089540545181258,
+    "entry_id": 1770027,
+    "name": "TiO2",
+    "spacegroup": "I-42d",
+    "stability": 0.15310034666666228
+   },
+   {
+    "delta_e": -3.088177705181258,
+    "entry_id": 1817833,
+    "name": "TiO2",
+    "spacegroup": "C2221",
+    "stability": 0.15446318666666237
+   },
+   {
+    "delta_e": -2.963048475181258,
+    "entry_id": 2015680,
+    "name": "TiO2",
+    "spacegroup": "Fm-3m",
+    "stability": 0.2795924166666621
+   },
+   {
+    "delta_e": -2.3178912818479254,
+    "entry_id": 2030297,
+    "name": "TiO2",
+    "spacegroup": "I4/mmm",
+    "stability": 0.9247496099999948
+   },
+   {
+    "delta_e": -2.5005357851812584,
+    "entry_id": 2037993,
+    "name": "TiO2",
+    "spacegroup": "P3m1",
+    "stability": 0.7421051066666617
+   },
+   {
+    "delta_e": -3.216140636847925,
+    "entry_id": 2012703,
+    "name": "TiO2",
+    "spacegroup": "P42/mnm",
+    "stability": 0.02650025499999531
+   },
+   {
+    "delta_e": -2.8191418868479245,
+    "entry_id": 2037991,
+    "name": "TiO2",
+    "spacegroup": "C2/m",
+    "stability": 0.4234990049999956
+   },
+   {
+    "delta_e": -2.892608995181258,
+    "entry_id": 2037992,
+    "name": "TiO2",
+    "spacegroup": "P4/nmm",
+    "stability": 0.35003189666666223
+   },
+   {
+    "delta_e": -2.9498632529590356,
+    "entry_id": 2015679,
+    "name": "TiO2",
+    "spacegroup": "P-62m",
+    "stability": 0.29277763888888453
+   },
+   {
+    "delta_e": -3.0080364868479244,
+    "entry_id": 2015681,
+    "name": "TiO2",
+    "spacegroup": "Pa-3",
+    "stability": 0.2346044049999958
+   },
+   {
+    "delta_e": -3.1460539935145917,
+    "entry_id": 2046563,
+    "name": "TiO2",
+    "spacegroup": "Pbca",
+    "stability": 0.09658689833332845
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": "http://oqmd.org/oqmdapi/formationenergy?composition=TiO2&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50&offset=50",
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 56,
+   "data_returned": 50,
+   "more_data_available": true,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=TiO2&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:23:30"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}
