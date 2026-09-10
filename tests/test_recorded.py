@@ -98,7 +98,7 @@ def test_live_shape_replay_warm_and_selfcheck(monkeypatch):
     # partway through, so most candidates have no literature counts and no cross-check. That must
     # surface as an *inconclusive* self-check naming the reason, never as a ranking failure — a
     # known-answer test cannot validate ranks built on data that was never fetched.
-    check = run_selfcheck(cfg, cache)
+    check = run_selfcheck(cfg, cache, http=ReplayHttp(RECORDED))
     assert check.retrieval_completeness is not None
     if check.retrieval_completeness < cfg.selfcheck.min_retrieval_completeness:
         assert check.inconclusive, check.details
@@ -131,7 +131,9 @@ def test_replayed_gaps_are_not_retrieved_not_absent(monkeypatch):
     unretrieved_xcheck = [r for r in records if r.cross_check.status == DataStatus.NOT_RETRIEVED]
     assert unretrieved_xcheck, "the recording is known to be missing most OQMD lookups"
     note = unretrieved_xcheck[0].cross_check.provenance.note or ""
-    assert "never successfully queried" in note
+    # under on-demand formula sources the warm leaves OQMD unfetched by design; either way the
+    # note attributes the hole to this cache, never to OQMD
+    assert "never successfully queried" in note or "not fetched at warm" in note
 
     result = retrieval_completeness(rank(records, cfg, resolve(cfg, Criteria(), TABLE)[0])[0], cfg)
     assert not result.comparable

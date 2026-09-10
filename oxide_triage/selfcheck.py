@@ -12,7 +12,7 @@ fetch is broken and no shortlist from that cache should be trusted.
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
@@ -47,7 +47,9 @@ def _ranked(res: TriageResult) -> list[str]:
     return [s.record.formula for s in res.shortlist + res.ranked_beyond_shortlist]
 
 
-def run_selfcheck(config: Config, cache: Cache, offline: bool | None = None) -> SelfCheck:
+def run_selfcheck(
+    config: Config, cache: Cache, offline: bool | None = None, http: Any | None = None
+) -> SelfCheck:
     """Known-answer check. Runs from the cache alone, except under on-demand formula sources on
     a live cache, where the ranked pool is filled online first: the warm deliberately leaves
     those sources unfetched, and a check that then reported "too sparse" would test nothing."""
@@ -64,7 +66,9 @@ def run_selfcheck(config: Config, cache: Cache, offline: bool | None = None) -> 
         )
 
     default_cfg = load_config("default", use_env=False, overrides={"cache": {"path": config.cache.path}})
-    res = run_triage(PI, default_cfg, cache=cache, offline=offline, skip_selfcheck=True, llm=NullLLM())
+    res = run_triage(
+        PI, default_cfg, cache=cache, offline=offline, skip_selfcheck=True, llm=NullLLM(), http=http
+    )
     ranked = _ranked(res)
     universe = {s.record.formula for s in res.shortlist + res.ranked_beyond_shortlist + res.excluded}
     if not universe:
@@ -120,7 +124,9 @@ def run_selfcheck(config: Config, cache: Cache, offline: bool | None = None) -> 
             details.append(f"{lead}: expected in default top 5, found at {ranked.index(lead) + 1} (FAIL)")
 
     wide_cfg = load_config("exploratory", use_env=False, overrides={"cache": {"path": config.cache.path}})
-    wide = run_triage(PI, wide_cfg, cache=cache, offline=offline, skip_selfcheck=True, llm=NullLLM())
+    wide = run_triage(
+        PI, wide_cfg, cache=cache, offline=offline, skip_selfcheck=True, llm=NullLLM(), http=http
+    )
     wide_ranked = _ranked(wide)
     in_top10 = [w for w in sc.workhorses if w in wide_ranked[:10]]
     need = min(sc.min_workhorses_in_wide_top10, len(sc.workhorses))

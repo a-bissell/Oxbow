@@ -109,12 +109,14 @@ def run_triage(
     criteria: Criteria | None = None,
     confirmed: bool = True,
     skip_selfcheck: bool = False,
+    http: Any | None = None,
 ) -> TriageResult:
     """Run one triage request.
 
     ``criteria`` bypasses the parser (used by reruns with changed settings; the guard still runs
     on the original text). ``confirmed=False`` makes the run stop and return its clarification
-    questions instead of a shortlist whenever there are any.
+    questions instead of a shortlist whenever there are any. ``http`` replaces every client's
+    transport (a replay of recorded responses in tests).
     """
     table = load_hazard_table(config.toxicity.table_file)
     llm = llm or make_llm(config.llm)
@@ -168,7 +170,7 @@ def run_triage(
         if block_msg:
             return TriageResult(**base, cache_fingerprint=cache.fingerprint([]), warnings=[block_msg])
 
-        layer = DataLayer.from_config(config, cache=cache, offline=offline)
+        layer = DataLayer.from_config(config, cache=cache, offline=offline, http=http)
         fill_note: str | None = None
         retrieval_scope: int | None = None
         try:
