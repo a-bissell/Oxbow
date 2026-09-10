@@ -32,11 +32,11 @@ _No ranking was run. Nothing below this line is a result._
 {% endfor %}
 
 {% endif %}
-{% set notices = result.guard.findings | selectattr("bin", "equalto", "architecturally_impossible") | list %}
+{% set notices = result.guard.findings | selectattr("bin", "in", ["architecturally_impossible", "override_attempt"]) | list %}
 {% if notices %}
-> **Not possible in this deployment:**
+> **Request notices:**
 {% for f in notices %}
-> - "{{ f.matched_text }}" — {{ f.explanation }}
+> - **{{ "Not possible in this deployment" if f.bin == "architecturally_impossible" else "No such mode exists" }}** — "{{ f.matched_text }}": {{ f.explanation }}
 {% endfor %}
 
 {% endif %}

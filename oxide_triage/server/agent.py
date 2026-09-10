@@ -28,7 +28,7 @@ from typing import Any
 from pydantic import BaseModel
 from pydantic import Field as PField
 
-from oxide_triage.agent import Agent
+from oxide_triage.agent import GUARD_REFUSAL, Agent
 from oxide_triage.config import DEFAULT_CONFIG_DIR, Config, load_config
 from oxide_triage.edges.llm import (
     AssistantTurn,
@@ -54,7 +54,15 @@ from oxide_triage.server.store import (
     now_iso,
 )
 from oxide_triage.session import find_candidate
-from oxide_triage.tools import TOOL_SPECS, ToolBox, ToolOutcome, ToolSpec, _Args, agent_system_prompt
+from oxide_triage.tools import (
+    TOOL_SPECS,
+    ToolBox,
+    ToolOutcome,
+    ToolSpec,
+    _Args,
+    agent_system_prompt,
+    make_guard,
+)
 
 log = logging.getLogger(__name__)
 
@@ -162,6 +170,9 @@ class WebToolBox(ToolBox):
         name = profile if profile and profile != "default" else self.profile
         return load_config(name, config_dir=self.config_dir, overrides=self.config_overrides)
 
+    def _confirmation_allowed(self, name: str, args: dict[str, Any]) -> bool:
+        return self.state.confirmed_tool == name
+
     def call(self, name: str, raw_input: dict[str, Any] | None) -> ToolOutcome:
         st = self.state
         args = dict(raw_input or {})
@@ -171,6 +182,9 @@ class WebToolBox(ToolBox):
             except Exception as exc:  # noqa: BLE001 - the model gets the failure as data
                 return ToolOutcome(name, f"Invalid arguments for {name}: {exc}", True)
             return ToolOutcome(name, "ok")
+        # The confirm flag belongs to the confirm button, never to the model: whatever the
+        # model passed is dropped, and the flag is set only for the call the person approved.
+        args.pop("confirmed", None)
         if st.confirmed_tool == name:
             args["confirmed"] = True
         step = Step(tool=name, label=f"Running {name}", status="running", args=args)
@@ -618,11 +632,13 @@ class ModelDriver:
             max_tool_rounds=config.agent.max_tool_rounds,
             number_guard=config.agent.number_guard,
             specs=WEB_SPECS,
+            guard=make_guard(config),
         )
         agent.transcript = turns_from_json(state.conv.model_messages)
         user_text = req.text.strip() or ("Yes, go ahead." if state.confirmed_tool else "")
         reply = agent.send(
-            self._context_line(state, req) + user_text,
+            user_text,
+            prefix=self._context_line(state, req),
             on_text=lambda delta: state.emit({"type": "text", "delta": delta}),
         )
         if reply.error:
@@ -630,6 +646,16 @@ class ModelDriver:
         state.conv.model_messages = turns_to_json(agent.transcript)
         state.turn.text = reply.text.strip()
         state.turn.unverified = list(reply.unverified_numbers)
+        if reply.stop_reason == GUARD_REFUSAL:
+            step = Step(tool="guard", label="Request declined by the request guard", status="failed", args={})
+            step.detail = "; ".join(f.code for f in reply.guard.findings) if reply.guard else None
+            state.turn.steps.append(step)
+            state.emit({"type": "step", "step": step.model_dump(), "index": len(state.turn.steps) - 1})
+        elif reply.guard_notes:
+            step = Step(tool="guard", label="Request guard notice", status="done", args={})
+            step.detail = " ".join(reply.guard_notes)
+            state.turn.steps.insert(0, step)
+            state.emit({"type": "step", "step": step.model_dump(), "index": 0})
         if reply.stop_reason == "max_tokens":
             state.turn.text += "\n\n(The answer was cut off at the length limit.)"
 

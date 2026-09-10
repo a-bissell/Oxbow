@@ -98,8 +98,8 @@
 {% for d in result.deviations %}
 <div class="banner warn"><strong>Configuration deviation ({{ d.origin }})</strong>{{ d.description }}</div>
 {% endfor %}
-{% for f in result.guard.findings if f.bin.value == "architecturally_impossible" %}
-<div class="banner info"><strong>Not possible in this deployment</strong>“{{ f.matched_text }}” — {{ f.explanation }}</div>
+{% for f in result.guard.findings if f.bin.value in ["architecturally_impossible", "override_attempt"] %}
+<div class="banner info"><strong>{{ "Not possible in this deployment" if f.bin.value == "architecturally_impossible" else "No such mode exists" }}</strong>“{{ f.matched_text }}” — {{ f.explanation }}</div>
 {% endfor %}
 {% for w in result.warnings if result.guard.proceed and not result.needs_confirmation %}
 <div class="banner info">{{ w }}</div>
