@@ -1,0 +1,51 @@
+{
+ "params": {
+  "_fields": "material_id,e_total,e_electronic,e_ionic,n",
+  "_limit": 100,
+  "material_ids": "mp-aaabheyj,mp-aaabhidw,mp-aaabidqj,mp-aaabidra,mp-aaabidsa,mp-aaabijkc,mp-aaabjbgb,mp-aaabjfta,mp-aaabjkaz,mp-aaabkddr,mp-aaabkien,mp-aaabklou,mp-aaabklzo,mp-aaabkniw,mp-aaabknpd,mp-aaabkpia,mp-aaabkrke,mp-aaabksat,mp-aaabkuyp,mp-aaabkvyb,mp-aaablcbr,mp-aaablfct,mp-aaablfrf,mp-aaablzga,mp-aaabmcdp,mp-aaabmcgs,mp-aaabmche,mp-aaabmsdj,mp-aaabmsfh,mp-aaabmsfs,mp-aaabmsgo,mp-aaabmsmm,mp-aaabmsmq,mp-aaabmsom,mp-aaaboaly,mp-aaabogbn,mp-aaabpdqe,mp-aaabpjaf,mp-aaabpjhk,mp-aaabptms,mp-aaabqvba,mp-aaabqvcc,mp-aaabqvki,mp-aaabqyhb,mp-aaabqzcv,mp-aaabqzmm,mp-aaabqzua,mp-aaabqzvo,mp-aaabrapi,mp-aaabrbhe,mp-aaabruyd,mp-aaabrwgk,mp-aaabrwgu,mp-aaabsbdh,mp-aaabskfv,mp-aaacdjbs,mp-aaacfjwm,mp-aaacfyzp,mp-aaacgafg,mp-aaacgagg,mp-aaacgbtq,mp-aaacgbvg,mp-aaacgbyb,mp-aaacgbyp,mp-aaaciutd,mp-aaacjjjq,mp-aaacjjzb,mp-aaackief,mp-aaackiek,mp-aaackinj,mp-aaackkvi,mp-aaackykt,mp-aaacppsu,mp-aaacpsqk,mp-aaacptum,mp-aaacpvdy,mp-aaacpvjr,mp-aaacpvri,mp-aaacpwcv,mp-aaacpwra,mp-aaacpxba,mp-aaacpyal,mp-aaacpysa,mp-aaacpzbx,mp-aaacpzzy,mp-aaacqadt,mp-aaacqaga,mp-aaacqbcr,mp-aaacqbgg,mp-aaacqbku,mp-aaacqbwd,mp-aaacqcwd,mp-aaacqcxk,mp-aaacqetp,mp-aaacqhdu,mp-aaacqhpc,mp-aaacqhws,mp-aaacqjsh,mp-aaacqjxc,mp-aaacqjyl"
+ },
+ "response": {
+  "data": [
+   {
+    "e_electronic": 3.381170960000001,
+    "e_ionic": 16.246358543333333,
+    "e_total": 19.627529503333335,
+    "material_id": "mp-aaabkddr",
+    "n": 1.8387960626453388
+   },
+   {
+    "e_electronic": 2.328996596666667,
+    "e_ionic": 1.8951018133333333,
+    "e_total": 4.22409841,
+    "material_id": "mp-aaabmche",
+    "n": 1.5261050411641615
+   },
+   {
+    "e_electronic": 2.3049677333333336,
+    "e_ionic": 1.8816334666666668,
+    "e_total": 4.1866012,
+    "material_id": "mp-aaacdjbs",
+    "n": 1.5182120185709682
+   },
+   {
+    "e_electronic": 4.81055489,
+    "e_ionic": 14.591282796666668,
+    "e_total": 19.401837686666667,
+    "material_id": "mp-aaackief",
+    "n": 2.1932977203289115
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "material_id",
+    "last_updated"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-10T03:19:59.450909+00:00",
+   "total_doc": 4
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/dielectric/"
+}

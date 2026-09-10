@@ -1,0 +1,337 @@
+{
+ "params": {
+  "composition": "ZrO2",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.5646174672525,
+    "entry_id": 17899,
+    "name": "ZrO2",
+    "spacegroup": "Fm-3m",
+    "stability": 0.06836496333334008
+   },
+   {
+    "delta_e": -3.6109212097525,
+    "entry_id": 12228,
+    "name": "ZrO2",
+    "spacegroup": "Pca21",
+    "stability": 0.022061220833339945
+   },
+   {
+    "delta_e": -3.63298243058584,
+    "entry_id": 3278,
+    "name": "ZrO2",
+    "spacegroup": "P21/c",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.52991433808584,
+    "entry_id": 10208,
+    "name": "ZrO2",
+    "spacegroup": "Pnma",
+    "stability": 0.10306809250000004
+   },
+   {
+    "delta_e": -3.59598821058584,
+    "entry_id": 646648,
+    "name": "ZrO2",
+    "spacegroup": "P42/nmc",
+    "stability": 0.03699421999999997
+   },
+   {
+    "delta_e": -3.5987188172525,
+    "entry_id": 648020,
+    "name": "ZrO2",
+    "spacegroup": "P42/nmc",
+    "stability": 0.034263613333339826
+   },
+   {
+    "delta_e": -3.63196126058584,
+    "entry_id": 61797,
+    "name": "ZrO2",
+    "spacegroup": "P21/c",
+    "stability": 0.0010211700000000157
+   },
+   {
+    "delta_e": -3.61466336016917,
+    "entry_id": 114533,
+    "name": "ZrO2",
+    "spacegroup": "Pbca",
+    "stability": 0.018319070416670247
+   },
+   {
+    "delta_e": -3.34558690391917,
+    "entry_id": 711550,
+    "name": "ZrO2",
+    "spacegroup": "I41/amd",
+    "stability": 0.2873955266666699
+   },
+   {
+    "delta_e": -3.58325178558584,
+    "entry_id": 1234142,
+    "name": "ZrO2",
+    "spacegroup": "P42/mnm",
+    "stability": 0.04973064499999991
+   },
+   {
+    "delta_e": -3.5935342797525,
+    "entry_id": 1343402,
+    "name": "ZrO2",
+    "spacegroup": "Pbcn",
+    "stability": 0.03944815083334019
+   },
+   {
+    "delta_e": -3.51321809058584,
+    "entry_id": 1343732,
+    "name": "ZrO2",
+    "spacegroup": "I4/m",
+    "stability": 0.11976434000000014
+   },
+   {
+    "delta_e": -3.3917378572525,
+    "entry_id": 1343424,
+    "name": "ZrO2",
+    "spacegroup": "P-3m1",
+    "stability": 0.24124457333333993
+   },
+   {
+    "delta_e": -3.39238450391917,
+    "entry_id": 1343427,
+    "name": "ZrO2",
+    "spacegroup": "C2/m",
+    "stability": 0.24059792666667024
+   },
+   {
+    "delta_e": -3.38600530058584,
+    "entry_id": 1343324,
+    "name": "ZrO2",
+    "spacegroup": "P-3m1",
+    "stability": 0.24697712999999988
+   },
+   {
+    "delta_e": -3.57764529391917,
+    "entry_id": 1439733,
+    "name": "ZrO2",
+    "spacegroup": "Pnnm",
+    "stability": 0.05533713666667017
+   },
+   {
+    "delta_e": -3.43461077058584,
+    "entry_id": 1440523,
+    "name": "ZrO2",
+    "spacegroup": "P4/nmm",
+    "stability": 0.19837165999999984
+   },
+   {
+    "delta_e": -3.43501893058584,
+    "entry_id": 1441169,
+    "name": "ZrO2",
+    "spacegroup": "P4/nmm",
+    "stability": 0.19796350000000018
+   },
+   {
+    "delta_e": -3.29637875891917,
+    "entry_id": 1442809,
+    "name": "ZrO2",
+    "spacegroup": "Pn-3m",
+    "stability": 0.33660367166667005
+   },
+   {
+    "delta_e": -3.57869205891917,
+    "entry_id": 1443654,
+    "name": "ZrO2",
+    "spacegroup": "Pnnm",
+    "stability": 0.054290371666669834
+   },
+   {
+    "delta_e": -3.58422253558584,
+    "entry_id": 1443921,
+    "name": "ZrO2",
+    "spacegroup": "P42/mnm",
+    "stability": 0.048759894999999887
+   },
+   {
+    "delta_e": -3.3221897022525,
+    "entry_id": 1444273,
+    "name": "ZrO2",
+    "spacegroup": "Pmm2",
+    "stability": 0.31079272833334004
+   },
+   {
+    "delta_e": -3.25631386614139,
+    "entry_id": 1443170,
+    "name": "ZrO2",
+    "spacegroup": "P3121",
+    "stability": 0.37666856444444985
+   },
+   {
+    "delta_e": -3.473288758085836,
+    "entry_id": 1439769,
+    "name": "ZrO2",
+    "spacegroup": "Pa-3",
+    "stability": 0.159693672500004
+   },
+   {
+    "delta_e": -3.56530449641917,
+    "entry_id": 1440913,
+    "name": "ZrO2",
+    "spacegroup": "P213",
+    "stability": 0.06767793416667
+   },
+   {
+    "delta_e": -3.3464173214191697,
+    "entry_id": 1443423,
+    "name": "ZrO2",
+    "spacegroup": "Fd-3m",
+    "stability": 0.28656510916667033
+   },
+   {
+    "delta_e": -3.5937692197525024,
+    "entry_id": 1440313,
+    "name": "ZrO2",
+    "spacegroup": "P-1",
+    "stability": 0.03921321083333762
+   },
+   {
+    "delta_e": -3.53053851391917,
+    "entry_id": 1441673,
+    "name": "ZrO2",
+    "spacegroup": "P21/m",
+    "stability": 0.10244391666667019
+   },
+   {
+    "delta_e": -2.878756958919169,
+    "entry_id": 1472675,
+    "name": "ZrO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.754225471666671
+   },
+   {
+    "delta_e": -2.8796602339191693,
+    "entry_id": 1473361,
+    "name": "ZrO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.7533221966666708
+   },
+   {
+    "delta_e": -2.8787668505858357,
+    "entry_id": 1473573,
+    "name": "ZrO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.7542155800000043
+   },
+   {
+    "delta_e": -2.8806885105858364,
+    "entry_id": 1473537,
+    "name": "ZrO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.7522939200000036
+   },
+   {
+    "delta_e": -3.5312095114191693,
+    "entry_id": 1473262,
+    "name": "ZrO2",
+    "spacegroup": "Pmn21",
+    "stability": 0.10177291916667075
+   },
+   {
+    "delta_e": -2.874438620585836,
+    "entry_id": 1473247,
+    "name": "ZrO2",
+    "spacegroup": "R3m",
+    "stability": 0.7585438100000039
+   },
+   {
+    "delta_e": -0.39798130891916966,
+    "entry_id": 1589753,
+    "name": "ZrO2",
+    "spacegroup": "Fd-3m",
+    "stability": 3.2350011216666705
+   },
+   {
+    "delta_e": -3.5652001039191696,
+    "entry_id": 2030414,
+    "name": "ZrO2",
+    "spacegroup": "I4/mmm",
+    "stability": 0.06778232666667039
+   },
+   {
+    "delta_e": -3.0193596155858367,
+    "entry_id": 2029834,
+    "name": "ZrO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.6136228150000034
+   },
+   {
+    "delta_e": -3.598392360585836,
+    "entry_id": 2035338,
+    "name": "ZrO2",
+    "spacegroup": "P42/nmc",
+    "stability": 0.034590070000004136
+   },
+   {
+    "delta_e": -3.4996383739191703,
+    "entry_id": 2029261,
+    "name": "ZrO2",
+    "spacegroup": "P-62m",
+    "stability": 0.1333440566666697
+   },
+   {
+    "delta_e": -3.525781708085836,
+    "entry_id": 2021018,
+    "name": "ZrO2",
+    "spacegroup": "Pnma",
+    "stability": 0.10720072250000401
+   },
+   {
+    "delta_e": -3.6150083697525033,
+    "entry_id": 2031909,
+    "name": "ZrO2",
+    "spacegroup": "P212121",
+    "stability": 0.017974060833336747
+   },
+   {
+    "delta_e": -3.60391029141917,
+    "entry_id": 2035341,
+    "name": "ZrO2",
+    "spacegroup": "Pca21",
+    "stability": 0.029072139166669952
+   },
+   {
+    "delta_e": -3.620118500585837,
+    "entry_id": 2170565,
+    "name": "ZrO2",
+    "spacegroup": "C2/c",
+    "stability": 0.012863930000003077
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 43,
+   "data_returned": 43,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=ZrO2&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:41"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

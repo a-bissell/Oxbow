@@ -1,0 +1,218 @@
+{
+ "params": {
+  "composition": "LaAlO3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.55336915352725,
+    "entry_id": 5555,
+    "name": "LaAlO3",
+    "spacegroup": "R-3m",
+    "stability": 0.007793394999999759
+   },
+   {
+    "delta_e": -3.55342719152725,
+    "entry_id": 6611,
+    "name": "LaAlO3",
+    "spacegroup": "R-3m",
+    "stability": 0.00773535699999961
+   },
+   {
+    "delta_e": -3.55441258352725,
+    "entry_id": 19752,
+    "name": "LaAlO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.00674996499999958
+   },
+   {
+    "delta_e": -3.55792726752725,
+    "entry_id": 20821,
+    "name": "LaAlO3",
+    "spacegroup": "R-3c",
+    "stability": 0.0032352809999998122
+   },
+   {
+    "delta_e": -3.55700368052725,
+    "entry_id": 22214,
+    "name": "LaAlO3",
+    "spacegroup": "C2/c",
+    "stability": 0.00415886799999976
+   },
+   {
+    "delta_e": -3.55640426352725,
+    "entry_id": 22217,
+    "name": "LaAlO3",
+    "spacegroup": "Fmmm",
+    "stability": 0.004758284999999862
+   },
+   {
+    "delta_e": -3.55736436352725,
+    "entry_id": 22216,
+    "name": "LaAlO3",
+    "spacegroup": "Imma",
+    "stability": 0.003798184999999954
+   },
+   {
+    "delta_e": -3.55755951352725,
+    "entry_id": 22172,
+    "name": "LaAlO3",
+    "spacegroup": "R-3c",
+    "stability": 0.00360303499999981
+   },
+   {
+    "delta_e": -3.55682105752725,
+    "entry_id": 22215,
+    "name": "LaAlO3",
+    "spacegroup": "I4/mcm",
+    "stability": 0.00434149099999992
+   },
+   {
+    "delta_e": -3.55429099752725,
+    "entry_id": 350042,
+    "name": "LaAlO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.006871550999999698
+   },
+   {
+    "delta_e": -3.56069289752725,
+    "entry_id": 125027,
+    "name": "LaAlO3",
+    "spacegroup": "R-3c",
+    "stability": 0.00046965099999995985
+   },
+   {
+    "delta_e": -3.54609058352725,
+    "entry_id": 679745,
+    "name": "LaAlO3",
+    "spacegroup": "P4mm",
+    "stability": 0.015071964999999743
+   },
+   {
+    "delta_e": -2.43561407552725,
+    "entry_id": 679744,
+    "name": "LaAlO3",
+    "spacegroup": "P4mm",
+    "stability": 1.1255484729999998
+   },
+   {
+    "delta_e": -3.30798219252725,
+    "entry_id": 678095,
+    "name": "LaAlO3",
+    "spacegroup": "R-3",
+    "stability": 0.25318035599999966
+   },
+   {
+    "delta_e": -3.30686935852725,
+    "entry_id": 678094,
+    "name": "LaAlO3",
+    "spacegroup": "R-3",
+    "stability": 0.25429318999999984
+   },
+   {
+    "delta_e": -3.55953138302725,
+    "entry_id": 681365,
+    "name": "LaAlO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0016311654999996428
+   },
+   {
+    "delta_e": -3.33469461452725,
+    "entry_id": 681364,
+    "name": "LaAlO3",
+    "spacegroup": "Pnma",
+    "stability": 0.22646793399999998
+   },
+   {
+    "delta_e": -1.39656256152725,
+    "entry_id": 353434,
+    "name": "LaAlO3",
+    "spacegroup": "Pm-3m",
+    "stability": 2.164599987
+   },
+   {
+    "delta_e": -3.26548082652725,
+    "entry_id": 825390,
+    "name": "LaAlO3",
+    "spacegroup": "R-3c",
+    "stability": 0.29568172199999987
+   },
+   {
+    "delta_e": -3.56116254852725,
+    "entry_id": 826220,
+    "name": "LaAlO3",
+    "spacegroup": "R-3c",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.33861830386059,
+    "entry_id": 1289642,
+    "name": "LaAlO3",
+    "spacegroup": "P63cm",
+    "stability": 0.2225442446666599
+   },
+   {
+    "delta_e": -3.56013724352725,
+    "entry_id": 1439814,
+    "name": "LaAlO3",
+    "spacegroup": "R3c",
+    "stability": 0.0010253049999997543
+   },
+   {
+    "delta_e": -3.2766054905272535,
+    "entry_id": 1523679,
+    "name": "LaAlO3",
+    "spacegroup": "R-3c",
+    "stability": 0.2845570579999963
+   },
+   {
+    "delta_e": -3.552170009527253,
+    "entry_id": 1710043,
+    "name": "LaAlO3",
+    "spacegroup": "R-3m",
+    "stability": 0.008992538999996746
+   },
+   {
+    "delta_e": -3.5512708575272534,
+    "entry_id": 1723801,
+    "name": "LaAlO3",
+    "spacegroup": "Pmmm",
+    "stability": 0.009891690999996428
+   },
+   {
+    "delta_e": -1.395632049527253,
+    "entry_id": 2174568,
+    "name": "LaAlO3",
+    "spacegroup": "Pm-3m",
+    "stability": 2.165530498999997
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 26,
+   "data_returned": 26,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=LaAlO3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:22:09"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

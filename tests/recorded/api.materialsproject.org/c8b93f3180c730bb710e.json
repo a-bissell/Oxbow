@@ -1,0 +1,105 @@
+{
+ "params": {
+  "_fields": "task_id,run_type",
+  "_limit": 8,
+  "task_ids": "aaafbayv,aaacyhal,aaacxybv,aaacqndx,aaacqnko,aaacqowj,aaafdbsw,aaafbbzi"
+ },
+ "response": {
+  "data": [
+   {
+    "meta": {
+     "count": {
+      "total": 8
+     }
+    },
+    "meta_pagination_token": "CL+pJBoOWgxovxS+VbS+6KcKtlMiDloMaL8UvlW0vuinCrZT",
+    "run_type": "GGA",
+    "task_id": "aaafbayv"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 8
+     }
+    },
+    "meta_pagination_token": "CN2oJRoOWgxovxS+VbS+6KcKuWwiDloMaL8UvlW0vuinCrls",
+    "run_type": "GGA",
+    "task_id": "aaafbbzi"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 8
+     }
+    },
+    "meta_pagination_token": "CJeYLRoOWgxovxTkXsZnyX0KvAUiDloMaL8U5F7GZ8l9CrwF",
+    "run_type": "GGA",
+    "task_id": "aaafdbsw"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 8
+     }
+    },
+    "meta_pagination_token": "COvPQBoOWgxovxgb3O6mRwILCz4iDloMaL8YG9zupkcCCws+",
+    "run_type": "GGA",
+    "task_id": "aaacyhal"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 8
+     }
+    },
+    "meta_pagination_token": "CICHQhoOWgxovxgwE9oKO54K/UMiDloMaL8YMBPaCjueCv1D",
+    "run_type": "GGA",
+    "task_id": "aaacxybv"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 8
+     }
+    },
+    "meta_pagination_token": "CMuEZRoOWgxovxsjXsZnyX0LU2MiDloMaL8bI17GZ8l9C1Nj",
+    "run_type": "GGA",
+    "task_id": "aaacqndx"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 8
+     }
+    },
+    "meta_pagination_token": "CIeHZRoOWgxovxsjXsZnyX0LVJ8iDloMaL8bI17GZ8l9C1Sf",
+    "run_type": "GGA",
+    "task_id": "aaacqnko"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 8
+     }
+    },
+    "meta_pagination_token": "COKDZRoOWgxovxsjXsZnyX0LVkgiDloMaL8bI17GZ8l9C1ZI",
+    "run_type": "GGA",
+    "task_id": "aaacqowj"
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "task_id",
+    "formula_pretty",
+    "last_updated"
+   ],
+   "facet": {},
+   "max_limit": 1000,
+   "pagination_token": "COKDZRoOWgxovxsjXsZnyX0LVkgiDloMaL8bI17GZ8l9C1ZI",
+   "time_stamp": "2026-09-10T03:20:00.801499+00:00",
+   "total_doc": 8
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/tasks/"
+}

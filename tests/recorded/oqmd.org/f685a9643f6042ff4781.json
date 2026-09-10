@@ -1,0 +1,148 @@
+{
+ "params": {
+  "composition": "Er2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.82271995152725,
+    "entry_id": 20296,
+    "name": "Er2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.07392395900000004
+   },
+   {
+    "delta_e": -3.88520960677725,
+    "entry_id": 5432,
+    "name": "Er2O3",
+    "spacegroup": "I213",
+    "stability": 0.011434303750000208
+   },
+   {
+    "delta_e": -2.94725567352725,
+    "entry_id": 354088,
+    "name": "Er2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.949388237
+   },
+   {
+    "delta_e": -3.84835798752725,
+    "entry_id": 26717,
+    "name": "Er2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.04828592300000034
+   },
+   {
+    "delta_e": -3.84617757552725,
+    "entry_id": 426861,
+    "name": "Er2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.050466335000000306
+   },
+   {
+    "delta_e": -3.89664391052725,
+    "entry_id": 5390,
+    "name": "Er2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.75340614002725,
+    "entry_id": 1343632,
+    "name": "Er2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.1432377705000003
+   },
+   {
+    "delta_e": -3.71036097252725,
+    "entry_id": 1344095,
+    "name": "Er2O3",
+    "spacegroup": "Fddd",
+    "stability": 0.18628293800000018
+   },
+   {
+    "delta_e": -3.75567292302725,
+    "entry_id": 1343390,
+    "name": "Er2O3",
+    "spacegroup": "P21/c",
+    "stability": 0.14097098750000026
+   },
+   {
+    "delta_e": -3.84474700519392,
+    "entry_id": 1344033,
+    "name": "Er2O3",
+    "spacegroup": "P21/m",
+    "stability": 0.051896905333330245
+   },
+   {
+    "delta_e": -3.68791432752725,
+    "entry_id": 1442707,
+    "name": "Er2O3",
+    "spacegroup": "P321",
+    "stability": 0.20872958300000022
+   },
+   {
+    "delta_e": -3.68484466952725,
+    "entry_id": 1444193,
+    "name": "Er2O3",
+    "spacegroup": "P-62m",
+    "stability": 0.21179924100000003
+   },
+   {
+    "delta_e": -3.70463227052725,
+    "entry_id": 1440984,
+    "name": "Er2O3",
+    "spacegroup": "Fdd2",
+    "stability": 0.19201164000000004
+   },
+   {
+    "delta_e": -3.84429069052725,
+    "entry_id": 1440964,
+    "name": "Er2O3",
+    "spacegroup": "C2/c",
+    "stability": 0.05235322000000009
+   },
+   {
+    "delta_e": -3.38515372352725,
+    "entry_id": 1442523,
+    "name": "Er2O3",
+    "spacegroup": "Pn-3m",
+    "stability": 0.5114901870000002
+   },
+   {
+    "delta_e": -3.652757611527253,
+    "entry_id": 1473705,
+    "name": "Er2O3",
+    "spacegroup": "R-3m",
+    "stability": 0.24388629899999703
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 16,
+   "data_returned": 16,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Er2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:51"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

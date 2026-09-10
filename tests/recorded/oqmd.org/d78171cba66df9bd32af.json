@@ -1,0 +1,386 @@
+{
+ "params": {
+  "composition": "SiO2",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -1.8129717322525,
+    "entry_id": 8352,
+    "name": "SiO2",
+    "spacegroup": "Fm-3m",
+    "stability": 1.2605842149999997
+   },
+   {
+    "delta_e": -3.07278504891917,
+    "entry_id": 6607,
+    "name": "SiO2",
+    "spacegroup": "Fd-3m",
+    "stability": 0.0007708983333296615
+   },
+   {
+    "delta_e": -3.0694488322525,
+    "entry_id": 13603,
+    "name": "SiO2",
+    "spacegroup": "I-42d",
+    "stability": 0.004107114999999606
+   },
+   {
+    "delta_e": -3.0722065522525,
+    "entry_id": 20578,
+    "name": "SiO2",
+    "spacegroup": "I-42d",
+    "stability": 0.0013493949999996424
+   },
+   {
+    "delta_e": -3.06798714558584,
+    "entry_id": 16288,
+    "name": "SiO2",
+    "spacegroup": "P6422",
+    "stability": 0.005568801666659962
+   },
+   {
+    "delta_e": -3.07169858669695,
+    "entry_id": 8287,
+    "name": "SiO2",
+    "spacegroup": "P6222",
+    "stability": 0.0018573605555496364
+   },
+   {
+    "delta_e": -3.06544059558584,
+    "entry_id": 15009,
+    "name": "SiO2",
+    "spacegroup": "P3221",
+    "stability": 0.008115351666659887
+   },
+   {
+    "delta_e": -3.06359227669695,
+    "entry_id": 7178,
+    "name": "SiO2",
+    "spacegroup": "P1",
+    "stability": 0.009963670555549697
+   },
+   {
+    "delta_e": -3.06536770114139,
+    "entry_id": 22612,
+    "name": "SiO2",
+    "spacegroup": "P3121",
+    "stability": 0.008188246111109798
+   },
+   {
+    "delta_e": -3.01437830669695,
+    "entry_id": 11433,
+    "name": "SiO2",
+    "spacegroup": "Cmc21",
+    "stability": 0.05917764055554997
+   },
+   {
+    "delta_e": -2.98218493044695,
+    "entry_id": 21631,
+    "name": "SiO2",
+    "spacegroup": "Pm-3n",
+    "stability": 0.09137101680554993
+   },
+   {
+    "delta_e": -2.8882211322525,
+    "entry_id": 2474,
+    "name": "SiO2",
+    "spacegroup": "P42/mnm",
+    "stability": 0.1853348149999996
+   },
+   {
+    "delta_e": -3.06066452891917,
+    "entry_id": 2494,
+    "name": "SiO2",
+    "spacegroup": "P41212",
+    "stability": 0.012891418333329963
+   },
+   {
+    "delta_e": -3.07031969558584,
+    "entry_id": 3068,
+    "name": "SiO2",
+    "spacegroup": "C2221",
+    "stability": 0.0032362516666597507
+   },
+   {
+    "delta_e": -3.06807652391917,
+    "entry_id": 5729,
+    "name": "SiO2",
+    "spacegroup": "P6322",
+    "stability": 0.005479423333329958
+   },
+   {
+    "delta_e": -3.07190349808584,
+    "entry_id": 5931,
+    "name": "SiO2",
+    "spacegroup": "Ama2",
+    "stability": 0.0016524491666598529
+   },
+   {
+    "delta_e": -3.0733440522525,
+    "entry_id": 7376,
+    "name": "SiO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.0002118949999996289
+   },
+   {
+    "delta_e": -3.07323314141917,
+    "entry_id": 6947,
+    "name": "SiO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.0003228058333299977
+   },
+   {
+    "delta_e": -2.51265128808584,
+    "entry_id": 12695,
+    "name": "SiO2",
+    "spacegroup": "Pa-3",
+    "stability": 0.5609046591666598
+   },
+   {
+    "delta_e": -3.06199162391917,
+    "entry_id": 13606,
+    "name": "SiO2",
+    "spacegroup": "Ima2",
+    "stability": 0.011564323333329796
+   },
+   {
+    "delta_e": -2.99076291808584,
+    "entry_id": 13609,
+    "name": "SiO2",
+    "spacegroup": "C2",
+    "stability": 0.08279302916665987
+   },
+   {
+    "delta_e": -3.0637357797525,
+    "entry_id": 13607,
+    "name": "SiO2",
+    "spacegroup": "C2/c",
+    "stability": 0.009820167499999588
+   },
+   {
+    "delta_e": -3.03367520641917,
+    "entry_id": 13608,
+    "name": "SiO2",
+    "spacegroup": "P1",
+    "stability": 0.03988074083332993
+   },
+   {
+    "delta_e": -3.0656275897525,
+    "entry_id": 13604,
+    "name": "SiO2",
+    "spacegroup": "Pna21",
+    "stability": 0.007928357499999983
+   },
+   {
+    "delta_e": -3.05857422891917,
+    "entry_id": 13605,
+    "name": "SiO2",
+    "spacegroup": "P43212",
+    "stability": 0.014981718333329841
+   },
+   {
+    "delta_e": -2.89537794641917,
+    "entry_id": 13611,
+    "name": "SiO2",
+    "spacegroup": "I212121",
+    "stability": 0.1781780008333298
+   },
+   {
+    "delta_e": -2.97861132391917,
+    "entry_id": 13610,
+    "name": "SiO2",
+    "spacegroup": "Cc",
+    "stability": 0.09494462333332976
+   },
+   {
+    "delta_e": -3.06526793558584,
+    "entry_id": 13602,
+    "name": "SiO2",
+    "spacegroup": "I-4",
+    "stability": 0.008288011666659933
+   },
+   {
+    "delta_e": -2.76869266058584,
+    "entry_id": 13612,
+    "name": "SiO2",
+    "spacegroup": "Pm",
+    "stability": 0.30486328666665985
+   },
+   {
+    "delta_e": -2.7007010447525,
+    "entry_id": 13613,
+    "name": "SiO2",
+    "spacegroup": "Pc",
+    "stability": 0.37285490249999986
+   },
+   {
+    "delta_e": -2.92597091641917,
+    "entry_id": 21640,
+    "name": "SiO2",
+    "spacegroup": "I4122",
+    "stability": 0.14758503083332997
+   },
+   {
+    "delta_e": -2.3816470522525,
+    "entry_id": 21660,
+    "name": "SiO2",
+    "spacegroup": "P2/c",
+    "stability": 0.6919088949999996
+   },
+   {
+    "delta_e": -2.64739323641917,
+    "entry_id": 13614,
+    "name": "SiO2",
+    "spacegroup": "P2",
+    "stability": 0.4261627108333297
+   },
+   {
+    "delta_e": -3.0662941822525,
+    "entry_id": 19810,
+    "name": "SiO2",
+    "spacegroup": "P21",
+    "stability": 0.007261764999999976
+   },
+   {
+    "delta_e": -3.0564443822525,
+    "entry_id": 21632,
+    "name": "SiO2",
+    "spacegroup": "P63/mmc",
+    "stability": 0.017111564999999995
+   },
+   {
+    "delta_e": -1.81783452169695,
+    "entry_id": 21663,
+    "name": "SiO2",
+    "spacegroup": "P-31m",
+    "stability": 1.2557214255555498
+   },
+   {
+    "delta_e": -2.82815591211361,
+    "entry_id": 21639,
+    "name": "SiO2",
+    "spacegroup": "R-3",
+    "stability": 0.24540003513888964
+   },
+   {
+    "delta_e": -2.79243092558584,
+    "entry_id": 646766,
+    "name": "SiO2",
+    "spacegroup": "Pbcn",
+    "stability": 0.28112502166665987
+   },
+   {
+    "delta_e": -2.75566242780806,
+    "entry_id": 98203,
+    "name": "SiO2",
+    "spacegroup": "P3221",
+    "stability": 0.31789351944443967
+   },
+   {
+    "delta_e": -3.04556115003028,
+    "entry_id": 46878,
+    "name": "SiO2",
+    "spacegroup": "P3221",
+    "stability": 0.02799479722221987
+   },
+   {
+    "delta_e": -3.0735559472525,
+    "entry_id": 104526,
+    "name": "SiO2",
+    "spacegroup": "I-42d",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.0734502522525,
+    "entry_id": 104857,
+    "name": "SiO2",
+    "spacegroup": "I-42d",
+    "stability": 0.0001056949999997947
+   },
+   {
+    "delta_e": -3.03683942003028,
+    "entry_id": 98209,
+    "name": "SiO2",
+    "spacegroup": "P3221",
+    "stability": 0.03671652722221985
+   },
+   {
+    "delta_e": -3.04173495669695,
+    "entry_id": 98205,
+    "name": "SiO2",
+    "spacegroup": "P3221",
+    "stability": 0.031820990555549766
+   },
+   {
+    "delta_e": -3.03076287780806,
+    "entry_id": 98210,
+    "name": "SiO2",
+    "spacegroup": "P3221",
+    "stability": 0.04279306944443961
+   },
+   {
+    "delta_e": -3.04576798891917,
+    "entry_id": 66493,
+    "name": "SiO2",
+    "spacegroup": "C2221",
+    "stability": 0.027787958333329588
+   },
+   {
+    "delta_e": -2.99130220308584,
+    "entry_id": 66498,
+    "name": "SiO2",
+    "spacegroup": "P1",
+    "stability": 0.08225374416665998
+   },
+   {
+    "delta_e": -2.82484817558584,
+    "entry_id": 66500,
+    "name": "SiO2",
+    "spacegroup": "P1",
+    "stability": 0.24870777166665992
+   },
+   {
+    "delta_e": -3.03864226308584,
+    "entry_id": 98207,
+    "name": "SiO2",
+    "spacegroup": "P41212",
+    "stability": 0.03491368416665974
+   },
+   {
+    "delta_e": -3.03489035308584,
+    "entry_id": 98208,
+    "name": "SiO2",
+    "spacegroup": "P41212",
+    "stability": 0.03866559416665982
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": "http://oqmd.org/oqmdapi/formationenergy?composition=SiO2&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50&offset=50",
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 204,
+   "data_returned": 50,
+   "more_data_available": true,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=SiO2&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:50"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

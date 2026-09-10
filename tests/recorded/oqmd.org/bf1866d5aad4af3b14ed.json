@@ -1,0 +1,99 @@
+{
+ "params": {
+  "composition": "Ta2O5",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -2.67735765277054,
+    "entry_id": 24181,
+    "name": "Ta2O5",
+    "spacegroup": "C2",
+    "stability": 0.4680001257142852
+   },
+   {
+    "delta_e": -2.82127721062768,
+    "entry_id": 16428,
+    "name": "Ta2O5",
+    "spacegroup": "Pccm",
+    "stability": 0.32408056785714523
+   },
+   {
+    "delta_e": -3.13023453062768,
+    "entry_id": 24180,
+    "name": "Ta2O5",
+    "spacegroup": "C2/c",
+    "stability": 0.015123247857145028
+   },
+   {
+    "delta_e": -3.07146217062768,
+    "entry_id": 1343933,
+    "name": "Ta2O5",
+    "spacegroup": "P41212",
+    "stability": 0.07389560785714533
+   },
+   {
+    "delta_e": -3.12763635473483,
+    "entry_id": 1343271,
+    "name": "Ta2O5",
+    "spacegroup": "I4/mmm",
+    "stability": 0.017721423749995413
+   },
+   {
+    "delta_e": -3.14359698848483,
+    "entry_id": 1443329,
+    "name": "Ta2O5",
+    "spacegroup": "C2/m",
+    "stability": 0.0017607899999951826
+   },
+   {
+    "delta_e": -3.141233145627681,
+    "entry_id": 1739439,
+    "name": "Ta2O5",
+    "spacegroup": "Pmmn",
+    "stability": 0.004124632857144039
+   },
+   {
+    "delta_e": -3.0976242806276812,
+    "entry_id": 2015910,
+    "name": "Ta2O5",
+    "spacegroup": "Pm",
+    "stability": 0.04773349785714398
+   },
+   {
+    "delta_e": -3.1453577784848252,
+    "entry_id": 2170144,
+    "name": "Ta2O5",
+    "spacegroup": "P-1",
+    "stability": 0.0
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 9,
+   "data_returned": 9,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Ta2O5&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:23:52"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

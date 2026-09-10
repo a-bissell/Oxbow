@@ -1,0 +1,239 @@
+{
+ "params": {
+  "composition": "CaZrO3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.31909612552725,
+    "entry_id": 5651,
+    "name": "CaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.19794857750000006
+   },
+   {
+    "delta_e": -3.32100974352725,
+    "entry_id": 351598,
+    "name": "CaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.19603495949999994
+   },
+   {
+    "delta_e": -3.51553396102725,
+    "entry_id": 6892,
+    "name": "CaZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0015107420000002314
+   },
+   {
+    "delta_e": -3.39407092152725,
+    "entry_id": 680038,
+    "name": "CaZrO3",
+    "spacegroup": "P4mm",
+    "stability": 0.12297378149999982
+   },
+   {
+    "delta_e": -2.89650539352725,
+    "entry_id": 680039,
+    "name": "CaZrO3",
+    "spacegroup": "P4mm",
+    "stability": 0.6205393095000002
+   },
+   {
+    "delta_e": -3.51647075252725,
+    "entry_id": 678421,
+    "name": "CaZrO3",
+    "spacegroup": "R-3",
+    "stability": 0.0005739505000001976
+   },
+   {
+    "delta_e": -3.51646503752725,
+    "entry_id": 678422,
+    "name": "CaZrO3",
+    "spacegroup": "R-3",
+    "stability": 0.0005796655000001039
+   },
+   {
+    "delta_e": -3.51704470302725,
+    "entry_id": 681658,
+    "name": "CaZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.35825316602725,
+    "entry_id": 681659,
+    "name": "CaZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.15879153699999993
+   },
+   {
+    "delta_e": -3.48364251552725,
+    "entry_id": 825600,
+    "name": "CaZrO3",
+    "spacegroup": "R-3c",
+    "stability": 0.033402187500000124
+   },
+   {
+    "delta_e": -3.11274608652725,
+    "entry_id": 827418,
+    "name": "CaZrO3",
+    "spacegroup": "R-3c",
+    "stability": 0.4042986165000002
+   },
+   {
+    "delta_e": -3.31267597419392,
+    "entry_id": 1289711,
+    "name": "CaZrO3",
+    "spacegroup": "P63cm",
+    "stability": 0.20436872883333024
+   },
+   {
+    "delta_e": -3.18215524302725,
+    "entry_id": 1322834,
+    "name": "CaZrO3",
+    "spacegroup": "Fd-3m",
+    "stability": 0.33488945999999986
+   },
+   {
+    "delta_e": -3.319120473527253,
+    "entry_id": 1709661,
+    "name": "CaZrO3",
+    "spacegroup": "P4/mmm",
+    "stability": 0.19792422949999722
+   },
+   {
+    "delta_e": -3.3175849515272526,
+    "entry_id": 1709849,
+    "name": "CaZrO3",
+    "spacegroup": "Cmmm",
+    "stability": 0.1994597514999974
+   },
+   {
+    "delta_e": -3.4394406605272527,
+    "entry_id": 1710474,
+    "name": "CaZrO3",
+    "spacegroup": "I4/mcm",
+    "stability": 0.0776040424999973
+   },
+   {
+    "delta_e": -3.388864805527253,
+    "entry_id": 1712645,
+    "name": "CaZrO3",
+    "spacegroup": "Amm2",
+    "stability": 0.1281798974999968
+   },
+   {
+    "delta_e": -3.432866716527253,
+    "entry_id": 1712791,
+    "name": "CaZrO3",
+    "spacegroup": "P4/mbm",
+    "stability": 0.08417798649999719
+   },
+   {
+    "delta_e": -3.441129807527253,
+    "entry_id": 1720238,
+    "name": "CaZrO3",
+    "spacegroup": "Ima2",
+    "stability": 0.07591489549999686
+   },
+   {
+    "delta_e": -3.458911413027253,
+    "entry_id": 1761179,
+    "name": "CaZrO3",
+    "spacegroup": "I4/mmm",
+    "stability": 0.05813328999999712
+   },
+   {
+    "delta_e": -3.4889590265272523,
+    "entry_id": 1803245,
+    "name": "CaZrO3",
+    "spacegroup": "Imma",
+    "stability": 0.028085676499997714
+   },
+   {
+    "delta_e": -3.488936015527252,
+    "entry_id": 1803443,
+    "name": "CaZrO3",
+    "spacegroup": "Imma",
+    "stability": 0.028108687499997842
+   },
+   {
+    "delta_e": -3.4585579995272533,
+    "entry_id": 1385674,
+    "name": "CaZrO3",
+    "spacegroup": "Cmcm",
+    "stability": 0.05848670349999674
+   },
+   {
+    "delta_e": -3.4580757095272525,
+    "entry_id": 1818100,
+    "name": "CaZrO3",
+    "spacegroup": "Cmcm",
+    "stability": 0.05896899349999751
+   },
+   {
+    "delta_e": -3.5138403225272534,
+    "entry_id": 1880400,
+    "name": "CaZrO3",
+    "spacegroup": "R3c",
+    "stability": 0.0032043804999966063
+   },
+   {
+    "delta_e": -3.3191338135272526,
+    "entry_id": 2034709,
+    "name": "CaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.19791088949999747
+   },
+   {
+    "delta_e": -3.5167443705272525,
+    "entry_id": 2030300,
+    "name": "CaZrO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0003003324999975021
+   },
+   {
+    "delta_e": -3.5168958135272526,
+    "entry_id": 2171166,
+    "name": "CaZrO3",
+    "spacegroup": "R-3",
+    "stability": 0.00014888949999747325
+   },
+   {
+    "delta_e": -1.5837438095272525,
+    "entry_id": 2177379,
+    "name": "CaZrO3",
+    "spacegroup": "Pm-3m",
+    "stability": 1.9333008934999976
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 29,
+   "data_returned": 29,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=CaZrO3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:22:42"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}
