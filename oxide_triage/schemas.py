@@ -267,3 +267,4 @@ class TriageResult(BaseModel):
     clarifications: list[str] = Field(default_factory=list)  # questions worth asking before running
     needs_confirmation: bool = False  # True when clarifications exist and the run was not confirmed
     selfcheck_status: str | None = None  # passed | failed | not_run | skipped
+    acquisition_summary: dict[str, Any] | None = None  # last gap-filling pass on this cache

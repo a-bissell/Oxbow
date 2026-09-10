@@ -228,7 +228,12 @@ class DataLayer:
                     url=None
                     if is_fixture
                     else f"https://oqmd.org/materials/entry/{oq_payload.get('entry_id')}",
-                    note=src_note,
+                    note=_join_notes(
+                        src_note,
+                        f"matched via chemical-system query ({oq_payload.get('filter')})"
+                        if oq_payload.get("route") == "chemsys"
+                        else None,
+                    ),
                 ),
             )
         else:
@@ -251,7 +256,14 @@ class DataLayer:
                 query_terms=list(lit_payload.get("query_terms", [])),
                 status=DataStatus.KNOWN,
                 provenance=Provenance(
-                    source="fixture" if is_fixture else "openalex", retrieved_at=lit_ts, note=src_note
+                    source="fixture" if is_fixture else "openalex",
+                    retrieved_at=lit_ts,
+                    note=_join_notes(
+                        src_note,
+                        "counts from common-name search only (formula string returned nothing)"
+                        if lit_payload.get("route") == "names_only"
+                        else None,
+                    ),
                 ),
             )
         else:
@@ -281,6 +293,11 @@ class DataLayer:
             hazard=hazard,
             is_fixture=is_fixture,
         )
+
+
+def _join_notes(*notes: str | None) -> str | None:
+    parts = [n for n in notes if n]
+    return "; ".join(parts) if parts else None
 
 
 def _opt_float(v: Any) -> float | None:

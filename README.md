@@ -121,7 +121,7 @@ Add the server to your app's MCP config (see `docker/mcp-client-config.example.j
 
 Tools: `parse_request` (how a request will be read, plus clarification questions), `triage`,
 `explain`, `rerun`, `add_material` (pull one compound into the universe; online only),
-`cache_status`, `selfcheck`, `profiles`. Resources: `oxide-triage://result/{id}` (full JSON) and
+`fill_gaps` (adaptive acquisition pass), `cache_status`, `selfcheck`, `profiles`. Resources: `oxide-triage://result/{id}` (full JSON) and
 `oxide-triage://scope` (the scope limitation). The server's instructions tell the client model
 to relay numbers, ranks and citations as given and to surface the fixture banner. The request
 guard, the deterministic core and the fixture banner run inside the tools, so a client prompt
@@ -180,6 +180,31 @@ candidate universe is a failure (it means the fetch is broken). The outcome is s
 cache and read on every run. By default a failed check **blocks**: no shortlist is served and the
 output says why. `selfcheck.on_failure: warn` downgrades that to a banner. `oxide-triage
 selfcheck` runs it on demand; `oxide-triage cache-status` shows the last outcome.
+
+### Adaptive acquisition (gap filling)
+
+The first pass over the sources is a fixed set of queries, and it leaves gaps: OQMD may have no
+entry under the exact formula string, a formula token like `LaLuO3` may return zero works in
+OpenAlex, the functional behind a band gap may not resolve. After every `warm-cache` and
+`add-material` (and on demand with `oxide-triage fill-gaps` or the `fill_gaps` MCP tool) an
+acquisition pass turns each gap into a small plan from an **allowlist of read-only routes**:
+
+| Gap | Routes tried, in order |
+|---|---|
+| no OQMD match by composition | chemical-system query, keep entries with the same stoichiometry |
+| no literature counts | retry the formula query; then search on common names only |
+| band-gap functional unresolved | re-fetch the summary and the producing task's `run_type` |
+| no DFPT dielectric record | **none** — reported as unfillable with the reason; never estimated |
+
+Every attempt is recorded (gap, route, outcome) and the report is stored in the cache; the audit
+view summarises the last pass, and provenance says when a value came from an alternative route.
+The default planner is a deterministic ladder. With `acquisition.planner: llm` the configured
+model may *reorder or skip* the allowed routes for a gap; its answer is validated to be a subset
+of the allowlist, otherwise the ladder is used. The model chooses what to try, never a value.
+`acquisition.budget` caps the attempts per pass.
+
+The alternative routes are exercised end to end against fake responses in the tests; their
+behaviour against the live endpoints is verified on the first real cache warm.
 
 ### Adding a compound on demand
 
@@ -276,7 +301,7 @@ from it carries the fixture banner.
 
 ```bash
 pip install -e ".[all]"
-pytest                       # 87 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP
+pytest                       # 106 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, acquisition
 ruff check . && ruff format .
 python -m eval.run_eval      # evaluation report -> eval/output/report.md
 jupyter lab eval/evaluation.ipynb
@@ -297,6 +322,8 @@ oxide_triage/
   pipeline.py         orchestration: guard -> parse -> clarify -> self-check gate -> core -> refute
   session.py          result store, explain, rerun, clarification questions (app + MCP)
   selfcheck.py        known-answer check run on the cache itself
+  acquire.py          adaptive acquisition: gaps -> allowlisted routes -> report
+  formula.py          formula parsing for cross-database stoichiometry matching
   mcp_server.py       MCP tools/resources for Claude Desktop, Cowork, Cursor
   cli.py, app.py      Typer CLI, Streamlit front end
   templates/          pi_summary.md.j2, audit.md.j2

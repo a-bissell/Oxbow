@@ -153,8 +153,13 @@ obeys anything, and checks that ranks are byte-identical and no smuggled number 
 some places and deliberately not in others. It decides at the boundary (refuse, proceed, proceed
 with a logged deviation), asks before acting when a request changes something material (a
 clarify-before-run step in every front end), carries a conversation about a result without
-re-deriving it (`explain`, `rerun` from stored result objects), acquires data on demand
-(`add_material`, online only, values stored as data), and checks itself against ground truth
+re-deriving it (`explain`, `rerun` from stored result objects), acquires data on demand and
+adaptively: after every warm, gaps in what was retrieved (no OQMD match, no literature, an
+unresolved functional) are attacked with an allowlist of read-only routes such as a
+chemical-system query with stoichiometry matching or a common-name search, each attempt logged,
+each filled value labelled with its route, and gaps with no public route (dielectric constants
+beyond MP's DFPT set) reported as unfillable rather than estimated. A model may order the
+allowed routes for a gap and nothing more, and checks itself against ground truth
 after every change to its cache, refusing to serve from a cache that fails. It is not agentic
 where numbers and ranks are concerned: no model, no loop and no runtime choice sits between a
 retrieved value and a score. The **MCP server** makes the split literal. Claude in Desktop or
@@ -191,7 +196,7 @@ one real bug.
 The fixture is an approximation; the first live cache warm will test field names, dielectric
 coverage and the functional lookup, and may move defaults. Literature counts from formula-string
 search are noisy for short formulae (flagged per candidate). The hazard table is a screen, not a
-toxicological assessment. Nothing about films is modelled, by design. Next: run against real data
-with the PI's group and retune profiles with them; then let the acquisition step try alternative
-routes when a source has no match (a formula-level OQMD miss could fall back to a chemical-system
-query), under the same rule that the model may choose what to fetch and never what a value is.
+toxicological assessment. Nothing about films is modelled, by design. The alternative acquisition
+routes are tested against fake responses; their live behaviour is unverified until the first
+real warm. Next: run against real data with the PI's group, retune profiles with them, and add
+the JARVIS-DFT bulk dataset as a second dielectric route.

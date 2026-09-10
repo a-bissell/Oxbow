@@ -4,6 +4,7 @@ oxide-triage query "Find promising oxide dielectric candidates ..." --profile co
 oxide-triage warm-cache            # needs MP_API_KEY; fetches the candidate universe, runs self-check
 oxide-triage load-fixtures         # synthetic demo data, clearly flagged in every output
 oxide-triage add-material SrHfO3   # pull one compound into the universe (online)
+oxide-triage fill-gaps             # try alternative routes for data the warm could not find (online)
 oxide-triage selfcheck             # known-answer check on the current cache
 oxide-triage profiles
 oxide-triage cache-status
@@ -23,7 +24,7 @@ import typer
 from oxide_triage.cache import Cache
 from oxide_triage.config import list_profiles, load_config
 from oxide_triage.edges.render import render
-from oxide_triage.pipeline import add_material, load_fixtures, run_triage, warm_cache
+from oxide_triage.pipeline import add_material, load_fixtures, run_acquisition, run_triage, warm_cache
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 
 app = typer.Typer(add_completion=False, help=__doc__, no_args_is_help=True)
@@ -126,6 +127,31 @@ def add_material_cmd(
     typer.echo(json.dumps(result, indent=2, default=str))
     if result.get("error"):
         raise typer.Exit(code=1)
+
+
+@app.command("fill-gaps")
+def fill_gaps_cmd(
+    profile: str = typer.Option("default", "--profile", "-p"),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Adaptive acquisition pass: alternative read-only routes for every gap in the cache (online)."""
+    _setup_logging(verbose)
+    config = load_config(profile)
+    cache = Cache(config.cache.path)
+    try:
+        report = run_acquisition(config, cache)
+        if report is None:
+            typer.echo("Acquisition did not run (disabled in config, or cache is offline).", err=True)
+            raise typer.Exit(code=1)
+        typer.echo(json.dumps(report.summary(), indent=2))
+        for a in report.attempts:
+            typer.echo(f"  {a.formula:10s} {a.kind:12s} {a.route:22s} {a.outcome:12s} {a.note}")
+        for g in report.unfillable:
+            typer.echo(f"  {g.formula:10s} {g.kind:12s} {'(no public route)':22s} unfillable   {g.detail}")
+        check = run_selfcheck(config, cache)
+        typer.echo(f"self-check after acquisition: {'PASSED' if check.passed else 'FAILED'}")
+    finally:
+        cache.close()
 
 
 @app.command()

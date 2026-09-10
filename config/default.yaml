@@ -154,3 +154,15 @@ selfcheck:
   workhorses: [HfO2, ZrO2, Al2O3, Ta2O5]
   leaders: [HfO2, Al2O3]          # expected in the default top 5 when present
   min_workhorses_in_wide_top10: 3 # under the exploratory profile
+
+# ---------------------------------------------------------------------------
+# Adaptive acquisition: after a cache warm, gaps in the retrieved data (no OQMD match, no
+# literature counts, unresolved functional) are attacked with alternative read-only routes
+# (chemical-system query, common-name search, refetch). A model may ORDER the allowed routes
+# for a gap (planner: llm) but can never add a route or supply a value; the default ladder is
+# deterministic. Gaps with no public route (DFPT dielectric) are reported as unfillable.
+# ---------------------------------------------------------------------------
+acquisition:
+  enabled: true
+  budget: 200            # maximum route attempts per pass
+  planner: ladder        # ladder | llm

@@ -19,7 +19,7 @@ import os
 from typing import Any
 
 from oxide_triage.cache import Cache
-from oxide_triage.sources.base import CachedSource, Http
+from oxide_triage.sources.base import CachedSource, Http, SourceError
 
 BASE_URL = "https://api.openalex.org/works"
 THIN_FILM_TERMS = [
@@ -101,3 +101,43 @@ class OpenAlex(CachedSource):
             }
 
         return self.cached(f"formula:{formula}", fetch)
+
+    # ---- alternative acquisition route --------------------------------------------------
+
+    def evidence_names_only(
+        self, formula: str, aliases: list[str]
+    ) -> tuple[dict[str, Any] | None, str | None, str]:
+        """Second route when the formula-string search returns nothing: search on the common
+        names alone (a formula token such as "LaLuO3" is often absent from abstracts that spell
+        the compound out). Not applicable when no alias is known. Stored under the same key with
+        ``route="names_only"`` and the terms actually used."""
+        if not aliases:
+            return None, None, "not_applicable"
+        if self.offline:
+            return None, None, "missing_offline"
+        compound_q, thin_film_q, terms = build_queries(aliases[0], aliases[1:])
+        try:
+            total = self._search(compound_q, per_page=1)
+            films = self._search(thin_film_q, per_page=max(1, self.sample_size))
+        except SourceError as exc:
+            self.cache.log(self.name, f"formula:{formula}", "fetch_failed", f"names_only route: {exc}")
+            return None, None, "fetch_failed"
+        payload = {
+            "total_works": int((total.get("meta") or {}).get("count", 0)),
+            "thin_film_works": int((films.get("meta") or {}).get("count", 0)),
+            "sample_works": [
+                {
+                    "work_id": str(w.get("id", "")).replace("https://openalex.org/", ""),
+                    "title": (w.get("title") or "")[:300],
+                    "year": w.get("publication_year"),
+                    "doi": w.get("doi"),
+                }
+                for w in films.get("results", [])[: self.sample_size]
+            ],
+            "query_terms": terms,
+            "thin_film_terms": THIN_FILM_TERMS,
+            "route": "names_only",
+        }
+        ts = self.cache.put(self.name, f"formula:{formula}", payload)
+        self.cache.log(self.name, f"formula:{formula}", "fetched", "names_only route")
+        return payload, ts, "fetched"

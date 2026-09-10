@@ -13,7 +13,8 @@ from __future__ import annotations
 from typing import Any
 
 from oxide_triage.cache import Cache
-from oxide_triage.sources.base import CachedSource, Http
+from oxide_triage.formula import elements_of, same_stoichiometry
+from oxide_triage.sources.base import CachedSource, Http, SourceError
 
 BASE_URL = "https://oqmd.org/oqmdapi/formationenergy"
 FIELDS = "name,entry_id,delta_e,stability,spacegroup"
@@ -49,3 +50,44 @@ class OQMD(CachedSource):
             }
 
         return self.cached(f"formula:{formula}", fetch)
+
+    # ---- alternative acquisition route --------------------------------------------------
+
+    def lookup_by_chemsys(self, formula: str) -> tuple[dict[str, Any] | None, str | None, str]:
+        """Second route when the composition query finds nothing: list every OQMD entry in the
+        compound's chemical system and keep those with the same stoichiometry. Stores the result
+        under the same ``formula:`` key with ``route="chemsys"`` so downstream code is unchanged
+        and provenance can say how the match was made."""
+        if self.offline:
+            return None, None, "missing_offline"
+        elements = elements_of(formula)
+        flt = f"element_set={','.join(elements)} AND ntypes={len(elements)}"
+        try:
+            page = self.http.get_json(BASE_URL, params={"filter": flt, "fields": FIELDS, "limit": 200})
+        except SourceError as exc:
+            self.cache.log(self.name, f"formula:{formula}", "fetch_failed", f"chemsys route: {exc}")
+            return None, None, "fetch_failed"
+        entries = (page or {}).get("data", []) if isinstance(page, dict) else []
+        usable = [
+            e
+            for e in entries
+            if e.get("stability") is not None and same_stoichiometry(str(e.get("name", "")), formula)
+        ]
+        if not usable:
+            payload = {"found": False, "n_entries": len(entries), "route": "chemsys", "filter": flt}
+        else:
+            best = min(usable, key=lambda e: float(e["stability"]))
+            payload = {
+                "found": True,
+                "n_entries": len(entries),
+                "entry_id": best.get("entry_id"),
+                "name": best.get("name"),
+                "stability": float(best["stability"]),
+                "delta_e": None if best.get("delta_e") is None else float(best["delta_e"]),
+                "spacegroup": best.get("spacegroup"),
+                "route": "chemsys",
+                "filter": flt,
+            }
+        ts = self.cache.put(self.name, f"formula:{formula}", payload)
+        self.cache.log(self.name, f"formula:{formula}", "fetched", f"chemsys route: found={payload['found']}")
+        return payload, ts, "fetched"

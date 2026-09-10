@@ -158,6 +158,12 @@ class SelfCheckConfig(BaseModel):
     min_workhorses_in_wide_top10: int = Field(default=3, ge=0)
 
 
+class AcquisitionConfig(BaseModel):
+    enabled: bool = True
+    budget: int = Field(default=200, ge=0)  # max route attempts per pass
+    planner: Literal["ladder", "llm"] = "ladder"
+
+
 class Config(BaseModel):
     profile_name: str
     description: str = ""
@@ -176,10 +182,13 @@ class Config(BaseModel):
     cache: CacheConfig
     llm: LLMConfig
     selfcheck: SelfCheckConfig = Field(default_factory=SelfCheckConfig)
+    acquisition: AcquisitionConfig = Field(default_factory=AcquisitionConfig)
 
     def config_hash(self) -> str:
         """Stable hash of everything that affects ranking (excludes cache path / LLM)."""
-        relevant = self.model_dump(exclude={"cache", "llm", "description", "output", "selfcheck"})
+        relevant = self.model_dump(
+            exclude={"cache", "llm", "description", "output", "selfcheck", "acquisition"}
+        )
         blob = json.dumps(relevant, sort_keys=True, default=str)
         return hashlib.sha256(blob.encode()).hexdigest()[:16]
 

@@ -54,6 +54,15 @@
 {% endfor %}
 {% endif %}
 
+{% if result.acquisition_summary %}
+### Last acquisition pass on this cache
+
+{{ result.acquisition_summary.finished_at }} · planner `{{ result.acquisition_summary.planner }}` · {{ result.acquisition_summary.gaps }} gaps, {{ result.acquisition_summary.filled }} filled by alternative routes, {{ result.acquisition_summary.unfillable }} with no public route{% if result.acquisition_summary.budget_exhausted %} · **budget exhausted**{% endif %}
+{% for kind, d in result.acquisition_summary.by_kind | dictsort %}
+- {{ kind }}: {{ d.filled }}/{{ d.attempts }} attempts filled
+{% endfor %}
+
+{% endif %}
 ## Scoring rules in effect
 
 `{{ result.scoring.formula }}`

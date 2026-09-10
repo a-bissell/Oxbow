@@ -196,6 +196,35 @@ class MaterialsProject(CachedSource):
             self.cache.put(self.name, key, payload, hit[1] if hit else None)
         return len(new)
 
+    def refresh_functional(self, material_id: str) -> str:
+        """Acquisition route for an unresolved band-gap functional: re-fetch the summary (origins
+        may have been absent or stale) and the producing task's run_type. Returns the functional
+        label, ``unknown`` if it still cannot be resolved."""
+        if self.offline:
+            return "unknown"
+        page = self.http.get_json(
+            f"{BASE_URL}/materials/summary/",
+            params={"material_ids": material_id, "_fields": ",".join(SUMMARY_FIELDS)},
+            headers=self._headers(),
+        )
+        docs = (page or {}).get("data", []) if isinstance(page, dict) else []
+        if not docs:
+            return "unknown"
+        doc = docs[0]
+        self.cache.put(self.name, f"summary:{material_id}", doc)
+        task_id = self.band_gap_task_id(doc)
+        if not task_id:
+            return "unknown"
+        page = self.http.get_json(
+            f"{BASE_URL}/materials/tasks/",
+            params={"task_ids": task_id, "_fields": "task_id,run_type"},
+            headers=self._headers(),
+        )
+        data = (page or {}).get("data", []) if isinstance(page, dict) else []
+        run_type = data[0].get("run_type") if data else None
+        self.cache.put(self.name, f"task:{task_id}", {"run_type": run_type, "route": "refresh"})
+        return normalize_run_type(run_type)
+
     def summary(self, material_id: str) -> tuple[dict[str, Any] | None, str | None]:
         hit = self.cache.get(self.name, f"summary:{material_id}")
         return (None, None) if hit is None else (hit[0], hit[1])

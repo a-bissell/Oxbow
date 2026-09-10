@@ -16,6 +16,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from oxide_triage.acquire import AcquisitionReport, fill_gaps, make_planner, read_report
 from oxide_triage.cache import Cache
 from oxide_triage.config import Config, load_cation_allowlist, load_hazard_table
 from oxide_triage.edges.llm import LLMClient, make_llm
@@ -176,6 +177,8 @@ def run_triage(
             )
 
         base.update(fixture_data=cache.has_fixture_data, offline=layer.offline)
+        last = read_report(cache)
+        base["acquisition_summary"] = last.summary() if last else None
         result = TriageResult(
             **base,
             cache_fingerprint=cache.fingerprint(),
@@ -200,12 +203,16 @@ def warm_cache(config: Config, cache: Cache | None = None) -> dict[str, object]:
     try:
         layer = DataLayer.from_config(config, cache=cache, offline=False)
         records = layer.build_candidates()
+        report = run_acquisition(config, cache, layer=layer, records=records)
+        if report is not None and report.n_filled:
+            records = layer.build_candidates()
         check = run_selfcheck(config, cache)
         return {
             "candidates": len(records),
             "warnings": list(layer.warnings),
             "sources": cache.sources_summary(),
             "fixture_data": cache.has_fixture_data,
+            "acquisition": None if report is None else report.summary(),
             "selfcheck": check.model_dump(),
         }
     finally:
@@ -252,8 +259,12 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
             c.min_reported_gap_ev,
             ids,
         )
-        # Build the per-candidate records now so the next query is answered from cache.
+        # Build the per-candidate records now so the next query is answered from cache, then
+        # try alternative routes for whatever the first pass could not find.
         records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
+        report = run_acquisition(config, cache, layer=layer, records=records)
+        if report is not None and report.n_filled:
+            records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
         check = run_selfcheck(config, cache)
         return {
             "formula": formula,
@@ -270,8 +281,41 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
                 }
                 for r in records
             ],
+            "acquisition": None if report is None else report.summary(),
             "selfcheck_passed": check.passed,
         }
+    finally:
+        if own:
+            cache.close()
+
+
+def run_acquisition(
+    config: Config,
+    cache: Cache | None = None,
+    layer: DataLayer | None = None,
+    records: list | None = None,
+    llm: LLMClient | None = None,
+) -> AcquisitionReport | None:
+    """Gap-filling pass over the cache (online only). Returns None when disabled or offline."""
+    if not config.acquisition.enabled:
+        return None
+    own = cache is None and layer is None
+    cache = cache or (layer.cache if layer else Cache(config.cache.path))
+    try:
+        layer = layer or DataLayer.from_config(config, cache=cache, offline=False)
+        if layer.offline:
+            return None
+        records = records if records is not None else layer.build_candidates()
+        planner = make_planner(config.acquisition.planner, llm or make_llm(config.llm))
+        report = fill_gaps(layer, records, planner=planner, budget=config.acquisition.budget)
+        log.info(
+            "acquisition: %d gaps, %d filled, %d unfillable, planner %s",
+            report.n_gaps,
+            report.n_filled,
+            len(report.unfillable),
+            report.planner,
+        )
+        return report
     finally:
         if own:
             cache.close()
