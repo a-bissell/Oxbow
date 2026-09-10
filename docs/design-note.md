@@ -47,9 +47,8 @@ stage receives structured facts and may annotate but cannot touch a rank or a sc
 `config_hash` and `cache_fingerprint` identify the answer: same query, same cache, same output,
 next month too.
 
-The model is optional everywhere it appears. With `llm.provider: none` a rule-based parser reads
-the request and templates render the result; the tests, the evaluation and the demo all run this
-way. With a provider configured, the model may *fill in* fields the rules left at default (never
+The model is optional everywhere it appears; with `llm.provider: none` rules parse and templates
+render, and the tests, evaluation and demo all run that way. With a provider configured, the model may *fill in* fields the rules left at default (never
 override an element allow/exclude decision), and may add up to three "observations" per candidate,
 each of which must cite a fact field that exists and may contain no number that is not already in
 the facts. Anything else is discarded. A hostile model can therefore only fail, not act
@@ -70,10 +69,9 @@ because it is not. Absence is cached (an explicit `{found: false}` row with a ti
 the functional behind each gap is read from the producing MP task's `run_type`, or recorded as
 `unknown`, never guessed. **ICSD** and other closed sources are excluded and the README says why; MP's `theoretical` flag stands in for "has an experimentally observed structure".
 
-The API surprises the brief warns about are the reason the data layer was built first. The
-environment this prototype was developed in had no egress to any of the four sources, so the
-clients are written to the documented endpoints, isolated behind one adapter, and exercised
-against a **synthetic fixture** of ~35 well-known oxides. The first live `warm-cache` is where field names and coverage will be
+The environment this prototype was developed in had no egress to any of the four sources, so the
+clients follow the documented endpoints, sit behind one adapter, and are exercised against a
+**synthetic fixture** of ~35 well-known oxides. The first live `warm-cache` is where field names and coverage will be
 checked against reality, and the adapter is the only file that should need to change.
 
 ## 4. Domain handling a materials scientist checks first
@@ -99,9 +97,8 @@ propagates through scoring as `None`, lowers `data_coverage`, caps the confidenc
 Six criteria, each a weight and a normalised score in [0, 1]: stability (with a cross-source
 agreement bonus and disagreement penalty), effective band gap (threshold plus preference curve),
 dielectric constant where known, hazard tier, compositional simplicity, literature evidence
-(thin-film-weighted, log-saturating). Hard gates exclude before scoring, each with a stated reason.
-Every component's weight, observed value, normalised score and contribution is in the audit view;
-ties break on material id.
+(thin-film-weighted, log-saturating). Hard gates exclude before scoring with a stated reason; every
+component's contribution is in the audit view; ties break on material id.
 
 The missing-data policy is the interesting part, because the first version was wrong. The natural
 choice is to renormalise over the criteria that have data, then subtract a small penalty for the
@@ -150,8 +147,8 @@ obeys anything, and checks that ranks are byte-identical and no smuggled number 
 ## 8. How agentic, and where
 
 "Agentic" is earned by deciding what to do next, and this system is deliberately agentic in
-some places and deliberately not in others. It decides at the boundary (refuse, proceed, proceed
-with a logged deviation), asks before acting when a request changes something material (a
+some places and deliberately not in others. It decides at the boundary (refuse, proceed, proceed with a logged
+deviation), asks before acting when a request changes something material (a
 clarify-before-run step in every front end), carries a conversation about a result without
 re-deriving it (`explain`, `rerun` from stored result objects), acquires data on demand and
 adaptively: after every warm, gaps in what was retrieved (no OQMD match, no literature, an
