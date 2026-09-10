@@ -16,7 +16,7 @@ from oxide_triage.refute import primary_caveat
 from oxide_triage.schemas import DataStatus, ScoredCandidate, TriageResult
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
-TEMPLATE_FILES = {"pi_summary": "pi_summary.md.j2", "audit": "audit.md.j2"}
+TEMPLATE_FILES = {"pi_summary": "pi_summary.md.j2", "audit": "audit.md.j2", "html": "report.html.j2"}
 
 
 def fmt(x: float | None, digits: int = 3) -> str:
@@ -67,7 +67,7 @@ def rationale_line(sc: ScoredCandidate) -> str:
 def make_env(templates_dir: Path = TEMPLATES_DIR) -> Environment:
     env = Environment(
         loader=FileSystemLoader(str(templates_dir)),
-        autoescape=False,
+        autoescape=lambda name: bool(name) and name.endswith(".html.j2"),  # HTML escaped, Markdown not
         undefined=StrictUndefined,
         trim_blocks=True,
         lstrip_blocks=True,
@@ -79,11 +79,19 @@ def make_env(templates_dir: Path = TEMPLATES_DIR) -> Environment:
     return env
 
 
-def render(result: TriageResult, template: str | None = None, templates_dir: Path = TEMPLATES_DIR) -> str:
+def render(
+    result: TriageResult,
+    template: str | None = None,
+    templates_dir: Path = TEMPLATES_DIR,
+    **context: object,
+) -> str:
+    """Render ``result`` through a template. ``context`` adds optional extras a template may use
+    (the HTML report accepts ``eval_summary`` and ``eval_data_label``)."""
     name = template or result.criteria.output_template or "pi_summary"
     if name == "json":
         return result.model_dump_json(indent=2)
     if name not in TEMPLATE_FILES:
         raise ValueError(f"Unknown template '{name}'. Available: {', '.join([*TEMPLATE_FILES, 'json'])}")
     env = make_env(templates_dir)
-    return env.get_template(TEMPLATE_FILES[name]).render(result=result)
+    extras = {"eval_summary": None, "eval_data_label": None, **context}
+    return env.get_template(TEMPLATE_FILES[name]).render(result=result, **extras)

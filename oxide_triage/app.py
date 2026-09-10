@@ -25,7 +25,7 @@ PI_REQUEST = (
     "thermodynamically stable materials, wide band gaps, non-toxic elements, simple "
     "compositions, and public evidence. Return a ranked shortlist with caveats."
 )
-TEMPLATES = ["pi_summary", "audit", "json"]
+TEMPLATES = ["pi_summary", "audit", "json", "html"]
 
 st.set_page_config(page_title="Oxide Dielectric Triage", page_icon="🧪", layout="wide")
 st.title("Oxide dielectric triage assistant")
@@ -129,12 +129,17 @@ def show_result(result, tmpl: str) -> None:
     text = render(result, tmpl)
     if tmpl == "json":
         st.code(text, language="json")
+    elif tmpl == "html":
+        st.components.v1.html(text, height=1400, scrolling=True)
     else:
         st.markdown(text)
     st.download_button(
         "Download JSON", render(result, "json"), file_name="triage_result.json", mime="application/json"
     )
     st.download_button("Download audit (Markdown)", render(result, "audit"), file_name="triage_audit.md")
+    st.download_button(
+        "Download HTML report", render(result, "html"), file_name="triage_report.html", mime="text/html"
+    )
 
 
 if st.button("Run triage", type="primary", disabled=not confirmed):

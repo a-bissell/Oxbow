@@ -125,7 +125,7 @@ class CandidatesConfig(BaseModel):
 
 
 class OutputConfig(BaseModel):
-    default_template: Literal["pi_summary", "audit", "json"]
+    default_template: Literal["pi_summary", "audit", "json", "html"]
     top_k: int = Field(ge=1, le=50)
     verbosity: Literal["terse", "normal", "verbose"]
 

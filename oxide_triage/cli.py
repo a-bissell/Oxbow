@@ -6,6 +6,7 @@ oxide-triage load-fixtures         # synthetic demo data, clearly flagged in eve
 oxide-triage add-material SrHfO3   # pull one compound into the universe (online)
 oxide-triage fill-gaps             # try alternative routes for data the warm could not find (online)
 oxide-triage selfcheck             # known-answer check on the current cache
+oxide-triage report --out report.html    # self-contained HTML report (+ eval checks)
 oxide-triage profiles
 oxide-triage cache-status
 oxide-triage eval                  # runs the evaluation suite
@@ -48,7 +49,7 @@ def _setup_logging(verbose: bool) -> None:
 def query(
     request: str = typer.Argument(PI_REQUEST, help="Natural-language request. Defaults to the PI's example."),
     profile: str = typer.Option("default", "--profile", "-p", help="Config profile name."),
-    template: str | None = typer.Option(None, "--template", "-t", help="pi_summary | audit | json"),
+    template: str | None = typer.Option(None, "--template", "-t", help="pi_summary | audit | json | html"),
     offline: bool | None = typer.Option(
         None, "--offline/--online", help="Force cache-only or allow fetches."
     ),
@@ -80,6 +81,36 @@ def query(
         typer.echo(text)
     if not result.guard.proceed:
         raise typer.Exit(code=2)
+
+
+@app.command()
+def report(
+    request: str = typer.Argument(PI_REQUEST, help="Natural-language request. Defaults to the PI's example."),
+    out: Path = typer.Option(Path("triage_report.html"), "--out", "-o"),
+    profile: str = typer.Option("default", "--profile", "-p"),
+    offline: bool | None = typer.Option(None, "--offline/--online"),
+    with_eval: bool = typer.Option(True, "--with-eval/--no-eval", help="Append the evaluation checks."),
+    yes: bool = typer.Option(True, "--yes/--ask", help="Skip clarification questions."),
+) -> None:
+    """Write a self-contained HTML report for a request: shortlist, breakdowns, data-gap map,
+    scoring rules, scope statement and (optionally) the evaluation checks."""
+    config = load_config(profile)
+    result = run_triage(request, config, offline=offline, template="html", confirmed=yes)
+    extras: dict[str, object] = {}
+    if with_eval and result.guard.proceed and not result.needs_confirmation:
+        from oxide_triage.evaluation import run_all
+
+        out.parent.mkdir(parents=True, exist_ok=True)
+        cache = Cache(config.cache.path)
+        fixture = cache.has_fixture_data
+        cache.close()
+        run_all(out_dir=out.parent / "eval_output", use_fixtures=fixture)
+        summary_path = out.parent / "eval_output" / "summary.json"
+        extras["eval_summary"] = json.loads(summary_path.read_text(encoding="utf-8"))
+        extras["eval_data_label"] = "synthetic fixture" if fixture else f"live cache {config.cache.path}"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(render(result, "html", **extras), encoding="utf-8")
+    typer.echo(f"wrote {out}")
 
 
 @app.command("warm-cache")
@@ -215,7 +246,7 @@ def eval_cmd(
     ),
 ) -> None:
     """Run the evaluation suite (normal, adversarial, known-answer, determinism, missing-data)."""
-    from eval.run_eval import run_all  # local import: eval is not part of the installed package
+    from oxide_triage.evaluation import run_all
 
     report = run_all(out_dir=out, use_fixtures=use_fixtures)
     typer.echo(report)

@@ -168,6 +168,8 @@ def rule_parse(text: str, table: HazardTable) -> Criteria:
         kw["output_template"] = "audit"
     elif re.search(r"\b(json|machine[- ]readable|structured output)\b", t, re.I):
         kw["output_template"] = "json"
+    elif re.search(r"\bhtml\b|\bweb report\b|\bprintable report\b", t, re.I):
+        kw["output_template"] = "html"
     elif re.search(r"\b(summary|brief|one screen|plain language|for the PI|non-technical)\b", t, re.I):
         kw["output_template"] = "pi_summary"
 

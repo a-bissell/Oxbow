@@ -31,6 +31,7 @@ pip install -e ".[app]"
 oxide-triage load-fixtures          # synthetic demo data; every output says so
 oxide-triage query --offline        # the PI's request, default profile, PI summary
 oxide-triage query --offline --profile exploratory --template audit
+oxide-triage report --offline --out triage_report.html   # self-contained HTML report
 streamlit run oxide_triage/app.py   # browser front end
 ```
 
@@ -53,7 +54,7 @@ understood is echoed back at the top of every result so a misreading is visible,
 | `lead-free`, `no barium`, `avoid Bi` | excluded elements |
 | `include lead compounds` | **lifts the hazard block for Pb** — permitted, shown in the header, logged |
 | `prioritize dielectric constant` | weight override (reported) |
-| `audit view`, `json` | output template |
+| `audit view`, `json`, `html report` | output template |
 
 Site vocabulary (e.g. *hafnia*, *high-k*) is mapped through `terminology` in the config.
 
@@ -68,6 +69,13 @@ threshold and the observed value, the DFT functional behind each number, source 
 timestamps, the full caveat list with origin (`rule` or `llm`), everything excluded and why.
 
 **JSON** — the complete result object for downstream tooling.
+
+**HTML report** — a single self-contained file (no scripts, no external assets, prints cleanly):
+shortlist cards with score bars and the main caveat, an expandable full breakdown per candidate,
+a data-gap map showing which criteria had data behind them for every passing candidate, the
+excluded list with reasons, the scoring rules, the scope statement, and optionally the
+evaluation checks. `oxide-triage report --out triage_report.html` (see `docs/sample_report.html`,
+generated from the synthetic fixture). Retrieved text is escaped, never interpreted.
 
 Things to know before trusting a number:
 
@@ -301,7 +309,7 @@ from it carries the fixture banner.
 
 ```bash
 pip install -e ".[all]"
-pytest                       # 106 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, acquisition
+pytest                       # 110 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, acquisition, HTML report
 ruff check . && ruff format .
 python -m eval.run_eval      # evaluation report -> eval/output/report.md
 jupyter lab eval/evaluation.ipynb
@@ -326,7 +334,8 @@ oxide_triage/
   formula.py          formula parsing for cross-database stoichiometry matching
   mcp_server.py       MCP tools/resources for Claude Desktop, Cowork, Cursor
   cli.py, app.py      Typer CLI, Streamlit front end
-  templates/          pi_summary.md.j2, audit.md.j2
+  templates/          pi_summary.md.j2, audit.md.j2, report.html.j2
+  evaluation.py       the five evaluation checks (also `python -m eval.run_eval`)
   data/               element_hazards.yaml, cation_allowlist.yaml, compound_aliases.yaml,
                       hygroscopic_oxides.yaml, fixtures/fixture_cache.json
 config/               default.yaml + profiles/
