@@ -189,6 +189,18 @@ class AcquisitionConfig(BaseModel):
     planner: Literal["ladder", "llm"] = "ladder"
 
 
+class AgentConfig(BaseModel):
+    """The in-app chat agent (Streamlit Agent page, `oxide-triage chat`). It drives the same
+    tools the MCP server exposes; nothing here affects ranking, so it is excluded from the
+    config hash."""
+
+    max_tool_rounds: int = Field(default=8, ge=1, le=32)  # tool-call rounds per user message
+    number_guard: Literal["flag", "off"] = "flag"  # flag numbers absent from every tool output
+    max_tokens: int = Field(default=16000, ge=256)  # per model reply
+    timeout_s: float = 300  # adaptive thinking can pause longer than llm.timeout_s
+    tool_result_max_chars: int = Field(default=20000, ge=1000)  # tool output shown to the model
+
+
 class Config(BaseModel):
     profile_name: str
     description: str = ""
@@ -208,11 +220,12 @@ class Config(BaseModel):
     llm: LLMConfig
     selfcheck: SelfCheckConfig = Field(default_factory=SelfCheckConfig)
     acquisition: AcquisitionConfig = Field(default_factory=AcquisitionConfig)
+    agent: AgentConfig = Field(default_factory=AgentConfig)
 
     def config_hash(self) -> str:
-        """Stable hash of everything that affects ranking (excludes cache path / LLM)."""
+        """Stable hash of everything that affects ranking (excludes cache path / LLM / agent)."""
         relevant = self.model_dump(
-            exclude={"cache", "llm", "description", "output", "selfcheck", "acquisition"}
+            exclude={"cache", "llm", "description", "output", "selfcheck", "acquisition", "agent"}
         )
         blob = json.dumps(relevant, sort_keys=True, default=str)
         return hashlib.sha256(blob.encode()).hexdigest()[:16]

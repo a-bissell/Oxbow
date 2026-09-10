@@ -31,11 +31,16 @@ Ideas / planned work for this project.
 
 ## UI
 
-- [ ] **Admin UI panel** — a settings screen for changing app/project configuration.
-- [ ] **Interactive Agent UI** — a chat-style interface where the user asks questions,
-      gets a generated report back, and can click into parts of the report to
-      conversationally "drill down" with the AI agent for more detail. Backed by the
-      Claude API (requires an API key).
+- [ ] **Admin UI panel** — a settings screen for changing app/project configuration; a third
+      page next to Triage and Agent in `oxide_triage/app.py`.
+- [x] **Interactive Agent UI** — done 2026-09-10: the Streamlit "Agent" page and
+      `oxide-triage chat`. The model drives the same tools the MCP server exposes (Anthropic
+      tool use, or OpenAI-compatible function calling for the local overlay); the report is
+      rendered as cards whose parts seed follow-up questions; a number guard flags any number
+      in a reply that no tool printed. Follow-ups:
+      - [ ] Clickable HTML report: a custom component that turns clicks inside the
+            self-contained report into the same `pending_prompt` hook the cards use.
+      - [ ] Persist conversations across sessions (the transcript is in-memory per session).
 
 ## With the PI's group
 

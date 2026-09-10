@@ -19,6 +19,8 @@ number, a rank or a citation.
 It runs three ways from the same code: a CLI, a Streamlit app, and an **MCP server** so
 scientists can drive it from Claude Desktop, Claude Cowork, Cursor or any MCP-capable app. In
 that mode the client's model is the front edge and every guarantee still lives inside the tools.
+The app's **Agent page** hosts that same client in-process: a conversation with a model that
+drives the tools, beside a report whose every part can be asked about.
 
 ---
 
@@ -113,6 +115,32 @@ Every result is a complete object, so follow-ups never re-derive anything:
   first. The app shows the questions and a confirm box; the CLI prompts (or `--yes`); over MCP,
   `triage`/`rerun` return the questions and the client calls again with `confirmed=true`.
 
+### Talking to the agent (Agent page, `oxide-triage chat`)
+
+The app's **Agent** page is a conversation. You ask in plain English; a language model turns
+your words into calls to the same eight tools the MCP server exposes (`triage`, `explain`,
+`rerun`, `parse_request`, `profiles`, …) and relays what they computed. The result appears
+beside the chat as cards, and every part of the report carries a button that asks about it:
+*Why this rank?* on a candidate, *Ask* on a caveat, *Why excluded?* on an excluded row, *Missing
+dielectric?* on the data-gap map, *Rerun with gap ≥ 5 eV* on the scoring rules. A button seeds a
+chat turn naming the result id and the candidate; the model calls `explain` or `rerun` and
+answers from the output. `oxide-triage chat` is the same agent in the terminal.
+
+What keeps it honest is the same as over MCP: the model reaches data only through tools, each
+call is validated against the tool's schema before it runs, and the guard, the deterministic
+core, the self-check gate and the fixture banner run inside the tools. Two things are added for
+chat. The transcript is append-only, so nothing is edited or re-derived behind you. And a
+**number guard** checks every number in a reply against the numbers the tools printed (and your
+own words); anything else is marked ⚠ and listed under the reply as unverified. It flags, it does
+not rewrite, so a count such as “top 3” may be flagged too.
+
+The page needs a model: `LLM_PROVIDER=anthropic` with `ANTHROPIC_API_KEY` (the conversation and
+the tool outputs go to Anthropic; no private data exists in this system), or
+`LLM_PROVIDER=openai_compatible` against the local overlay (nothing leaves the site). With
+`none` the page says so and the Triage page works as before. `oxide-triage doctor` reports
+whether chat is ready. The agent is limited to `agent.max_tool_rounds` tool calls per message
+(`config/default.yaml`).
+
 ### Using it from Claude Desktop, Claude Cowork or Cursor (MCP)
 
 ```bash
@@ -172,7 +200,7 @@ Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache p
 | `MP_API_KEY` | warming the cache from Materials Project | free, https://next-gen.materialsproject.org/api |
 | `OPENALEX_API_KEY` | optional. Literature counts are fetched per query for the top-ranked candidates (about 50 searches, $0.05). Without a key OpenAlex allows $0.10/day per IP (two queries); a free account's key allows $1/day (twenty) | free account at https://openalex.org |
 | `OPENALEX_MAILTO` | contact email on OpenAlex requests (optional; no rate-limit effect any more) | any contact email |
-| `LLM_PROVIDER` | `none` (default) / `anthropic` / `openai_compatible` | — |
+| `LLM_PROVIDER` | `none` (default) / `anthropic` / `openai_compatible`. The Agent page and `oxide-triage chat` need one of the latter two | — |
 | `ANTHROPIC_API_KEY` | only if `LLM_PROVIDER=anthropic` | https://console.anthropic.com |
 | `LLM_BASE_URL`, `LLM_MODEL` | only if `LLM_PROVIDER=openai_compatible` | your vLLM/Ollama endpoint |
 | `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT` | MCP server defaults (`stdio`, `127.0.0.1`, `8765`) | — |
@@ -287,8 +315,11 @@ over stdio.
 ### Optional: a locally hosted language model
 
 `docker/compose.local-llm.yml` adds a vLLM service serving **Qwen3-8B** and points the app at it.
-Nothing leaves the site. The model only parses the request and phrases caveats, so an 8B model
-is adequate; the ranking is identical with any provider or none.
+Nothing leaves the site. The model only parses the request, phrases caveats and drives the tools
+on the Agent page, so an 8B model is adequate; the ranking is identical with any provider or
+none. The overlay starts vLLM with tool calling enabled (`--enable-auto-tool-choice
+--tool-call-parser hermes`); the chat path is exercised against a fake server in the tests and
+has not yet been verified against a live vLLM.
 
 ```bash
 docker compose -f docker/compose.yml -f docker/compose.local-llm.yml up --build -d
@@ -303,7 +334,7 @@ What leaves the site with each provider:
 |---|---|
 | `none` | nothing |
 | `openai_compatible` (local) | nothing |
-| `anthropic` | the request text and the *public* structured facts for shortlisted candidates |
+| `anthropic` | the request text and the *public* structured facts for shortlisted candidates; on the Agent page, the conversation and the tool outputs |
 
 No private lab data exists anywhere in this system, so the exposure with a cloud provider is the
 request wording itself. Sites for which that is unacceptable should use the local overlay.
@@ -344,7 +375,7 @@ from it carries the fixture banner.
 
 ```bash
 pip install -e ".[all]"
-pytest                       # 114 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, acquisition, HTML report, record/replay
+pytest                       # 175 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, chat agent, acquisition, HTML report, record/replay
 ruff check . && ruff format .
 python -m eval.run_eval      # evaluation report -> eval/output/report.md
 jupyter lab eval/evaluation.ipynb
@@ -360,15 +391,17 @@ oxide_triage/
   sources/            materials_project, oqmd, openalex, pubchem, hazards, assemble, fixtures
   scoring/            bandgap correction, settings resolution, gates + components + ranking
   guard.py            request binning (impossible / configuration / integrity)
-  edges/              llm providers, request parser, template renderer
+  edges/              llm providers (+ chat protocol with tool use), request parser, template renderer
   refute.py           rule-derived caveats + guarded model observations
   pipeline.py         orchestration: guard -> parse -> clarify -> self-check gate -> core -> refute
   session.py          result store, explain, rerun, clarification questions (app + MCP)
+  tools.py            the eight tools (one implementation for the MCP server and the chat agent)
+  agent.py            chat agent: provider-neutral tool-use loop, append-only transcript, number guard
   selfcheck.py        known-answer check run on the cache itself
   acquire.py          adaptive acquisition: gaps -> allowlisted routes -> report
   formula.py          formula parsing for cross-database stoichiometry matching
   mcp_server.py       MCP tools/resources for Claude Desktop, Cowork, Cursor
-  cli.py, app.py      Typer CLI, Streamlit front end
+  cli.py, app.py      Typer CLI, Streamlit entry point (pages in ui/: sidebar, triage_page, agent_page, report_cards)
   templates/          pi_summary.md.j2, audit.md.j2, report.html.j2
   evaluation.py       the five evaluation checks (also `python -m eval.run_eval`)
   data/               element_hazards.yaml, cation_allowlist.yaml, compound_aliases.yaml,

@@ -8,6 +8,7 @@ oxide-triage fill-gaps             # try alternative routes for data the warm co
 oxide-triage selfcheck             # known-answer check on the current cache
 oxide-triage report --out report.html    # self-contained HTML report (+ eval checks)
 oxide-triage doctor                # what the tool sees: .env, keys (masked), cache, source reachability
+oxide-triage chat                  # talk to the agent in the terminal (needs a language model provider)
 oxide-triage profiles
 oxide-triage cache-status
 oxide-triage eval                  # runs the evaluation suite
@@ -256,6 +257,10 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
     typer.echo(
         f"config: profile={config.profile_name} cache={config.cache.path} offline={config.cache.offline} llm={config.llm.provider}"
     )
+    from oxide_triage.edges.llm import chat_availability
+
+    chat_ok, chat_why = chat_availability(config.llm)
+    typer.echo(f"chat: {'ready (' + chat_why + ')' if chat_ok else 'unavailable (' + chat_why + ')'}")
     cache = Cache(config.cache.path)
     try:
         sc = read_selfcheck(cache)
@@ -303,6 +308,78 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
             except httpx.HTTPError as exc:
                 note = f"unreachable: {type(exc).__name__}"
             typer.echo(f"  {name}: {note}")
+
+
+@app.command()
+def chat(
+    profile: str = typer.Option("default", "--profile", "-p", help="Config profile name."),
+    offline: bool | None = typer.Option(
+        None, "--offline/--online", help="Force cache-only or allow fetches."
+    ),
+    llm: str | None = typer.Option(None, "--llm", help="Override provider: anthropic | openai_compatible"),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Talk to the agent in the terminal. The model drives the same tools the MCP server and the
+    Streamlit Agent page use; every number it relays comes out of a tool. Tool calls and any
+    numbers the number guard could not verify are printed to stderr. `/new` starts over, `/quit` exits."""
+    from oxide_triage.agent import Agent
+    from oxide_triage.edges.llm import make_chat_llm
+    from oxide_triage.tools import ToolBox, agent_system_prompt
+
+    _setup_logging(verbose)
+    overrides: dict = {}
+    if llm:
+        overrides["llm"] = {"provider": llm}
+    if offline is not None:
+        overrides["cache"] = {"offline": offline}
+    config = load_config(profile, overrides=overrides or None)
+    try:
+        model = make_chat_llm(config.llm, config.agent)
+    except RuntimeError as exc:
+        typer.echo(f"chat unavailable: {exc}", err=True)
+        raise typer.Exit(code=2) from None
+    toolbox = ToolBox(
+        config_overrides=overrides or None, tool_result_max_chars=config.agent.tool_result_max_chars
+    )
+    agent = Agent(
+        model, toolbox, agent_system_prompt(profile), config.agent.max_tool_rounds, config.agent.number_guard
+    )
+    typer.echo(f"oxide-triage chat · {model.name} · profile {profile} · /new, /quit", err=True)
+
+    def on_text(chunk: str) -> None:
+        sys.stdout.write(chunk)
+        sys.stdout.flush()
+
+    def on_tool(ev) -> None:
+        status = "error" if ev.outcome.is_error else "ok"
+        typer.echo(f"\n[tool] {ev.name}({json.dumps(ev.input)}) -> {status}", err=True)
+
+    interactive = sys.stdin.isatty()
+    while True:
+        try:
+            line = input("\n> " if interactive else "")
+        except EOFError:
+            break
+        text = line.strip()
+        if not text:
+            continue
+        if text in {"/quit", "/exit"}:
+            break
+        if text == "/new":
+            agent.new_conversation()
+            typer.echo("[new conversation]", err=True)
+            continue
+        reply = agent.send(text, on_text=on_text, on_tool=on_tool)
+        sys.stdout.write("\n")
+        if reply.error:
+            typer.echo(f"[error] {reply.error}", err=True)
+        if reply.unverified_numbers:
+            typer.echo(
+                f"[number guard] not found in any tool output: {', '.join(reply.unverified_numbers)}",
+                err=True,
+            )
+        if reply.latest_result_id:
+            typer.echo(f"[result] {reply.latest_result_id}", err=True)
 
 
 @app.command()
