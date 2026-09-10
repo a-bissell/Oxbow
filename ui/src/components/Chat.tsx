@@ -156,6 +156,11 @@ function AssistantTurn({ turn, isLast }: { turn: Turn; isLast: boolean }) {
           )}
         </div>
       )}
+      {turn.unverified && turn.unverified.length > 0 && (
+        <div className="small" style={{ color: "var(--warn-ink)" }} title="The number guard checks every number in the reply against the numbers the tools printed. It flags; it does not rewrite.">
+          Not verified against tool output: {turn.unverified.join(", ")}
+        </div>
+      )}
       {turn.result_id && turn.result_id !== app.currentResultId && (
         <a
           className="resultlink"

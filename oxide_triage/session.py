@@ -1,4 +1,4 @@
-"""Dialogue primitives shared by the Streamlit app and the MCP server.
+"""Dialogue primitives shared by the web app, the chat agent and the MCP server.
 
 A triage result is a complete, self-describing object, so follow-up questions are answered from
 it without re-running anything: "why is X ranked where it is", "why was Y excluded", "rerun with

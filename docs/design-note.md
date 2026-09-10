@@ -239,12 +239,20 @@ but it is still printed as a deviation; a change made in words that lifts a haza
 moves a gate is held until the person confirms it. The **MCP server** makes the split literal. Claude in Desktop or
 Cowork becomes the front edge, turning a scientist's words into tool calls; the guard, the core,
 the self-check gate and the fixture banner run inside the tools and the server's instructions tell
-the client to relay results as given. A client prompt cannot bypass any of it.
+the client to relay results as given. A client prompt cannot bypass any of it. The **Agent
+page** of the app hosts that same client in-process: a model (Claude, or a local model over the
+OpenAI-compatible protocol) drives the same tools through a tool-use loop, the report it
+produces is shown as cards whose parts seed follow-up questions, and a number guard flags any
+number in a reply that no tool printed. The transcript is append-only and every tool call is
+validated against its schema before it runs, so the conversational front end adds no path by
+which a number could be invented.
 
 ## 9. Deployment and privacy
 
 Python 3.11, Pydantic schemas, SQLite, Typer CLI, a FastAPI + React web app (built bundle committed, so a pip install is the whole deployment), Jinja templates as files
-so a site admin can edit prose without touching code. One YAML config with three named profiles.
+so a site admin can edit prose without touching code. One YAML config with three named profiles;
+the admin panel edits any of it into a site overrides file next to the cache, never the shipped
+YAML, and every site departure from the shipped ranking policy is a deviation on the result.
 `Dockerfile` plus compose with a persistent cache volume and an MCP service on loopback; once
 warmed the containers run fully offline. Keys come from the environment; `.env.example` documents each one.
 

@@ -21,15 +21,22 @@ from pydantic import BaseModel, Field
 from oxide_triage.cache import Cache
 from oxide_triage.config import (
     DEFAULT_CONFIG_DIR,
+    ENV_KEYS,
     Config,
+    SiteOverrides,
+    admin_enabled,
     cations_for_families,
+    config_layers,
+    env_locked,
     list_profiles,
     load_cation_families,
     load_config,
-    read_site_overlay,
-    site_overlay_path,
-    write_site_overlay,
+    load_site_overrides,
+    preview_config,
+    save_site_overrides,
+    site_config_path,
 )
+from oxide_triage.doctor import mask
 from oxide_triage.edges.render import render
 from oxide_triage.pipeline import add_material, load_fixtures, run_acquisition, warm_cache
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
@@ -200,8 +207,9 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
                 "provider": cfg.llm.provider,
                 "model": cfg.llm.model,
                 "driver": driver_name(cfg),
-                "agent_model": agent_model(cfg) if driver_name(cfg) == "claude" else None,
+                "agent_model": agent_model(cfg),
             },
+            "admin_editable": admin_enabled(),
             "greetings": GREETINGS,
             "suggested_requests": [
                 {
@@ -273,7 +281,7 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
 
         def work() -> None:
             try:
-                run_turn(state.store, conv, req, emit, config_loader=state.load_config, offline=state.offline)
+                run_turn(state.store, conv, req, emit, config_dir=state.config_dir, offline=state.offline)
             except Exception as exc:  # last resort; run_turn handles its own failures
                 log.exception("turn failed")
                 emit({"type": "error", "message": f"{type(exc).__name__}: {exc}"})
@@ -331,38 +339,53 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
 
     # ---- admin --------------------------------------------------------------------------
 
-    @app.get("/api/admin/config")
-    def admin_config(profile: str = "default") -> dict[str, Any]:
-        effective = state.load_config(profile)
-        shipped = load_config(profile, config_dir=state.config_dir, site_overlay=False)
+    def _overlay_payload(profile: str) -> dict[str, Any]:
+        try:
+            layers = config_layers(profile, config_dir=state.config_dir)
+        except FileNotFoundError as exc:
+            raise HTTPException(404, str(exc)) from exc
+        shipped = Config.model_validate(layers.shipped())
+        site = load_site_overrides(layers.site_path)
         return {
             "profile": profile,
             "profiles": ["default", *list_profiles(state.config_dir)],
-            "effective": json.loads(effective.model_dump_json()),
+            "effective": json.loads(layers.effective.model_dump_json()),
             "shipped": json.loads(shipped.model_dump_json()),
-            "overlay": read_site_overlay(state.config_dir),
-            "overlay_path": str(site_overlay_path(state.config_dir)),
+            "overlay": {"base": site.base, "profiles": site.profiles},
+            "overlay_path": str(layers.site_path) if layers.site_path else None,
+            "editable": admin_enabled() and layers.site_path is not None,
+            "env_locked": {path: var for path in ENV_KEYS if (var := env_locked(path))},
+            "site_overrides": [o.model_dump() for o in layers.effective.site_overrides],
         }
+
+    @app.get("/api/admin/config")
+    def admin_config(profile: str = "default") -> dict[str, Any]:
+        return _overlay_payload(profile)
 
     @app.put("/api/admin/overlay")
     def put_overlay(body: OverlayBody) -> dict[str, Any]:
+        if not admin_enabled():
+            raise HTTPException(403, "editing is disabled: set OXIDE_TRIAGE_ADMIN=1 and restart the server")
+        path = site_config_path(state.config_dir)
+        if path is None:
+            raise HTTPException(
+                422, "the site file is disabled (OXIDE_TRIAGE_SITE_CONFIG=off or an in-memory cache)"
+            )
         try:
-            path = write_site_overlay(body.model_dump(), config_dir=state.config_dir)
+            site = SiteOverrides(base=body.base, profiles=body.profiles)
+            for name in ["default", *list_profiles(state.config_dir)]:
+                preview_config(name, site, state.config_dir)  # raises on a value a profile cannot take
         except Exception as exc:
             raise HTTPException(422, f"rejected: {exc}") from exc
-        return {"saved": str(path), "overlay": read_site_overlay(state.config_dir)}
+        save_site_overrides(path, site)
+        return {"saved": str(path), "overlay": {"base": site.base, "profiles": site.profiles}}
 
     @app.get("/api/admin/environment")
     def admin_environment() -> dict[str, Any]:
-        def masked(name: str) -> str | None:
-            v = os.environ.get(name)
-            if not v:
-                return None
-            return v[:4] + "…" + v[-3:] if len(v) > 10 else "set"
-
         cfg = state.load_config("default")
+        keys = ("MP_API_KEY", "OPENALEX_API_KEY", "ANTHROPIC_API_KEY", "LLM_API_KEY")
         return {
-            "keys": {k: masked(k) for k in ("MP_API_KEY", "OPENALEX_API_KEY", "ANTHROPIC_API_KEY")},
+            "keys": {k: (mask(k, os.environ.get(k)) if os.environ.get(k) else None) for k in keys},
             "llm": {
                 "provider": cfg.llm.provider,
                 "model": cfg.llm.model,
@@ -374,6 +397,8 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
             "offline": bool(cfg.cache.offline if state.offline is None else state.offline),
             "config_dir": str(state.config_dir),
             "session_root": str(state.session_root),
+            "site_config_path": cfg.site_config_path,
+            "admin_editable": admin_enabled(),
         }
 
     @app.get("/api/admin/deviations")
@@ -394,6 +419,11 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
     def start_job(body: JobBody) -> dict[str, Any]:
         cfg = state.load_config(str(body.args.get("profile") or "default"))
         online_ok = not (cfg.cache.offline if state.offline is None else state.offline)
+        if body.kind in {"warm", "add_material", "fill_gaps"} and not admin_enabled():
+            # Fetching spends the public sources' budgets; the demo fixture and the self-check do not.
+            raise HTTPException(
+                403, "cache operations are disabled: set OXIDE_TRIAGE_ADMIN=1 and restart the server"
+            )
 
         def fn(job: Any) -> Any:
             if body.kind == "fixtures":

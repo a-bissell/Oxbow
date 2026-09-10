@@ -178,6 +178,7 @@ def test_mcp_tools_listed(mcp_env):
         "triage",
         "explain",
         "compare",
+        "list_candidates",
         "rerun",
         "add_material",
         "cache_status",

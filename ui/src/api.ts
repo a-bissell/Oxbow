@@ -30,7 +30,17 @@ export const api = {
   renderUrl: (id: string, template: string) => `/api/results/${id}/render/${template}`,
   admin: {
     config: (profile: string) =>
-      request<{ profile: string; profiles: string[]; effective: Record<string, any>; shipped: Record<string, any>; overlay: Record<string, any>; overlay_path: string }>(
+      request<{
+        profile: string;
+        profiles: string[];
+        effective: Record<string, any>;
+        shipped: Record<string, any>;
+        overlay: { base: Record<string, any>; profiles: Record<string, any> };
+        overlay_path: string | null;
+        editable: boolean;
+        env_locked: Record<string, string>;
+        site_overrides: { key: string; shipped: unknown; value: unknown }[];
+      }>(
         `/api/admin/config?profile=${encodeURIComponent(profile)}`,
       ),
     saveOverlay: (overlay: { base: Record<string, any>; profiles: Record<string, any> }) =>

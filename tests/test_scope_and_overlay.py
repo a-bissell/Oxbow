@@ -1,4 +1,4 @@
-"""Cation families, query-time scoping, the site config overlay and the progress callback."""
+"""Cation families, query-time scoping and the progress callback."""
 
 from __future__ import annotations
 
@@ -10,8 +10,6 @@ from oxide_triage.config import (
     load_cation_allowlist,
     load_cation_families,
     load_config,
-    read_site_overlay,
-    write_site_overlay,
 )
 from oxide_triage.pipeline import load_fixtures, run_triage
 from oxide_triage.schemas import Criteria
@@ -22,12 +20,12 @@ PI = "Find promising oxide dielectric candidates for thin-film experiments."
 @pytest.fixture(scope="module")
 def cache():
     c = Cache(":memory:")
-    load_fixtures(load_config("default", use_env=False, site_overlay=False), c)
+    load_fixtures(load_config("default", use_env=False, site_config=None), c)
     return c
 
 
 def cfg(profile="default"):
-    return load_config(profile, use_env=False, site_overlay=False)
+    return load_config(profile, use_env=False, site_config=None)
 
 
 # ---- families ------------------------------------------------------------------------------
@@ -79,7 +77,7 @@ def test_default_families_from_config_apply_when_request_has_none(cache):
     c = load_config(
         "default",
         use_env=False,
-        site_overlay=False,
+        site_config=None,
         overrides={"candidates": {"default_families": ["group_13"]}},
     )
     res = run_triage(PI, c, cache=cache, offline=True)
@@ -101,34 +99,3 @@ def test_progress_callback_sees_the_stages_and_cannot_change_the_result(cache):
     assert [s.record.material_id for s in with_cb.shortlist] == [
         s.record.material_id for s in without.shortlist
     ]
-
-
-# ---- site overlay --------------------------------------------------------------------------
-
-
-def test_site_overlay_merges_between_defaults_profile_and_env(tmp_path, monkeypatch):
-    monkeypatch.setenv("OXIDE_TRIAGE_SITE_CONFIG", str(tmp_path / "site.yaml"))
-    assert read_site_overlay() == {}
-    shipped = load_config("exploratory", use_env=False)
-    write_site_overlay(
-        {
-            "base": {"output": {"top_k": 7}, "candidates": {"default_families": ["group_13"]}},
-            "profiles": {"exploratory": {"gates": {"min_band_gap_ev": 2.0}}},
-        }
-    )
-    assert (tmp_path / "site.yaml").is_file()
-    default = load_config("default", use_env=False)
-    assert default.output.top_k == 7 and default.candidates.default_families == ["group_13"]
-    assert default.gates.min_band_gap_ev == shipped.gates.min_band_gap_ev or True  # profile-specific below
-    expl = load_config("exploratory", use_env=False)
-    assert expl.gates.min_band_gap_ev == 2.0  # site profile override beats the shipped profile
-    assert expl.output.top_k == shipped.output.top_k  # shipped profile beats the site base
-    assert load_config("default", use_env=False, site_overlay=False).output.top_k == 5
-    assert read_site_overlay()["profiles"]["exploratory"]["gates"]["min_band_gap_ev"] == 2.0
-
-
-def test_site_overlay_rejects_values_that_break_a_profile(tmp_path, monkeypatch):
-    monkeypatch.setenv("OXIDE_TRIAGE_SITE_CONFIG", str(tmp_path / "site.yaml"))
-    with pytest.raises(ValueError):
-        write_site_overlay({"base": {"dielectric": {"low": 50, "high": 10}}})
-    assert not (tmp_path / "site.yaml").exists()

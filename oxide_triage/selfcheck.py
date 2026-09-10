@@ -12,6 +12,7 @@ fetch is broken and no shortlist from that cache should be trusted.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -65,7 +66,12 @@ def run_selfcheck(
             and not cache.has_fixture_data
         )
 
-    default_cfg = load_config("default", use_env=False, overrides={"cache": {"path": config.cache.path}})
+    # The check must judge the policy actually in force: the site file is applied, the environment
+    # is not (the cache path is passed explicitly).
+    site = Path(config.site_config_path) if config.site_config_path else None
+    default_cfg = load_config(
+        "default", use_env=False, overrides={"cache": {"path": config.cache.path}}, site_config=site
+    )
     res = run_triage(
         PI, default_cfg, cache=cache, offline=offline, skip_selfcheck=True, llm=NullLLM(), http=http
     )
@@ -125,7 +131,9 @@ def run_selfcheck(
                 f"{lead}: expected in default top {sc.leaders_top_n}, found at {ranked.index(lead) + 1} (FAIL)"
             )
 
-    wide_cfg = load_config("exploratory", use_env=False, overrides={"cache": {"path": config.cache.path}})
+    wide_cfg = load_config(
+        "exploratory", use_env=False, overrides={"cache": {"path": config.cache.path}}, site_config=site
+    )
     wide = run_triage(
         PI, wide_cfg, cache=cache, offline=offline, skip_selfcheck=True, llm=NullLLM(), http=http
     )

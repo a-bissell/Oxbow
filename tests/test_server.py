@@ -20,11 +20,26 @@ PI = (
 
 
 @pytest.fixture(scope="module")
-def client(tmp_path_factory):
-    tmp = tmp_path_factory.mktemp("server")
+def site_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp("server")
+
+
+@pytest.fixture(autouse=True)
+def _server_env(site_dir, monkeypatch):
+    """Per test, because the suite's conftest turns the site file off for every test."""
+    monkeypatch.setenv("OXIDE_TRIAGE_CACHE", str(site_dir / "cache.sqlite"))
+    monkeypatch.setenv("OXIDE_TRIAGE_SITE_CONFIG", str(site_dir / "site.yaml"))
+    monkeypatch.setenv("OXIDE_TRIAGE_OFFLINE", "1")
+    monkeypatch.setenv("OXIDE_TRIAGE_ADMIN", "1")
+    monkeypatch.setenv("LLM_PROVIDER", "none")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+
+@pytest.fixture(scope="module")
+def client(site_dir):
     mp = pytest.MonkeyPatch()
-    mp.setenv("OXIDE_TRIAGE_CACHE", str(tmp / "cache.sqlite"))
-    mp.setenv("OXIDE_TRIAGE_SITE_CONFIG", str(tmp / "site.yaml"))
+    mp.setenv("OXIDE_TRIAGE_CACHE", str(site_dir / "cache.sqlite"))
+    mp.setenv("OXIDE_TRIAGE_SITE_CONFIG", str(site_dir / "site.yaml"))
     mp.setenv("OXIDE_TRIAGE_OFFLINE", "1")
     mp.setenv("LLM_PROVIDER", "none")
     mp.delenv("ANTHROPIC_API_KEY", raising=False)
@@ -197,7 +212,12 @@ def test_result_downloads(client):
 def test_admin_config_overlay_roundtrip(client):
     before = client.get("/api/admin/config", params={"profile": "default"}).json()
     assert before["effective"]["output"]["top_k"] == before["shipped"]["output"]["top_k"] == 5
-    assert before["overlay"] == {}
+    assert before["overlay"]["base"] == {} and before["editable"] is True
+    assert before["env_locked"] == {
+        "cache.path": "OXIDE_TRIAGE_CACHE",
+        "cache.offline": "OXIDE_TRIAGE_OFFLINE",
+        "llm.provider": "LLM_PROVIDER",
+    }
     r = client.put(
         "/api/admin/overlay",
         json={
@@ -212,6 +232,10 @@ def test_admin_config_overlay_roundtrip(client):
     assert client.get("/api/admin/config").json()["effective"]["output"]["top_k"] == 6
     bad = client.put("/api/admin/overlay", json={"base": {"dielectric": {"low": 50, "high": 10}}})
     assert bad.status_code == 422
+    unknown = client.put("/api/admin/overlay", json={"base": {"nope": {"x": 1}}})
+    assert unknown.status_code == 422
+    # a policy edit is a site deviation on every later result
+    assert any(o["key"] == "output.top_k" for o in client.get("/api/admin/config").json()["site_overrides"])
     # a later query sees the overlay
     conv = client.post("/api/conversations", json={}).json()
     final, _ = turn(client, conv["id"], text=PI)
@@ -219,9 +243,17 @@ def test_admin_config_overlay_roundtrip(client):
     client.put("/api/admin/overlay", json={"base": {}, "profiles": {}})
 
 
+def test_admin_editing_is_gated_by_the_environment(client, monkeypatch):
+    monkeypatch.setenv("OXIDE_TRIAGE_ADMIN", "0")
+    assert client.get("/api/admin/config").json()["editable"] is False
+    assert client.put("/api/admin/overlay", json={"base": {"output": {"top_k": 9}}}).status_code == 403
+    assert client.post("/api/admin/jobs", json={"kind": "warm"}).status_code == 403
+    assert client.get("/api/status").json()["admin_editable"] is False
+
+
 def test_admin_jobs_and_environment(client):
     env = client.get("/api/admin/environment").json()
-    assert env["llm"]["driver"] == "rules" and env["offline"] is True
+    assert env["llm"]["driver"] == "rules" and env["offline"] is True and env["admin_editable"] is True
     r = client.post("/api/admin/jobs", json={"kind": "selfcheck"})
     assert r.status_code == 200
     import time
@@ -254,6 +286,7 @@ def test_empty_cache_is_a_normal_first_run_state(tmp_path, monkeypatch):
     monkeypatch.setenv("OXIDE_TRIAGE_SITE_CONFIG", str(tmp_path / "site.yaml"))
     monkeypatch.setenv("OXIDE_TRIAGE_OFFLINE", "1")
     monkeypatch.setenv("LLM_PROVIDER", "none")
+    monkeypatch.setenv("OXIDE_TRIAGE_ADMIN", "1")
     with TestClient(create_app(offline=True)) as c:
         s = c.get("/api/status").json()
         assert s["cache"]["empty"] is True and s["n_universe"] == 0

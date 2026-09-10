@@ -14,8 +14,6 @@ venv/
 eval/output/
 .streamlit/secrets.toml
 
-# site-level config written by the admin panel
-config/site.yaml
 
 # the built front end is committed so a pip install needs no Node
 !oxide_triage/ui/dist/

@@ -178,6 +178,7 @@ export interface Turn {
   result_id?: string | null;
   explain?: string | null;
   suggestions: string[];
+  unverified?: string[];
   pending?: Pending | null;
   error?: string | null;
 }
@@ -190,7 +191,7 @@ export interface Conversation {
   updated_at: string;
   turns: Turn[];
   result_ids: string[];
-  driver: "rules" | "claude";
+  driver: "rules" | "model" | "claude";
 }
 
 export interface ConversationSummary {
@@ -227,7 +228,8 @@ export interface Status {
   profiles: ProfileSummary[];
   families: Family[];
   n_universe: number;
-  llm: { provider: string; model: string | null; driver: "rules" | "claude"; agent_model: string | null };
+  llm: { provider: string; model: string | null; driver: "rules" | "model"; agent_model: string | null };
+  admin_editable: boolean;
   greetings: string[];
   suggested_requests: { label: string; text: string }[];
   scope_limitation: string;

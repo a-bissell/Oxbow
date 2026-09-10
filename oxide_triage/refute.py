@@ -14,6 +14,7 @@ Two layers:
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from typing import Any
 
 import yaml
@@ -338,24 +339,41 @@ def _decimals(tok: str) -> int:
     return len(tok.split(".", 1)[1]) if "." in tok else 0
 
 
-def numeric_guard(text: str, facts: dict[str, Any]) -> bool:
-    """True if every number in ``text`` equals some fact value once that value is rounded to
-    the precision the text used. "5.6" matches 5.63; "2019" does not match 2010."""
+LIST_MARKER_RE = re.compile(r"^\s*\d+[.)]\s+", re.MULTILINE)  # "1. HfO2" is a list, not a claim
+
+
+def allowed_numbers(values: Iterable[Any]) -> set[float]:
+    """Every number that appears in ``values``: numeric values directly, and numbers written
+    inside strings (tool output, rendered templates). Booleans are not numbers."""
     allowed: set[float] = set()
-    for v in facts.values():
+    for v in values:
         if isinstance(v, bool):
             continue
         if isinstance(v, int | float):
             allowed.add(float(v))
         elif isinstance(v, str):
             allowed.update(float(n.replace(",", "")) for n in NUMBER_RE.findall(v))
-    for tok in NUMBER_RE.findall(text):
+    return allowed
+
+
+def unverified_numbers(text: str, allowed: set[float]) -> list[str]:
+    """Numbers in ``text`` that equal no allowed value once that value is rounded to the
+    precision the text used. "5.6" matches 5.63; "2019" does not match 2010. Markdown list
+    markers are ignored. Returned in order of first appearance, without duplicates."""
+    out: list[str] = []
+    for tok in NUMBER_RE.findall(LIST_MARKER_RE.sub("", text)):
         clean = tok.replace(",", "")
         n = float(clean)
         d = _decimals(clean)
-        if not any(round(a, d) == n for a in allowed):
-            return False
-    return True
+        if not any(round(a, d) == n for a in allowed) and tok not in out:
+            out.append(tok)
+    return out
+
+
+def numeric_guard(text: str, facts: dict[str, Any]) -> bool:
+    """True if every number in ``text`` equals some fact value once that value is rounded to
+    the precision the text used. "5.6" matches 5.63; "2019" does not match 2010."""
+    return not unverified_numbers(text, allowed_numbers(facts.values()))
 
 
 def candidate_facts(sc: ScoredCandidate) -> dict[str, Any]:

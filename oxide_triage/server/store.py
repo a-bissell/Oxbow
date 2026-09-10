@@ -71,6 +71,7 @@ class Turn(BaseModel):
     result_id: str | None = None
     explain: str | None = None  # explain / compare markdown attached to this turn
     suggestions: list[str] = Field(default_factory=list)
+    unverified: list[str] = Field(default_factory=list)  # numbers in the prose no tool printed
     pending: Pending | None = None
     error: str | None = None
 
@@ -84,7 +85,7 @@ class Conversation(BaseModel):
     turns: list[Turn] = Field(default_factory=list)
     result_ids: list[str] = Field(default_factory=list)  # in order of creation
     model_messages: list[dict[str, Any]] = Field(default_factory=list)  # the model driver's history
-    driver: str = "rules"  # rules | claude
+    driver: str = "rules"  # rules | model
 
     @property
     def latest_result_id(self) -> str | None:
@@ -129,6 +130,16 @@ class SessionStore:
             (self.result_dir / f"{rid}.json").write_text(blob, encoding="utf-8")
             self._remember(rid, result)
         return rid
+
+    # ``ToolBox`` expects a ResultStore-shaped object: put / get / ids.
+    def put(self, result: TriageResult) -> str:
+        return self.put_result(result)
+
+    def get(self, rid: str) -> TriageResult | None:
+        return self.get_result(rid)
+
+    def ids(self) -> list[str]:
+        return sorted(p.stem for p in self.result_dir.glob("*.json"))
 
     def get_result(self, rid: str) -> TriageResult | None:
         with self._lock:

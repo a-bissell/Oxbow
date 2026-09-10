@@ -109,6 +109,16 @@ function ListInput({ value, onChange }: { value: string[]; onChange: (v: string[
 
 // ---- config editing shared by several pages -------------------------------------------------
 
+function EditGate({ data }: { data: Awaited<ReturnType<typeof api.admin.config>> | null }) {
+  if (!data || data.editable) return null;
+  return (
+    <div className="banner banner--warn small">
+      Editing is off. Set <span className="kbd">OXIDE_TRIAGE_ADMIN=1</span> in the environment and restart the server to save changes here
+      {data.overlay_path ? "" : " (the site file is also disabled: OXIDE_TRIAGE_SITE_CONFIG=off)"}. Values are shown as they are in force.
+    </div>
+  );
+}
+
 function useConfig(profile: string) {
   const [data, setData] = useState<Awaited<ReturnType<typeof api.admin.config>> | null>(null);
   const [edited, setEdited] = useState<Json | null>(null);
@@ -130,6 +140,7 @@ function useConfig(profile: string) {
     setSaving(true);
     try {
       const overlay = { base: { ...(data.overlay.base ?? {}) }, profiles: { ...(data.overlay.profiles ?? {}) } } as { base: Json; profiles: Json };
+      delete (overlay as Json).version;
       if (target === "profile") {
         // The overlay for this profile is everything that differs from the shipped profile.
         const shippedWithBase = deepMerge(data.shipped, overlay.base);
@@ -165,6 +176,11 @@ function shippedLabel(data: Json | null, edited: Json | null, path: string): str
   return JSON.stringify(s) !== JSON.stringify(e) ? (Array.isArray(s) ? s.join(", ") || "none" : String(s)) : undefined;
 }
 
+function lockedLabel(data: { env_locked: Record<string, string> } | null, path: string): string | undefined {
+  const v = data?.env_locked?.[path];
+  return v ? `set by ${v} in the environment; the site file cannot change it` : undefined;
+}
+
 // ---- pages ---------------------------------------------------------------------------------------
 
 function ProfilesPage() {
@@ -192,7 +208,7 @@ function ProfilesPage() {
           <button className="btn" onClick={() => void cfg.reload()} disabled={!cfg.dirty}>
             Discard
           </button>
-          <button className="btn btn--primary" onClick={() => void cfg.save("profile").then(app.refreshStatus)} disabled={!cfg.dirty || cfg.saving}>
+          <button className="btn btn--primary" onClick={() => void cfg.save("profile").then(app.refreshStatus)} disabled={!cfg.dirty || cfg.saving || !cfg.data?.editable}>
             {cfg.saving ? "Saving…" : "Save"}
           </button>
         </div>
@@ -205,6 +221,7 @@ function ProfilesPage() {
           </button>
         ))}
       </div>
+      <EditGate data={data} />
       {cfg.message && <div className={`banner small ${cfg.message.startsWith("Not") ? "banner--crit" : "banner--info"}`}>{cfg.message}</div>}
       {edited && (
         <div className="grid2">
@@ -335,11 +352,12 @@ function UniversePage() {
           <button className="btn" onClick={() => void cfg.reload()} disabled={!cfg.dirty}>
             Discard
           </button>
-          <button className="btn btn--primary" onClick={() => void cfg.save("base").then(app.refreshStatus)} disabled={!cfg.dirty || cfg.saving}>
+          <button className="btn btn--primary" onClick={() => void cfg.save("base").then(app.refreshStatus)} disabled={!cfg.dirty || cfg.saving || !cfg.data?.editable}>
             {cfg.saving ? "Saving…" : "Save"}
           </button>
         </div>
       </div>
+      <EditGate data={data} />
       {cfg.message && <div className={`banner small ${cfg.message.startsWith("Not") ? "banner--crit" : "banner--info"}`}>{cfg.message}</div>}
       <div className="grid2" style={{ gridTemplateColumns: "minmax(0, 1fr) 320px" }}>
         <div className="col" style={{ gap: 10 }}>
@@ -530,11 +548,12 @@ function ModelPage() {
           <button className="btn" onClick={() => void cfg.reload()} disabled={!cfg.dirty}>
             Discard
           </button>
-          <button className="btn btn--primary" onClick={() => void cfg.save("base").then(app.refreshStatus)} disabled={!cfg.dirty || cfg.saving}>
+          <button className="btn btn--primary" onClick={() => void cfg.save("base").then(app.refreshStatus)} disabled={!cfg.dirty || cfg.saving || !cfg.data?.editable}>
             Save
           </button>
         </div>
       </div>
+      <EditGate data={data} />
       {cfg.message && <div className={`banner small ${cfg.message.startsWith("Not") ? "banner--crit" : "banner--info"}`}>{cfg.message}</div>}
       <div className="grid2">
         <div className="card panel">
@@ -551,8 +570,11 @@ function ModelPage() {
               </div>
               <div className="row" style={{ justifyContent: "space-between" }}>
                 <span className="small">Assistant driver</span>
-                <span className="kbd">{env.llm.driver === "claude" ? `Claude · ${env.llm.agent_model}` : "rule-based (no model)"}</span>
+                <span className="kbd">{env.llm.driver === "model" ? env.llm.agent_model : "rule-based (no model)"}</span>
               </div>
+              {data && Object.keys(data.env_locked).length > 0 && (
+                <div className="small muted">{Object.keys(data.env_locked).map((p) => lockedLabel(data, p)).join(". ")}.</div>
+              )}
               {Object.entries(env.keys as Record<string, string | null>).map(([k, v]) => (
                 <div key={k} className="row" style={{ justifyContent: "space-between" }}>
                   <span className="small">{k}</span>
@@ -560,7 +582,7 @@ function ModelPage() {
                 </div>
               ))}
               <div className="small muted">
-                Set <code>LLM_PROVIDER</code>, <code>ANTHROPIC_API_KEY</code>, <code>LLM_MODEL</code> or <code>AGENT_MODEL</code> in <code>.env</code> and restart the server. With no key the assistant still works, driven by rules.
+                Set <code>LLM_PROVIDER</code>, <code>ANTHROPIC_API_KEY</code>, <code>LLM_MODEL</code> or <code>AGENT_MODEL</code> in <code>.env</code> and restart the server. With no key the assistant still works, driven by rules. With <code>openai_compatible</code> the local model drives it.
               </div>
             </>
           ) : (
@@ -581,6 +603,15 @@ function ModelPage() {
             </FieldRow>
             <FieldRow label="Timeout (s)" shipped={shippedLabel(data?.shipped ?? null, edited, "llm.timeout_s")}>
               <Num value={get(edited, "llm.timeout_s")} min={5} onChange={(v) => update("llm.timeout_s", v)} />
+            </FieldRow>
+            <FieldRow label="Assistant model" help="Blank = claude-sonnet-5 for anthropic; AGENT_MODEL in the environment wins" shipped={shippedLabel(data?.shipped ?? null, edited, "agent.model")}>
+              <input className="input input--sm" value={get(edited, "agent.model") ?? ""} onChange={(e) => update("agent.model", e.target.value || null)} />
+            </FieldRow>
+            <FieldRow label="Tool rounds per message" shipped={shippedLabel(data?.shipped ?? null, edited, "agent.max_tool_rounds")}>
+              <Num value={get(edited, "agent.max_tool_rounds")} min={1} max={32} onChange={(v) => update("agent.max_tool_rounds", v)} />
+            </FieldRow>
+            <FieldRow label="Number guard" help="flag: mark numbers in a reply that no tool printed" shipped={shippedLabel(data?.shipped ?? null, edited, "agent.number_guard")}>
+              <Select value={get(edited, "agent.number_guard")} options={["flag", "off"]} onChange={(v) => update("agent.number_guard", v)} />
             </FieldRow>
             <FieldRow label="Acquisition planner" help="ladder: deterministic route order. llm: the model may reorder or skip allowed routes" shipped={shippedLabel(data?.shipped ?? null, edited, "acquisition.planner")}>
               <Select value={get(edited, "acquisition.planner")} options={["ladder", "llm"]} onChange={(v) => update("acquisition.planner", v)} />
@@ -650,11 +681,12 @@ function SourcesPage() {
           <button className="btn" onClick={() => void cfg.reload()} disabled={!cfg.dirty}>
             Discard
           </button>
-          <button className="btn btn--primary" onClick={() => void cfg.save("base").then(app.refreshStatus)} disabled={!cfg.dirty || cfg.saving}>
+          <button className="btn btn--primary" onClick={() => void cfg.save("base").then(app.refreshStatus)} disabled={!cfg.dirty || cfg.saving || !cfg.data?.editable}>
             Save
           </button>
         </div>
       </div>
+      <EditGate data={data} />
       {cfg.message && <div className={`banner small ${cfg.message.startsWith("Not") ? "banner--crit" : "banner--info"}`}>{cfg.message}</div>}
       {edited && (
         <div className="grid2">
@@ -765,9 +797,9 @@ function DeviationsPage() {
 
 export default function Admin({ page }: { page: string }) {
   const app = useApp();
-  const [overlayPath, setOverlayPath] = useState<string>("config/site.yaml");
+  const [overlayPath, setOverlayPath] = useState<string>("site.yaml");
   useEffect(() => {
-    api.admin.config("default").then((d) => setOverlayPath(d.overlay_path)).catch(() => undefined);
+    api.admin.config("default").then((d) => setOverlayPath(d.overlay_path ?? "site.yaml (disabled)")).catch(() => undefined);
   }, []);
   return (
     <div className="admin">

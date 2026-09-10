@@ -173,6 +173,18 @@ llm:
     rationale: false # one-line plain-language rationale per candidate (numeric-guarded)
 
 # ---------------------------------------------------------------------------
+# Chat agent (the web assistant and `oxide-triage chat`). The model drives the same
+# tools the MCP server exposes; every number, rank and citation comes out of a tool. Needs
+# llm.provider to be anthropic or openai_compatible. Nothing here affects ranking.
+# ---------------------------------------------------------------------------
+agent:
+  model: null               # assistant model; null = claude-sonnet-5 for anthropic (AGENT_MODEL overrides)
+  max_tool_rounds: 8        # tool-call rounds allowed per user message
+  number_guard: flag        # flag | off: mark numbers in a reply that no tool output contains
+  max_tokens: 16000         # per model reply
+  timeout_s: 300            # separate from llm.timeout_s; thinking can pause before the first byte
+  tool_result_max_chars: 20000  # tool output passed to the model (the report panel shows it all)
+
 # Retrieval completeness. Missing data lowers a score, so on a partly-warmed cache the
 # ranking partly reflects which fetches finished rather than which materials are better.
 # These floors decide when the system says so, and when it refuses to rank at all.

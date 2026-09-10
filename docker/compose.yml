@@ -5,7 +5,8 @@
 #   docker compose -f docker/compose.yml run --rm app oxide-triage warm-cache
 #   open http://localhost:8000
 #
-# Everything the site admin edits lives in ./config (mounted read-only) and .env.
+# Everything the site admin edits lives in ./config (mounted read-only), .env, and the site
+# overrides file the admin panel writes to /data/site.yaml (OXIDE_TRIAGE_ADMIN=1 to enable editing).
 name: oxide-triage
 
 services:
@@ -19,7 +20,12 @@ services:
     environment:
       OXIDE_TRIAGE_CACHE: /data/cache.sqlite
       # LLM_PROVIDER defaults to `none`: the system is fully functional without a model.
+      # The assistant is driven by a model with a provider: `LLM_PROVIDER=anthropic docker compose ...` with
+      # ANTHROPIC_API_KEY in .env, or the compose.local-llm.yml overlay. This line beats the
+      # env_file, so the variable must be set in the shell that runs compose.
       LLM_PROVIDER: ${LLM_PROVIDER:-none}
+      # Admin panel editing and cache operations. No per-user login: leave it off on a shared network.
+      OXIDE_TRIAGE_ADMIN: ${OXIDE_TRIAGE_ADMIN:-0}
     volumes:
       - cache:/data
       - ../config:/app/config:ro
