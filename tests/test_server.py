@@ -247,3 +247,18 @@ def test_spa_fallback_serves_something(client):
     r = client.get("/")
     assert r.status_code == 200
     assert client.get("/api/nope").status_code == 404
+
+
+def test_empty_cache_is_a_normal_first_run_state(tmp_path, monkeypatch):
+    monkeypatch.setenv("OXIDE_TRIAGE_CACHE", str(tmp_path / "empty.sqlite"))
+    monkeypatch.setenv("OXIDE_TRIAGE_SITE_CONFIG", str(tmp_path / "site.yaml"))
+    monkeypatch.setenv("OXIDE_TRIAGE_OFFLINE", "1")
+    monkeypatch.setenv("LLM_PROVIDER", "none")
+    with TestClient(create_app(offline=True)) as c:
+        s = c.get("/api/status").json()
+        assert s["cache"]["empty"] is True and s["n_universe"] == 0
+        assert all(f["n_any"] == 0 for f in s["families"])
+        conv = c.post("/api/conversations", json={}).json()
+        final, _ = turn(c, conv["id"], text=PI)
+        assert final["error"] is None and final["result_id"]
+        assert "no candidates" in final["text"].lower() or "no shortlist" in final["text"].lower() or "not" in final["text"].lower()

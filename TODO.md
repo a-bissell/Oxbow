@@ -40,11 +40,20 @@ Ideas / planned work for this project.
 
 ## UI
 
-- [ ] **Admin UI panel** — a settings screen for changing app/project configuration.
-- [ ] **Interactive Agent UI** — a chat-style interface where the user asks questions,
-      gets a generated report back, and can click into parts of the report to
-      conversationally "drill down" with the AI agent for more detail. Backed by the
-      Claude API (requires an API key).
+- [x] **Admin UI panel** — done 2026-09-10: profiles, universe families, language model,
+      data and cache jobs, sources and limits, deviations log; edits go to `config/site.yaml`.
+- [x] **Interactive Agent UI** — done 2026-09-10: chat beside a results canvas, click a
+      candidate to focus it, compare, rerun with a diff, clarify-before-run in the
+      conversation. Two drivers: rules (no key) and Claude (`ANTHROPIC_API_KEY`).
+- [ ] **Preview a profile edit** — in Admin → Profiles, re-rank the last result under the
+      draft before saving (the rerun primitive already exists; needs an endpoint that takes an
+      overlay instead of a saved one).
+- [ ] **Conversation history page** — search and delete; the landing page lists the last
+      eight only.
+- [ ] **Stop a running turn** — the event stream can be closed by the client, but the
+      pipeline keeps running; thread a cancellation token through the on-demand fill.
+- [ ] **Local model driver** — the `openai_compatible` provider parses and refutes but does
+      not yet drive the assistant; the rules driver is used instead.
 
 ## With the PI's group
 
