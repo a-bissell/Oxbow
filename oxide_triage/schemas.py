@@ -275,6 +275,7 @@ class ScoredCandidate(BaseModel):
     caveats: list[Caveat] = Field(default_factory=list)
     rationale: str | None = None
     # Polymorph grouping (post-core, see oxide_triage.grouping): a compound occupies one row.
+    tier: int | None = None  # 1 = within output.tie_band of the leader; ranks inside a tier are arbitrary
     rank_by_material: int | None = None  # rank before grouping, over materials
     polymorphs: list[PolymorphRef] = Field(default_factory=list)  # other phases collapsed here
     collapsed_under: str | None = None  # material_id of the leading phase, when this one is collapsed
@@ -342,6 +343,7 @@ class TriageResult(BaseModel):
     # Passing phases collapsed under another row of the same compound (full objects, so
     # `explain` still works on them). Empty when output.group_polymorphs is off.
     collapsed_polymorphs: list[ScoredCandidate] = Field(default_factory=list)
+    tie_band: float = 0.0  # output.tie_band in force; candidates within it of a tier's leader share the tier
     n_candidates_considered: int = 0
     scope: ScopeInfo | None = None
     retrieval: RetrievalCompleteness | None = None  # how much of the ranked set was actually fetched

@@ -189,6 +189,9 @@ class OutputConfig(BaseModel):
     top_k: int = Field(ge=1, le=50)
     verbosity: Literal["terse", "normal", "verbose"]
     group_polymorphs: bool = True  # one row per compound; other passing phases collapse under it
+    tie_band: float = Field(
+        default=0.04, ge=0.0, le=1.0
+    )  # candidates within this of a tier's leader share the tier
 
 
 class CacheConfig(BaseModel):

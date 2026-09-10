@@ -76,8 +76,12 @@ simplicity:
   scores: {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}   # by number of distinct elements
 
 literature:
-  thin_film_saturation: 50      # thin-film works at which the sub-score saturates
-  total_saturation: 500
+  # The brief says "prefer public evidence", so the curve must still separate well-studied
+  # compounds from thinly studied ones among candidates that pass everything else. Saturating at
+  # 50 thin-film works (the first setting) gave HfO2 with 6,975 and LaScO3 with 29 the same score;
+  # at 500 the log curve still rewards the incumbents without making the count the whole ranking.
+  thin_film_saturation: 500     # thin-film works at which the sub-score saturates (log curve)
+  total_saturation: 5000
   thin_film_weight: 0.7         # remainder goes to total works
 
 # How an UNKNOWN criterion affects ranking. It is always displayed as unknown (never as
@@ -143,6 +147,11 @@ output:
   # passing phases are listed under it with their own hull distance, gap and score, and a
   # caveat says which phase a film adopts is not modelled. Set false to rank materials.
   group_polymorphs: true
+  # Scores closer than this are a tie, not an order: DFT gaps, DFPT dielectric constants and
+  # log-scaled literature counts do not support ranking two candidates 0.02 apart. The shortlist
+  # is printed in tiers (each tier is the candidates within tie_band of its leader) and a rank
+  # inside a tier is shown but should be read as arbitrary. 0 turns tiering off.
+  tie_band: 0.04
 
 # Site-local vocabulary -> canonical terms understood by the parser
 terminology:

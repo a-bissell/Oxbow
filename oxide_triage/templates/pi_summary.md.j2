@@ -52,8 +52,19 @@ _No ranking was run. Nothing below this line is a result._
 {% if not result.shortlist %}
 _No candidate passed every gate under this configuration. See the audit view for the reasons._
 {% endif %}
+{% set ns = namespace(tier=None) %}
 {% for sc in result.shortlist %}
 {% set cav = sc | primary_caveat %}
+{% if sc.tier is not none and sc.tier != ns.tier %}
+{% set ns.tier = sc.tier %}
+{% set members = result.shortlist | selectattr("tier", "equalto", sc.tier) | list %}
+{% if members | length > 1 %}
+**Tier {{ sc.tier }}** — {{ members | length }} candidates within {{ result.tie_band }} of each other: effectively tied, the order below is arbitrary.
+{% else %}
+**Tier {{ sc.tier }}**
+{% endif %}
+
+{% endif %}
 **{{ sc.rank }}. {{ sc.record.formula }}** ({{ sc.record.crystal_system or "?" }}, `{{ sc.record.material_id }}`{% if sc.polymorphs %}, +{{ sc.polymorphs | length }} other phase{{ "s" if sc.polymorphs | length > 1 }}{% endif %}) — score {{ sc.adjusted_score | fmt(2) }}, confidence **{{ sc.confidence }}**{% if sc.absent_criteria %}, no data for: {{ sc.absent_criteria | join(", ") }}{% endif %}{% if sc.not_retrieved_criteria %}, **never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}**{% endif %}
 
 - Why: {{ sc.rationale }}
@@ -69,7 +80,9 @@ _No candidate passed every gate under this configuration. See the audit view for
 
 {{ result.scope_limitation }}
 
-Scores are relative within this run and this profile. A candidate ranked on partial data
+Scores are relative within this run and this profile, and candidates in the same tier are a
+tie: DFT gaps, DFPT dielectric constants and log-scaled literature counts do not support ordering
+two candidates {{ result.tie_band }} apart. A candidate ranked on partial data
 (confidence medium/low) has criteria with **no data behind them**; those are named per entry,
 not scored as zero. Band gaps marked "corrected" are scaled DFT values, not measurements.
 

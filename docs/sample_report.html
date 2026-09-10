@@ -78,7 +78,7 @@
     <div>Profile <b>default</b></div>
     <div>Considered <b>708</b> · passed gates <b>317</b> · excluded <b>211</b></div>
     <div>Self-check <b>passed</b></div>
-    <div>Generated <b>2026-09-10T17:32:02+00:00</b></div>
+    <div>Generated <b>2026-09-10T20:22:51+00:00</b></div>
   </div>
 </header>
 
@@ -90,7 +90,7 @@
     <span class="rank">1</span>
     <span class="formula">LaAlO3</span>
     <span class="tag">mp-aaaaaeii · Trigonal R-3c</span>
-    <span class="pill high">confidence high</span>
+<span class="pill gray" title="Candidates within 0.04 of a tier's leader share the tier; the order inside a tier is arbitrary.">tier 1</span>    <span class="pill high">confidence high</span>
   </div>
   <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
     <div class="bar" style="flex:1"><span style="width:95.8%"></span></div>
@@ -156,213 +156,9 @@
 <section class="card">
   <div class="card-head">
     <span class="rank">2</span>
-    <span class="formula">SrHfO3</span>
-    <span class="tag">mp-aaaaaezy · Orthorhombic Pnma</span>
-    <span class="pill high">confidence high</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
-    <div class="bar" style="flex:1"><span style="width:94.9%"></span></div>
-    <span class="mono">score 0.949 · coverage 100%</span>
-  </div>
-  <p class="why"><b>Why:</b> on the convex hull, OQMD agrees; effective gap 5.8 eV (corrected from GGA 4.2 eV); dielectric constant 33 (DFPT); benign elements; 32 thin-film papers.</p>
-<div class="caveat warning"><b>Main caveat:</b> 3 other phases of SrHfO3 passed the gates and are collapsed under this row (Pnma leads): I4/mcm (E_hull 0.004 eV/atom, gap 5.7 eV, score 0.79); Cmcm (E_hull 0.004 eV/atom, gap 5.5 eV, score 0.79); Pm-3m (E_hull 0.033 eV/atom, gap 5.2 eV, score 0.69). Which phase a deposited film adopts is not modelled; the numbers above are for the leading phase.</div>  <details>
-    <summary>Full breakdown (2 caveats, 6 components, 4 gates)</summary>
-    <h3>Score components</h3>
-    <div class="wrap"><table>
-      <tr><th>Criterion</th><th>Weight</th><th>Observed</th><th>Normalised</th><th style="min-width:140px">Contribution</th></tr>
-      <tr>
-        <td>stability</td><td class="mono">0.250</td><td>E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.2500</span></td>
-      </tr>
-      <tr>
-        <td>band_gap</td><td class="mono">0.250</td><td>effective gap = 5.84 eV (corrected)</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.2500</span></td>
-      </tr>
-      <tr>
-        <td>dielectric</td><td class="mono">0.150</td><td>e_total = 32.7 (DFPT; electronic 4.36467381)</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
-      </tr>
-      <tr>
-        <td>toxicity</td><td class="mono">0.150</td><td>worst element tier = 0 (Hf, Sr) [table 2026-09-09.1]</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
-      </tr>
-      <tr>
-        <td>simplicity</td><td class="mono">0.100</td><td>3 distinct elements</td>
-        <td class="mono">0.600</td>
-        <td><div class="bar"><span style="width:60.0%"></span></div><span class="mono">0.0600</span></td>
-      </tr>
-      <tr>
-        <td>literature</td><td class="mono">0.100</td><td>32 thin-film works / 240 total (OpenAlex)</td>
-        <td class="mono">0.887</td>
-        <td><div class="bar"><span style="width:88.7%"></span></div><span class="mono">0.0887</span></td>
-      </tr>
-    </table></div>
-    <h3>Gates</h3>
-    <div class="wrap"><table>
-      <tr><th>Gate</th><th>Threshold</th><th>Observed</th><th>Result</th></tr>
-<tr><td>stability</td><td>E_hull &lt;= 0.05 eV/atom</td><td>E_hull = 0.000 eV/atom</td><td>pass</td></tr><tr><td>band_gap</td><td>effective gap &gt;= 4 eV</td><td>effective gap = 5.84 eV (corrected) from GGA 4.17 eV</td><td>pass</td></tr><tr><td>max_elements</td><td>distinct elements &lt;= 3</td><td>3 elements (Hf-O-Sr)</td><td>pass</td></tr><tr><td>hazard_blocklist</td><td>no blocked hazard-tier elements</td><td>blocked: none</td><td>pass</td></tr>    </table></div>
-    <p><b>Band gap:</b> CORRECTED: GGA value 4.17 eV x 1.4 = 5.84 eV (no hybrid value available; fell back to scalar correction)</p>
-    <p><b>Stability cross-check:</b> agree (OQMD hull distance 0.000 eV/atom)</p>
-    <h3>Provenance</h3>
-    <div class="wrap"><table>
-      <tr><th>Field</th><th>Source</th><th>Id</th><th>Retrieved</th><th>Functional / note</th></tr>
-      <tr><td>stability</td><td>materials_project</td><td class="mono">mp-aaaaaezy</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA/GGA+U/r2SCAN mixed hull (MP default)</td></tr>
-      <tr><td>band gap</td><td>materials_project</td><td class="mono">mp-aaaaaezy</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA</td></tr>
-      <tr><td>dielectric</td><td>materials_project</td><td class="mono">mp-aaaaaezy</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>known · MP DFPT dataset</td></tr>
-      <tr><td>literature</td><td>openalex</td><td>SrHfO3, strontium hafnate</td><td class="mono">2026-09-10T17:06:50+00:00</td><td>known</td></tr>
-      <tr><td>hazard</td><td>element_table</td><td class="mono">element_hazards.yaml@2026-09-09.1</td><td>PubChem lookup 2026-09-10T17:06:50+00:00</td><td>PubChem absent</td></tr>
-    </table></div>
-    <h3>Literature sample <span class="tag">retrieved titles; data, not endorsements</span></h3>
-    <ul><li>2006 — Field-effect transistors with SrHfO3 as gate oxide <span class="tag">W1652142197</span></li><li>2007 — Optical properties of epitaxial SrHfO3 thin films grown on Si <span class="tag">W1480019731</span></li><li>2007 — SrHfO3 as gate dielectric for future CMOS technology <span class="tag">W1985205540</span></li><li>2021 — Exploring the Pb1−xSrxHfO3 System and Potential for High Capacitive Energy Storage Density and Efficiency <span class="tag">W3204726499</span></li><li>2015 — Atomic layer deposition of crystalline SrHfO3 directly on Ge (001) for high-k dielectric applications <span class="tag">W2006964883</span></li></ul>
-    <h3>All caveats</h3>
-<div class="caveat warning"><span class="tag">[warning] polymorphs_collapsed (rule)</span><br>3 other phases of SrHfO3 passed the gates and are collapsed under this row (Pnma leads): I4/mcm (E_hull 0.004 eV/atom, gap 5.7 eV, score 0.79); Cmcm (E_hull 0.004 eV/atom, gap 5.5 eV, score 0.79); Pm-3m (E_hull 0.033 eV/atom, gap 5.2 eV, score 0.69). Which phase a deposited film adopts is not modelled; the numbers above are for the leading phase.</div><div class="caveat info"><span class="tag">[info] band_gap_corrected (rule)</span><br>Effective gap 5.84 eV is a 1.4x scalar correction of a GGA value (4.17 eV), not a measurement or a hybrid-functional result.</div>  </details>
-</section>
-<section class="card">
-  <div class="card-head">
-    <span class="rank">3</span>
-    <span class="formula">LaScO3</span>
-    <span class="tag">mp-aaaabuau · Orthorhombic Pnma</span>
-    <span class="pill high">confidence high</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
-    <div class="bar" style="flex:1"><span style="width:93.7%"></span></div>
-    <span class="mono">score 0.937 · coverage 100%</span>
-  </div>
-  <p class="why"><b>Why:</b> on the convex hull, OQMD agrees; effective gap 5.5 eV (corrected from GGA 3.9 eV); dielectric constant 34 (DFPT); benign elements; 29 thin-film papers.</p>
-<div class="caveat info"><b>Main caveat:</b> Effective gap 5.46 eV is a 1.4x scalar correction of a GGA value (3.90 eV), not a measurement or a hybrid-functional result.</div>  <details>
-    <summary>Full breakdown (1 caveats, 6 components, 4 gates)</summary>
-    <h3>Score components</h3>
-    <div class="wrap"><table>
-      <tr><th>Criterion</th><th>Weight</th><th>Observed</th><th>Normalised</th><th style="min-width:140px">Contribution</th></tr>
-      <tr>
-        <td>stability</td><td class="mono">0.250</td><td>E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.2500</span></td>
-      </tr>
-      <tr>
-        <td>band_gap</td><td class="mono">0.250</td><td>effective gap = 5.46 eV (corrected)</td>
-        <td class="mono">0.971</td>
-        <td><div class="bar"><span style="width:97.1%"></span></div><span class="mono">0.2427</span></td>
-      </tr>
-      <tr>
-        <td>dielectric</td><td class="mono">0.150</td><td>e_total = 34.4 (DFPT; electronic 5.009390023333334)</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
-      </tr>
-      <tr>
-        <td>toxicity</td><td class="mono">0.150</td><td>worst element tier = 0 (La, Sc) [table 2026-09-09.1]</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
-      </tr>
-      <tr>
-        <td>simplicity</td><td class="mono">0.100</td><td>3 distinct elements</td>
-        <td class="mono">0.600</td>
-        <td><div class="bar"><span style="width:60.0%"></span></div><span class="mono">0.0600</span></td>
-      </tr>
-      <tr>
-        <td>literature</td><td class="mono">0.100</td><td>29 thin-film works / 125 total (OpenAlex)</td>
-        <td class="mono">0.839</td>
-        <td><div class="bar"><span style="width:83.9%"></span></div><span class="mono">0.0839</span></td>
-      </tr>
-    </table></div>
-    <h3>Gates</h3>
-    <div class="wrap"><table>
-      <tr><th>Gate</th><th>Threshold</th><th>Observed</th><th>Result</th></tr>
-<tr><td>stability</td><td>E_hull &lt;= 0.05 eV/atom</td><td>E_hull = 0.000 eV/atom</td><td>pass</td></tr><tr><td>band_gap</td><td>effective gap &gt;= 4 eV</td><td>effective gap = 5.46 eV (corrected) from GGA 3.90 eV</td><td>pass</td></tr><tr><td>max_elements</td><td>distinct elements &lt;= 3</td><td>3 elements (La-O-Sc)</td><td>pass</td></tr><tr><td>hazard_blocklist</td><td>no blocked hazard-tier elements</td><td>blocked: none</td><td>pass</td></tr>    </table></div>
-    <p><b>Band gap:</b> CORRECTED: GGA value 3.90 eV x 1.4 = 5.46 eV (no hybrid value available; fell back to scalar correction)</p>
-    <p><b>Stability cross-check:</b> agree (OQMD hull distance 0.000 eV/atom)</p>
-    <h3>Provenance</h3>
-    <div class="wrap"><table>
-      <tr><th>Field</th><th>Source</th><th>Id</th><th>Retrieved</th><th>Functional / note</th></tr>
-      <tr><td>stability</td><td>materials_project</td><td class="mono">mp-aaaabuau</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA/GGA+U/r2SCAN mixed hull (MP default)</td></tr>
-      <tr><td>band gap</td><td>materials_project</td><td class="mono">mp-aaaabuau</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA</td></tr>
-      <tr><td>dielectric</td><td>materials_project</td><td class="mono">mp-aaaabuau</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>known · MP DFPT dataset</td></tr>
-      <tr><td>literature</td><td>openalex</td><td>LaScO3</td><td class="mono">2026-09-10T17:06:52+00:00</td><td>known</td></tr>
-      <tr><td>hazard</td><td>element_table</td><td class="mono">element_hazards.yaml@2026-09-09.1</td><td>PubChem lookup 2026-09-10T17:06:50+00:00</td><td>PubChem absent</td></tr>
-    </table></div>
-    <h3>Literature sample <span class="tag">retrieved titles; data, not endorsements</span></h3>
-    <ul><li>2005 — Ternary rare-earth metal oxide high-k layers on silicon oxide <span class="tag">W1974123820</span></li><li>2010 — Applying uniform reversible strain to epitaxial oxide films <span class="tag">W1986824512</span></li><li>2006 — Dielectric and optical properties of epitaxial rare-earth scandate films and their crystallization behavior <span class="tag">W2026638278</span></li><li>2005 — Optical properties of La-based high-K dielectric films <span class="tag">W2117960701</span></li><li>2010 — Rare earth scandate thin films by atomic layer deposition: effect of the rare earth cation size <span class="tag">W2137089216</span></li></ul>
-    <h3>All caveats</h3>
-<div class="caveat info"><span class="tag">[info] band_gap_corrected (rule)</span><br>Effective gap 5.46 eV is a 1.4x scalar correction of a GGA value (3.90 eV), not a measurement or a hybrid-functional result.</div>  </details>
-</section>
-<section class="card">
-  <div class="card-head">
-    <span class="rank">4</span>
-    <span class="formula">CaZrO3</span>
-    <span class="tag">mp-aaaaagtv · Orthorhombic Pnma</span>
-    <span class="pill high">confidence high</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
-    <div class="bar" style="flex:1"><span style="width:93.4%"></span></div>
-    <span class="mono">score 0.934 · coverage 100%</span>
-  </div>
-  <p class="why"><b>Why:</b> on the convex hull, OQMD agrees; effective gap 5.4 eV (corrected from GGA 3.8 eV); dielectric constant 49 (DFPT); benign elements; 44 thin-film papers.</p>
-<div class="caveat info"><b>Main caveat:</b> Effective gap 5.36 eV is a 1.4x scalar correction of a GGA value (3.83 eV), not a measurement or a hybrid-functional result.</div>  <details>
-    <summary>Full breakdown (1 caveats, 6 components, 4 gates)</summary>
-    <h3>Score components</h3>
-    <div class="wrap"><table>
-      <tr><th>Criterion</th><th>Weight</th><th>Observed</th><th>Normalised</th><th style="min-width:140px">Contribution</th></tr>
-      <tr>
-        <td>stability</td><td class="mono">0.250</td><td>E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.2500</span></td>
-      </tr>
-      <tr>
-        <td>band_gap</td><td class="mono">0.250</td><td>effective gap = 5.36 eV (corrected)</td>
-        <td class="mono">0.904</td>
-        <td><div class="bar"><span style="width:90.4%"></span></div><span class="mono">0.2260</span></td>
-      </tr>
-      <tr>
-        <td>dielectric</td><td class="mono">0.150</td><td>e_total = 48.7 (DFPT; electronic 4.7129140666666665)</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
-      </tr>
-      <tr>
-        <td>toxicity</td><td class="mono">0.150</td><td>worst element tier = 0 (Ca, Zr) [table 2026-09-09.1]</td>
-        <td class="mono">1.000</td>
-        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
-      </tr>
-      <tr>
-        <td>simplicity</td><td class="mono">0.100</td><td>3 distinct elements</td>
-        <td class="mono">0.600</td>
-        <td><div class="bar"><span style="width:60.0%"></span></div><span class="mono">0.0600</span></td>
-      </tr>
-      <tr>
-        <td>literature</td><td class="mono">0.100</td><td>44 thin-film works / 1014 total (OpenAlex)</td>
-        <td class="mono">0.978</td>
-        <td><div class="bar"><span style="width:97.8%"></span></div><span class="mono">0.0978</span></td>
-      </tr>
-    </table></div>
-    <h3>Gates</h3>
-    <div class="wrap"><table>
-      <tr><th>Gate</th><th>Threshold</th><th>Observed</th><th>Result</th></tr>
-<tr><td>stability</td><td>E_hull &lt;= 0.05 eV/atom</td><td>E_hull = 0.000 eV/atom</td><td>pass</td></tr><tr><td>band_gap</td><td>effective gap &gt;= 4 eV</td><td>effective gap = 5.36 eV (corrected) from GGA 3.83 eV</td><td>pass</td></tr><tr><td>max_elements</td><td>distinct elements &lt;= 3</td><td>3 elements (Ca-O-Zr)</td><td>pass</td></tr><tr><td>hazard_blocklist</td><td>no blocked hazard-tier elements</td><td>blocked: none</td><td>pass</td></tr>    </table></div>
-    <p><b>Band gap:</b> CORRECTED: GGA value 3.83 eV x 1.4 = 5.36 eV (no hybrid value available; fell back to scalar correction)</p>
-    <p><b>Stability cross-check:</b> agree (OQMD hull distance 0.000 eV/atom)</p>
-    <h3>Provenance</h3>
-    <div class="wrap"><table>
-      <tr><th>Field</th><th>Source</th><th>Id</th><th>Retrieved</th><th>Functional / note</th></tr>
-      <tr><td>stability</td><td>materials_project</td><td class="mono">mp-aaaaagtv</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA/GGA+U/r2SCAN mixed hull (MP default)</td></tr>
-      <tr><td>band gap</td><td>materials_project</td><td class="mono">mp-aaaaagtv</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA</td></tr>
-      <tr><td>dielectric</td><td>materials_project</td><td class="mono">mp-aaaaagtv</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>known · MP DFPT dataset</td></tr>
-      <tr><td>literature</td><td>openalex</td><td>CaZrO3</td><td class="mono">2026-09-10T17:06:51+00:00</td><td>known</td></tr>
-      <tr><td>hazard</td><td>element_table</td><td class="mono">element_hazards.yaml@2026-09-09.1</td><td>PubChem lookup 2026-09-10T17:06:53+00:00</td><td>PubChem absent</td></tr>
-    </table></div>
-    <h3>Literature sample <span class="tag">retrieved titles; data, not endorsements</span></h3>
-    <ul><li>2015 — Creation of High Mobility Two-Dimensional Electron Gases via Strain Induced Polarization at an Otherwise Nonpolar Complex Oxide Interface <span class="tag">W2050034389</span></li><li>2007 — Flux-pinning characteristics as a function of density of columnar defects comprised of self-assembled nanodots and nanorods in epitaxial YBa2Cu3O7−δ films for coated conductor applications <span class="tag">W1969978285</span></li><li>2019 — Characterization and investigation of in vitro properties of antibacterial copper deposited on bioactive ZrO2 coatings on zirconium <span class="tag">W2941971248</span></li><li>2005 — Pulsed laser deposition of oxide gate dielectrics for pentacene organic field-effect transistors <span class="tag">W2062872918</span></li><li>2004 — Preparation and characterization of sol–gel derived CaZrO3 dielectric thin films for high-k applications <span class="tag">W2024189382</span></li></ul>
-    <h3>All caveats</h3>
-<div class="caveat info"><span class="tag">[info] band_gap_corrected (rule)</span><br>Effective gap 5.36 eV is a 1.4x scalar correction of a GGA value (3.83 eV), not a measurement or a hybrid-functional result.</div>  </details>
-</section>
-<section class="card">
-  <div class="card-head">
-    <span class="rank">5</span>
     <span class="formula">HfO2</span>
     <span class="tag">mp-aaaaaano · Monoclinic P2_1/c</span>
-    <span class="pill high">confidence high</span>
+<span class="pill gray" title="Candidates within 0.04 of a tier's leader share the tier; the order inside a tier is arbitrary.">tier 1</span>    <span class="pill high">confidence high</span>
   </div>
   <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
     <div class="bar" style="flex:1"><span style="width:92.3%"></span></div>
@@ -425,66 +221,270 @@
     <h3>All caveats</h3>
 <div class="caveat info"><span class="tag">[info] band_gap_corrected (rule)</span><br>Effective gap 5.62 eV is a 1.4x scalar correction of a GGA value (4.02 eV), not a measurement or a hybrid-functional result.</div><div class="caveat info"><span class="tag">[info] polymorphs_collapsed (rule)</span><br>1 other phase of HfO2 passed the gates and is collapsed under this row (P2_1/c leads): Pbca (E_hull 0.016 eV/atom, gap 5.9 eV, score 0.83). Which phase a deposited film adopts is not modelled; the numbers above are for the leading phase.</div>  </details>
 </section>
+<section class="card">
+  <div class="card-head">
+    <span class="rank">3</span>
+    <span class="formula">SrHfO3</span>
+    <span class="tag">mp-aaaaaezy · Orthorhombic Pnma</span>
+<span class="pill gray" title="Candidates within 0.04 of a tier's leader share the tier; the order inside a tier is arbitrary.">tier 1</span>    <span class="pill high">confidence high</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+    <div class="bar" style="flex:1"><span style="width:91.9%"></span></div>
+    <span class="mono">score 0.919 · coverage 100%</span>
+  </div>
+  <p class="why"><b>Why:</b> on the convex hull, OQMD agrees; effective gap 5.8 eV (corrected from GGA 4.2 eV); dielectric constant 33 (DFPT); benign elements; 32 thin-film papers.</p>
+<div class="caveat warning"><b>Main caveat:</b> 3 other phases of SrHfO3 passed the gates and are collapsed under this row (Pnma leads): I4/mcm (E_hull 0.004 eV/atom, gap 5.7 eV, score 0.76); Cmcm (E_hull 0.004 eV/atom, gap 5.5 eV, score 0.76); Pm-3m (E_hull 0.033 eV/atom, gap 5.2 eV, score 0.66). Which phase a deposited film adopts is not modelled; the numbers above are for the leading phase.</div>  <details>
+    <summary>Full breakdown (2 caveats, 6 components, 4 gates)</summary>
+    <h3>Score components</h3>
+    <div class="wrap"><table>
+      <tr><th>Criterion</th><th>Weight</th><th>Observed</th><th>Normalised</th><th style="min-width:140px">Contribution</th></tr>
+      <tr>
+        <td>stability</td><td class="mono">0.250</td><td>E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.2500</span></td>
+      </tr>
+      <tr>
+        <td>band_gap</td><td class="mono">0.250</td><td>effective gap = 5.84 eV (corrected)</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.2500</span></td>
+      </tr>
+      <tr>
+        <td>dielectric</td><td class="mono">0.150</td><td>e_total = 32.7 (DFPT; electronic 4.36467381)</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
+      </tr>
+      <tr>
+        <td>toxicity</td><td class="mono">0.150</td><td>worst element tier = 0 (Hf, Sr) [table 2026-09-09.1]</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
+      </tr>
+      <tr>
+        <td>simplicity</td><td class="mono">0.100</td><td>3 distinct elements</td>
+        <td class="mono">0.600</td>
+        <td><div class="bar"><span style="width:60.0%"></span></div><span class="mono">0.0600</span></td>
+      </tr>
+      <tr>
+        <td>literature</td><td class="mono">0.100</td><td>32 thin-film works / 240 total (OpenAlex)</td>
+        <td class="mono">0.587</td>
+        <td><div class="bar"><span style="width:58.7%"></span></div><span class="mono">0.0587</span></td>
+      </tr>
+    </table></div>
+    <h3>Gates</h3>
+    <div class="wrap"><table>
+      <tr><th>Gate</th><th>Threshold</th><th>Observed</th><th>Result</th></tr>
+<tr><td>stability</td><td>E_hull &lt;= 0.05 eV/atom</td><td>E_hull = 0.000 eV/atom</td><td>pass</td></tr><tr><td>band_gap</td><td>effective gap &gt;= 4 eV</td><td>effective gap = 5.84 eV (corrected) from GGA 4.17 eV</td><td>pass</td></tr><tr><td>max_elements</td><td>distinct elements &lt;= 3</td><td>3 elements (Hf-O-Sr)</td><td>pass</td></tr><tr><td>hazard_blocklist</td><td>no blocked hazard-tier elements</td><td>blocked: none</td><td>pass</td></tr>    </table></div>
+    <p><b>Band gap:</b> CORRECTED: GGA value 4.17 eV x 1.4 = 5.84 eV (no hybrid value available; fell back to scalar correction)</p>
+    <p><b>Stability cross-check:</b> agree (OQMD hull distance 0.000 eV/atom)</p>
+    <h3>Provenance</h3>
+    <div class="wrap"><table>
+      <tr><th>Field</th><th>Source</th><th>Id</th><th>Retrieved</th><th>Functional / note</th></tr>
+      <tr><td>stability</td><td>materials_project</td><td class="mono">mp-aaaaaezy</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA/GGA+U/r2SCAN mixed hull (MP default)</td></tr>
+      <tr><td>band gap</td><td>materials_project</td><td class="mono">mp-aaaaaezy</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA</td></tr>
+      <tr><td>dielectric</td><td>materials_project</td><td class="mono">mp-aaaaaezy</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>known · MP DFPT dataset</td></tr>
+      <tr><td>literature</td><td>openalex</td><td>SrHfO3, strontium hafnate</td><td class="mono">2026-09-10T17:06:50+00:00</td><td>known</td></tr>
+      <tr><td>hazard</td><td>element_table</td><td class="mono">element_hazards.yaml@2026-09-09.1</td><td>PubChem lookup 2026-09-10T17:06:50+00:00</td><td>PubChem absent</td></tr>
+    </table></div>
+    <h3>Literature sample <span class="tag">retrieved titles; data, not endorsements</span></h3>
+    <ul><li>2006 — Field-effect transistors with SrHfO3 as gate oxide <span class="tag">W1652142197</span></li><li>2007 — Optical properties of epitaxial SrHfO3 thin films grown on Si <span class="tag">W1480019731</span></li><li>2007 — SrHfO3 as gate dielectric for future CMOS technology <span class="tag">W1985205540</span></li><li>2021 — Exploring the Pb1−xSrxHfO3 System and Potential for High Capacitive Energy Storage Density and Efficiency <span class="tag">W3204726499</span></li><li>2015 — Atomic layer deposition of crystalline SrHfO3 directly on Ge (001) for high-k dielectric applications <span class="tag">W2006964883</span></li></ul>
+    <h3>All caveats</h3>
+<div class="caveat warning"><span class="tag">[warning] polymorphs_collapsed (rule)</span><br>3 other phases of SrHfO3 passed the gates and are collapsed under this row (Pnma leads): I4/mcm (E_hull 0.004 eV/atom, gap 5.7 eV, score 0.76); Cmcm (E_hull 0.004 eV/atom, gap 5.5 eV, score 0.76); Pm-3m (E_hull 0.033 eV/atom, gap 5.2 eV, score 0.66). Which phase a deposited film adopts is not modelled; the numbers above are for the leading phase.</div><div class="caveat info"><span class="tag">[info] band_gap_corrected (rule)</span><br>Effective gap 5.84 eV is a 1.4x scalar correction of a GGA value (4.17 eV), not a measurement or a hybrid-functional result.</div>  </details>
+</section>
+<section class="card">
+  <div class="card-head">
+    <span class="rank">4</span>
+    <span class="formula">ZrO2</span>
+    <span class="tag">mp-aaabfrjx · Orthorhombic Pca2_1</span>
+<span class="pill gray" title="Candidates within 0.04 of a tier's leader share the tier; the order inside a tier is arbitrary.">tier 2</span>    <span class="pill high">confidence high</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+    <div class="bar" style="flex:1"><span style="width:91.6%"></span></div>
+    <span class="mono">score 0.916 · coverage 100%</span>
+  </div>
+  <p class="why"><b>Why:</b> 17 meV/atom above hull, OQMD agrees; effective gap 5.2 eV (corrected from GGA 3.7 eV); dielectric constant 28 (DFPT); benign elements; 10,643 thin-film papers.</p>
+<div class="caveat info"><b>Main caveat:</b> Effective gap 5.18 eV is a 1.4x scalar correction of a GGA value (3.70 eV), not a measurement or a hybrid-functional result.</div>  <details>
+    <summary>Full breakdown (3 caveats, 6 components, 4 gates)</summary>
+    <h3>Score components</h3>
+    <div class="wrap"><table>
+      <tr><th>Criterion</th><th>Weight</th><th>Observed</th><th>Normalised</th><th style="min-width:140px">Contribution</th></tr>
+      <tr>
+        <td>stability</td><td class="mono">0.250</td><td>E_hull = 0.017 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]</td>
+        <td class="mono">0.933</td>
+        <td><div class="bar"><span style="width:93.3%"></span></div><span class="mono">0.2333</span></td>
+      </tr>
+      <tr>
+        <td>band_gap</td><td class="mono">0.250</td><td>effective gap = 5.18 eV (corrected)</td>
+        <td class="mono">0.789</td>
+        <td><div class="bar"><span style="width:78.9%"></span></div><span class="mono">0.1972</span></td>
+      </tr>
+      <tr>
+        <td>dielectric</td><td class="mono">0.150</td><td>e_total = 27.8 (DFPT; electronic 5.594581343333334)</td>
+        <td class="mono">0.900</td>
+        <td><div class="bar"><span style="width:90.0%"></span></div><span class="mono">0.1350</span></td>
+      </tr>
+      <tr>
+        <td>toxicity</td><td class="mono">0.150</td><td>worst element tier = 0 (Zr) [table 2026-09-09.1]</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
+      </tr>
+      <tr>
+        <td>simplicity</td><td class="mono">0.100</td><td>2 distinct elements</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1000</span></td>
+      </tr>
+      <tr>
+        <td>literature</td><td class="mono">0.100</td><td>10643 thin-film works / 136158 total (OpenAlex)</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1000</span></td>
+      </tr>
+    </table></div>
+    <h3>Gates</h3>
+    <div class="wrap"><table>
+      <tr><th>Gate</th><th>Threshold</th><th>Observed</th><th>Result</th></tr>
+<tr><td>stability</td><td>E_hull &lt;= 0.05 eV/atom</td><td>E_hull = 0.017 eV/atom</td><td>pass</td></tr><tr><td>band_gap</td><td>effective gap &gt;= 4 eV</td><td>effective gap = 5.18 eV (corrected) from GGA 3.70 eV</td><td>pass</td></tr><tr><td>max_elements</td><td>distinct elements &lt;= 3</td><td>2 elements (O-Zr)</td><td>pass</td></tr><tr><td>hazard_blocklist</td><td>no blocked hazard-tier elements</td><td>blocked: none</td><td>pass</td></tr>    </table></div>
+    <p><b>Band gap:</b> CORRECTED: GGA value 3.70 eV x 1.4 = 5.18 eV (no hybrid value available; fell back to scalar correction)</p>
+    <p><b>Stability cross-check:</b> agree (OQMD hull distance 0.000 eV/atom)</p>
+    <h3>Provenance</h3>
+    <div class="wrap"><table>
+      <tr><th>Field</th><th>Source</th><th>Id</th><th>Retrieved</th><th>Functional / note</th></tr>
+      <tr><td>stability</td><td>materials_project</td><td class="mono">mp-aaabfrjx</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA/GGA+U/r2SCAN mixed hull (MP default)</td></tr>
+      <tr><td>band gap</td><td>materials_project</td><td class="mono">mp-aaabfrjx</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA</td></tr>
+      <tr><td>dielectric</td><td>materials_project</td><td class="mono">mp-aaabfrjx</td><td class="mono">2026-09-10T17:06:45+00:00</td><td>known · MP DFPT dataset</td></tr>
+      <tr><td>literature</td><td>openalex</td><td>ZrO2, zirconia, zirconium oxide, zirconium dioxide</td><td class="mono">2026-09-10T17:06:53+00:00</td><td>known</td></tr>
+      <tr><td>hazard</td><td>element_table</td><td class="mono">element_hazards.yaml@2026-09-09.1</td><td>PubChem lookup 2026-09-10T17:06:52+00:00</td><td>PubChem known (CID 6452892)</td></tr>
+    </table></div>
+    <h3>Literature sample <span class="tag">retrieved titles; data, not endorsements</span></h3>
+    <ul><li>2003 — Chemical vapour deposition of coatings <span class="tag">W2164070688</span></li><li>2013 — Perovskite solar cells employing organic charge-transport layers <span class="tag">W2012327696</span></li><li>2013 — Crystallinity of inorganic films grown by atomic layer deposition: Overview and general trends <span class="tag">W2035931858</span></li><li>2003 — A generalized synchronous transit method for transition state location <span class="tag">W2084781518</span></li><li>2002 — High-κ dielectrics for advanced carbon-nanotube transistors and logic gates <span class="tag">W2002738781</span></li></ul>
+    <h3>All caveats</h3>
+<div class="caveat info"><span class="tag">[info] band_gap_corrected (rule)</span><br>Effective gap 5.18 eV is a 1.4x scalar correction of a GGA value (3.70 eV), not a measurement or a hybrid-functional result.</div><div class="caveat info"><span class="tag">[info] metastable (rule)</span><br>17 meV/atom above the convex hull: not the computed ground state; may transform or phase-separate depending on processing.</div><div class="caveat info"><span class="tag">[info] polymorphs_collapsed (rule)</span><br>3 other phases of ZrO2 passed the gates and are collapsed under this row (Pca2_1 leads): P2_1/c (E_hull 0.000 eV/atom, gap 4.9 eV, score 0.85); P4_2/nmc (E_hull 0.027 eV/atom, gap 5.4 eV, score 0.79); Pbca (E_hull 0.013 eV/atom, gap 5.0 eV, score 0.75). Which phase a deposited film adopts is not modelled; the numbers above are for the leading phase.</div>  </details>
+</section>
+<section class="card">
+  <div class="card-head">
+    <span class="rank">5</span>
+    <span class="formula">LaScO3</span>
+    <span class="tag">mp-aaaabuau · Orthorhombic Pnma</span>
+<span class="pill gray" title="Candidates within 0.04 of a tier's leader share the tier; the order inside a tier is arbitrary.">tier 2</span>    <span class="pill high">confidence high</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+    <div class="bar" style="flex:1"><span style="width:90.8%"></span></div>
+    <span class="mono">score 0.908 · coverage 100%</span>
+  </div>
+  <p class="why"><b>Why:</b> on the convex hull, OQMD agrees; effective gap 5.5 eV (corrected from GGA 3.9 eV); dielectric constant 34 (DFPT); benign elements; 29 thin-film papers.</p>
+<div class="caveat info"><b>Main caveat:</b> Effective gap 5.46 eV is a 1.4x scalar correction of a GGA value (3.90 eV), not a measurement or a hybrid-functional result.</div>  <details>
+    <summary>Full breakdown (1 caveats, 6 components, 4 gates)</summary>
+    <h3>Score components</h3>
+    <div class="wrap"><table>
+      <tr><th>Criterion</th><th>Weight</th><th>Observed</th><th>Normalised</th><th style="min-width:140px">Contribution</th></tr>
+      <tr>
+        <td>stability</td><td class="mono">0.250</td><td>E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.2500</span></td>
+      </tr>
+      <tr>
+        <td>band_gap</td><td class="mono">0.250</td><td>effective gap = 5.46 eV (corrected)</td>
+        <td class="mono">0.971</td>
+        <td><div class="bar"><span style="width:97.1%"></span></div><span class="mono">0.2427</span></td>
+      </tr>
+      <tr>
+        <td>dielectric</td><td class="mono">0.150</td><td>e_total = 34.4 (DFPT; electronic 5.009390023333334)</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
+      </tr>
+      <tr>
+        <td>toxicity</td><td class="mono">0.150</td><td>worst element tier = 0 (La, Sc) [table 2026-09-09.1]</td>
+        <td class="mono">1.000</td>
+        <td><div class="bar"><span style="width:100.0%"></span></div><span class="mono">0.1500</span></td>
+      </tr>
+      <tr>
+        <td>simplicity</td><td class="mono">0.100</td><td>3 distinct elements</td>
+        <td class="mono">0.600</td>
+        <td><div class="bar"><span style="width:60.0%"></span></div><span class="mono">0.0600</span></td>
+      </tr>
+      <tr>
+        <td>literature</td><td class="mono">0.100</td><td>29 thin-film works / 125 total (OpenAlex)</td>
+        <td class="mono">0.553</td>
+        <td><div class="bar"><span style="width:55.3%"></span></div><span class="mono">0.0553</span></td>
+      </tr>
+    </table></div>
+    <h3>Gates</h3>
+    <div class="wrap"><table>
+      <tr><th>Gate</th><th>Threshold</th><th>Observed</th><th>Result</th></tr>
+<tr><td>stability</td><td>E_hull &lt;= 0.05 eV/atom</td><td>E_hull = 0.000 eV/atom</td><td>pass</td></tr><tr><td>band_gap</td><td>effective gap &gt;= 4 eV</td><td>effective gap = 5.46 eV (corrected) from GGA 3.90 eV</td><td>pass</td></tr><tr><td>max_elements</td><td>distinct elements &lt;= 3</td><td>3 elements (La-O-Sc)</td><td>pass</td></tr><tr><td>hazard_blocklist</td><td>no blocked hazard-tier elements</td><td>blocked: none</td><td>pass</td></tr>    </table></div>
+    <p><b>Band gap:</b> CORRECTED: GGA value 3.90 eV x 1.4 = 5.46 eV (no hybrid value available; fell back to scalar correction)</p>
+    <p><b>Stability cross-check:</b> agree (OQMD hull distance 0.000 eV/atom)</p>
+    <h3>Provenance</h3>
+    <div class="wrap"><table>
+      <tr><th>Field</th><th>Source</th><th>Id</th><th>Retrieved</th><th>Functional / note</th></tr>
+      <tr><td>stability</td><td>materials_project</td><td class="mono">mp-aaaabuau</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA/GGA+U/r2SCAN mixed hull (MP default)</td></tr>
+      <tr><td>band gap</td><td>materials_project</td><td class="mono">mp-aaaabuau</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>GGA</td></tr>
+      <tr><td>dielectric</td><td>materials_project</td><td class="mono">mp-aaaabuau</td><td class="mono">2026-09-10T17:06:44+00:00</td><td>known · MP DFPT dataset</td></tr>
+      <tr><td>literature</td><td>openalex</td><td>LaScO3</td><td class="mono">2026-09-10T17:06:52+00:00</td><td>known</td></tr>
+      <tr><td>hazard</td><td>element_table</td><td class="mono">element_hazards.yaml@2026-09-09.1</td><td>PubChem lookup 2026-09-10T17:06:50+00:00</td><td>PubChem absent</td></tr>
+    </table></div>
+    <h3>Literature sample <span class="tag">retrieved titles; data, not endorsements</span></h3>
+    <ul><li>2005 — Ternary rare-earth metal oxide high-k layers on silicon oxide <span class="tag">W1974123820</span></li><li>2010 — Applying uniform reversible strain to epitaxial oxide films <span class="tag">W1986824512</span></li><li>2006 — Dielectric and optical properties of epitaxial rare-earth scandate films and their crystallization behavior <span class="tag">W2026638278</span></li><li>2005 — Optical properties of La-based high-K dielectric films <span class="tag">W2117960701</span></li><li>2010 — Rare earth scandate thin films by atomic layer deposition: effect of the rare earth cation size <span class="tag">W2137089216</span></li></ul>
+    <h3>All caveats</h3>
+<div class="caveat info"><span class="tag">[info] band_gap_corrected (rule)</span><br>Effective gap 5.46 eV is a 1.4x scalar correction of a GGA value (3.90 eV), not a measurement or a hybrid-functional result.</div>  </details>
+</section>
 
 <h2>Data-gap map <span class="tag">which criteria had data behind them, per passing candidate</span></h2>
 <div class="wrap"><table class="gapmap">
   <tr><th>#</th><th>Formula</th><th>stability</th><th>band_gap</th><th>dielectric</th><th>toxicity</th><th>simplicity</th><th>literature</th><th>Coverage</th><th>Confidence</th></tr>
   <tr><td class="mono">1</td><td>LaAlO3</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.63 eV (corrected)">●</td><td class="k" title="e_total = 29.7 (DFPT; electronic 4.701084166666667)">●</td><td class="k" title="worst element tier = 0 (Al, La) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="4002 thin-film works / 7643 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">2</td><td>SrHfO3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.84 eV (corrected)">●</td><td class="k" title="e_total = 32.7 (DFPT; electronic 4.36467381)">●</td><td class="k" title="worst element tier = 0 (Hf, Sr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="32 thin-film works / 240 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">3</td><td>LaScO3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.46 eV (corrected)">●</td><td class="k" title="e_total = 34.4 (DFPT; electronic 5.009390023333334)">●</td><td class="k" title="worst element tier = 0 (La, Sc) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="29 thin-film works / 125 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">4</td><td>CaZrO3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.36 eV (corrected)">●</td><td class="k" title="e_total = 48.7 (DFPT; electronic 4.7129140666666665)">●</td><td class="k" title="worst element tier = 0 (Ca, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="44 thin-film works / 1014 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">5</td><td>HfO2</td>
+  <tr><td class="mono">2</td><td>HfO2</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.62 eV (corrected)">●</td><td class="k" title="e_total = 18.7 (DFPT; electronic 4.81077573)">●</td><td class="k" title="worst element tier = 0 (Hf) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="6975 thin-film works / 24154 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">6</td><td>ZrO2</td>
+  <tr><td class="mono">3</td><td>SrHfO3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.84 eV (corrected)">●</td><td class="k" title="e_total = 32.7 (DFPT; electronic 4.36467381)">●</td><td class="k" title="worst element tier = 0 (Hf, Sr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="32 thin-film works / 240 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">4</td><td>ZrO2</td>
 <td class="k" title="E_hull = 0.017 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.18 eV (corrected)">●</td><td class="k" title="e_total = 27.8 (DFPT; electronic 5.594581343333334)">●</td><td class="k" title="worst element tier = 0 (Zr) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="10643 thin-film works / 136158 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">5</td><td>LaScO3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.46 eV (corrected)">●</td><td class="k" title="e_total = 34.4 (DFPT; electronic 5.009390023333334)">●</td><td class="k" title="worst element tier = 0 (La, Sc) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="29 thin-film works / 125 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">6</td><td>CaZrO3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.36 eV (corrected)">●</td><td class="k" title="e_total = 48.7 (DFPT; electronic 4.7129140666666665)">●</td><td class="k" title="worst element tier = 0 (Ca, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="44 thin-film works / 1014 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
   <tr><td class="mono">7</td><td>La2Zr2O7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.23 eV (corrected)">●</td><td class="k" title="e_total = 36.3 (DFPT; electronic 4.887619133333312)">●</td><td class="k" title="worst element tier = 0 (La, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="123 thin-film works / 998 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">8</td><td>SrZrO3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.06 eV (corrected)">●</td><td class="k" title="e_total = 42.8 (DFPT; electronic 4.697749273333333)">●</td><td class="k" title="worst element tier = 0 (Sr, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="174 thin-film works / 1197 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">9</td><td>SiO2</td>
+  <tr><td class="mono">8</td><td>SiO2</td>
 <td class="k" title="E_hull = 0.012 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 7.59 eV (corrected)">●</td><td class="k" title="e_total = 12.7 (DFPT; electronic 2.218063313333333)">●</td><td class="k" title="worst element tier = 0 (Si) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="46183 thin-film works / 723658 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">9</td><td>SrZrO3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.06 eV (corrected)">●</td><td class="k" title="e_total = 42.8 (DFPT; electronic 4.697749273333333)">●</td><td class="k" title="worst element tier = 0 (Sr, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="174 thin-film works / 1197 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
   <tr><td class="mono">10</td><td>MgO</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.20 eV (corrected)">●</td><td class="k" title="e_total = 10.8 (DFPT; electronic 3.2083624499999908)">●</td><td class="k" title="worst element tier = 0 (Mg) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="16409 thin-film works / 146481 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
   <tr><td class="mono">11</td><td>Al2O3</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 8.22 eV (corrected)">●</td><td class="k" title="e_total = 9.7 (DFPT; electronic 3.2185079433333357)">●</td><td class="k" title="worst element tier = 0 (Al) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="48146 thin-film works / 447589 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
   <tr><td class="mono">12</td><td>ScTaO4</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.64 eV (corrected)">●</td><td class="k" title="e_total = 25.0 (DFPT; electronic 5.087266253333333)">●</td><td class="k" title="worst element tier = 0 (Sc, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="2 thin-film works / 18 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">13</td><td>ZrSiO4</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.24 eV (corrected)">●</td><td class="k" title="e_total = 13.0 (DFPT; electronic 4.209050763333334)">●</td><td class="k" title="worst element tier = 0 (Si, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="225 thin-film works / 76302 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">14</td><td>Er2O3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.56 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Er) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="319 thin-film works / 2360 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">15</td><td>Lu2O3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.63 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Lu) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="160 thin-film works / 1516 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">16</td><td>Y2O3</td>
+  <tr><td class="mono">13</td><td>Y2O3</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.74 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Y) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="5580 thin-film works / 49926 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">17</td><td>Dy2O3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.50 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Dy) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="74 thin-film works / 1563 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
+  <tr><td class="mono">14</td><td>ZrSiO4</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.24 eV (corrected)">●</td><td class="k" title="e_total = 13.0 (DFPT; electronic 4.209050763333334)">●</td><td class="k" title="worst element tier = 0 (Si, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="225 thin-film works / 76302 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">15</td><td>Er2O3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.56 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Er) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="319 thin-film works / 2360 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
+  <tr><td class="mono">16</td><td>Zr3GeO8</td>
+<td class="k" title="E_hull = 0.014 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.46 eV (corrected)">●</td><td class="k" title="e_total = 25.4 (DFPT; electronic 5.310264946666668)">●</td><td class="k" title="worst element tier = 0 (Ge, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="1 thin-film works / 7 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">17</td><td>Lu2O3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.63 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Lu) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="160 thin-film works / 1516 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
   <tr><td class="mono">18</td><td>HfSiO4</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 7.42 eV (corrected)">●</td><td class="k" title="e_total = 12.4 (DFPT; electronic 3.9278348966666683)">●</td><td class="k" title="worst element tier = 0 (Hf, Si) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="204 thin-film works / 669 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">19</td><td>Tm2O3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.57 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Tm) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="42 thin-film works / 497 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">20</td><td>Zr3GeO8</td>
-<td class="k" title="E_hull = 0.014 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.46 eV (corrected)">●</td><td class="k" title="e_total = 25.4 (DFPT; electronic 5.310264946666668)">●</td><td class="k" title="worst element tier = 0 (Ge, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="1 thin-film works / 7 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">21</td><td>Ho2O3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.53 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ho) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="29 thin-film works / 631 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">22</td><td>YTaO4</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.61 eV (corrected)">●</td><td class="k" title="e_total = 17.7 (DFPT; electronic 4.629436533333333)">●</td><td class="k" title="worst element tier = 0 (Ta, Y) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="3 thin-film works / 182 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">23</td><td>Tb2O3</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.46 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Tb) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="26 thin-film works / 400 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">24</td><td>MgAl2O4</td>
+  <tr><td class="mono">19</td><td>Dy2O3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.50 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Dy) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="74 thin-film works / 1563 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
+  <tr><td class="mono">20</td><td>MgAl2O4</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 7.15 eV (corrected)">●</td><td class="k" title="e_total = 8.5 (DFPT; electronic 3.0789425466665867)">●</td><td class="k" title="worst element tier = 0 (Al, Mg) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="4367 thin-film works / 92800 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">25</td><td>Ta2O5</td>
+  <tr><td class="mono">21</td><td>YTaO4</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.61 eV (corrected)">●</td><td class="k" title="e_total = 17.7 (DFPT; electronic 4.629436533333333)">●</td><td class="k" title="worst element tier = 0 (Ta, Y) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="3 thin-film works / 182 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">22</td><td>Tm2O3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.57 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Tm) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="42 thin-film works / 497 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
+  <tr><td class="mono">23</td><td>Ho2O3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.53 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ho) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="29 thin-film works / 631 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
+  <tr><td class="mono">24</td><td>Ta2O5</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.29 eV (corrected)">●</td><td class="k" title="e_total = 33.8 (DFPT; electronic 5.6278684166682025)">●</td><td class="k" title="worst element tier = 0 (Ta) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="3298 thin-film works / 11479 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">25</td><td>Tb2O3</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.46 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Tb) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="k" title="26 thin-film works / 400 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
   <tr><td class="mono">26</td><td>SrTa4O11</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.93 eV (corrected)">●</td><td class="k" title="e_total = 45.9 (DFPT; electronic 5.264006616666666)">●</td><td class="k" title="worst element tier = 0 (Sr, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="1 thin-film works / 10 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">27</td><td>CaAl4O7</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.60 eV (corrected)">●</td><td class="k" title="e_total = 9.0 (DFPT; electronic 2.818390273333334)">●</td><td class="k" title="worst element tier = 0 (Al, Ca) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="3 thin-film works / 247 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">28</td><td>LaTaO4</td>
+  <tr><td class="mono">27</td><td>LaTaO4</td>
 <td class="k" title="E_hull = 0.006 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.74 eV (corrected)">●</td><td class="k" title="e_total = 50.7 (DFPT; electronic 5.191532693333333)">●</td><td class="k" title="worst element tier = 0 (La, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="1 thin-film works / 53 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">28</td><td>CaAl4O7</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.60 eV (corrected)">●</td><td class="k" title="e_total = 9.0 (DFPT; electronic 2.818390273333334)">●</td><td class="k" title="worst element tier = 0 (Al, Ca) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="3 thin-film works / 247 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
   <tr><td class="mono">29</td><td>HfGeO4</td>
 <td class="k" title="E_hull = 0.030 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.79 eV (corrected)">●</td><td class="k" title="e_total = 17.9 (DFPT; electronic 4.676929256666667)">●</td><td class="k" title="worst element tier = 0 (Ge, Hf) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="1 thin-film works / 23 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
   <tr><td class="mono">30</td><td>CaO</td>
@@ -495,14 +495,14 @@
 <td class="k" title="E_hull = 0.003 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.92 eV (corrected)">●</td><td class="k" title="e_total = 10.7 (DFPT; electronic 3.080006173333324)">●</td><td class="k" title="worst element tier = 0 (Al, Ca) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">33</td><td>La2O3</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.36 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (La) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">34</td><td>Ca2Hf7O16</td>
-<td class="k" title="E_hull = 0.002 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.05 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Hf) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 8 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">35</td><td>Y3TaO7</td>
+  <tr><td class="mono">34</td><td>Y3TaO7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.90 eV (corrected)">●</td><td class="k" title="e_total = 23.8 (DFPT; electronic 4.530342309999955)">●</td><td class="k" title="worst element tier = 0 (Ta, Y) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">36</td><td>YAlO3</td>
+  <tr><td class="mono">35</td><td>YAlO3</td>
 <td class="k" title="E_hull = 0.019 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 7.75 eV (corrected)">●</td><td class="k" title="e_total = 15.9 (DFPT; electronic 4.130627356666667)">●</td><td class="k" title="worst element tier = 0 (Al, Y) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">37</td><td>Sc2O3</td>
+  <tr><td class="mono">36</td><td>Sc2O3</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.34 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Sc) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
+  <tr><td class="mono">37</td><td>Ca2Hf7O16</td>
+<td class="k" title="E_hull = 0.002 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.05 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Hf) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 8 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
   <tr><td class="mono">38</td><td>YNbO4</td>
 <td class="k" title="E_hull = 0.003 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.11 eV (corrected)">●</td><td class="k" title="e_total = 19.4 (DFPT; electronic 4.81055489)">●</td><td class="k" title="worst element tier = 0 (Nb, Y) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">39</td><td>SrAl2O4</td>
@@ -621,58 +621,58 @@
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.38 eV (corrected)">●</td><td class="k" title="e_total = 9.3 (DFPT; electronic 3.447734146666646)">●</td><td class="k" title="worst element tier = 0 (Al, Zn) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">96</td><td>Pr2O3</td>
 <td class="k" title="E_hull = 0.001 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.26 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Pr) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">97</td><td>Sr2Ta2O7</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.07 eV (corrected)">●</td><td class="k" title="e_total = 121.8 (DFPT; electronic 4.459663496666668)">●</td><td class="k" title="worst element tier = 0 (Sr, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="14 thin-film works / 100 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">98</td><td>MgTiO3</td>
+  <tr><td class="mono">97</td><td>MgTiO3</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.94 eV (corrected)">●</td><td class="k" title="e_total = 19.9 (DFPT; electronic 4.7657668766666665)">●</td><td class="k" title="worst element tier = 0 (Mg, Ti) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">99</td><td>Sr4Al14O25</td>
+  <tr><td class="mono">98</td><td>Sr4Al14O25</td>
 <td class="k" title="E_hull = 0.002 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.52 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Sr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">100</td><td>Ca3Si2O7</td>
+  <tr><td class="mono">99</td><td>Ca3Si2O7</td>
 <td class="k" title="E_hull = 0.002 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.47 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Si) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">101</td><td>SrAl12O19</td>
+  <tr><td class="mono">100</td><td>SrAl12O19</td>
 <td class="k" title="E_hull = 0.003 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.22 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Sr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">102</td><td>DyTa7O19</td>
-<td class="k" title="E_hull = 0.015 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.51 eV (corrected)">●</td><td class="k" title="e_total = 45.2 (DFPT; electronic 5.568321443333333)">●</td><td class="k" title="worst element tier = 0 (Dy, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 3 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">103</td><td>Y2GeO5</td>
+  <tr><td class="mono">101</td><td>Y2GeO5</td>
 <td class="k" title="E_hull = 0.003 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.73 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ge, Y) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">104</td><td>Tm2SiO5</td>
+  <tr><td class="mono">102</td><td>Tm2SiO5</td>
 <td class="k" title="E_hull = 0.004 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.45 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Si, Tm) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">105</td><td>Tb2Ge2O7</td>
+  <tr><td class="mono">103</td><td>Tb2Ge2O7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.24 eV (corrected)">●</td><td class="k" title="e_total = 11.8 (DFPT; electronic 3.76264989)">●</td><td class="k" title="worst element tier = 0 (Ge, Tb) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">106</td><td>La4Ga2O9</td>
+  <tr><td class="mono">104</td><td>La4Ga2O9</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.44 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ga, La) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">107</td><td>Nd2GeO5</td>
+  <tr><td class="mono">105</td><td>Nd2GeO5</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.44 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ge, Nd) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">108</td><td>CaHf4O9</td>
-<td class="k" title="E_hull = 0.010 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.22 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Hf) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 5 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">109</td><td>Sr2Al6O11</td>
+  <tr><td class="mono">106</td><td>DyTa7O19</td>
+<td class="k" title="E_hull = 0.015 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.51 eV (corrected)">●</td><td class="k" title="e_total = 45.2 (DFPT; electronic 5.568321443333333)">●</td><td class="k" title="worst element tier = 0 (Dy, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 3 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">107</td><td>Sr2Al6O11</td>
 <td class="k" title="E_hull = 0.005 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.77 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Sr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">110</td><td>ZrGeO4</td>
+  <tr><td class="mono">108</td><td>ZrGeO4</td>
 <td class="k" title="E_hull = 0.021 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.25 eV (corrected)">●</td><td class="k" title="e_total = 18.8 (DFPT; electronic 4.998441657917222)">●</td><td class="k" title="worst element tier = 0 (Ge, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">111</td><td>LaTa7O19</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.36 eV (corrected)">●</td><td class="k" title="e_total = 44.8 (DFPT; electronic 5.640935119999999)">●</td><td class="k" title="worst element tier = 0 (La, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 16 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">112</td><td>Y3GaO6</td>
+  <tr><td class="mono">109</td><td>Y3GaO6</td>
 <td class="k" title="E_hull = 0.005 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.16 eV (corrected)">●</td><td class="k" title="e_total = 15.1 (DFPT; electronic 4.145087633333286)">●</td><td class="k" title="worst element tier = 0 (Ga, Y) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">113</td><td>Er2Ge2O7</td>
+  <tr><td class="mono">110</td><td>CaHf4O9</td>
+<td class="k" title="E_hull = 0.010 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.22 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Hf) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 5 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
+  <tr><td class="mono">111</td><td>Er2Ge2O7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.22 eV (corrected)">●</td><td class="k" title="e_total = 11.7 (DFPT; electronic 3.726891333333334)">●</td><td class="k" title="worst element tier = 0 (Er, Ge) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">114</td><td>Tm2Ge2O7</td>
+  <tr><td class="mono">112</td><td>Tm2Ge2O7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.21 eV (corrected)">●</td><td class="k" title="e_total = 11.7 (DFPT; electronic 3.7217058133333336)">●</td><td class="k" title="worst element tier = 0 (Ge, Tm) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">115</td><td>Dy2Si2O7</td>
+  <tr><td class="mono">113</td><td>Dy2Si2O7</td>
 <td class="k" title="E_hull = 0.007 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.48 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Dy, Si) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">116</td><td>MgSiO3</td>
+  <tr><td class="mono">114</td><td>LaTa7O19</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.36 eV (corrected)">●</td><td class="k" title="e_total = 44.8 (DFPT; electronic 5.640935119999999)">●</td><td class="k" title="worst element tier = 0 (La, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 16 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
+  <tr><td class="mono">115</td><td>MgSiO3</td>
 <td class="k" title="E_hull = 0.008 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.58 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Mg, Si) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">117</td><td>Tb4Al2O9</td>
+  <tr><td class="mono">116</td><td>Tb4Al2O9</td>
 <td class="k" title="E_hull = 0.008 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.94 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Tb) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">118</td><td>SrO</td>
+  <tr><td class="mono">117</td><td>SrO</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.59 eV (corrected)">●</td><td class="k" title="e_total = 20.4 (DFPT; electronic 3.804463086666662)">●</td><td class="k" title="worst element tier = 0 (Sr) [table 2026-09-09.1]">●</td><td class="k" title="2 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">119</td><td>TbAlO3</td>
+  <tr><td class="mono">118</td><td>TbAlO3</td>
 <td class="k" title="E_hull = 0.009 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 7.85 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Tb) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">120</td><td>CaZr4O9</td>
+  <tr><td class="mono">119</td><td>CaZr4O9</td>
 <td class="k" title="E_hull = 0.002 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.37 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">121</td><td>SrTm2O4</td>
+  <tr><td class="mono">120</td><td>SrTm2O4</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.34 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Sr, Tm) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">122</td><td>TaAlO4</td>
+  <tr><td class="mono">121</td><td>TaAlO4</td>
 <td class="k" title="E_hull = 0.011 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.70 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
+  <tr><td class="mono">122</td><td>Sr2Ta2O7</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.07 eV (corrected)">●</td><td class="k" title="e_total = 121.8 (DFPT; electronic 4.459663496666668)">●</td><td class="k" title="worst element tier = 0 (Sr, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="14 thin-film works / 100 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
   <tr><td class="mono">123</td><td>LaLuO3</td>
 <td class="k" title="E_hull = 0.011 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.18 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (La, Lu) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">124</td><td>CaAl12O19</td>
@@ -681,16 +681,16 @@
 <td class="k" title="E_hull = 0.012 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.06 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Y) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">126</td><td>Ho2Si2O7</td>
 <td class="k" title="E_hull = 0.012 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.46 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ho, Si) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">127</td><td>Ca6Hf19O44</td>
-<td class="k" title="E_hull = 0.018 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.78 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Hf) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 6 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">128</td><td>PrLuO3</td>
+  <tr><td class="mono">127</td><td>PrLuO3</td>
 <td class="k" title="E_hull = 0.013 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.83 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Lu, Pr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">129</td><td>Ca3Al2O6</td>
+  <tr><td class="mono">128</td><td>Ca3Al2O6</td>
 <td class="k" title="E_hull = 0.013 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.99 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Ca) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">130</td><td>DyAlO3</td>
+  <tr><td class="mono">129</td><td>DyAlO3</td>
 <td class="k" title="E_hull = 0.013 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 8.01 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Dy) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">131</td><td>Ca4Al6O13</td>
+  <tr><td class="mono">130</td><td>Ca4Al6O13</td>
 <td class="k" title="E_hull = 0.013 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.52 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Ca) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
+  <tr><td class="mono">131</td><td>Ca6Hf19O44</td>
+<td class="k" title="E_hull = 0.018 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.78 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Hf) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 6 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
   <tr><td class="mono">132</td><td>SrAl4O7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.25 eV (corrected)">●</td><td class="k" title="e_total = 7.7 (DFPT; electronic 2.791639906666667)">●</td><td class="k" title="worst element tier = 0 (Al, Sr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">133</td><td>SrEr2O4</td>
@@ -793,50 +793,50 @@
 <td class="k" title="E_hull = 0.037 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.27 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ho, Sc) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">182</td><td>Al2Si4O11</td>
 <td class="k" title="E_hull = 0.037 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.87 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Si) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">183</td><td>Ba5Ta4O15</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.28 eV (corrected)">●</td><td class="k" title="e_total = 47.2 (DFPT; electronic 4.714534356666667)">●</td><td class="k" title="worst element tier = 1 (Ba) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 48 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">184</td><td>TbNbO4</td>
+  <tr><td class="mono">183</td><td>TbNbO4</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.92 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Nb, Tb) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">185</td><td>Lu2Ge2O7</td>
+  <tr><td class="mono">184</td><td>Lu2Ge2O7</td>
 <td class="k" title="E_hull = 0.031 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.19 eV (corrected)">●</td><td class="k" title="e_total = 11.6 (DFPT; electronic 3.7018840933333337)">●</td><td class="k" title="worst element tier = 0 (Ge, Lu) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">186</td><td>Ta2Zn3O8</td>
+  <tr><td class="mono">185</td><td>Ta2Zn3O8</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.91 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ta, Zn) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">187</td><td>Sr3(GaO3)2</td>
+  <tr><td class="mono">186</td><td>Sr3(GaO3)2</td>
 <td class="k" title="E_hull = 0.002 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.94 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ga, Sr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">188</td><td>LaYO3</td>
+  <tr><td class="mono">187</td><td>LaYO3</td>
 <td class="k" title="E_hull = 0.040 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 6.06 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (La, Y) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">189</td><td>Ho2Ge2O7</td>
+  <tr><td class="mono">188</td><td>Ho2Ge2O7</td>
 <td class="k" title="E_hull = 0.022 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.23 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ge, Ho) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">190</td><td>CaLu2O4</td>
+  <tr><td class="mono">189</td><td>CaLu2O4</td>
 <td class="k" title="E_hull = 0.038 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.46 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Lu) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
+  <tr><td class="mono">190</td><td>Ba5Ta4O15</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.28 eV (corrected)">●</td><td class="k" title="e_total = 47.2 (DFPT; electronic 4.714534356666667)">●</td><td class="k" title="worst element tier = 1 (Ba) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 48 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
   <tr><td class="mono">191</td><td>HoNbO4</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.88 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ho, Nb) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">192</td><td>CaGeO3</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.87 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Ge) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">193</td><td>ErNbO4</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.87 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Er, Nb) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">194</td><td>Ba2ZrO4</td>
-<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.18 eV (corrected)">●</td><td class="k" title="e_total = 43.6 (DFPT; electronic 4.5323481700000015)">●</td><td class="k" title="worst element tier = 1 (Ba) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="1 thin-film works / 24 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
-  <tr><td class="mono">195</td><td>CaTa2O6</td>
+  <tr><td class="mono">194</td><td>CaTa2O6</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.86 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">196</td><td>Nd3TaO7</td>
+  <tr><td class="mono">195</td><td>Nd3TaO7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.86 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Nd, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">197</td><td>MgGeO3</td>
+  <tr><td class="mono">196</td><td>MgGeO3</td>
 <td class="k" title="E_hull = 0.032 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 5.15 eV (corrected)">●</td><td class="k" title="e_total = 11.4 (DFPT; electronic 3.6685865566666673)">●</td><td class="k" title="worst element tier = 0 (Ge, Mg) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">90%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">198</td><td>Er3GaO6</td>
+  <tr><td class="mono">197</td><td>Er3GaO6</td>
 <td class="k" title="E_hull = 0.007 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.96 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Er, Ga) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">199</td><td>Gd3Al5O12</td>
+  <tr><td class="mono">198</td><td>Gd3Al5O12</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.85 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Al, Gd) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">200</td><td>Pr2Zr2O7</td>
+  <tr><td class="mono">199</td><td>Pr2Zr2O7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.85 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Pr, Zr) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">201</td><td>La3TaO7</td>
+  <tr><td class="mono">200</td><td>La3TaO7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.84 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (La, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">202</td><td>CaSc2O4</td>
+  <tr><td class="mono">201</td><td>CaSc2O4</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.84 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Sc) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">203</td><td>Ca2Ta2O7</td>
+  <tr><td class="mono">202</td><td>Ca2Ta2O7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.84 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ca, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">204</td><td>Ho3TaO7</td>
+  <tr><td class="mono">203</td><td>Ho3TaO7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.83 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ho, Ta) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
+  <tr><td class="mono">204</td><td>Ba2ZrO4</td>
+<td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.18 eV (corrected)">●</td><td class="k" title="e_total = 43.6 (DFPT; electronic 4.5323481700000015)">●</td><td class="k" title="worst element tier = 1 (Ba) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="1 thin-film works / 24 total (OpenAlex)">●</td>    <td class="mono">100%</td><td><span class="pill high">high</span></td></tr>
   <tr><td class="mono">205</td><td>Nd2Ge2O7</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.80 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Ge, Nd) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">206</td><td>Mg4Nb2O9</td>
@@ -895,12 +895,12 @@
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.63 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Sm, Ti) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">233</td><td>Dy3Ga5O12</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.63 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Dy, Ga) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">234</td><td>Dy2Hf2O7</td>
-<td class="k" title="E_hull = 0.001 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.52 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Dy, Hf) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 12 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
-  <tr><td class="mono">235</td><td>Tb2TiO5</td>
+  <tr><td class="mono">234</td><td>Tb2TiO5</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.62 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Tb, Ti) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
-  <tr><td class="mono">236</td><td>Dy2TiO5</td>
+  <tr><td class="mono">235</td><td>Dy2TiO5</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.61 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Dy, Ti) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
+  <tr><td class="mono">236</td><td>Dy2Hf2O7</td>
+<td class="k" title="E_hull = 0.001 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.52 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (Dy, Hf) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="k" title="0 thin-film works / 12 total (OpenAlex)">●</td>    <td class="mono">85%</td><td><span class="pill medium">medium</span></td></tr>
   <tr><td class="mono">237</td><td>La2TiO5</td>
 <td class="k" title="E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]">●</td><td class="k" title="effective gap = 4.60 eV (corrected)">●</td><td class="u" title="dielectric constant UNKNOWN">?</td><td class="k" title="worst element tier = 0 (La, Ti) [table 2026-09-09.1]">●</td><td class="k" title="3 distinct elements">●</td><td class="u" title="literature evidence unavailable">?</td>    <td class="mono">75%</td><td><span class="pill low">low</span></td></tr>
   <tr><td class="mono">238</td><td>Tb3Ga5O12</td>
@@ -1069,38 +1069,38 @@
 <h2>Passed the gates, beyond the shortlist (312 compounds; 180 further phases collapsed under their compound's row)</h2>
 <div class="wrap"><table>
   <tr><th>#</th><th>Formula</th><th>Score</th><th>Coverage</th><th>Confidence</th><th>Missing</th><th>Main caveat</th></tr>
-  <tr><td class="mono">6</td><td>ZrO2 <span class="tag">mp-aaabfrjx</span> <span class="tag">+3 phases</span></td><td class="mono">0.916</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
-  <tr><td class="mono">7</td><td>La2Zr2O7 <span class="tag">mp-aaaaahji</span></td><td class="mono">0.915</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
-  <tr><td class="mono">8</td><td>SrZrO3 <span class="tag">mp-aaaaagmt</span> <span class="tag">+2 phases</span></td><td class="mono">0.886</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
-  <tr><td class="mono">9</td><td>SiO2 <span class="tag">mp-aaaaalie</span> <span class="tag">+75 phases</span></td><td class="mono">0.877</td><td class="mono">100%</td><td>high</td><td>—</td><td>polymorphs_collapsed</td></tr>
+  <tr><td class="mono">6</td><td>CaZrO3 <span class="tag">mp-aaaaagtv</span></td><td class="mono">0.903</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
+  <tr><td class="mono">7</td><td>La2Zr2O7 <span class="tag">mp-aaaaahji</span></td><td class="mono">0.893</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
+  <tr><td class="mono">8</td><td>SiO2 <span class="tag">mp-aaaaalie</span> <span class="tag">+75 phases</span></td><td class="mono">0.877</td><td class="mono">100%</td><td>high</td><td>—</td><td>polymorphs_collapsed</td></tr>
+  <tr><td class="mono">9</td><td>SrZrO3 <span class="tag">mp-aaaaagmt</span> <span class="tag">+2 phases</span></td><td class="mono">0.869</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
   <tr><td class="mono">10</td><td>MgO <span class="tag">mp-aaaaabwr</span></td><td class="mono">0.869</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
   <tr><td class="mono">11</td><td>Al2O3 <span class="tag">mp-aaaaabrz</span> <span class="tag">+2 phases</span></td><td class="mono">0.862</td><td class="mono">100%</td><td>high</td><td>—</td><td>polymorphs_collapsed</td></tr>
-  <tr><td class="mono">12</td><td>ScTaO4 <span class="tag">mp-aaabfupp</span></td><td class="mono">0.860</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
-  <tr><td class="mono">13</td><td>ZrSiO4 <span class="tag">mp-aaaaahdk</span></td><td class="mono">0.844</td><td class="mono">100%</td><td>high</td><td>—</td><td>ghs_hazard_statements</td></tr>
-  <tr><td class="mono">14</td><td>Er2O3 <span class="tag">mp-aaaaabad</span> <span class="tag">+1 phase</span></td><td class="mono">0.843</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>polymorphs_collapsed</td></tr>
-  <tr><td class="mono">15</td><td>Lu2O3 <span class="tag">mp-aaaaaccx</span></td><td class="mono">0.843</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
-  <tr><td class="mono">16</td><td>Y2O3 <span class="tag">mp-aaaaadya</span> <span class="tag">+1 phase</span></td><td class="mono">0.843</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>polymorphs_collapsed</td></tr>
-  <tr><td class="mono">17</td><td>Dy2O3 <span class="tag">mp-aaaaadmf</span></td><td class="mono">0.842</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
-  <tr><td class="mono">18</td><td>HfSiO4 <span class="tag">mp-aaaaagvh</span></td><td class="mono">0.840</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
-  <tr><td class="mono">19</td><td>Tm2O3 <span class="tag">mp-aaaaacpz</span></td><td class="mono">0.839</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
-  <tr><td class="mono">20</td><td>Zr3GeO8 <span class="tag">mp-aaaabpgq</span></td><td class="mono">0.835</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
-  <tr><td class="mono">21</td><td>Ho2O3 <span class="tag">mp-aaaaabfg</span> <span class="tag">+1 phase</span></td><td class="mono">0.833</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>polymorphs_collapsed</td></tr>
-  <tr><td class="mono">22</td><td>YTaO4 <span class="tag">mp-aaaaahyv</span> <span class="tag">+1 phase</span></td><td class="mono">0.826</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
-  <tr><td class="mono">23</td><td>Tb2O3 <span class="tag">mp-aaaaaboq</span> <span class="tag">+1 phase</span></td><td class="mono">0.824</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>polymorphs_collapsed</td></tr>
-  <tr><td class="mono">24</td><td>MgAl2O4 <span class="tag">mp-aaaaafga</span></td><td class="mono">0.813</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
-  <tr><td class="mono">25</td><td>Ta2O5 <span class="tag">mp-aaaaapjq</span></td><td class="mono">0.799</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
-  <tr><td class="mono">26</td><td>SrTa4O11 <span class="tag">mp-aaabeuzm</span></td><td class="mono">0.789</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
-  <tr><td class="mono">27</td><td>CaAl4O7 <span class="tag">mp-aaaaahff</span></td><td class="mono">0.768</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
-  <tr><td class="mono">28</td><td>LaTaO4 <span class="tag">mp-aaaaafxu</span> <span class="tag">+1 phase</span></td><td class="mono">0.766</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
-  <tr><td class="mono">29</td><td>HfGeO4 <span class="tag">mp-aaaaaolf</span></td><td class="mono">0.754</td><td class="mono">100%</td><td>high</td><td>—</td><td>metastable</td></tr>
+  <tr><td class="mono">12</td><td>ScTaO4 <span class="tag">mp-aaabfupp</span></td><td class="mono">0.849</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
+  <tr><td class="mono">13</td><td>Y2O3 <span class="tag">mp-aaaaadya</span> <span class="tag">+1 phase</span></td><td class="mono">0.843</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>polymorphs_collapsed</td></tr>
+  <tr><td class="mono">14</td><td>ZrSiO4 <span class="tag">mp-aaaaahdk</span></td><td class="mono">0.835</td><td class="mono">100%</td><td>high</td><td>—</td><td>ghs_hazard_statements</td></tr>
+  <tr><td class="mono">15</td><td>Er2O3 <span class="tag">mp-aaaaabad</span> <span class="tag">+1 phase</span></td><td class="mono">0.835</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>polymorphs_collapsed</td></tr>
+  <tr><td class="mono">16</td><td>Zr3GeO8 <span class="tag">mp-aaaabpgq</span></td><td class="mono">0.828</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
+  <tr><td class="mono">17</td><td>Lu2O3 <span class="tag">mp-aaaaaccx</span></td><td class="mono">0.826</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
+  <tr><td class="mono">18</td><td>HfSiO4 <span class="tag">mp-aaaaagvh</span></td><td class="mono">0.823</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
+  <tr><td class="mono">19</td><td>Dy2O3 <span class="tag">mp-aaaaadmf</span></td><td class="mono">0.816</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
+  <tr><td class="mono">20</td><td>MgAl2O4 <span class="tag">mp-aaaaafga</span></td><td class="mono">0.813</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_corrected</td></tr>
+  <tr><td class="mono">21</td><td>YTaO4 <span class="tag">mp-aaaaahyv</span> <span class="tag">+1 phase</span></td><td class="mono">0.810</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
+  <tr><td class="mono">22</td><td>Tm2O3 <span class="tag">mp-aaaaacpz</span></td><td class="mono">0.807</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
+  <tr><td class="mono">23</td><td>Ho2O3 <span class="tag">mp-aaaaabfg</span> <span class="tag">+1 phase</span></td><td class="mono">0.804</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>polymorphs_collapsed</td></tr>
+  <tr><td class="mono">24</td><td>Ta2O5 <span class="tag">mp-aaaaapjq</span></td><td class="mono">0.799</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
+  <tr><td class="mono">25</td><td>Tb2O3 <span class="tag">mp-aaaaaboq</span> <span class="tag">+1 phase</span></td><td class="mono">0.794</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>polymorphs_collapsed</td></tr>
+  <tr><td class="mono">26</td><td>SrTa4O11 <span class="tag">mp-aaabeuzm</span></td><td class="mono">0.782</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
+  <tr><td class="mono">27</td><td>LaTaO4 <span class="tag">mp-aaaaafxu</span> <span class="tag">+1 phase</span></td><td class="mono">0.756</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
+  <tr><td class="mono">28</td><td>CaAl4O7 <span class="tag">mp-aaaaahff</span></td><td class="mono">0.752</td><td class="mono">100%</td><td>high</td><td>—</td><td>thin_literature</td></tr>
+  <tr><td class="mono">29</td><td>HfGeO4 <span class="tag">mp-aaaaaolf</span></td><td class="mono">0.745</td><td class="mono">100%</td><td>high</td><td>—</td><td>metastable</td></tr>
   <tr><td class="mono">30</td><td>CaO <span class="tag">mp-aaaaadwf</span></td><td class="mono">0.735</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">31</td><td>ScNbO4 <span class="tag">mp-aaabfnmf</span></td><td class="mono">0.719</td><td class="mono">100%</td><td>high</td><td>—</td><td>no_thin_film_literature</td></tr>
+  <tr><td class="mono">31</td><td>ScNbO4 <span class="tag">mp-aaabfnmf</span></td><td class="mono">0.715</td><td class="mono">100%</td><td>high</td><td>—</td><td>no_thin_film_literature</td></tr>
   <tr><td class="mono">32</td><td>Ca5Al6O14 <span class="tag">mp-aaaabaeo</span></td><td class="mono">0.715</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">33</td><td>La2O3 <span class="tag">mp-aaaaacxs</span> <span class="tag">+1 phase</span></td><td class="mono">0.714</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">34</td><td>Ca2Hf7O16 <span class="tag">mp-aaaabogz</span></td><td class="mono">0.713</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
-  <tr><td class="mono">35</td><td>Y3TaO7 <span class="tag">mp-aaaaaqtl</span> <span class="tag">+1 phase</span></td><td class="mono">0.713</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">36</td><td>YAlO3 <span class="tag">mp-aaaaafpw</span></td><td class="mono">0.712</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">37</td><td>Sc2O3 <span class="tag">mp-aaaaaaii</span></td><td class="mono">0.711</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">34</td><td>Y3TaO7 <span class="tag">mp-aaaaaqtl</span> <span class="tag">+1 phase</span></td><td class="mono">0.713</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">35</td><td>YAlO3 <span class="tag">mp-aaaaafpw</span></td><td class="mono">0.712</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">36</td><td>Sc2O3 <span class="tag">mp-aaaaaaii</span></td><td class="mono">0.711</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">37</td><td>Ca2Hf7O16 <span class="tag">mp-aaaabogz</span></td><td class="mono">0.710</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
   <tr><td class="mono">38</td><td>YNbO4 <span class="tag">mp-aaackief</span> <span class="tag">+1 phase</span></td><td class="mono">0.710</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">39</td><td>SrAl2O4 <span class="tag">mp-aaaaaidg</span> <span class="tag">+1 phase</span></td><td class="mono">0.707</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">40</td><td>Mg2SiO4 <span class="tag">mp-aaaaaehj</span></td><td class="mono">0.705</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
@@ -1160,41 +1160,41 @@
   <tr><td class="mono">94</td><td>NdTaO4 <span class="tag">mp-aaaaaetf</span> <span class="tag">+2 phases</span></td><td class="mono">0.695</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">95</td><td>Al2ZnO4 <span class="tag">mp-aaaaaehw</span></td><td class="mono">0.694</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">96</td><td>Pr2O3 <span class="tag">mp-aaaaadbj</span> <span class="tag">+1 phase</span></td><td class="mono">0.694</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">97</td><td>Sr2Ta2O7 <span class="tag">mp-aaaaaseo</span> <span class="tag">+1 phase</span></td><td class="mono">0.693</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
-  <tr><td class="mono">98</td><td>MgTiO3 <span class="tag">mp-aaaaafpb</span></td><td class="mono">0.693</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">99</td><td>Sr4Al14O25 <span class="tag">mp-aaaaaiea</span></td><td class="mono">0.692</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">100</td><td>Ca3Si2O7 <span class="tag">mp-aaabhidw</span> <span class="tag">+1 phase</span></td><td class="mono">0.692</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">101</td><td>SrAl12O19 <span class="tag">mp-aaaaakjb</span></td><td class="mono">0.691</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">102</td><td>DyTa7O19 <span class="tag">mp-aaaaawxw</span></td><td class="mono">0.689</td><td class="mono">100%</td><td>high</td><td>—</td><td>no_thin_film_literature</td></tr>
-  <tr><td class="mono">103</td><td>Y2GeO5 <span class="tag">mp-aaabfynx</span></td><td class="mono">0.689</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">104</td><td>Tm2SiO5 <span class="tag">mp-aaaabaey</span></td><td class="mono">0.689</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">105</td><td>Tb2Ge2O7 <span class="tag">mp-aaaaavrl</span></td><td class="mono">0.688</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">106</td><td>La4Ga2O9 <span class="tag">mp-aaabruyd</span></td><td class="mono">0.688</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">107</td><td>Nd2GeO5 <span class="tag">mp-aaacqpcx</span></td><td class="mono">0.688</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">108</td><td>CaHf4O9 <span class="tag">mp-aaabftrw</span></td><td class="mono">0.686</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
-  <tr><td class="mono">109</td><td>Sr2Al6O11 <span class="tag">mp-aaaabtss</span></td><td class="mono">0.686</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">110</td><td>ZrGeO4 <span class="tag">mp-aaaaalxi</span></td><td class="mono">0.685</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">111</td><td>LaTa7O19 <span class="tag">mp-aaaaavld</span></td><td class="mono">0.684</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
-  <tr><td class="mono">112</td><td>Y3GaO6 <span class="tag">mp-aaabfopm</span></td><td class="mono">0.684</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">113</td><td>Er2Ge2O7 <span class="tag">mp-aaaaauet</span></td><td class="mono">0.683</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">114</td><td>Tm2Ge2O7 <span class="tag">mp-aaaaavts</span></td><td class="mono">0.681</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">115</td><td>Dy2Si2O7 <span class="tag">mp-aaaaazgg</span></td><td class="mono">0.681</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">116</td><td>MgSiO3 <span class="tag">mp-aaaaaiqk</span> <span class="tag">+3 phases</span></td><td class="mono">0.678</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">117</td><td>Tb4Al2O9 <span class="tag">mp-aaacqhws</span></td><td class="mono">0.677</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">118</td><td>SrO <span class="tag">mp-aaaaadrc</span></td><td class="mono">0.677</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">119</td><td>TbAlO3 <span class="tag">mp-aaaaagoo</span></td><td class="mono">0.675</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">120</td><td>CaZr4O9 <span class="tag">mp-aaabfnva</span></td><td class="mono">0.671</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">121</td><td>SrTm2O4 <span class="tag">mp-aaaaafco</span></td><td class="mono">0.671</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">122</td><td>TaAlO4 <span class="tag">mp-aaaaavfh</span> <span class="tag">+1 phase</span></td><td class="mono">0.671</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">97</td><td>MgTiO3 <span class="tag">mp-aaaaafpb</span></td><td class="mono">0.693</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">98</td><td>Sr4Al14O25 <span class="tag">mp-aaaaaiea</span></td><td class="mono">0.692</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">99</td><td>Ca3Si2O7 <span class="tag">mp-aaabhidw</span> <span class="tag">+1 phase</span></td><td class="mono">0.692</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">100</td><td>SrAl12O19 <span class="tag">mp-aaaaakjb</span></td><td class="mono">0.691</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">101</td><td>Y2GeO5 <span class="tag">mp-aaabfynx</span></td><td class="mono">0.689</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">102</td><td>Tm2SiO5 <span class="tag">mp-aaaabaey</span></td><td class="mono">0.689</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">103</td><td>Tb2Ge2O7 <span class="tag">mp-aaaaavrl</span></td><td class="mono">0.688</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">104</td><td>La4Ga2O9 <span class="tag">mp-aaabruyd</span></td><td class="mono">0.688</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">105</td><td>Nd2GeO5 <span class="tag">mp-aaacqpcx</span></td><td class="mono">0.688</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">106</td><td>DyTa7O19 <span class="tag">mp-aaaaawxw</span></td><td class="mono">0.687</td><td class="mono">100%</td><td>high</td><td>—</td><td>no_thin_film_literature</td></tr>
+  <tr><td class="mono">107</td><td>Sr2Al6O11 <span class="tag">mp-aaaabtss</span></td><td class="mono">0.686</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">108</td><td>ZrGeO4 <span class="tag">mp-aaaaalxi</span></td><td class="mono">0.685</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">109</td><td>Y3GaO6 <span class="tag">mp-aaabfopm</span></td><td class="mono">0.684</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">110</td><td>CaHf4O9 <span class="tag">mp-aaabftrw</span></td><td class="mono">0.684</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
+  <tr><td class="mono">111</td><td>Er2Ge2O7 <span class="tag">mp-aaaaauet</span></td><td class="mono">0.683</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">112</td><td>Tm2Ge2O7 <span class="tag">mp-aaaaavts</span></td><td class="mono">0.681</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">113</td><td>Dy2Si2O7 <span class="tag">mp-aaaaazgg</span></td><td class="mono">0.681</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">114</td><td>LaTa7O19 <span class="tag">mp-aaaaavld</span></td><td class="mono">0.680</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
+  <tr><td class="mono">115</td><td>MgSiO3 <span class="tag">mp-aaaaaiqk</span> <span class="tag">+3 phases</span></td><td class="mono">0.678</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">116</td><td>Tb4Al2O9 <span class="tag">mp-aaacqhws</span></td><td class="mono">0.677</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">117</td><td>SrO <span class="tag">mp-aaaaadrc</span></td><td class="mono">0.677</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">118</td><td>TbAlO3 <span class="tag">mp-aaaaagoo</span></td><td class="mono">0.675</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">119</td><td>CaZr4O9 <span class="tag">mp-aaabfnva</span></td><td class="mono">0.671</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">120</td><td>SrTm2O4 <span class="tag">mp-aaaaafco</span></td><td class="mono">0.671</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">121</td><td>TaAlO4 <span class="tag">mp-aaaaavfh</span> <span class="tag">+1 phase</span></td><td class="mono">0.671</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">122</td><td>Sr2Ta2O7 <span class="tag">mp-aaaaaseo</span> <span class="tag">+1 phase</span></td><td class="mono">0.669</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
   <tr><td class="mono">123</td><td>LaLuO3 <span class="tag">mp-aaaabgwq</span></td><td class="mono">0.669</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">124</td><td>CaAl12O19 <span class="tag">mp-aaaabpty</span></td><td class="mono">0.668</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">125</td><td>Y4Al2O9 <span class="tag">mp-aaaaaiab</span> <span class="tag">+1 phase</span></td><td class="mono">0.668</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">126</td><td>Ho2Si2O7 <span class="tag">mp-aaaaaywn</span></td><td class="mono">0.667</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">127</td><td>Ca6Hf19O44 <span class="tag">mp-aaabfuej</span></td><td class="mono">0.666</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
-  <tr><td class="mono">128</td><td>PrLuO3 <span class="tag">mp-aaaabgjg</span></td><td class="mono">0.666</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">129</td><td>Ca3Al2O6 <span class="tag">mp-aaaaarzf</span></td><td class="mono">0.666</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">130</td><td>DyAlO3 <span class="tag">mp-aaabrbhe</span></td><td class="mono">0.665</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">131</td><td>Ca4Al6O13 <span class="tag">mp-aaaaaldr</span> <span class="tag">+1 phase</span></td><td class="mono">0.664</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>polymorphs_collapsed</td></tr>
+  <tr><td class="mono">127</td><td>PrLuO3 <span class="tag">mp-aaaabgjg</span></td><td class="mono">0.666</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">128</td><td>Ca3Al2O6 <span class="tag">mp-aaaaarzf</span></td><td class="mono">0.666</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">129</td><td>DyAlO3 <span class="tag">mp-aaabrbhe</span></td><td class="mono">0.665</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">130</td><td>Ca4Al6O13 <span class="tag">mp-aaaaaldr</span> <span class="tag">+1 phase</span></td><td class="mono">0.664</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>polymorphs_collapsed</td></tr>
+  <tr><td class="mono">131</td><td>Ca6Hf19O44 <span class="tag">mp-aaabfuej</span></td><td class="mono">0.664</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
   <tr><td class="mono">132</td><td>SrAl4O7 <span class="tag">mp-aaaaafps</span></td><td class="mono">0.663</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">133</td><td>SrEr2O4 <span class="tag">mp-aaabfxbp</span></td><td class="mono">0.660</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">134</td><td>Ho3GaO6 <span class="tag">mp-aaaabuas</span></td><td class="mono">0.659</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
@@ -1246,28 +1246,28 @@
   <tr><td class="mono">180</td><td>CaTa4O11 <span class="tag">mp-aaaaaeol</span></td><td class="mono">0.608</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">181</td><td>HoScO3 <span class="tag">mp-aaaabuaz</span></td><td class="mono">0.606</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">182</td><td>Al2Si4O11 <span class="tag">mp-aaabogbn</span></td><td class="mono">0.605</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">183</td><td>Ba5Ta4O15 <span class="tag">mp-aaabcsjy</span></td><td class="mono">0.601</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
-  <tr><td class="mono">184</td><td>TbNbO4 <span class="tag">mp-aaaaassl</span></td><td class="mono">0.600</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">185</td><td>Lu2Ge2O7 <span class="tag">mp-aaaaamja</span></td><td class="mono">0.600</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">186</td><td>Ta2Zn3O8 <span class="tag">mp-aaaabpup</span></td><td class="mono">0.600</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">187</td><td>Sr3(GaO3)2 <span class="tag">mp-aaaaagpa</span></td><td class="mono">0.600</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">188</td><td>LaYO3 <span class="tag">mp-aaaaapld</span></td><td class="mono">0.598</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">189</td><td>Ho2Ge2O7 <span class="tag">mp-aaabfwnq</span></td><td class="mono">0.597</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">190</td><td>CaLu2O4 <span class="tag">mp-aaabcsjj</span></td><td class="mono">0.596</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">183</td><td>TbNbO4 <span class="tag">mp-aaaaassl</span></td><td class="mono">0.600</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">184</td><td>Lu2Ge2O7 <span class="tag">mp-aaaaamja</span></td><td class="mono">0.600</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">185</td><td>Ta2Zn3O8 <span class="tag">mp-aaaabpup</span></td><td class="mono">0.600</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">186</td><td>Sr3(GaO3)2 <span class="tag">mp-aaaaagpa</span></td><td class="mono">0.600</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">187</td><td>LaYO3 <span class="tag">mp-aaaaapld</span></td><td class="mono">0.598</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">188</td><td>Ho2Ge2O7 <span class="tag">mp-aaabfwnq</span></td><td class="mono">0.597</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">189</td><td>CaLu2O4 <span class="tag">mp-aaabcsjj</span></td><td class="mono">0.596</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">190</td><td>Ba5Ta4O15 <span class="tag">mp-aaabcsjy</span></td><td class="mono">0.596</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
   <tr><td class="mono">191</td><td>HoNbO4 <span class="tag">mp-aaaaaeqy</span></td><td class="mono">0.594</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">192</td><td>CaGeO3 <span class="tag">mp-aaaabahd</span></td><td class="mono">0.593</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">193</td><td>ErNbO4 <span class="tag">mp-aaaaahyo</span></td><td class="mono">0.593</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">194</td><td>Ba2ZrO4 <span class="tag">mp-aaaaamip</span></td><td class="mono">0.592</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
-  <tr><td class="mono">195</td><td>CaTa2O6 <span class="tag">mp-aaaabazd</span></td><td class="mono">0.591</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">196</td><td>Nd3TaO7 <span class="tag">mp-aaaabumj</span> <span class="tag">+1 phase</span></td><td class="mono">0.591</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">197</td><td>MgGeO3 <span class="tag">mp-aaaaafop</span> <span class="tag">+1 phase</span></td><td class="mono">0.590</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">198</td><td>Er3GaO6 <span class="tag">mp-aaaabuat</span></td><td class="mono">0.589</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">199</td><td>Gd3Al5O12 <span class="tag">mp-aaaaauxp</span></td><td class="mono">0.589</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">200</td><td>Pr2Zr2O7 <span class="tag">mp-aaabfvok</span></td><td class="mono">0.589</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">201</td><td>La3TaO7 <span class="tag">mp-aaaabumh</span></td><td class="mono">0.588</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">202</td><td>CaSc2O4 <span class="tag">mp-aaaaagaa</span></td><td class="mono">0.587</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">203</td><td>Ca2Ta2O7 <span class="tag">mp-aaabklzo</span> <span class="tag">+1 phase</span></td><td class="mono">0.587</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">204</td><td>Ho3TaO7 <span class="tag">mp-aaaabumi</span></td><td class="mono">0.586</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">194</td><td>CaTa2O6 <span class="tag">mp-aaaabazd</span></td><td class="mono">0.591</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">195</td><td>Nd3TaO7 <span class="tag">mp-aaaabumj</span> <span class="tag">+1 phase</span></td><td class="mono">0.591</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">196</td><td>MgGeO3 <span class="tag">mp-aaaaafop</span> <span class="tag">+1 phase</span></td><td class="mono">0.590</td><td class="mono">90%</td><td>low</td><td>— <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">197</td><td>Er3GaO6 <span class="tag">mp-aaaabuat</span></td><td class="mono">0.589</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">198</td><td>Gd3Al5O12 <span class="tag">mp-aaaaauxp</span></td><td class="mono">0.589</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">199</td><td>Pr2Zr2O7 <span class="tag">mp-aaabfvok</span></td><td class="mono">0.589</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">200</td><td>La3TaO7 <span class="tag">mp-aaaabumh</span></td><td class="mono">0.588</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">201</td><td>CaSc2O4 <span class="tag">mp-aaaaagaa</span></td><td class="mono">0.587</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">202</td><td>Ca2Ta2O7 <span class="tag">mp-aaabklzo</span> <span class="tag">+1 phase</span></td><td class="mono">0.587</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">203</td><td>Ho3TaO7 <span class="tag">mp-aaaabumi</span></td><td class="mono">0.586</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">204</td><td>Ba2ZrO4 <span class="tag">mp-aaaaamip</span></td><td class="mono">0.584</td><td class="mono">100%</td><td>high</td><td>—</td><td>band_gap_near_threshold</td></tr>
   <tr><td class="mono">205</td><td>Nd2Ge2O7 <span class="tag">mp-aaabhbzl</span></td><td class="mono">0.581</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">206</td><td>Mg4Nb2O9 <span class="tag">mp-aaaabakf</span></td><td class="mono">0.580</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">207</td><td>TmNbO4 <span class="tag">mp-aaabfpej</span></td><td class="mono">0.580</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
@@ -1297,9 +1297,9 @@
   <tr><td class="mono">231</td><td>Nd2TiO5 <span class="tag">mp-aaaabamq</span></td><td class="mono">0.555</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">232</td><td>Sm2TiO5 <span class="tag">mp-aaabrwgk</span></td><td class="mono">0.553</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">233</td><td>Dy3Ga5O12 <span class="tag">mp-aaaaaxbc</span></td><td class="mono">0.552</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">234</td><td>Dy2Hf2O7 <span class="tag">mp-aaaaafix</span></td><td class="mono">0.551</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
-  <tr><td class="mono">235</td><td>Tb2TiO5 <span class="tag">mp-aaabqvba</span></td><td class="mono">0.551</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
-  <tr><td class="mono">236</td><td>Dy2TiO5 <span class="tag">mp-aaabrwgu</span></td><td class="mono">0.549</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">234</td><td>Tb2TiO5 <span class="tag">mp-aaabqvba</span></td><td class="mono">0.551</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">235</td><td>Dy2TiO5 <span class="tag">mp-aaabrwgu</span></td><td class="mono">0.549</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
+  <tr><td class="mono">236</td><td>Dy2Hf2O7 <span class="tag">mp-aaaaafix</span></td><td class="mono">0.548</td><td class="mono">85%</td><td>medium</td><td>dielectric</td><td>dielectric_unknown</td></tr>
   <tr><td class="mono">237</td><td>La2TiO5 <span class="tag">mp-aaaabash</span></td><td class="mono">0.548</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">238</td><td>Tb3Ga5O12 <span class="tag">mp-aaaaaivl</span></td><td class="mono">0.546</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
   <tr><td class="mono">239</td><td>Y2TiO5 <span class="tag">mp-aaaaazzj</span></td><td class="mono">0.546</td><td class="mono">75%</td><td>low</td><td>dielectric <b>(not downloaded: literature)</b></td><td>incomplete_retrieval</td></tr>
@@ -1410,7 +1410,7 @@
 <p class="sub">Scores are relative within this run and profile. A candidate with a <em>medium</em> or <em>low</em> confidence label has criteria with no data behind them; they are named, not scored as zero. Band gaps marked “corrected” are scaled DFT values, not measurements. A shortlist entry is a conjecture; the caveats are the known counterexamples.</p>
 
 <footer>
-  config <code>e8b1aa6a97b8eb82</code> · cache <code>27a3734b79a8aa68</code> · offline True · language model: parse=rules, refute=rules, render=templates only
+  config <code>df8509afebf39865</code> · cache <code>27a3734b79a8aa68</code> · offline True · language model: parse=rules, refute=rules, render=templates only
 </footer>
 </main>
 </body>
