@@ -206,3 +206,15 @@ short formulae, and flagged. The hazard table is a screen, not a toxicological a
 Nothing about films is modelled, by design. Next: confirm the cation list and the dielectric
 preference curve with the PI's group, retune profiles with them against the live data, and add
 the JARVIS-DFT bulk dataset as a second dielectric route.
+
+One candidate beyond that is worth naming because it targets the weakest input. The provenance
+model is already a small property graph: a material node with typed, timestamped edges to its
+Materials Project entry, OQMD cross-check, PubChem record, OpenAlex works, elements and
+polymorphs. Literature is the one edge that carries a count where a scientist wants a path:
+material, deposition method, substrate, property measured, work. Extracting those relations from
+the sample abstracts through the existing validated edge, storing them as typed edges in the same
+SQLite file, and letting the refutation pass cite the specific work that supports or contradicts
+a candidate would turn "two thin-film works" into "both are sputtered; no ALD report found".
+It would feed caveats and citations only; nothing in it may touch a score, a rank or a gate, and
+no graph server enters the deployment. It is scoped in the TODO and deliberately sequenced after
+the retune with the group.

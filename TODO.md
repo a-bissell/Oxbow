@@ -50,6 +50,30 @@ Ideas / planned work for this project.
 
 - [ ] **Add JARVIS-DFT bulk dataset as a second dielectric route** (OptB88vdW dielectric
       tensors); flagged as a candidate route in `oxide_triage/acquire.py`.
+- [ ] **Literature evidence graph** — under consideration, not committed. The weakest input
+      today is literature: two OpenAlex counts from a formula-string search, flagged as noisy
+      for short formulae. The question a PI actually asks is not "how many papers mention
+      HfO2" but "has anyone deposited HfO2 by ALD on silicon and measured its dielectric
+      constant", which is a path, not a count: material → deposition method → substrate →
+      measured property → work → DOI. Proposed scope:
+      - Extract (method, substrate, property measured) from the sample-work abstracts already
+        fetched, through the existing validated model edge: delimited data in, a fixed schema
+        out, every term from a closed vocabulary, anything else discarded. Rules-only fallback
+        keyword-matches the same vocabulary (the thin-film term list is a start).
+      - Store as typed edges in the existing SQLite cache (an `edges` table: subject,
+        predicate, object, provenance), one mechanism that also subsumes the alias table, the
+        OQMD formula match and polymorph grouping (`same_composition`, `reported_as`). No
+        graph server; deployment stays three commands and one file.
+      - Consume it in the refutation pass only: a caveat can cite the specific work that
+        contradicts or supports a candidate ("no deposition report found; the two thin-film
+        works are on sputtered films, not ALD"). The graph never touches a score, a rank or a
+        gate; it is retrieved evidence like everything else under the numeric guard.
+      - Later, family and hazard facts (`cation_allowlist.yaml`, `element_hazards.yaml`,
+        `hygroscopic_oxides.yaml`) could live in the same edge table, so "avoid anything in
+        lead's hazard tier" resolves by traversal instead of a new parser rule.
+      Why not now: the current counts are enough to flag thin evidence, which is what the
+      shortlist needs; extraction quality on abstracts is unmeasured; and it is a week of work
+      that should follow, not precede, the profile retune with the PI's group.
 
 ## UI
 
