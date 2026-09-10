@@ -11,10 +11,10 @@ Data: **live cache (clean warm, 2026-09-10)**
 | # | Formula | Score | Coverage | Confidence | Missing | Primary caveat |
 |---|---|---|---|---|---|---|
 | 1 | LaAlO3 | 0.958 | 100% | high | — | band_gap_corrected |
-| 2 | SrHfO3 | 0.949 | 100% | high | — | polymorphs_collapsed |
-| 3 | LaScO3 | 0.937 | 100% | high | — | band_gap_corrected |
-| 4 | CaZrO3 | 0.934 | 100% | high | — | band_gap_corrected |
-| 5 | HfO2 | 0.923 | 100% | high | — | band_gap_corrected |
+| 2 | HfO2 | 0.923 | 100% | high | — | band_gap_corrected |
+| 3 | SrHfO3 | 0.919 | 100% | high | — | polymorphs_collapsed |
+| 4 | ZrO2 | 0.916 | 100% | high | — | band_gap_corrected |
+| 5 | LaScO3 | 0.908 | 100% | high | — | band_gap_corrected |
 
 211 excluded with stated reasons; 708 considered.
 
@@ -40,27 +40,27 @@ Data: **live cache (clean warm, 2026-09-10)**
 
 | Workhorse | Default rank (of passing) | Exploratory rank | Note |
 |---|---|---|---|
-| HfO2 | 5/317 | 10/391 |  |
-| ZrO2 | 6/317 | 1/391 |  |
-| Al2O3 | 11/317 | 26/391 |  |
-| Ta2O5 | 25/317 | 8/391 |  |
+| HfO2 | 2/317 | 10/391 |  |
+| ZrO2 | 4/317 | 1/391 |  |
+| Al2O3 | 11/317 | 24/391 |  |
+| Ta2O5 | 24/317 | 4/391 |  |
 
-Default top 5: ['LaAlO3', 'SrHfO3', 'LaScO3', 'CaZrO3', 'HfO2']  ·  Exploratory top 5: ['ZrO2', 'SrZrO3', 'La2Zr2O7', 'CaZrO3', 'LaAlO3']
-Self-check passed (retrieval completeness 100%): HfO2: default rank 5/317; ZrO2: default rank 6/317; Al2O3: default rank 11/317; Ta2O5: default rank 25/317; exploratory: 3/4 workhorses in top 25 (HfO2, ZrO2, Ta2O5); need 2
+Default top 5: ['LaAlO3', 'HfO2', 'SrHfO3', 'ZrO2', 'LaScO3']  ·  Exploratory top 5: ['ZrO2', 'LaAlO3', 'SrZrO3', 'Ta2O5', 'La2Zr2O7']
+Self-check passed (retrieval completeness 100%): HfO2: default rank 2/317; ZrO2: default rank 4/317; Al2O3: default rank 11/317; Ta2O5: default rank 24/317; exploratory: 4/4 workhorses in top 25 (HfO2, ZrO2, Al2O3, Ta2O5); need 2
 Reading: this is ground-truth validation, not discovery. If an exotic compound outranks the workhorses on complete data, the scoring is wrong, not the literature.
 
 ## 4. Determinism — PASS
 
-two runs identical (excluding timestamp): True; cache fingerprint 27a3734b79a8aa68, config hash e8b1aa6a97b8eb82
+two runs identical (excluding timestamp): True; cache fingerprint 27a3734b79a8aa68, config hash df8509afebf39865
 
 ## 5. Missing-data handling — PASS
 
 | Formula | Dielectric status | Component normalised | Contribution | Coverage | Confidence | Listed as missing |
 |---|---|---|---|---|---|---|
+| Y2O3 | absent | None | None | 70% | medium | True |
 | Er2O3 | absent | None | None | 70% | medium | True |
 | Lu2O3 | absent | None | None | 70% | medium | True |
 | Dy2O3 | absent | None | None | 70% | medium | True |
-| Y2O3 | absent | None | None | 70% | medium | True |
 | Tm2O3 | absent | None | None | 70% | medium | True |
 | Ho2O3 | absent | None | None | 70% | medium | True |
 
@@ -70,7 +70,7 @@ two runs identical (excluding timestamp): True; cache fingerprint 27a3734b79a8aa
 
 | Profile | Top 5 |
 |---|---|
-| default | LaAlO3, SrHfO3, LaScO3, CaZrO3, HfO2 |
-| conservative | LaAlO3, HfO2, SrHfO3, LaScO3, SiO2 |
-| exploratory | ZrO2, SrZrO3, La2Zr2O7, CaZrO3, LaAlO3 |
-| ferroelectric-research | Ta2O5, TiO2, SrZrO3, La2Zr2O7, LaAlO3 |
+| default | LaAlO3, HfO2, SrHfO3, ZrO2, LaScO3 |
+| conservative | LaAlO3, HfO2, SrHfO3, SiO2, MgO |
+| exploratory | ZrO2, LaAlO3, SrZrO3, Ta2O5, La2Zr2O7 |
+| ferroelectric-research | Ta2O5, TiO2, LaAlO3, ZrO2, SrZrO3 |

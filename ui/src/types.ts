@@ -94,6 +94,7 @@ export interface ScoredCandidate {
   cross_source_agreement: "agree" | "disagree" | "unavailable" | "untested";
   caveats: Caveat[];
   rationale?: string | null;
+  tier?: number | null;
   rank_by_material?: number | null;
   polymorphs?: PolymorphRef[];
   collapsed_under?: string | null;
@@ -132,6 +133,7 @@ export interface TriageResult {
   ranked_beyond_shortlist: ScoredCandidate[];
   excluded: ScoredCandidate[];
   collapsed_polymorphs?: ScoredCandidate[];
+  tie_band?: number;
   n_candidates_considered: number;
   scope?: { families: string[]; n_universe: number; n_in_scope: number } | null;
   retrieval?: {

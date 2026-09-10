@@ -166,6 +166,11 @@ function CandidateCard({ sc, onOpen, focused }: { sc: ScoredCandidate; onOpen: (
             {r.spacegroup_symbol ? ` ${r.spacegroup_symbol}` : ""}
           </span>
           <Confidence sc={sc} />
+          {sc.tier != null && (
+            <span className="chip chip--sm" title="Candidates within the tie band of a tier's leader share the tier; the order inside a tier is arbitrary.">
+              tier {sc.tier}
+            </span>
+          )}
           {sc.polymorphs && sc.polymorphs.length > 0 && (
             <span className="chip chip--sm" title={`Other phases of this compound that passed the gates: ${sc.polymorphs.map((p) => p.material_id).join(", ")}. The leading phase's numbers are shown.`}>
               +{sc.polymorphs.length} phase{sc.polymorphs.length > 1 ? "s" : ""}

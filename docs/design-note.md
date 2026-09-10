@@ -118,9 +118,7 @@ it. The shipped default is `no_credit`: an unknown criterion earns nothing, is d
 unknown, and lowers confidence, so a candidate can never outrank another by having less data.
 `renormalize` is kept as a documented option so the comparison can be reproduced. The preference
 curves were tuned on four compounds, with the reasoning in `default.yaml`; the profiles exist so
-a site can retune against its own judgement. On live data the dielectric curve alone decides
-the order of the top five, and the README walks through why LaAlO3 leads HfO2 and which single
-setting reverses it.
+a site can retune against its own judgement. On live data the top three are within 0.035 of each other, so the output prints them as one tier and says the order inside it is arbitrary; the README walks through why LaAlO3 leads HfO2, why the literature curve was raised once (the brief asks for public evidence; the first curve erased it), and which setting changes the answer.
 
 ## 6. Refutation pass
 
@@ -203,6 +201,9 @@ reports `INCONCLUSIVE` on a sparse cache and reserves `FAIL` for a wrong known a
 Polymorphs are grouped by formula after ranking, with the leading phase's numbers shown and
 the others listed under it; which phase a film adopts is still not modelled. Literature counts from formula-string search are noisy for
 short formulae, and flagged. The hazard table is a screen, not a toxicological assessment.
-Nothing about films is modelled, by design. Next: confirm the cation list and the dielectric
-preference curve with the PI's group, retune profiles with them against the live data, and add
-the JARVIS-DFT bulk dataset as a second dielectric route.
+Nothing about films is modelled, by design. Near the top of the list the criteria stop
+discriminating, which the tiers make visible; the discriminator that matters in practice,
+stability of the oxide's interface with silicon, is computable from the same public hull data
+and is the next criterion. Then: confirm the cation list and the dielectric curve with the PI's
+group, retune profiles with them against the live data, and add the JARVIS-DFT bulk dataset as
+a second dielectric route.

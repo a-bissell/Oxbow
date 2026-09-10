@@ -298,11 +298,7 @@ def narrate_result(result: TriageResult, rerun_of: str | None, store: SessionSto
         f"{n_pass} of {result.n_candidates_considered} candidates passed the gates under the "
         f"{result.profile_name} profile{scope_bit}."
     )
-    top = ", ".join(
-        f"{s.record.formula} ({s.adjusted_score:.3f})" if s.adjusted_score is not None else s.record.formula
-        for s in result.shortlist
-    )
-    parts.append(f"Shortlist: {top}.")
+    parts.append("Shortlist: " + describe_tiers(result.shortlist) + ".")
     first = result.shortlist[0]
     cav = primary_caveat(first)
     if cav is not None:
@@ -323,6 +319,33 @@ def narrate_result(result: TriageResult, rerun_of: str | None, store: SessionSto
     suggestions.append("Show what was excluded")
     suggestions.append(f"Rerun with a shortlist of {len(result.shortlist) + 5}")
     return " ".join(parts), suggestions
+
+
+def describe_tiers(rows: list[Any]) -> str:
+    """ "tier 1 (within 0.04, order arbitrary): A (0.958), B (0.949); tier 2: C (0.88)"; or a
+    plain list when tiering is off."""
+    if not rows or rows[0].tier is None:
+        return ", ".join(
+            f"{s.record.formula} ({s.adjusted_score:.3f})"
+            if s.adjusted_score is not None
+            else s.record.formula
+            for s in rows
+        )
+    out: list[str] = []
+    tiers = sorted({s.tier for s in rows if s.tier is not None})
+    for t in tiers:
+        members = [s for s in rows if s.tier == t]
+        names = ", ".join(
+            f"{s.record.formula} ({s.adjusted_score:.3f})"
+            if s.adjusted_score is not None
+            else s.record.formula
+            for s in members
+        )
+        label = f"tier {t}"
+        if len(members) > 1:
+            label += " (effectively tied, order arbitrary)"
+        out.append(f"{label}: {names}")
+    return "; ".join(out)
 
 
 def describe_diff(prev: TriageResult, new: TriageResult) -> str:

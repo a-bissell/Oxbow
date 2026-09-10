@@ -77,6 +77,16 @@ Ideas / planned work for this project.
 ## With the PI's group
 
 - [ ] **Run against real data with the group and retune the scoring profiles** with them.
+- [x] **Tiers and the literature curve** — done 2026-09-10: candidates within `output.tie_band`
+      (0.04) of a tier's leader print as one tier with the order stated arbitrary; the literature
+      saturation went from 50 to 500 thin-film works because the brief asks for public evidence
+      and the first curve gave HfO2 (6,975) and LaScO3 (29) the same score. README walks the
+      live ranking under both.
+- [ ] **Interface stability with silicon as a criterion** — the discriminator the top of the
+      list lacks. Materials Project's interface-reactions endpoint is gone from the current API,
+      but the chemsys thermo entries (e.g. Hf-O-Si) are public, so the reaction energy of an
+      oxide with Si against the hull is computable here. Needs a small convex-hull routine
+      without pymatgen.
 
 ## Known limitations (by design, not planned work)
 
