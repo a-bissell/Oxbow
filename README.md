@@ -176,8 +176,9 @@ Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache p
 | `LLM_BASE_URL`, `LLM_MODEL` | only if `LLM_PROVIDER=openai_compatible` | your vLLM/Ollama endpoint |
 | `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT` | MCP server defaults (`stdio`, `127.0.0.1`, `8765`) | — |
 
-Keys are read from the environment only. `.env` is git-ignored; `.env.example` documents every
-variable.
+Keys are read from the environment. A `.env` file in the current directory or the repository root
+is loaded automatically by the CLI, the app and the MCP server (existing environment variables win).
+`.env` is git-ignored; `.env.example` documents every variable.
 
 ### Recording the first live run
 

@@ -136,8 +136,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
                     and not pb_blocked
                 )
                 detail = (
-                    f"proceeded; deviations={[d.code for d in res.deviations]}; "
-                    f"Pb still blocked={pb_blocked}"
+                    f"proceeded; deviations={[d.code for d in res.deviations]}; Pb still blocked={pb_blocked}"
                 )
             (out_dir / f"adversarial_{name}.md").write_text(render(res, "pi_summary"), encoding="utf-8")
             all_ok &= bool(ok)

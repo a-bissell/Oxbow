@@ -13,6 +13,7 @@ import copy
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any, Literal
 
@@ -223,6 +224,39 @@ def list_profiles(config_dir: Path = DEFAULT_CONFIG_DIR) -> list[str]:
     return sorted(p.stem for p in profiles_dir.glob("*.yaml"))
 
 
+def load_dotenv(paths: list[Path] | None = None) -> list[str]:
+    """Load ``KEY=VALUE`` lines from ``.env`` files into the environment without overriding
+    variables that are already set. No dependency; quotes and ``export`` prefixes are tolerated.
+    Looks in the current directory and the repository root. Returns the keys it set."""
+    candidates = paths if paths is not None else [Path.cwd() / ".env", REPO_ROOT / ".env"]
+    loaded: list[str] = []
+    seen: set[Path] = set()
+    for path in candidates:
+        try:
+            path = path.resolve()
+        except OSError:
+            continue
+        if path in seen or not path.is_file():
+            continue
+        seen.add(path)
+        for raw in path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            if line.startswith("export "):
+                line = line[len("export ") :]
+            key, _, value = line.partition("=")
+            key, value = key.strip(), value.strip()
+            if not key or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", key):
+                continue
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+                value = value[1:-1]
+            if key not in os.environ and value != "":
+                os.environ[key] = value
+                loaded.append(key)
+    return loaded
+
+
 def _env_overrides() -> dict[str, Any]:
     """Environment variables that a container admin sets without editing YAML."""
     out: dict[str, Any] = {}
@@ -251,6 +285,8 @@ def load_config(
     overrides: dict[str, Any] | None = None,
     use_env: bool = True,
 ) -> Config:
+    if use_env:
+        load_dotenv()
     data = _read_yaml(config_dir / "default.yaml")
     if profile and profile != "default":
         profile_path = config_dir / "profiles" / f"{profile}.yaml"

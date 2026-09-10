@@ -76,3 +76,34 @@ def test_hazard_table_and_allowlist_consistent():
     assert missing == [], f"cations without hazard entry: {missing}"
     assert table.lookup("Pb")[0] == 2 and table.lookup("Hf")[0] == 0
     assert table.lookup("Xx") == (table.default_tier, "not in hazard table", False)
+
+
+def test_dotenv_is_loaded_without_overriding(tmp_path, monkeypatch):
+    from oxide_triage.config import load_dotenv
+
+    env = tmp_path / ".env"
+    env.write_text(
+        "# comment\nMP_API_KEY=abc123\nexport OPENALEX_MAILTO='me@example.org'\nEMPTY=\nLLM_PROVIDER=\"anthropic\"\n"
+        "not a line\n",
+        encoding="utf-8",
+    )
+    for k in ("MP_API_KEY", "OPENALEX_MAILTO", "EMPTY"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setenv("LLM_PROVIDER", "none")  # already set: must win over the file
+    loaded = load_dotenv([env])
+    import os
+
+    assert set(loaded) == {"MP_API_KEY", "OPENALEX_MAILTO"}
+    assert os.environ["MP_API_KEY"] == "abc123" and os.environ["OPENALEX_MAILTO"] == "me@example.org"
+    assert os.environ["LLM_PROVIDER"] == "none" and "EMPTY" not in os.environ
+
+
+def test_load_config_reads_dotenv_from_cwd(tmp_path, monkeypatch):
+    (tmp_path / ".env").write_text("OXIDE_TRIAGE_OFFLINE=1\nMP_API_KEY=fromfile\n", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    for k in ("OXIDE_TRIAGE_OFFLINE", "MP_API_KEY"):
+        monkeypatch.delenv(k, raising=False)
+    cfg = load_config()
+    import os
+
+    assert cfg.cache.offline is True and os.environ["MP_API_KEY"] == "fromfile"
