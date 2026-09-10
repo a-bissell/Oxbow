@@ -50,6 +50,32 @@ SYSTEM_PREAMBLE = (
 )
 
 
+# Keywords Anthropic's structured-output schema grammar rejects (numeric ranges and
+# length bounds). Every caller validates the parsed object in Python afterwards, so dropping
+# them from the wire schema loses nothing.
+_UNSUPPORTED_SCHEMA_KEYS = frozenset(
+    {
+        "minimum",
+        "maximum",
+        "exclusiveMinimum",
+        "exclusiveMaximum",
+        "minItems",
+        "maxItems",
+        "minLength",
+        "maxLength",
+    }
+)
+
+
+def anthropic_schema(schema: Any) -> Any:
+    """A copy of ``schema`` without the constraint keywords the Anthropic API refuses."""
+    if isinstance(schema, dict):
+        return {k: anthropic_schema(v) for k, v in schema.items() if k not in _UNSUPPORTED_SCHEMA_KEYS}
+    if isinstance(schema, list):
+        return [anthropic_schema(v) for v in schema]
+    return schema
+
+
 def wrap_retrieved(payload: Any, source: str) -> str:
     """Delimit retrieved content as data. JSON-encode so the block cannot be closed early."""
     body = json.dumps(payload, ensure_ascii=True, sort_keys=True, default=str)
@@ -87,7 +113,7 @@ class AnthropicLLM:
                 max_tokens=4096,
                 system=f"{SYSTEM_PREAMBLE}\n\n{system}",
                 messages=[{"role": "user", "content": user}],
-                output_config={"format": {"type": "json_schema", "schema": schema}},
+                output_config={"format": {"type": "json_schema", "schema": anthropic_schema(schema)}},
             ) as stream:
                 resp = stream.get_final_message()
         except self._anthropic.APIError as exc:

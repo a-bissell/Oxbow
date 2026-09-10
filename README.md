@@ -129,7 +129,7 @@ shortlist cards with score bars and the main caveat, an expandable full breakdow
 a data-gap map showing which criteria had data behind them for every passing candidate, the
 excluded list with reasons, the scoring rules, the scope statement, and optionally the
 evaluation checks. `oxide-triage report --out triage_report.html` (see `docs/sample_report.html`,
-generated from the synthetic fixture). Retrieved text is escaped, never interpreted.
+generated from the live cache). Retrieved text is escaped, never interpreted.
 
 Things to know before trusting a number:
 
@@ -604,7 +604,7 @@ tests/
 |---|---|
 | Normal query | ranked shortlist, caveats on every entry, gaps named |
 | Adversarial: Bin 0 / 1 / 2 / 3 | override attempt named and ranking identical to the plain request / declined as missing capability / proceeds with visible deviation / refused as fabrication; two legitimate phrasings ("cite the sources you used", "we will deposit the films") run as plain requests |
-| Known-answer | workhorses above the median, HfO2 in the default top 10, at least two workhorses in the exploratory top 25; on live data the default top five are SrHfO3, LaAlO3, LaScO3, CaZrO3, ScTaO4 with HfO2 6th and Al2O3 16th |
+| Known-answer | the configured self-check: workhorses above the median, HfO2 in the default top 10, at least two workhorses in the exploratory top 25. On live data (September 2026, 708 candidates, retrieval complete) the default top five are LaAlO3, SrHfO3, LaScO3, CaZrO3, HfO2 with ZrO2 6th and Al2O3 12th of 497 |
 | Determinism | identical result objects across runs |
 | Missing data | no candidate without a dielectric value is scored as if it had one, and a value the cache never downloaded is distinguished from one the source does not hold |
 
@@ -614,10 +614,12 @@ that turned out not to be about ranking at all — the workhorses had sunk becau
 and literature lookups were never retrieved, which is why an under-warmed cache now reports
 `INCONCLUSIVE` rather than `FAIL`. The numbers are under *Notes from the first live warm* above.
 
-**On live data the current cache is incomplete** (78.9% retrieved: OQMD rate-limited and OpenAlex
-hit its daily budget partway through the warm). Runs against it are served with the
-incomplete-retrieval banner and the self-check reports inconclusive, by design. The fixture path
-above is complete and passes every check.
+**On live data** every check passes as well: `docs/live-evaluation.md` is the report from a
+clean Materials Project warm (708 candidates, 497 passing the default gates) with the four
+profiles' pools filled from OQMD, PubChem and OpenAlex, retrieval 100% complete. Reproduce it
+with `oxide-triage warm-cache`, one `oxide-triage query --profile <name>` per profile, then
+`oxide-triage eval --live-cache`. `docs/sample_report.html` is generated from that cache. The
+recordings under `tests/recorded` come from the same run and now cover all four sources.
 
 ## Licence
 

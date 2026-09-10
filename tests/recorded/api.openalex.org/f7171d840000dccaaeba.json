@@ -1,0 +1,42 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(LaTa7O19)",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 16,
+   "db_response_time_ms": 11,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (LaTa7O19)",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "(LaTa7O19)"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:%28LaTa7O19%29&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1002/zaac.19865431215",
+    "id": "https://openalex.org/W4248197395",
+    "publication_year": 1986,
+    "title": "Zur Darstellung und Struktur von LaTa7O19 R\u00f6ntgenographische und elektronenmikroskopische Untersuchungen"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

@@ -1,0 +1,62 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(HfO2 OR hafnia OR \"hafnium oxide\" OR \"hafnium dioxide\")",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 24154,
+   "db_response_time_ms": 45,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    HfO2\n    or stemmed \"hafnium dioxide\"\n    or stemmed \"hafnium oxide\"\n    or hafnia\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "HfO2"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"hafnium dioxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"hafnium oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "hafnia"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:HfO2|%22hafnium dioxide%22|%22hafnium oxide%22|hafnia&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1038/nature13883",
+    "id": "https://openalex.org/W2076699264",
+    "publication_year": 2014,
+    "title": "Passive radiative cooling below ambient air temperature under direct sunlight"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

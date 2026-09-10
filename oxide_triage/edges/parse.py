@@ -220,7 +220,10 @@ CRITERIA_SCHEMA: dict[str, Any] = {
             "additionalProperties": False,
             "properties": {c: {"type": ["number", "null"], "minimum": 0} for c in CRITERIA},
         },
-        "output_template": {"type": ["string", "null"], "enum": ["pi_summary", "audit", "json", None]},
+        # anyOf rather than a null inside the enum: the Anthropic schema grammar rejects the latter.
+        "output_template": {
+            "anyOf": [{"type": "string", "enum": ["pi_summary", "audit", "json"]}, {"type": "null"}]
+        },
         "interpretation_notes": {"type": "array", "items": {"type": "string"}},
     },
     "required": [

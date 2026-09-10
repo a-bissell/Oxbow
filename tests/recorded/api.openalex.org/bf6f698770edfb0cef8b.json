@@ -1,0 +1,121 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(LaAlO3 OR \"lanthanum aluminate\") AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 4002,
+   "db_response_time_ms": 110,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    (LaAlO3 or stemmed \"lanthanum aluminate\")\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "LaAlO3"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"lanthanum aluminate\""
+        }
+       ],
+       "join": "or"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:LaAlO3|%22lanthanum aluminate%22,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1038/nature02308",
+    "id": "https://openalex.org/W2081298453",
+    "publication_year": 2004,
+    "title": "A high-mobility electron gas at the LaAlO3/SrTiO3 heterointerface"
+   },
+   {
+    "doi": "https://doi.org/10.1038/s41586-019-1496-5",
+    "id": "https://openalex.org/W2970140888",
+    "publication_year": 2019,
+    "title": "Superconductivity in an infinite-layer nickelate"
+   },
+   {
+    "doi": "https://doi.org/10.1103/physrevlett.98.216803",
+    "id": "https://openalex.org/W2081877995",
+    "publication_year": 2007,
+    "title": "High Mobility in LaAlO3/SrTiO3 Heterostructures: Origin, Dimensionality, and Perspectives"
+   },
+   {
+    "doi": "https://doi.org/10.1103/physrevlett.98.196802",
+    "id": "https://openalex.org/W2119200780",
+    "publication_year": 2007,
+    "title": "Origin of Charge Density at LaAlO3 on SrTiO3 Heterointerfaces: Possibility of Intrinsic Doping"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.126363",
+    "id": "https://openalex.org/W1991876910",
+    "publication_year": 2000,
+    "title": "Strain-dependent magnetic phase diagram of epitaxial La0.67Sr0.33MnO3 thin films"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

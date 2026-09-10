@@ -1,0 +1,126 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(SiO2 OR silica OR \"silicon dioxide\") AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 46183,
+   "db_response_time_ms": 104,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    (SiO2 or stemmed \"silicon dioxide\" or silica)\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "SiO2"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"silicon dioxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "silica"
+        }
+       ],
+       "join": "or"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:SiO2|%22silicon dioxide%22|silica,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/c2009-0-20920-2",
+    "id": "https://openalex.org/W2162123284",
+    "publication_year": 1985,
+    "title": "Handbook of Optical Constants of Solids"
+   },
+   {
+    "doi": "https://doi.org/10.1126/science.1171245",
+    "id": "https://openalex.org/W2092188263",
+    "publication_year": 2009,
+    "title": "Large-Area Synthesis of High-Quality and Uniform Graphene Films on Copper Foils"
+   },
+   {
+    "doi": "https://doi.org/10.1002/1521-4095(20020116)14:2<99::aid-adma99>3.0.co;2-9",
+    "id": "https://openalex.org/W2146101168",
+    "publication_year": 2002,
+    "title": "Organic Thin Film Transistors for Large Area Electronics"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.3634052",
+    "id": "https://openalex.org/W1625170149",
+    "publication_year": 2011,
+    "title": "Ferroelectricity in hafnium oxide thin films"
+   },
+   {
+    "doi": "https://doi.org/10.1126/science.282.5391.1105",
+    "id": "https://openalex.org/W1997070558",
+    "publication_year": 1998,
+    "title": "Synthesis of Large Arrays of Well-Aligned Carbon Nanotubes on Glass"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

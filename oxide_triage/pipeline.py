@@ -302,6 +302,12 @@ def run_triage(
         for sc in ranked:
             sc.rationale = rationale_line(sc)
 
+        if config.candidates.formula_sources == "on_demand" and ranked and retrieval_scope is None:
+            # Offline under on-demand sources the fill does not run, but the semantics are the
+            # same: the shortlist is drawn from the pool and rows below it say they were not
+            # retrieved. Measuring over the whole ranked set here would make the same cache
+            # read 100% online and 79% offline.
+            retrieval_scope = max(config.candidates.on_demand_pool, eff.top_k)
         retrieval = retrieval_completeness(ranked, config, scope_n=retrieval_scope)
         warnings = list(layer.warnings)
         if not retrieval.comparable:

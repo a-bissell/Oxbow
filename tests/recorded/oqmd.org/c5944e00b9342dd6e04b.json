@@ -1,0 +1,64 @@
+{
+ "params": {
+  "composition": "Ca3Ti2O7",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.33454991697698,
+    "entry_id": 11851,
+    "name": "Ca3Ti2O7",
+    "spacegroup": "Cmc21",
+    "stability": 0.004206430678781015
+   },
+   {
+    "delta_e": -3.29127265572698,
+    "entry_id": 1344906,
+    "name": "Ca3Ti2O7",
+    "spacegroup": "I4/mmm",
+    "stability": 0.0474836919287811
+   },
+   {
+    "delta_e": -3.322623053643651,
+    "entry_id": 2053889,
+    "name": "Ca3Ti2O7",
+    "spacegroup": "Cmcm",
+    "stability": 0.016133294012110166
+   },
+   {
+    "delta_e": -3.331278985101985,
+    "entry_id": 2053890,
+    "name": "Ca3Ti2O7",
+    "spacegroup": "Pbcn",
+    "stability": 0.007477362553776068
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 4,
+   "data_returned": 4,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Ca3Ti2O7&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 12:09:52"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

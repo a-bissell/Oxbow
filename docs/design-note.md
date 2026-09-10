@@ -196,9 +196,8 @@ reports `INCONCLUSIVE` on a sparse cache and reserves `FAIL` for a wrong known a
 
 ## 11. Limitations and next steps
 
-The live recording is partial, and the system declines to present that cache as a ranking.
-Polymorphs are not deduplicated. Literature counts from formula-string search are noisy for
+Polymorphs are not deduplicated, so one compound can occupy two shortlist rows. Literature counts from formula-string search are noisy for
 short formulae, and flagged. The hazard table is a screen, not a toxicological assessment.
 Nothing about films is modelled, by design. Next: confirm the cation list and the dielectric
-preference curve with the PI's group, complete the live warm, retune profiles against real data,
-and add the JARVIS-DFT bulk dataset as a second dielectric route.
+preference curve with the PI's group, retune profiles with them against the live data, and add
+the JARVIS-DFT bulk dataset as a second dielectric route.

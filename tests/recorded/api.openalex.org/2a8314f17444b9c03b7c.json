@@ -1,0 +1,111 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(MgTi2O5) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 12,
+   "db_response_time_ms": 30,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    MgTi2O5\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "MgTi2O5"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:MgTi2O5,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1143/jjap.40.5497",
+    "id": "https://openalex.org/W1740535608",
+    "publication_year": 2001,
+    "title": "Electrical Properties of Mg Doped (Ba0.5Sr0.5)TiO3 Thin Films"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.solmat.2016.12.015",
+    "id": "https://openalex.org/W2564502933",
+    "publication_year": 2016,
+    "title": "MgTi2O5 thin films from single molecular precursor for photoelectrochemical water splitting"
+   },
+   {
+    "doi": "https://doi.org/10.1021/acs.jpcc.6b02296",
+    "id": "https://openalex.org/W2476079385",
+    "publication_year": 2016,
+    "title": "Oxidation of Single Crystalline Ti2AlN Thin Films between 300 and 900 \u00b0C: A Perspective from Surface Analysis"
+   },
+   {
+    "doi": "https://doi.org/10.1063/5.0008888",
+    "id": "https://openalex.org/W3028405356",
+    "publication_year": 2020,
+    "title": "Non-metallic electrical transport properties of a metastable \u03bb -Ti3O5 thin film epitaxially stabilized on a pseudobrookite seed layer"
+   },
+   {
+    "doi": "https://doi.org/10.1080/10584580390259821",
+    "id": "https://openalex.org/W1991396953",
+    "publication_year": 2003,
+    "title": "The Characteristics of Magnesium Titanate Thin Film as Buffer Layer by Electron Beam Evaporation"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

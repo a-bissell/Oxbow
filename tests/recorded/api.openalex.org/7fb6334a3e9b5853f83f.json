@@ -1,0 +1,42 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(CaZrO3)",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 1014,
+   "db_response_time_ms": 20,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (CaZrO3)",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "(CaZrO3)"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:%28CaZrO3%29&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/j.biortech.2007.08.009",
+    "id": "https://openalex.org/W2047589610",
+    "publication_year": 2008,
+    "title": "Development of heterogeneous base catalysts for biodiesel production"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

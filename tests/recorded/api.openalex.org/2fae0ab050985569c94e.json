@@ -1,0 +1,42 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(ScTaO4)",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 18,
+   "db_response_time_ms": 19,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (ScTaO4)",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "(ScTaO4)"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:%28ScTaO4%29&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.26599/jac.2023.9220776",
+    "id": "https://openalex.org/W4378905153",
+    "publication_year": 2023,
+    "title": "Simultaneous manipulations of thermal expansion and conductivity in symbiotic ScTaO 4/SmTaO 4 composites via multiscale effects"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

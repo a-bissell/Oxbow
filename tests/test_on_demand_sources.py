@@ -227,3 +227,24 @@ def test_config_validation():
         load_config("default", use_env=False, overrides={"candidates": {"formula_sources": "sometimes"}})
     cfg = load_config("default", use_env=False, overrides={"candidates": {"formula_sources": "warm"}})
     assert cfg.candidates.formula_sources == "warm"
+
+
+def test_offline_completeness_is_measured_over_the_pool_like_online():
+    """The same cache must not read 100% retrieved online and 79% offline. Under on-demand
+    sources the shortlist is drawn from the pool whether or not the fill ran this time, so the
+    completeness measure is scoped to the pool in both cases."""
+    from oxide_triage.config import load_config
+    from oxide_triage.pipeline import run_triage
+
+    http = FakeHttp()
+    layer, cache = _online_layer(http, candidates={"on_demand_pool": 5}, output={"top_k": 3})
+    cfg = load_config(
+        "default", use_env=False, overrides={"candidates": {"on_demand_pool": 5}, "output": {"top_k": 3}}
+    )
+    online = run_triage(PI, cfg, cache=cache, offline=False, http=http, skip_selfcheck=True)
+    assert online.retrieval and online.retrieval.n_ranked == 5 and online.retrieval.completeness == 1.0
+    offline = run_triage(PI, cfg, cache=cache, offline=True, skip_selfcheck=True)
+    assert offline.retrieval and offline.retrieval.n_ranked == 5
+    assert offline.retrieval.completeness == online.retrieval.completeness == 1.0
+    # rows below the pool still say they were never retrieved
+    assert any(s.not_retrieved_criteria for s in offline.ranked_beyond_shortlist[3:])

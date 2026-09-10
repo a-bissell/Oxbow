@@ -1,0 +1,62 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Ta2O5 OR tantala OR \"tantalum pentoxide\" OR \"tantalum oxide\")",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 11479,
+   "db_response_time_ms": 54,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    Ta2O5\n    or stemmed \"tantalum oxide\"\n    or stemmed \"tantalum pentoxide\"\n    or tantala\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "Ta2O5"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"tantalum oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"tantalum pentoxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "tantala"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:Ta2O5|%22tantalum oxide%22|%22tantalum pentoxide%22|tantala&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1038/414625a",
+    "id": "https://openalex.org/W1993943081",
+    "publication_year": 2001,
+    "title": "Direct splitting of water under visible light irradiation with an oxide semiconductor photocatalyst"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

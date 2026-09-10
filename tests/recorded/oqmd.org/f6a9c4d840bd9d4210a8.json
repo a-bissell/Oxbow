@@ -1,17 +1,24 @@
 {
  "params": {
-  "composition": "Y3TaO7",
+  "composition": "MgTi2O5",
   "fields": "name,entry_id,delta_e,stability,spacegroup",
   "limit": 50
  },
  "response": {
   "data": [
    {
-    "delta_e": -3.66130553192284,
-    "entry_id": 22063,
-    "name": "Y3TaO7",
+    "delta_e": -3.20932444451662,
+    "entry_id": 6886,
+    "name": "MgTi2O5",
     "spacegroup": "Cmcm",
     "stability": 0.0
+   },
+   {
+    "delta_e": -3.179350194516621,
+    "entry_id": 1816012,
+    "name": "MgTi2O5",
+    "spacegroup": "C2/c",
+    "stability": 0.029974249999999092
    }
   ],
   "links": {
@@ -27,14 +34,14 @@
   "meta": {
    "api_version": "1.0",
    "comments": "",
-   "data_available": 1,
-   "data_returned": 1,
+   "data_available": 2,
+   "data_returned": 2,
    "more_data_available": false,
    "query": {
-    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Y3TaO7&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=MgTi2O5&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
    },
    "query_tree": "",
-   "time_stamp": "2026-09-09 22:23:53"
+   "time_stamp": "2026-09-10 12:10:52"
   },
   "resource": {},
   "response_message": "OK"

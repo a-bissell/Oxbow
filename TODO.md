@@ -28,10 +28,20 @@ Ideas / planned work for this project.
       sets `workers` and `max_rps` per source (OQMD 8 workers at 1 req/s, PubChem 4 at 4 req/s,
       OpenAlex 4 at 5 req/s); the cap lives in the HTTP client, so retries and the on-demand
       literature fill are covered too.
-- [ ] **Fill or accept recording gaps** — formulas whose fetch failed have no OQMD / OpenAlex /
-      PubChem recordings. Re-record, or document that the gaps are expected.
-- [ ] **Validate the rest of the first live warm** — check field names and dielectric
-      coverage in the recorded responses, and retune defaults if they moved.
+- [x] **Fill or accept recording gaps** — done 2026-09-10: clean re-record from a fresh cache
+      (MP warm plus the self-check's pool and one query per profile), 134 responses over all
+      four sources including OpenAlex, retrieval 100% complete. `docs/live-evaluation.md` and
+      `docs/sample_report.html` are generated from that cache.
+- [x] **Validate the rest of the first live warm** — done 2026-09-10: all five evaluation checks
+      pass on the live cache; the eval's known-answer check now defers to the configured
+      self-check instead of carrying its own windows. Live default top five: LaAlO3, SrHfO3,
+      LaScO3, CaZrO3, HfO2.
+- [ ] **Group polymorphs by formula in the shortlist** — the live exploratory top five lists
+      SrZrO3 twice; one compound should occupy one row with its other phases collapsed under it.
+- [x] **Anthropic structured output** — done 2026-09-10: the API rejects `minimum`/`maximum`/
+      `maxItems`/`maxLength` and a `null` inside an `enum`; the schemas are cleaned on the way
+      out (Python validates the result anyway). Before this the model edges always fell back to
+      rules against the real API.
 
 ## Data sources
 

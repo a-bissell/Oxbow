@@ -1,0 +1,111 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(LaScO3) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 29,
+   "db_response_time_ms": 24,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    LaScO3\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "LaScO3"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:LaScO3,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1063/1.1886249",
+    "id": "https://openalex.org/W1974123820",
+    "publication_year": 2005,
+    "title": "Ternary rare-earth metal oxide high-k layers on silicon oxide"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.3374323",
+    "id": "https://openalex.org/W1986824512",
+    "publication_year": 2010,
+    "title": "Applying uniform reversible strain to epitaxial oxide films"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.2213931",
+    "id": "https://openalex.org/W2026638278",
+    "publication_year": 2006,
+    "title": "Dielectric and optical properties of epitaxial rare-earth scandate films and their crystallization behavior"
+   },
+   {
+    "doi": "https://doi.org/10.1116/1.2056555",
+    "id": "https://openalex.org/W2117960701",
+    "publication_year": 2005,
+    "title": "Optical properties of La-based high-K dielectric films"
+   },
+   {
+    "doi": "https://doi.org/10.1039/c0jm00363h",
+    "id": "https://openalex.org/W2137089216",
+    "publication_year": 2010,
+    "title": "Rare earth scandate thin films by atomic layer deposition: effect of the rare earth cation size"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

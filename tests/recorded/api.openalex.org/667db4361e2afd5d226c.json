@@ -1,0 +1,111 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Ca3Ti2O7) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 5,
+   "db_response_time_ms": 23,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    Ca3Ti2O7\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "Ca3Ti2O7"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:Ca3Ti2O7,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1063/1.4974217",
+    "id": "https://openalex.org/W2583013150",
+    "publication_year": 2017,
+    "title": "Ultra-low coercive field of improper ferroelectric Ca3Ti2O7 epitaxial thin films"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.physleta.2020.126609",
+    "id": "https://openalex.org/W3032217116",
+    "publication_year": 2020,
+    "title": "Nanoscale imaging of ferroelectric domain and resistance switching in hybrid improper ferroelectric Ca3Ti2O7 thin films"
+   },
+   {
+    "doi": "https://doi.org/10.1088/2053-1591/abd0a4",
+    "id": "https://openalex.org/W3113109050",
+    "publication_year": 2020,
+    "title": "Fluorination-enhanced photoconductive effect in a wide band gap Ca3Ti2O7-x F x thin films"
+   },
+   {
+    "doi": "https://doi.org/10.1063/5.0224630",
+    "id": "https://openalex.org/W4403192924",
+    "publication_year": 2024,
+    "title": "Robust resistance switching performance in a Ca3Ti2O7/La0.67Sr0.33MnO3 heterostructure induced by the interface"
+   },
+   {
+    "doi": "https://doi.org/10.1063/5.0070911",
+    "id": "https://openalex.org/W4200255519",
+    "publication_year": 2021,
+    "title": "Epitaxial growth and polarization reversal characteristics of hybrid improper ferroelectric Ca3Ti2O7 thin films"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

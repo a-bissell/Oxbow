@@ -1,0 +1,57 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(MgO OR magnesia OR \"magnesium oxide\")",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 146481,
+   "db_response_time_ms": 46,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (MgO or stemmed \"magnesium oxide\" or magnesia)",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "MgO"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"magnesium oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "magnesia"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:MgO|%22magnesium oxide%22|magnesia&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/0079-6700(92)90023-r",
+    "id": "https://openalex.org/W2092700187",
+    "publication_year": 1992,
+    "title": "Poly(N-isopropylacrylamide): experiment, theory and application"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}
