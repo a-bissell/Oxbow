@@ -122,6 +122,15 @@ class MissingDataConfig(BaseModel):
         return v
 
 
+class SourceFetchConfig(BaseModel):
+    """Per-source fetch limits. ``workers`` overrides ``candidates.fetch_workers`` for the warm's
+    thread pool (0 = fetch this source sequentially); ``max_rps`` caps requests per second across
+    all threads of that source's client, retries included."""
+
+    workers: int | None = Field(default=None, ge=0, le=16)
+    max_rps: float | None = Field(default=None, gt=0, le=100)
+
+
 class CandidatesConfig(BaseModel):
     cation_allowlist_file: str
     max_elements_query: int = Field(ge=2, le=6)
@@ -129,6 +138,15 @@ class CandidatesConfig(BaseModel):
     min_reported_gap_ev: float = Field(ge=0)
     literature_sample_size: int = Field(ge=0, le=25)
     fetch_workers: int = Field(default=4, ge=0, le=16)  # threads per source for the warm
+    fetch: dict[str, SourceFetchConfig] = Field(default_factory=dict)  # per-source overrides
+
+    def workers_for(self, source: str) -> int:
+        override = self.fetch.get(source)
+        return self.fetch_workers if override is None or override.workers is None else override.workers
+
+    def max_rps_for(self, source: str) -> float | None:
+        override = self.fetch.get(source)
+        return None if override is None else override.max_rps
 
 
 class OutputConfig(BaseModel):

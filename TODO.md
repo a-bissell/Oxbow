@@ -4,21 +4,21 @@ Ideas / planned work for this project.
 
 ## Data layer (blocking)
 
-- [ ] **Fix the band-gap functional lookup against live Materials Project data** — the
-      recorded-replay test (`tests/test_recorded.py`) fails: every record resolves its
-      functional to `"unknown"`, so the tasks-endpoint lookup does not match what the API
-      actually returns. Items below in this section are blocked on this.
-- [ ] **Commit the recorded live fixtures** under `tests/recorded/` (108 files across
-      Materials Project, OpenAlex, OQMD, PubChem) once the replay test passes.
+- [x] **Fix the band-gap functional lookup against live Materials Project data** — done
+      2026-09-10: the task id comes from the `electronic_structure` origin (the live API has no
+      `band_gap` origin); verified live, 40/40 resolve to GGA.
+- [ ] **Commit the recorded live fixtures** under `tests/recorded/` once the replay test
+      passes on a complete recording (Materials Project, OQMD, PubChem).
 - [ ] **Finish the re-record** — the 2026-09-10 re-record (tighter universe: 4,769 materials,
       2,651 formulas) stopped early on OpenAlex's daily budget. Literature is now fetched per
       query instead of at warm time, so the warm and the recording cover Materials Project,
       OQMD and PubChem only (~5,300 formula requests). OQMD returned 429 at four concurrent
       workers but recovered within a minute; a retry pass resumes from `data/record-cache.sqlite`
       (`OXIDE_TRIAGE_CACHE=data/record-cache.sqlite oxide-triage warm-cache --record tests/recorded`).
-- [ ] **Per-source concurrency and rate limits** — `fetch_workers` is one number for all
-      formula sources. OQMD 429s at four workers. Make the worker count and a requests-per-second
-      cap configurable per source.
+- [x] **Per-source concurrency and rate limits** — done 2026-09-10: `candidates.fetch.<source>`
+      sets `workers` and `max_rps` per source (OQMD 8 workers at 1 req/s, PubChem 4 at 4 req/s,
+      OpenAlex 4 at 5 req/s); the cap lives in the HTTP client, so retries and the on-demand
+      literature fill are covered too.
 - [ ] **Fill or accept recording gaps** — formulas whose fetch failed have no OQMD / OpenAlex /
       PubChem recordings. Re-record, or document that the gaps are expected.
 - [ ] **Validate the rest of the first live warm** — check field names and dielectric

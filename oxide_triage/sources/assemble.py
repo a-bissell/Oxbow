@@ -33,7 +33,7 @@ from oxide_triage.schemas import (
     StabilityRecord,
     WorkRef,
 )
-from oxide_triage.sources.base import SourceError
+from oxide_triage.sources.base import Http, SourceError
 from oxide_triage.sources.hazards import hazard_record
 from oxide_triage.sources.materials_project import THERMO_FUNCTIONAL_LABEL, MaterialsProject
 from oxide_triage.sources.openalex import OpenAlex
@@ -69,21 +69,36 @@ class DataLayer:
         cache = cache or Cache(config.cache.path)
         off = config.cache.offline if offline is None else offline
         ttl = config.cache.ttl_days
+        c = config.candidates
+
+        def live(name: str, **kw: Any) -> Any:
+            """One rate-capped Http per source unless a shared transport was supplied."""
+            return http if http is not None else Http(max_rps=c.max_rps_for(name), **kw)
+
         return cls(
             config=config,
             cache=cache,
-            mp=MaterialsProject(cache, ttl, off, http=http),
-            oqmd=OQMD(cache, ttl, off, http=http),
+            mp=MaterialsProject(
+                cache,
+                ttl,
+                off,
+                http=live("materials_project", user_agent="oxide-triage/0.1 (materials-project-client)"),
+            ),
+            oqmd=OQMD(
+                cache, ttl, off, http=live("oqmd", timeout_s=60, user_agent="oxide-triage/0.1 (oqmd-client)")
+            ),
             openalex=OpenAlex(
                 cache,
                 ttl,
                 off,
-                http=http,
-                sample_size=config.candidates.literature_sample_size,
+                http=live("openalex", user_agent="oxide-triage/0.1 (openalex-client)"),
+                sample_size=c.literature_sample_size,
                 mailto=os.environ.get("OPENALEX_MAILTO"),
                 api_key=os.environ.get("OPENALEX_API_KEY"),
             ),
-            pubchem=PubChem(cache, ttl, off, http=http),
+            pubchem=PubChem(
+                cache, ttl, off, http=live("pubchem", user_agent="oxide-triage/0.1 (pubchem-client)")
+            ),
             hazard_table=load_hazard_table(config.toxicity.table_file),
             aliases=load_compound_aliases(),
             cations=load_cation_allowlist(config.candidates.cation_allowlist_file),
@@ -164,6 +179,10 @@ class DataLayer:
         if self.offline or not formulas or workers <= 0:
             return {}
         want = sources if sources is not None else {self.oqmd.name, self.openalex.name, self.pubchem.name}
+        # per-source pool sizes; a source set to 0 workers is left to the sequential path
+        c = self.config.candidates
+        pool_size = {src: (c.workers_for(src) if src in c.fetch else workers) for src in want}
+        want = {src for src in want if pool_size[src] > 0}
         jobs: list[tuple[str, str, Callable[[], dict]]] = []
         for f in dict.fromkeys(formulas):  # dedupe, keep order: polymorphs share a formula
             names = self.aliases.get(f, [])
@@ -177,17 +196,23 @@ class DataLayer:
             return {}
         counts = {"fetched": 0, "failed": 0}
         started = time.monotonic()
+        limits = ", ".join(
+            f"{src} x{pool_size[src]}" + (f" @{c.max_rps_for(src):g}/s" if c.max_rps_for(src) else "")
+            for src in sorted(want)
+        )
         log.info(
-            "prefetch: %d requests across %d formulas, %d workers per source",
+            "prefetch: %d requests across %d formulas (workers per source: %s)",
             len(jobs),
             len(formulas),
-            workers,
+            limits,
         )
         # one pool per source so a slow source cannot starve the others
         by_source: dict[str, list[tuple[str, str, Callable[[], dict]]]] = {}
         for job in jobs:
             by_source.setdefault(job[0], []).append(job)
-        pools = {src: ThreadPoolExecutor(max_workers=workers, thread_name_prefix=src) for src in by_source}
+        pools = {
+            src: ThreadPoolExecutor(max_workers=pool_size[src], thread_name_prefix=src) for src in by_source
+        }
         try:
             futures = {}
             for src, src_jobs in by_source.items():

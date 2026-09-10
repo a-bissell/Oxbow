@@ -112,6 +112,16 @@ candidates:
   min_reported_gap_ev: 1.8
   literature_sample_size: 5
   fetch_workers: 4          # concurrent requests per source during warm-cache (0 = sequential)
+  # Per-source overrides. workers: threads for that source's pool; max_rps: requests per second
+  # across all of its threads, retries included. OQMD returned 429 at ~2.4 req/s and answers a
+  # composition it has not cached in 10-50 s, so it needs a low rate cap *and* a deep pool: the
+  # cap bounds the pressure, the pool keeps throughput near the cap despite the latency.
+  # PubChem documents 5 req/s; OpenAlex allows 10 req/s but is metered by budget, not rate;
+  # Materials Project is batched (100 ids per call) and needs no cap.
+  fetch:
+    oqmd:     {workers: 8, max_rps: 1.0}
+    pubchem:  {workers: 4, max_rps: 4.0}
+    openalex: {workers: 4, max_rps: 5.0}
 
 output:
   default_template: pi_summary   # pi_summary | audit | json

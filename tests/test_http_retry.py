@@ -52,3 +52,43 @@ def test_429_without_header_backs_off_then_gives_up():
     with pytest.raises(SourceError, match="Giving up"):
         http.get_json("https://api.example.org/v")
     assert sleeps == [1, 2, 4]
+
+
+# ---- request-rate cap ---------------------------------------------------------------------
+
+
+def test_rate_limiter_spaces_requests_across_threads():
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+
+    from oxide_triage.sources.base import RateLimiter
+
+    lim = RateLimiter(max_rps=50)  # 20 ms apart
+    started = time.monotonic()
+    with ThreadPoolExecutor(4) as ex:
+        list(ex.map(lambda _: lim.wait(), range(10)))
+    elapsed = time.monotonic() - started
+    assert elapsed >= 9 * 0.02 * 0.9  # ten slots, nine intervals, some scheduling slack
+
+
+def test_http_applies_limiter_to_every_attempt():
+    calls, sleeps = [], []
+    n = [0]
+
+    def handler(request):
+        n[0] += 1
+        calls.append(request.url)
+        return httpx.Response(429) if n[0] < 3 else httpx.Response(200, json={"ok": 1})
+
+    http = _client(handler, sleeps)
+    waits = []
+    http.limiter = type("L", (), {"wait": lambda self: waits.append(1)})()
+    assert http.get_json("https://api.example.org/v") == {"ok": 1}
+    assert len(calls) == 3 and len(waits) == 3  # the two retries were rate-capped too
+
+
+def test_rate_limiter_rejects_nonpositive_rate():
+    from oxide_triage.sources.base import RateLimiter
+
+    with pytest.raises(ValueError):
+        RateLimiter(0)

@@ -18,6 +18,7 @@ import hashlib
 import json
 import logging
 import os
+import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -101,9 +102,32 @@ class ReplayHttp:
         return None
 
 
+class RateLimiter:
+    """Thread-safe minimum spacing between requests: at most ``max_rps`` per second across every
+    thread sharing the client. Attempts are spaced, not just first tries, so retries after a 429
+    do not add to the pressure that caused it."""
+
+    def __init__(self, max_rps: float):
+        if max_rps <= 0:
+            raise ValueError("max_rps must be positive")
+        self.interval = 1.0 / max_rps
+        self._lock = threading.Lock()
+        self._next = 0.0
+
+    def wait(self) -> float:
+        with self._lock:
+            now = time.monotonic()
+            slot = max(now, self._next)
+            self._next = slot + self.interval
+        delay = slot - now
+        if delay > 0:
+            time.sleep(delay)
+        return delay
+
+
 class Http:
-    """Thin httpx wrapper: timeouts, retries with backoff, 429 handling, proxy-aware, optional
-    recording of every response for replay in tests."""
+    """Thin httpx wrapper: timeouts, retries with backoff, 429 handling, an optional per-client
+    request-rate cap, proxy-aware, optional recording of every response for replay in tests."""
 
     def __init__(
         self,
@@ -111,6 +135,7 @@ class Http:
         max_retries: int = 3,
         user_agent: str = "",
         recorder: Recorder | None = None,
+        max_rps: float | None = None,
     ):
         headers = {"Accept": "application/json"}
         if user_agent:
@@ -118,6 +143,7 @@ class Http:
         self._client = httpx.Client(timeout=timeout_s, headers=headers, trust_env=True)
         self.max_retries = max_retries
         self.recorder = recorder if recorder is not None else Recorder.from_env()
+        self.limiter = RateLimiter(max_rps) if max_rps else None
 
     def get_json(
         self, url: str, params: dict[str, Any] | None = None, headers: dict[str, str] | None = None
@@ -132,6 +158,8 @@ class Http:
     ) -> Any:
         last_exc: Exception | None = None
         for attempt in range(self.max_retries + 1):
+            if self.limiter is not None:
+                self.limiter.wait()
             try:
                 resp = self._client.get(url, params=params, headers=headers)
             except httpx.HTTPError as exc:  # network-level failure

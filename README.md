@@ -259,6 +259,9 @@ One YAML, `config/default.yaml`, with everything a site admin may want to change
 weights, energy-above-hull threshold, band-gap threshold and correction strategy, element
 blocklist/allowlist, maximum distinct elements, default template, verbosity, terminology map,
 cache TTL and offline mode, language-model provider. Comments in the file explain each knob.
+Fetch pressure on the public sources is set per source under `candidates.fetch` (`workers` for
+the warm's thread pool, `max_rps` for a request-rate cap that also covers retries and the
+per-query literature fill); the defaults are what OQMD, PubChem and OpenAlex tolerated in practice.
 
 Profiles in `config/profiles/` are partial overrides:
 
