@@ -323,6 +323,57 @@ is partial as expected, and that the self-check passes. With the default on-dema
 setting the warm, and therefore the recording, covers Materials Project only. Commit the recordings if their size is
 acceptable, or keep them out of git and run the test locally.
 
+### Notes from the first live warm
+
+The clients were built without egress to any source and exercised on the synthetic fixture. The
+first live `warm-cache` (September 2026) checked them against reality. It found one shape
+mismatch, in the adapter as intended: Materials Project's summary carries no `band_gap` origin,
+so the functional behind a gap is now read from the `electronic_structure` origin's task. It
+also measured the universe and the cost of filling it, and both numbers changed the design.
+
+**Scope.** At the original fetch bounds (hull ≤ 0.20 eV/atom, reported gap ≥ 1.0 eV) the
+universe was 7,124 materials. No shipped profile gates looser than 0.10 eV/atom and 1.8 eV
+before correction, and at those bounds it is 4,769 materials over 2,651 formulas, 690 of them
+with a DFPT dielectric tensor. Within that set:
+
+| Filter | Materials | Formulas | With DFPT dielectric |
+|---|---|---|---|
+| bounds only | 4,769 | 2,651 | 690 |
+| experimentally observed (MP `theoretical: false`) | 2,221 | 1,584 | 449 |
+| observed, hull ≤ 0.05 | 2,129 | 1,553 | 440 |
+| observed, hull ≤ 0.02 | 1,828 | 1,419 | 406 |
+
+Two conclusions. Hull is not a scoping lever: below 0.10 it removes almost nothing, so the fetch
+bound sits at the loosest profile and the profiles' own gates do the rest. The `theoretical`
+flag is: it removes 40% of the universe and a third of the dielectric-bearing entries, nearly all
+hypothetical polymorphs, and it matches the tool's purpose. The group will deposit films of what
+comes out, so a structure nobody has synthesised is a discovery target, not a triage candidate.
+The commonest cations among the observed compounds (P, Si, B, Na, Al, V, Te, Ca, Li, K) say the
+allowlist is the other honest lever: phosphates, borates and alkali oxides are mobile-ion or
+glass-forming compounds no gate stack would use. So the shipped universe is experimentally
+observed oxides of a dielectric-minded cation list (early transition metals, Al, Si, rare earths,
+alkaline earths, plus the hazardous cations a profile may opt into). That is a domain judgment,
+so it lives in the versioned allowlist with a rationale per family and should be confirmed with
+the PI's group. Polymorphs stay: which phase a film adopts is the whole question for the
+ferroelectric profile.
+
+**Cost.** Materials Project is cheap: universe, dielectric and task lookups batch a hundred ids
+per call and the whole universe warms in minutes. The formula-keyed sources are not. OQMD answers
+a composition it has not cached in 10–50 s and returns 429 above about 2.4 requests/s; OpenAlex
+meters a daily budget ($0.10/day per IP, $1/day with a free key, $0.001 per full-text search,
+two per formula). Warming literature for thousands of formulas would take days, which is why the
+formula-keyed sources are fetched per query for the ranked pool (see *The candidate universe*
+above) and the warm touches Materials Project only.
+
+**What the partial warm showed.** That first warm died partway through: OQMD rate-limited and
+OpenAlex hit its daily budget, leaving 1,791 candidates with no cross-check and 1,731 with no
+literature counts, on top of the 1,979 for which Materials Project genuinely holds no DFPT
+dielectric tensor. All three arrived at the scorer as the same unknown. On that cache the top
+twenty were 17/20 cross-checked against 20% across the ranked set: the head of the list was
+substantially the subset whose downloads had finished. That observation is why the data status
+now distinguishes *absent* from *not retrieved* (next section but one), and why the self-check
+reports `INCONCLUSIVE` on an under-warmed cache instead of blaming the ranker.
+
 ### Self-check before serving
 
 After every `warm-cache`, `load-fixtures` or `add-material`, the system runs the known-answer
@@ -561,7 +612,7 @@ The known-answer check has found two real bugs. Missing data could once *help* a
 the first scoring policy. And replayed against the partial live recording it failed for a reason
 that turned out not to be about ranking at all — the workhorses had sunk because their cross-check
 and literature lookups were never retrieved, which is why an under-warmed cache now reports
-`INCONCLUSIVE` rather than `FAIL`. Details in `docs/design-note.md`.
+`INCONCLUSIVE` rather than `FAIL`. The numbers are under *Notes from the first live warm* above.
 
 **On live data the current cache is incomplete** (78.9% retrieved: OQMD rate-limited and OpenAlex
 hit its daily budget partway through the warm). Runs against it are served with the
