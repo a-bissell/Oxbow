@@ -16,7 +16,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from oxide_triage.acquire import AcquisitionReport, fill_gaps, make_planner, read_report
+from oxide_triage.acquire import GAP_KINDS, AcquisitionReport, fill_gaps, make_planner, read_report
 from oxide_triage.cache import Cache
 from oxide_triage.config import Config, load_cation_allowlist, load_hazard_table
 from oxide_triage.edges.llm import LLMClient, make_llm
@@ -157,11 +157,37 @@ def run_triage(
             return TriageResult(**base, cache_fingerprint=cache.fingerprint([]), warnings=[block_msg])
 
         layer = DataLayer.from_config(config, cache=cache, offline=offline)
+        literature_note: str | None = None
         try:
             records = layer.build_candidates()
+            ranked, excluded = rank(records, config, eff)
+            if config.literature.fetch == "on_demand" and not layer.offline and ranked:
+                # Literature is fetched per query for the top of the ranking only (OpenAlex
+                # meters a small daily budget). Literature credit is never negative, so the
+                # pool can only move up relative to the rest; the shortlist is drawn from it.
+                pool_size = max(
+                    config.literature.on_demand_pool, eff.top_k
+                )  # never smaller than the shortlist
+                pool = [s.record for s in ranked[:pool_size]]
+                filled, counts = layer.fill_literature(pool)
+                by_id = {r.material_id: r for r in filled}
+                records = [by_id.get(r.material_id, r) for r in records]
+                ranked, excluded = rank(records, config, eff)
+                scope = (
+                    f"all {len(pool)} ranked candidates"
+                    if len(pool) >= len(ranked)
+                    else f"the top {len(pool)} of {len(ranked)} ranked candidates"
+                )
+                literature_note = (
+                    f"Literature counts fetched on demand for {scope} ({counts.get('resolved', 0)} resolved)"
+                )
+                if len(pool) < len(ranked):
+                    literature_note += "; candidates ranked below carry no literature credit"
+                if counts.get("failed"):
+                    literature_note += f"; {counts['failed']} OpenAlex lookups failed (see cache log)"
+                literature_note += "."
         finally:
             layer.close()
-        ranked, excluded = rank(records, config, eff)
         shortlist, beyond = ranked[: eff.top_k], ranked[eff.top_k :]
 
         llm_usage["refute"] = refute(shortlist, eff, config, llm)
@@ -171,6 +197,8 @@ def run_triage(
             sc.rationale = rationale_line(sc)
 
         warnings = list(layer.warnings)
+        if literature_note:
+            warnings.append(literature_note)
         if status == "not_run" and not skip_selfcheck:
             warnings.append(
                 "Self-check has not been run on this cache; run `oxide-triage selfcheck` before trusting results."
@@ -270,7 +298,7 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
         # Build the per-candidate records now so the next query is answered from cache, then
         # try alternative routes for whatever the first pass could not find.
         records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
-        report = run_acquisition(config, cache, layer=layer, records=records)
+        report = run_acquisition(config, cache, layer=layer, records=records, kinds=GAP_KINDS)
         if report is not None and report.n_filled:
             records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
         check = run_selfcheck(config, cache)
@@ -305,10 +333,16 @@ def run_acquisition(
     layer: DataLayer | None = None,
     records: list | None = None,
     llm: LLMClient | None = None,
+    kinds: set[str] | frozenset[str] | None = None,
 ) -> AcquisitionReport | None:
-    """Gap-filling pass over the cache (online only). Returns None when disabled or offline."""
+    """Gap-filling pass over the cache (online only). Returns None when disabled or offline.
+    Unless ``literature.fetch: warm``, literature gaps are left to the query path (fetching
+    them for the whole universe is what the on-demand mode exists to avoid); ``add-material``
+    passes every kind because a single compound is cheap."""
     if not config.acquisition.enabled:
         return None
+    if kinds is None:
+        kinds = GAP_KINDS if config.literature.fetch == "warm" else GAP_KINDS - {"literature"}
     own = cache is None and layer is None
     cache = cache or (layer.cache if layer else Cache(config.cache.path))
     own_layer = layer is None
@@ -318,7 +352,7 @@ def run_acquisition(
             return None
         records = records if records is not None else layer.build_candidates()
         planner = make_planner(config.acquisition.planner, llm or make_llm(config.llm))
-        report = fill_gaps(layer, records, planner=planner, budget=config.acquisition.budget)
+        report = fill_gaps(layer, records, planner=planner, budget=config.acquisition.budget, kinds=kinds)
         log.info(
             "acquisition: %d gaps, %d filled, %d unfillable, planner %s",
             report.n_gaps,

@@ -234,6 +234,7 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
     typer.echo("environment:")
     for key in (
         "MP_API_KEY",
+        "OPENALEX_API_KEY",
         "OPENALEX_MAILTO",
         "LLM_PROVIDER",
         "ANTHROPIC_API_KEY",
@@ -275,7 +276,10 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
             {"X-API-KEY": os.environ.get("MP_API_KEY", "")},
         ),
         "oqmd": ("https://oqmd.org/oqmdapi/formationenergy?composition=HfO2&limit=1", {}),
-        "openalex": ("https://api.openalex.org/works?per-page=1", {}),
+        "openalex": (
+            "https://api.openalex.org/works?per-page=1",
+            {"Authorization": f"Bearer {k}"} if (k := os.environ.get("OPENALEX_API_KEY")) else {},
+        ),
         "pubchem": ("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/water/cids/JSON", {}),
     }
     typer.echo("reachability:")
@@ -286,6 +290,16 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
                 note = f"HTTP {r.status_code}"
                 if name == "materials_project" and r.status_code in (401, 403):
                     note += " (key rejected or missing)"
+                if name == "openalex":
+                    if r.status_code == 401:
+                        note += " (OPENALEX_API_KEY rejected)"
+                    elif r.status_code == 429:
+                        note += " (daily budget spent; resets midnight UTC)"
+                    if (left := r.headers.get("x-ratelimit-remaining-usd")) is not None:
+                        limit = r.headers.get("x-ratelimit-limit-usd", "?")
+                        note += f", budget ${left} of ${limit}/day left"
+                        if not os.environ.get("OPENALEX_API_KEY"):
+                            note += " (anonymous; set OPENALEX_API_KEY for the account budget)"
             except httpx.HTTPError as exc:
                 note = f"unreachable: {type(exc).__name__}"
             typer.echo(f"  {name}: {note}")

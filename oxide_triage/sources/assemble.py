@@ -81,6 +81,7 @@ class DataLayer:
                 http=http,
                 sample_size=config.candidates.literature_sample_size,
                 mailto=os.environ.get("OPENALEX_MAILTO"),
+                api_key=os.environ.get("OPENALEX_API_KEY"),
             ),
             pubchem=PubChem(cache, ttl, off, http=http),
             hazard_table=load_hazard_table(config.toxicity.table_file),
@@ -144,21 +145,33 @@ class DataLayer:
 
     # ---- concurrent prefetch of formula-keyed sources -------------------------------
 
-    def prefetch_formula_sources(self, formulas: list[str], workers: int = 4) -> dict[str, int]:
-        """Fetch OQMD, OpenAlex and PubChem records for every formula not yet cached, with a
-        bounded thread pool per source. Threads do HTTP only; the main thread writes the cache
-        (SQLite connections are not shared across threads). Polymorphs share a formula, so each
-        formula is fetched once. Failures leave no row; the sequential path retries them once."""
+    def formula_sources_for_warm(self) -> set[str]:
+        """Sources fetched for every formula during a warm. OpenAlex joins only when
+        ``literature.fetch: warm``; otherwise it is fetched per query for the top-ranked pool."""
+        sources = {self.oqmd.name, self.pubchem.name}
+        if self.config.literature.fetch == "warm":
+            sources.add(self.openalex.name)
+        return sources
+
+    def prefetch_formula_sources(
+        self, formulas: list[str], workers: int = 4, sources: set[str] | None = None
+    ) -> dict[str, int]:
+        """Fetch OQMD, OpenAlex and PubChem records (or the subset in ``sources``) for every
+        formula not yet cached, with a bounded thread pool per source. Threads do HTTP only; the
+        main thread writes the cache (SQLite connections are not shared across threads).
+        Polymorphs share a formula, so each formula is fetched once. Failures leave no row; the
+        sequential path retries them once."""
         if self.offline or not formulas or workers <= 0:
             return {}
+        want = sources if sources is not None else {self.oqmd.name, self.openalex.name, self.pubchem.name}
         jobs: list[tuple[str, str, Callable[[], dict]]] = []
         for f in dict.fromkeys(formulas):  # dedupe, keep order: polymorphs share a formula
             names = self.aliases.get(f, [])
-            if self.cache.get(self.oqmd.name, f"formula:{f}") is None:
+            if self.oqmd.name in want and self.cache.get(self.oqmd.name, f"formula:{f}") is None:
                 jobs.append((self.oqmd.name, f, lambda f=f: self.oqmd.fetch_composition(f)))
-            if self.cache.get(self.openalex.name, f"formula:{f}") is None:
+            if self.openalex.name in want and self.cache.get(self.openalex.name, f"formula:{f}") is None:
                 jobs.append((self.openalex.name, f, lambda f=f, n=names: self.openalex.fetch_evidence(f, n)))
-            if self.cache.get(self.pubchem.name, f"formula:{f}") is None:
+            if self.pubchem.name in want and self.cache.get(self.pubchem.name, f"formula:{f}") is None:
                 jobs.append((self.pubchem.name, f, lambda f=f, n=names: self.pubchem.fetch_hazards(f, n)))
         if not jobs:
             return {}
@@ -234,7 +247,11 @@ class DataLayer:
                 if doc and doc.get("formula_pretty") and doc["formula_pretty"] not in formulas:
                     formulas.append(str(doc["formula_pretty"]))
             self.mp.prefetch_run_types(task_ids)
-            self.prefetch_formula_sources(formulas, workers=self.config.candidates.fetch_workers)
+            self.prefetch_formula_sources(
+                formulas,
+                workers=self.config.candidates.fetch_workers,
+                sources=self.formula_sources_for_warm(),
+            )
 
         is_fixture = self.cache.has_fixture_data
         records: list[CandidateRecord] = []
@@ -242,7 +259,9 @@ class DataLayer:
         started = time.monotonic()
         if not self.offline:
             log.info(
-                "universe: %d candidates; fetching per-candidate records (OQMD, OpenAlex, PubChem)", total
+                "universe: %d candidates; fetching per-candidate records (%s)",
+                total,
+                ", ".join(sorted(self.formula_sources_for_warm())),
             )
         for i, mid in enumerate(ids, 1):
             doc, ts = self.mp.summary(mid)
@@ -375,32 +394,9 @@ class DataLayer:
             )
 
         names = self.aliases.get(formula, [])
-        lit_payload, lit_ts, _ = self.openalex.evidence(formula, names)
-        if lit_payload:
-            literature = LiteratureRecord(
-                total_works=int(lit_payload.get("total_works", 0)),
-                thin_film_works=int(lit_payload.get("thin_film_works", 0)),
-                sample_works=[WorkRef(**w) for w in lit_payload.get("sample_works", [])],
-                query_terms=list(lit_payload.get("query_terms", [])),
-                status=DataStatus.KNOWN,
-                provenance=Provenance(
-                    source="fixture" if is_fixture else "openalex",
-                    retrieved_at=lit_ts,
-                    note=_join_notes(
-                        src_note,
-                        "counts from common-name search only (formula string returned nothing)"
-                        if lit_payload.get("route") == "names_only"
-                        else None,
-                    ),
-                ),
-            )
-        else:
-            literature = LiteratureRecord(
-                status=DataStatus.UNKNOWN,
-                provenance=Provenance(
-                    source="openalex", retrieved_at=lit_ts, note="literature lookup unavailable"
-                ),
-            )
+        literature = self._literature(
+            formula, names, is_fixture, fetch=self.config.literature.fetch == "warm"
+        )
 
         pc_payload, pc_ts, _ = self.pubchem.hazards(formula, names)
         hazard = hazard_record(elements, self.hazard_table, pc_payload, pc_ts)
@@ -421,6 +417,80 @@ class DataLayer:
             hazard=hazard,
             is_fixture=is_fixture,
         )
+
+    def _literature(self, formula: str, names: list[str], is_fixture: bool, fetch: bool) -> LiteratureRecord:
+        """Literature record from the cache; ``fetch=True`` goes to OpenAlex when nothing is
+        cached (warm mode, and the on-demand fill), ``fetch=False`` never leaves the cache."""
+        src_note = "synthetic fixture record, NOT real data" if is_fixture else None
+        if fetch:
+            lit_payload, lit_ts, _ = self.openalex.evidence(formula, names)
+        else:
+            lit_payload, lit_ts, _ = self.openalex.evidence_cached(formula)
+        if lit_payload:
+            return LiteratureRecord(
+                total_works=int(lit_payload.get("total_works", 0)),
+                thin_film_works=int(lit_payload.get("thin_film_works", 0)),
+                sample_works=[WorkRef(**w) for w in lit_payload.get("sample_works", [])],
+                query_terms=list(lit_payload.get("query_terms", [])),
+                status=DataStatus.KNOWN,
+                provenance=Provenance(
+                    source="fixture" if is_fixture else "openalex",
+                    retrieved_at=lit_ts,
+                    note=_join_notes(
+                        src_note,
+                        "counts from common-name search only (formula string returned nothing)"
+                        if lit_payload.get("route") == "names_only"
+                        else None,
+                    ),
+                ),
+            )
+        mode = self.config.literature.fetch
+        if fetch or mode == "warm":
+            note = "literature lookup unavailable"
+        elif mode == "on_demand":
+            note = (
+                "not fetched at warm; literature is fetched at query time for the top "
+                f"{self.config.literature.on_demand_pool} ranked candidates"
+            )
+        else:
+            note = "literature fetching disabled (literature.fetch: never)"
+        return LiteratureRecord(
+            status=DataStatus.UNKNOWN,
+            provenance=Provenance(source="openalex", retrieved_at=lit_ts, note=note),
+        )
+
+    # ---- on-demand literature (query time) ------------------------------------------
+
+    def fill_literature(self, records: list[CandidateRecord]) -> tuple[list[CandidateRecord], dict[str, int]]:
+        """Fetch OpenAlex counts for a small set of already-ranked candidates and return them
+        with their literature record rebuilt. Cached formulas cost nothing; polymorphs share one
+        fetch; a formula whose string search returns no works falls through to the common-name
+        route when an alias is known. Offline, records come back unchanged."""
+        if self.offline:
+            return records, {"skipped_offline": len(records)}
+        todo = [r for r in records if r.literature.status != DataStatus.KNOWN]
+        formulas = list(dict.fromkeys(r.formula for r in todo))
+        counts = (
+            self.prefetch_formula_sources(
+                formulas, workers=self.config.candidates.fetch_workers, sources={self.openalex.name}
+            )
+            if formulas
+            else {}
+        )
+        out: list[CandidateRecord] = []
+        for r in records:
+            if r.literature.status == DataStatus.KNOWN:
+                out.append(r)
+                continue
+            names = self.aliases.get(r.formula, [])
+            lit = self._literature(r.formula, names, r.is_fixture, fetch=True)
+            if lit.status == DataStatus.KNOWN and lit.total_works == 0 and names:
+                payload, _, _ = self.openalex.evidence_names_only(r.formula, names)
+                if payload:
+                    lit = self._literature(r.formula, names, r.is_fixture, fetch=False)
+            out.append(r.model_copy(update={"literature": lit}))
+        counts["resolved"] = sum(r.literature.status == DataStatus.KNOWN for r in out)
+        return out, counts
 
 
 def _join_notes(*notes: str | None) -> str | None:

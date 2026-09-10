@@ -55,8 +55,10 @@ class FakeHttp:
         raise SourceError(f"no fake rule for {url} {params}")
 
 
-def make_layer(http: FakeHttp, offline: bool = False) -> tuple[DataLayer, Cache]:
-    cfg = load_config("default", use_env=False)
+def make_layer(
+    http: FakeHttp, offline: bool = False, overrides: dict[str, Any] | None = None
+) -> tuple[DataLayer, Cache]:
+    cfg = load_config("default", use_env=False, overrides=overrides)
     cache = Cache(":memory:")
     load_fixture(cache, cfg)
     layer = DataLayer.from_config(cfg, cache=cache, offline=offline)
@@ -167,7 +169,7 @@ def test_literature_ladder_falls_back_to_names_only():
             "results": [{"id": "https://openalex.org/W1", "title": "LaLuO3 films", "publication_year": 2012}],
         },
     )
-    layer, cache = make_layer(http)
+    layer, cache = make_layer(http, overrides={"literature": {"fetch": "warm"}})
     # Simulate a warm where the literature fetch for LaLuO3 failed: drop the cached row.
     cache._conn.execute("DELETE FROM records WHERE source='openalex' AND key='formula:LaLuO3'")
     cache._conn.commit()

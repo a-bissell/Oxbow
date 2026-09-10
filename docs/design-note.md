@@ -151,7 +151,8 @@ some places and deliberately not in others. It decides at the boundary (refuse, 
 deviation), asks before acting when a request changes something material (a
 clarify-before-run step in every front end), carries a conversation about a result without
 re-deriving it (`explain`, `rerun` from stored result objects), acquires data on demand and
-adaptively: after every warm, gaps in what was retrieved (no OQMD match, no literature, an
+adaptively: literature counts are fetched at query time for the top-ranked pool only (OpenAlex
+meters a small daily budget), and after every warm, gaps in what was retrieved (no OQMD match, an
 unresolved functional) are attacked with an allowlist of read-only routes such as a
 chemical-system query with stoichiometry matching or a common-name search, each attempt logged,
 each filled value labelled with its route, and gaps with no public route (dielectric constants

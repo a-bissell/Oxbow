@@ -150,7 +150,7 @@ cannot bypass them.
 ### Install with Docker (recommended)
 
 ```bash
-cp .env.example .env                 # set MP_API_KEY (free) and optionally OPENALEX_MAILTO
+cp .env.example .env                 # set MP_API_KEY (free); OPENALEX_API_KEY is optional
 docker compose -f docker/compose.yml up --build -d
 docker compose -f docker/compose.yml run --rm app oxide-triage warm-cache   # ~minutes; rate-limit aware
 # open http://localhost:8501
@@ -170,7 +170,8 @@ Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache p
 | Variable | Needed for | Where to get it |
 |---|---|---|
 | `MP_API_KEY` | warming the cache from Materials Project | free, https://next-gen.materialsproject.org/api |
-| `OPENALEX_MAILTO` | faster OpenAlex "polite pool" (optional) | any contact email |
+| `OPENALEX_API_KEY` | optional. Literature counts are fetched per query for the top-ranked candidates (about 50 searches, $0.05). Without a key OpenAlex allows $0.10/day per IP (two queries); a free account's key allows $1/day (twenty) | free account at https://openalex.org |
+| `OPENALEX_MAILTO` | contact email on OpenAlex requests (optional; no rate-limit effect any more) | any contact email |
 | `LLM_PROVIDER` | `none` (default) / `anthropic` / `openai_compatible` | — |
 | `ANTHROPIC_API_KEY` | only if `LLM_PROVIDER=anthropic` | https://console.anthropic.com |
 | `LLM_BASE_URL`, `LLM_MODEL` | only if `LLM_PROVIDER=openai_compatible` | your vLLM/Ollama endpoint |
@@ -179,6 +180,18 @@ Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache p
 Keys are read from the environment. A `.env` file in the current directory or the repository root
 is loaded automatically by the CLI, the app and the MCP server (existing environment variables win).
 `.env` is git-ignored; `.env.example` documents every variable.
+
+### Literature counts are fetched per query, not at warm time
+
+OpenAlex meters API use against a small daily budget, and each formula needs two full-text
+searches, so warming literature for every candidate would take days. By default
+(`literature.fetch: on_demand`) the warm does not touch OpenAlex at all. At query time, after
+ranking, the top `literature.on_demand_pool` candidates (25, never fewer than the shortlist) get
+their counts fetched and cached, and the ranking is recomputed. Literature credit is never
+negative, so this can only move pool members up relative to the rest; candidates below the pool
+carry no literature credit and the output says so. A second query on the same profile costs
+nothing, since the counts are cached. `literature.fetch: warm` restores fetching for every formula
+during `warm-cache` (budget it: about 2 × formulas × $0.001); `never` leaves literature unknown.
 
 ### Recording the first live run
 
@@ -194,7 +207,8 @@ Every raw response is saved as `tests/recorded/<host>/<key>.json` (URL, paramete
 headers and keys are never written). While that directory holds only its README the replay test
 is skipped; once recordings exist it fails loudly if a field the code depends on is missing from
 the real API shape, checks that the workhorses are in the live universe, that dielectric coverage
-is partial as expected, and that the self-check passes. Commit the recordings if their size is
+is partial as expected, and that the self-check passes. With the default on-demand literature
+setting the warm, and therefore the recording, covers Materials Project, OQMD and PubChem only. Commit the recordings if their size is
 acceptable, or keep them out of git and run the test locally.
 
 ### Self-check before serving
@@ -218,7 +232,7 @@ acquisition pass turns each gap into a small plan from an **allowlist of read-on
 | Gap | Routes tried, in order |
 |---|---|
 | no OQMD match by composition | chemical-system query, keep entries with the same stoichiometry |
-| no literature counts | retry the formula query; then search on common names only |
+| no literature counts | retry the formula query; then search on common names only (query path and `add-material` only, since literature is fetched on demand) |
 | band-gap functional unresolved | re-fetch the summary and the producing task's `run_type` |
 | no DFPT dielectric record | **none** — reported as unfillable with the reason; never estimated |
 

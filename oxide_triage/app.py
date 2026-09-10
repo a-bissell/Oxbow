@@ -80,7 +80,9 @@ with st.sidebar:
         if not os.environ.get("MP_API_KEY"):
             st.error("MP_API_KEY is not set.")
         else:
-            with st.spinner("Fetching from Materials Project, OQMD, OpenAlex, PubChem..."):
+            with st.spinner(
+                "Fetching from Materials Project, OQMD, PubChem (literature is fetched per query)..."
+            ):
                 s = warm_cache(config)
             st.success(f"{s['candidates']} candidates cached.")
             for w in s["warnings"]:

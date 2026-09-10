@@ -79,6 +79,12 @@ literature:
   thin_film_saturation: 50      # thin-film works at which the sub-score saturates
   total_saturation: 500
   thin_film_weight: 0.7         # remainder goes to total works
+  # OpenAlex meters a daily budget ($0.10/day per IP anonymously, $1/day with a free account's
+  # key; a full-text search costs $0.001 and each formula needs two). Fetching every formula at
+  # warm time would take days, so by default counts are fetched at query time for the
+  # top-ranked candidates only; everything below the pool scores "literature unknown".
+  fetch: on_demand              # on_demand | warm | never
+  on_demand_pool: 25            # ranked candidates fetched per query (~50 searches, $0.05)
 
 # How an UNKNOWN criterion affects ranking. It is always displayed as unknown (never as
 # zero) and always lowers the confidence label. For the ranking arithmetic:

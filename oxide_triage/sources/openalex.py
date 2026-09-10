@@ -59,11 +59,20 @@ class OpenAlex(CachedSource):
         http: Http | None = None,
         mailto: str | None = None,
         sample_size: int = 5,
+        api_key: str | None = None,
     ):
         super().__init__(cache, ttl_days, offline)
         self.http = http or Http(user_agent="oxide-triage/0.1 (openalex-client)")
         self.mailto = mailto if mailto is not None else os.environ.get("OPENALEX_MAILTO", "")
+        self.api_key = api_key if api_key is not None else os.environ.get("OPENALEX_API_KEY", "")
         self.sample_size = sample_size
+
+    def _headers(self) -> dict[str, str] | None:
+        """OpenAlex meters requests against a daily budget: $0.10/day per IP anonymously,
+        $1.00/day with a free account's key (10,000 credits; a full-text search costs 10, a plain
+        filter 1). The key goes in a header so it never lands in URLs, logs or recordings; the API
+        also accepts it as an ``api_key`` query parameter."""
+        return {"Authorization": f"Bearer {self.api_key}"} if self.api_key else None
 
     def _search(self, query: str, per_page: int) -> dict[str, Any]:
         params: dict[str, Any] = {
@@ -74,7 +83,7 @@ class OpenAlex(CachedSource):
         }
         if self.mailto:
             params["mailto"] = self.mailto
-        page = self.http.get_json(BASE_URL, params=params) or {}
+        page = self.http.get_json(BASE_URL, params=params, headers=self._headers()) or {}
         return page
 
     def fetch_evidence(self, formula: str, aliases: list[str]) -> dict[str, Any]:
@@ -101,6 +110,15 @@ class OpenAlex(CachedSource):
 
     def evidence(self, formula: str, aliases: list[str]) -> tuple[dict[str, Any] | None, str | None, str]:
         return self.cached(f"formula:{formula}", lambda: self.fetch_evidence(formula, aliases))
+
+    def evidence_cached(self, formula: str) -> tuple[dict[str, Any] | None, str | None, str]:
+        """Cache-only read that never fetches. Used during candidate assembly when literature is
+        fetched on demand (``literature.fetch: on_demand``): the warm does not touch OpenAlex,
+        and the query path fills the top-ranked candidates afterwards."""
+        hit = self.cache.get(self.name, f"formula:{formula}")
+        if hit is None:
+            return None, None, "not_fetched"
+        return hit[0], hit[1], "cached"
 
     # ---- alternative acquisition route --------------------------------------------------
 

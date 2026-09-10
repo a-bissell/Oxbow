@@ -12,7 +12,9 @@ from oxide_triage.sources.base import MAX_RETRY_AFTER_S, Http, SourceError
 def _client(handler, sleeps):
     http = Http(max_retries=2, recorder=None)
     http._client = httpx.Client(transport=httpx.MockTransport(handler))
-    http._sleep = lambda attempt, delay=None: sleeps.append(delay if delay is not None else min(2**attempt, 8))
+    http._sleep = lambda attempt, delay=None: sleeps.append(
+        delay if delay is not None else min(2**attempt, 8)
+    )
     return http
 
 

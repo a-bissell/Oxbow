@@ -102,6 +102,11 @@ class LiteratureConfig(BaseModel):
     thin_film_saturation: int = Field(gt=0)
     total_saturation: int = Field(gt=0)
     thin_film_weight: float = Field(ge=0, le=1)
+    # When OpenAlex counts are fetched. on_demand: at query time, for the top-ranked candidates
+    # only (OpenAlex meters a small daily budget). warm: for every formula during warm-cache.
+    # never: literature stays unknown unless already cached (fixtures, earlier warms).
+    fetch: Literal["on_demand", "warm", "never"] = "on_demand"
+    on_demand_pool: int = Field(default=25, ge=1, le=500)  # ranked candidates fetched per query
 
 
 class MissingDataConfig(BaseModel):

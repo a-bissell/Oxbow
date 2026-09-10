@@ -36,6 +36,7 @@ log = logging.getLogger(__name__)
 
 META_KEY = "acquisition"
 GapKind = Literal["cross_check", "literature", "functional", "dielectric"]
+GAP_KINDS: frozenset[str] = frozenset({"cross_check", "literature", "functional", "dielectric"})
 Outcome = Literal["filled", "no_match", "error", "not_applicable", "skipped_offline"]
 
 
@@ -304,14 +305,16 @@ def fill_gaps(
     budget: int = 200,
     routes: dict[str, RouteFn] | None = None,
     ladder: dict[str, list[str]] | None = None,
+    kinds: set[str] | frozenset[str] | None = None,
 ) -> AcquisitionReport:
     """Try alternative routes for every detected gap, within ``budget`` attempts. Records are
-    not rebuilt here; the caller re-reads the cache (``layer.build_candidates()``)."""
+    not rebuilt here; the caller re-reads the cache (``layer.build_candidates()``). ``kinds``
+    restricts the pass to those gap kinds (the warm leaves literature to the query path)."""
     planner = planner or LadderPlanner()
     routes = routes or ROUTES
     ladder = ladder or LADDER
     started = utcnow_iso()
-    gaps = detect_gaps(records)
+    gaps = [g for g in detect_gaps(records) if kinds is None or g.kind in kinds]
     attempts: list[Attempt] = []
     unfillable: list[Gap] = []
     filled = 0
