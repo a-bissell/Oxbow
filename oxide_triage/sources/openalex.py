@@ -77,30 +77,30 @@ class OpenAlex(CachedSource):
         page = self.http.get_json(BASE_URL, params=params) or {}
         return page
 
-    def evidence(self, formula: str, aliases: list[str]) -> tuple[dict[str, Any] | None, str | None, str]:
+    def fetch_evidence(self, formula: str, aliases: list[str]) -> dict[str, Any]:
+        """HTTP only (thread-safe, no cache writes)."""
         compound_q, thin_film_q, terms = build_queries(formula, aliases)
-
-        def fetch() -> dict[str, Any]:
-            total = self._search(compound_q, per_page=1)
-            films = self._search(thin_film_q, per_page=max(1, self.sample_size))
-            sample = [
-                {
-                    "work_id": str(w.get("id", "")).replace("https://openalex.org/", ""),
-                    "title": (w.get("title") or "")[:300],
-                    "year": w.get("publication_year"),
-                    "doi": w.get("doi"),
-                }
-                for w in films.get("results", [])[: self.sample_size]
-            ]
-            return {
-                "total_works": int((total.get("meta") or {}).get("count", 0)),
-                "thin_film_works": int((films.get("meta") or {}).get("count", 0)),
-                "sample_works": sample,
-                "query_terms": terms,
-                "thin_film_terms": THIN_FILM_TERMS,
+        total = self._search(compound_q, per_page=1)
+        films = self._search(thin_film_q, per_page=max(1, self.sample_size))
+        sample = [
+            {
+                "work_id": str(w.get("id", "")).replace("https://openalex.org/", ""),
+                "title": (w.get("title") or "")[:300],
+                "year": w.get("publication_year"),
+                "doi": w.get("doi"),
             }
+            for w in films.get("results", [])[: self.sample_size]
+        ]
+        return {
+            "total_works": int((total.get("meta") or {}).get("count", 0)),
+            "thin_film_works": int((films.get("meta") or {}).get("count", 0)),
+            "sample_works": sample,
+            "query_terms": terms,
+            "thin_film_terms": THIN_FILM_TERMS,
+        }
 
-        return self.cached(f"formula:{formula}", fetch)
+    def evidence(self, formula: str, aliases: list[str]) -> tuple[dict[str, Any] | None, str | None, str]:
+        return self.cached(f"formula:{formula}", lambda: self.fetch_evidence(formula, aliases))
 
     # ---- alternative acquisition route --------------------------------------------------
 

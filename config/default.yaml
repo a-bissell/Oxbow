@@ -99,9 +99,13 @@ missing_data:
 candidates:
   cation_allowlist_file: cation_allowlist.yaml
   max_elements_query: 3
-  energy_above_hull_ceiling_ev_atom: 0.20   # keep borderline entries so caveats have material
-  min_reported_gap_ev: 1.0                  # below this no correction rescues the candidate
+  # The first live warm at 0.20 eV/atom and 1.0 eV pulled 7,124 candidates. No shipped profile
+  # gates above 0.08 eV/atom or below 2.5 eV effective (1.8 eV before a 1.4x correction), so
+  # anything outside these bounds could never be ranked. Widen them if you add a looser profile.
+  energy_above_hull_ceiling_ev_atom: 0.10
+  min_reported_gap_ev: 1.8
   literature_sample_size: 5
+  fetch_workers: 4          # concurrent requests per source during warm-cache (0 = sequential)
 
 output:
   default_template: pi_summary   # pi_summary | audit | json

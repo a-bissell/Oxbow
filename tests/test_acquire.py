@@ -30,6 +30,7 @@ from oxide_triage.sources.fixtures import load_fixture
 from oxide_triage.sources.materials_project import MaterialsProject
 from oxide_triage.sources.openalex import OpenAlex
 from oxide_triage.sources.oqmd import OQMD
+from oxide_triage.sources.pubchem import PubChem
 
 
 class FakeHttp:
@@ -62,6 +63,7 @@ def make_layer(http: FakeHttp, offline: bool = False) -> tuple[DataLayer, Cache]
     layer.mp = MaterialsProject(cache, 90, offline, api_key="test", http=http)  # type: ignore[arg-type]
     layer.oqmd = OQMD(cache, 90, offline, http=http)  # type: ignore[arg-type]
     layer.openalex = OpenAlex(cache, 90, offline, http=http, sample_size=2)  # type: ignore[arg-type]
+    layer.pubchem = PubChem(cache, 90, offline, http=http)  # type: ignore[arg-type]
     return layer, cache
 
 
@@ -330,3 +332,48 @@ def test_result_carries_acquisition_summary():
 @pytest.mark.parametrize("kind", ["cross_check", "literature", "functional", "dielectric"])
 def test_every_gap_kind_has_a_ladder_entry(kind):
     assert kind in LADDER
+
+
+# ---- concurrent prefetch of formula-keyed sources -----------------------------------------------
+
+
+def test_prefetch_fetches_each_formula_once_and_writes_cache_from_main_thread():
+    http = FakeHttp()
+    http.when("oqmd.org", None, {"data": [{"name": "X", "entry_id": 1, "stability": 0.0, "delta_e": -1.0}]})
+    http.when("openalex.org", None, {"meta": {"count": 3}, "results": []})
+    http.when("pubchem.ncbi.nlm.nih.gov/rest/pug/compound", None, {"IdentifierList": {"CID": [42]}})
+    http.when(
+        "pug_view",
+        None,
+        {"Record": {"Section": [{"Information": [{"Value": {"StringWithMarkup": [{"String": "H302"}]}}]}]}},
+    )
+    layer, cache = make_layer(http)
+    # wipe formula-keyed rows for two formulas (one with two polymorphs: HfO2)
+    for f in ("HfO2", "ZrO2"):
+        for src in ("oqmd", "openalex", "pubchem"):
+            cache._conn.execute("DELETE FROM records WHERE source=? AND key=?", (src, f"formula:{f}"))
+    cache._conn.commit()
+    counts = layer.prefetch_formula_sources(["HfO2", "HfO2", "ZrO2"], workers=3)
+    assert counts == {"fetched": 6, "failed": 0}
+    oqmd_calls = [c for c in http.calls if "oqmd" in c[0]]
+    assert len(oqmd_calls) == 2  # HfO2 once despite two polymorphs, ZrO2 once
+    assert cache.get("oqmd", "formula:HfO2")[0]["found"] is True
+    assert cache.get("pubchem", "formula:ZrO2")[0]["ghs_codes"] == ["H302"]
+    # second call: nothing left to fetch
+    assert layer.prefetch_formula_sources(["HfO2", "ZrO2"], workers=3) == {}
+
+
+def test_prefetch_records_failures_without_raising():
+    http = FakeHttp()  # no rules: every request raises SourceError
+    layer, cache = make_layer(http)
+    cache._conn.execute("DELETE FROM records WHERE source='oqmd' AND key='formula:HfO2'")
+    cache._conn.commit()
+    counts = layer.prefetch_formula_sources(["HfO2"], workers=2)
+    assert counts["failed"] == 1 and counts["fetched"] == 0
+    assert cache.get("oqmd", "formula:HfO2") is None  # no row invented on failure
+
+
+def test_prefetch_is_a_noop_offline():
+    http = FakeHttp()
+    layer, _ = make_layer(http, offline=True)
+    assert layer.prefetch_formula_sources(["HfO2"], workers=4) == {} and http.calls == []

@@ -48,29 +48,29 @@ class PubChem(CachedSource):
         super().__init__(cache, ttl_days, offline)
         self.http = http or Http(user_agent="oxide-triage/0.1 (pubchem-client)")
 
-    def hazards(self, formula: str, names: list[str]) -> tuple[dict[str, Any] | None, str | None, str]:
+    def fetch_hazards(self, formula: str, names: list[str]) -> dict[str, Any]:
+        """HTTP only (thread-safe, no cache writes)."""
         candidates = [n for n in names if n] or [formula]
+        cid: int | None = None
+        used_name: str | None = None
+        for nm in candidates:
+            page = self.http.get_json(f"{PUG}/compound/name/{quote(nm)}/cids/JSON")
+            cids = ((page or {}).get("IdentifierList") or {}).get("CID") or []
+            if cids:
+                cid, used_name = int(cids[0]), nm
+                break
+        if cid is None:
+            return {"found": False, "names_tried": candidates}
+        ghs = self.http.get_json(
+            f"{PUG_VIEW}/data/compound/{cid}/JSON", params={"heading": "GHS Classification"}
+        )
+        return {
+            "found": True,
+            "cid": cid,
+            "matched_name": used_name,
+            "ghs_codes": extract_h_codes(ghs) if ghs else [],
+            "ghs_section_present": ghs is not None,
+        }
 
-        def fetch() -> dict[str, Any]:
-            cid: int | None = None
-            used_name: str | None = None
-            for nm in candidates:
-                page = self.http.get_json(f"{PUG}/compound/name/{quote(nm)}/cids/JSON")
-                cids = ((page or {}).get("IdentifierList") or {}).get("CID") or []
-                if cids:
-                    cid, used_name = int(cids[0]), nm
-                    break
-            if cid is None:
-                return {"found": False, "names_tried": candidates}
-            ghs = self.http.get_json(
-                f"{PUG_VIEW}/data/compound/{cid}/JSON", params={"heading": "GHS Classification"}
-            )
-            return {
-                "found": True,
-                "cid": cid,
-                "matched_name": used_name,
-                "ghs_codes": extract_h_codes(ghs) if ghs else [],
-                "ghs_section_present": ghs is not None,
-            }
-
-        return self.cached(f"formula:{formula}", fetch)
+    def hazards(self, formula: str, names: list[str]) -> tuple[dict[str, Any] | None, str | None, str]:
+        return self.cached(f"formula:{formula}", lambda: self.fetch_hazards(formula, names))
