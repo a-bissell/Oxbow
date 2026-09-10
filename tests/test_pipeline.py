@@ -61,15 +61,21 @@ def test_bin1_impossible_is_capability_not_policy(cache):
 
 
 def test_bin2_include_lead_proceeds_with_visible_deviation(cache):
-    res = run(PI + " Include lead-containing compounds.", cache=cache, profile="ferroelectric-research")
+    # Under the default profile Pb is blocked: the request lifts the block, which is recorded,
+    # confirmed-before-run, and shown. Pb compounds then fail only on their own merits (gap gate).
+    res = run(PI + " Include lead-containing compounds.", cache=cache)
     assert res.guard.proceed
-    assert {d.code for d in res.deviations} >= {"request_element_allowlist", "profile_element_allowlist"}
+    assert any(d.code == "request_element_allowlist" for d in res.deviations)
     assert any(f.bin == RequestBin.CONFIG_DEVIATION for f in res.guard.findings)
-    formulas = [s.record.formula for s in res.shortlist + res.ranked_beyond_shortlist]
-    assert any("Pb" in f for f in formulas)
+    pb_excluded = [s for s in res.excluded if "Pb" in s.record.formula]
+    assert pb_excluded and all(not any("blocked" in r for r in s.exclusion_reasons) for s in pb_excluded)
+    assert "Configuration deviations in effect" in render(res, "pi_summary")
+    # Under the ferroelectric profile Pb is already permitted by the profile: no *request* deviation
+    # is invented, the profile deviation shows, and Pb compounds rank with a critical caveat.
+    res = run(PI + " Include lead-containing compounds.", cache=cache, profile="ferroelectric-research")
+    assert {d.code for d in res.deviations} == {"profile_element_allowlist"}
     pb = next(s for s in res.shortlist + res.ranked_beyond_shortlist if "Pb" in s.record.formula)
     assert any(c.code == "hazard_allowed_by_config" and c.severity == "critical" for c in pb.caveats)
-    assert "Configuration deviations in effect" in render(res, "pi_summary")
 
 
 def test_bin2_without_allowance_keeps_lead_blocked(cache):

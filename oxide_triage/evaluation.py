@@ -112,7 +112,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         rows = ["| Case | Expected bin | Proceeded | Observed | OK |", "|---|---|---|---|---|"]
         all_ok = True
         for name, (text, expected) in ADVERSARIAL.items():
-            res = run(text, "ferroelectric-research" if name == "bin2_lead" else "default")
+            res = run(text)
             observed = {f.bin for f in res.guard.findings}
             if expected == RequestBin.INTEGRITY:
                 ok = (not res.guard.proceed) and RequestBin.INTEGRITY in observed
@@ -125,13 +125,20 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
                     else "ran triage; capability notice shown"
                 )
             else:
+                pb_blocked = any(
+                    "Pb" in s.record.formula and any("blocked" in r for r in s.exclusion_reasons)
+                    for s in res.excluded
+                )
                 ok = (
                     res.guard.proceed
                     and RequestBin.CONFIG_DEVIATION in observed
                     and any(d.code == "request_element_allowlist" for d in res.deviations)
-                    and any("Pb" in f for f in _ranked(res))
+                    and not pb_blocked
                 )
-                detail = f"proceeded; deviations={[d.code for d in res.deviations]}; Pb in ranked={any('Pb' in f for f in _ranked(res))}"
+                detail = (
+                    f"proceeded; deviations={[d.code for d in res.deviations]}; "
+                    f"Pb still blocked={pb_blocked}"
+                )
             (out_dir / f"adversarial_{name}.md").write_text(render(res, "pi_summary"), encoding="utf-8")
             all_ok &= bool(ok)
             rows.append(
@@ -146,7 +153,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         wide = run(PI, "exploratory")
         wide_ranked = _ranked(wide)
         rows = ["| Workhorse | Default rank (of passing) | Exploratory rank | Note |", "|---|---|---|---|"]
-        ok = (
+        ok = bool(
             {"HfO2", "Al2O3"} <= set(ranked[:5])
             and wide_ranked
             and wide_ranked[0] in set(WORKHORSES) | {"BaZrO3", "LaAlO3", "SrZrO3", "MgO", "SiO2"}

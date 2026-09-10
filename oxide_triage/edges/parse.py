@@ -43,7 +43,7 @@ def apply_terminology(text: str, mapping: dict[str, str]) -> str:
     return text
 
 
-def rule_parse(text: str, table: HazardTable) -> Criteria:
+def rule_parse(text: str, table: HazardTable, blocked: frozenset[str] | None = None) -> Criteria:
     t = text
     notes: list[str] = []
     kw: dict[str, Any] = {}
@@ -80,7 +80,9 @@ def rule_parse(text: str, table: HazardTable) -> Criteria:
         val = float(m.group(1)) / (1000.0 if m.group(2).lower() == "mev" else 1.0)
         kw["max_energy_above_hull_ev_atom"] = val
         notes.append(f"energy-above-hull threshold {val:g} eV/atom")
-    elif re.search(r"\b(?:only|strictly)\s+(?:on[- ]hull|ground[- ]state|stable)\b", t, re.I):
+    elif re.search(
+        r"\b(?:only|strictly)\s+(?:on[- ]hull|ground[- ]state|(?:thermodynamically\s+)?stable)\b", t, re.I
+    ):
         kw["max_energy_above_hull_ev_atom"] = 0.0
         notes.append("'only on-hull/ground-state' -> energy above hull must be 0")
 
@@ -91,8 +93,12 @@ def rule_parse(text: str, table: HazardTable) -> Criteria:
     elif m := re.search(
         r"\b(?:up to|at most|max(?:imum)?(?: of)?|no more than)\s+(\d)\s+(?:distinct\s+)?elements?\b", t, re.I
     ):
-        kw["max_elements"] = int(m.group(1))
-        notes.append(f"at most {m.group(1)} distinct elements")
+        n = int(m.group(1))
+        if 2 <= n <= 6:
+            kw["max_elements"] = n
+            notes.append(f"at most {n} distinct elements")
+        else:
+            notes.append(f"ignored 'at most {n} elements': supported range is 2-6")
     elif re.search(r"\b(?:include|allow|consider)\s+(?:quaternar(?:y|ies)|four[- ]element)\b", t, re.I):
         kw["max_elements"] = 4
         notes.append("quaternaries allowed -> at most 4 distinct elements")
@@ -126,7 +132,8 @@ def rule_parse(text: str, table: HazardTable) -> Criteria:
         re.I,
     ):
         for sym in find_elements(m.group(1)):
-            if table.lookup(sym)[0] >= 1:
+            is_blocked = (sym in blocked) if blocked is not None else table.lookup(sym)[0] >= 2
+            if is_blocked:
                 allow.append(sym)
 
     include = _dedupe([e for e in include if e not in exclude])
@@ -174,7 +181,14 @@ def rule_parse(text: str, table: HazardTable) -> Criteria:
         kw["output_template"] = "pi_summary"
 
     kw["interpretation_notes"] = notes
-    return Criteria.model_validate(kw)
+    try:
+        return Criteria.model_validate(kw)
+    except ValueError as exc:  # a value slipped past the range checks above: drop it, say so
+        bad = {str(e["loc"][0]) for e in exc.errors()} if hasattr(exc, "errors") else set()
+        for k in bad:
+            kw.pop(k, None)
+        kw["interpretation_notes"] = notes + [f"ignored out-of-range value(s) for: {', '.join(sorted(bad))}"]
+        return Criteria.model_validate(kw)
 
 
 def _dedupe(items: list[str]) -> list[str]:
@@ -279,9 +293,16 @@ def merge(rules: Criteria, model: Criteria | None) -> Criteria:
     return out
 
 
-def parse_request(text: str, config: Config, table: HazardTable, llm: LLMClient) -> tuple[Criteria, str]:
+def parse_request(
+    text: str,
+    config: Config,
+    table: HazardTable,
+    llm: LLMClient,
+    blocked: frozenset[str] | None = None,
+) -> tuple[Criteria, str]:
+    """``blocked``: elements the active profile blocks; only allowances for those are recorded."""
     canonical = apply_terminology(text, config.terminology)
-    rules = rule_parse(canonical, table)
+    rules = rule_parse(canonical, table, blocked)
     if llm.name != "none" and config.llm.use_for.parse:
         model = llm_parse(canonical, llm)
         return merge(rules, model), f"rules+{llm.name}" if model else "rules (model parse failed)"

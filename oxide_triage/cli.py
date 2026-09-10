@@ -73,7 +73,7 @@ def query(
             typer.echo("Not run. Re-run with --yes to skip the questions.", err=True)
             raise typer.Exit(code=3)
         result = run_triage(request, config, offline=offline, template=template, confirmed=True)
-    text = render(result, template or config.output.default_template)
+    text = render(result, template or result.criteria.output_template or config.output.default_template)
     if out:
         out.write_text(text, encoding="utf-8")
         typer.echo(f"wrote {out}")

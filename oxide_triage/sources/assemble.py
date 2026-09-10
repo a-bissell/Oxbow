@@ -88,6 +88,15 @@ class DataLayer:
     def offline(self) -> bool:
         return self.mp.offline
 
+    def close(self) -> None:
+        """Release the HTTP clients (a shared transport is closed once)."""
+        seen: set[int] = set()
+        for client in (self.mp, self.oqmd, self.openalex, self.pubchem):
+            http = getattr(client, "http", None)
+            if http is not None and id(http) not in seen and hasattr(http, "close"):
+                seen.add(id(http))
+                http.close()
+
     # ---- universe -------------------------------------------------------------------
 
     def universe_ids(self) -> list[str]:
@@ -223,8 +232,17 @@ class DataLayer:
 
         oq_payload, oq_ts, _ = self.oqmd.lookup(formula)
         if oq_payload and oq_payload.get("found"):
+            # OQMD reports `stability` <= 0 for phases on its hull (depth below the competing
+            # phases); MP's energy_above_hull is >= 0. Clamp so the two are comparable.
+            raw_stab = _opt_float(oq_payload.get("stability"))
+            clamped = None if raw_stab is None else max(0.0, raw_stab)
+            clamp_note = (
+                f"OQMD stability {raw_stab:.3f} eV/atom (negative = below competing phases) taken as on-hull"
+                if raw_stab is not None and raw_stab < 0
+                else None
+            )
             cross = CrossCheckRecord(
-                stability_ev_atom=_opt_float(oq_payload.get("stability")),
+                stability_ev_atom=clamped,
                 formation_energy_ev_atom=_opt_float(oq_payload.get("delta_e")),
                 matched_formula=oq_payload.get("name"),
                 status=DataStatus.KNOWN,
@@ -240,6 +258,7 @@ class DataLayer:
                         f"matched via chemical-system query ({oq_payload.get('filter')})"
                         if oq_payload.get("route") == "chemsys"
                         else None,
+                        clamp_note,
                     ),
                 ),
             )

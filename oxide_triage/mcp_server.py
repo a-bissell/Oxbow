@@ -77,8 +77,9 @@ def _header(result_id: str, result: TriageResult) -> str:
     return "<!-- " + " | ".join(bits) + " -->\n"
 
 
-def _finish(result: TriageResult, template: str) -> str:
+def _finish(result: TriageResult, template: str | None, default: str) -> str:
     rid = _store.put(result)
+    template = template or result.criteria.output_template or default
     if result.needs_confirmation:
         return json.dumps(
             {
@@ -151,7 +152,7 @@ def parse_request(request: str, profile: str = "default") -> dict[str, Any]:
     )
 )
 def triage(
-    request: str, profile: str = "default", template: str = "pi_summary", confirmed: bool = False
+    request: str, profile: str = "default", template: str | None = None, confirmed: bool = False
 ) -> str:
     cfg = _config(profile)
     cache = _cache(cfg)
@@ -159,7 +160,7 @@ def triage(
         result = run_triage(request, cfg, cache=cache, template=template, confirmed=confirmed)
     finally:
         cache.close()
-    return _finish(result, template)
+    return _finish(result, template, cfg.output.default_template)
 
 
 @server.tool(
@@ -187,7 +188,7 @@ def explain(result_id: str, candidate: str) -> str:
     )
 )
 def rerun(
-    result_id: str, changes: dict[str, Any], template: str = "pi_summary", confirmed: bool = False
+    result_id: str, changes: dict[str, Any], template: str | None = None, confirmed: bool = False
 ) -> str:
     prev = _store.get(result_id)
     if prev is None:
@@ -209,7 +210,7 @@ def rerun(
         )
     finally:
         cache.close()
-    return _finish(result, template)
+    return _finish(result, template, cfg.output.default_template)
 
 
 @server.tool(

@@ -160,10 +160,11 @@ def clarifications(
     """Questions worth asking before running, because the answer changes the run materially."""
     qs: list[str] = []
     request_devs = [d for d in deviations if d.origin == "request"]
-    if criteria.allow_elements:
+    lifted = next((d for d in request_devs if d.code == "request_element_allowlist"), None)
+    if lifted is not None:
         qs.append(
-            f"The request lifts the hazard block for {', '.join(criteria.allow_elements)} under profile "
-            f"'{config.profile_name}'. Confirm this is intended; the deviation will be printed on the result and logged."
+            f"{lifted.description.split('.')[0]} under profile '{config.profile_name}'. Confirm this is "
+            "intended; the deviation will be printed on the result and logged."
         )
     for d in request_devs:
         if d.code in {"request_hull_threshold", "request_gap_threshold", "request_max_elements"}:

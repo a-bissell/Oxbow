@@ -26,7 +26,7 @@ from oxide_triage.guard import guard_request
 from oxide_triage.refute import refute, rule_caveats
 from oxide_triage.schemas import Criteria, GuardDecision, TriageResult
 from oxide_triage.scoring.core import explanation, rank
-from oxide_triage.scoring.settings import resolve
+from oxide_triage.scoring.settings import blocked_by_policy, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 from oxide_triage.session import clarifications
 from oxide_triage.sources.assemble import DataLayer
@@ -106,9 +106,10 @@ def run_triage(
     """
     table = load_hazard_table(config.toxicity.table_file)
     llm = llm or make_llm(config.llm)
-    guard: GuardDecision = guard_request(request_text, table)
+    blocked = blocked_by_policy(config, table)
+    guard: GuardDecision = guard_request(request_text, table, blocked)
     if criteria is None:
-        criteria, parser_label = parse_request(request_text, config, table, llm)
+        criteria, parser_label = parse_request(request_text, config, table, llm, blocked)
     else:
         parser_label = "supplied (rerun)"
     if template:
@@ -156,7 +157,10 @@ def run_triage(
             return TriageResult(**base, cache_fingerprint=cache.fingerprint([]), warnings=[block_msg])
 
         layer = DataLayer.from_config(config, cache=cache, offline=offline)
-        records = layer.build_candidates()
+        try:
+            records = layer.build_candidates()
+        finally:
+            layer.close()
         ranked, excluded = rank(records, config, eff)
         shortlist, beyond = ranked[: eff.top_k], ranked[eff.top_k :]
 
@@ -202,10 +206,13 @@ def warm_cache(config: Config, cache: Cache | None = None) -> dict[str, object]:
     cache = cache or Cache(config.cache.path)
     try:
         layer = DataLayer.from_config(config, cache=cache, offline=False)
-        records = layer.build_candidates()
-        report = run_acquisition(config, cache, layer=layer, records=records)
-        if report is not None and report.n_filled:
+        try:
             records = layer.build_candidates()
+            report = run_acquisition(config, cache, layer=layer, records=records)
+            if report is not None and report.n_filled:
+                records = layer.build_candidates()
+        finally:
+            layer.close()
         check = run_selfcheck(config, cache)
         return {
             "candidates": len(records),
@@ -238,6 +245,7 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
     other row; nothing about them is chosen by whoever asked."""
     own = cache is None
     cache = cache or Cache(config.cache.path)
+    layer = None
     try:
         layer = DataLayer.from_config(config, cache=cache, offline=False)
         allowed = set(load_cation_allowlist(config.candidates.cation_allowlist_file)) | {"O"}
@@ -285,6 +293,8 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
             "selfcheck_passed": check.passed,
         }
     finally:
+        if layer is not None:
+            layer.close()
         if own:
             cache.close()
 
@@ -301,6 +311,7 @@ def run_acquisition(
         return None
     own = cache is None and layer is None
     cache = cache or (layer.cache if layer else Cache(config.cache.path))
+    own_layer = layer is None
     try:
         layer = layer or DataLayer.from_config(config, cache=cache, offline=False)
         if layer.offline:
@@ -317,6 +328,8 @@ def run_acquisition(
         )
         return report
     finally:
+        if own_layer and layer is not None:
+            layer.close()
         if own:
             cache.close()
 
@@ -324,4 +337,6 @@ def run_acquisition(
 def criteria_only(request_text: str, config: Config) -> Criteria:
     """Parse without running: handy for the UI to echo the interpretation live."""
     table = load_hazard_table(config.toxicity.table_file)
-    return parse_request(request_text, config, table, make_llm(config.llm))[0]
+    return parse_request(request_text, config, table, make_llm(config.llm), blocked_by_policy(config, table))[
+        0
+    ]

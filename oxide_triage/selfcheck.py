@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field
 
 from oxide_triage.cache import Cache, utcnow_iso
 from oxide_triage.config import Config, load_config
+from oxide_triage.edges.llm import NullLLM
 
 if TYPE_CHECKING:  # pragma: no cover
     from oxide_triage.schemas import TriageResult
@@ -49,8 +50,8 @@ def run_selfcheck(config: Config, cache: Cache) -> SelfCheck:
     details: list[str] = []
     ok = True
 
-    default_cfg = load_config("default", overrides={"cache": {"path": config.cache.path}})
-    res = run_triage(PI, default_cfg, cache=cache, offline=True, skip_selfcheck=True)
+    default_cfg = load_config("default", use_env=False, overrides={"cache": {"path": config.cache.path}})
+    res = run_triage(PI, default_cfg, cache=cache, offline=True, skip_selfcheck=True, llm=NullLLM())
     ranked = _ranked(res)
     universe = {s.record.formula for s in res.shortlist + res.ranked_beyond_shortlist + res.excluded}
     if not universe:
@@ -83,8 +84,8 @@ def run_selfcheck(config: Config, cache: Cache) -> SelfCheck:
             ok = False
             details.append(f"{lead}: expected in default top 5, found at {ranked.index(lead) + 1} (FAIL)")
 
-    wide_cfg = load_config("exploratory", overrides={"cache": {"path": config.cache.path}})
-    wide = run_triage(PI, wide_cfg, cache=cache, offline=True, skip_selfcheck=True)
+    wide_cfg = load_config("exploratory", use_env=False, overrides={"cache": {"path": config.cache.path}})
+    wide = run_triage(PI, wide_cfg, cache=cache, offline=True, skip_selfcheck=True, llm=NullLLM())
     wide_ranked = _ranked(wide)
     in_top10 = [w for w in sc.workhorses if w in wide_ranked[:10]]
     need = min(sc.min_workhorses_in_wide_top10, len(sc.workhorses))

@@ -90,8 +90,10 @@ class AcquisitionReport(BaseModel):
 
 def detect_gaps(records: list[CandidateRecord]) -> list[Gap]:
     gaps: list[Gap] = []
+    seen_formula: set[tuple[str, str]] = set()  # formula-keyed sources: one gap per formula
     for r in records:
-        if r.cross_check.status != DataStatus.KNOWN:
+        if r.cross_check.status != DataStatus.KNOWN and (r.formula, "cross_check") not in seen_formula:
+            seen_formula.add((r.formula, "cross_check"))
             gaps.append(
                 Gap(
                     material_id=r.material_id,
@@ -100,7 +102,11 @@ def detect_gaps(records: list[CandidateRecord]) -> list[Gap]:
                     detail="no OQMD match by composition",
                 )
             )
-        if r.literature.status != DataStatus.KNOWN or (r.literature.total_works == 0):
+        if (r.literature.status != DataStatus.KNOWN or (r.literature.total_works == 0)) and (
+            r.formula,
+            "literature",
+        ) not in seen_formula:
+            seen_formula.add((r.formula, "literature"))
             gaps.append(
                 Gap(
                     material_id=r.material_id,

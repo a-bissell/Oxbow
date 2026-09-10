@@ -32,6 +32,15 @@ def _blocked_by_tier(table: HazardTable, tiers: list[int]) -> set[str]:
     return {el for el, t in table.tiers.items() if t in tiers}
 
 
+def blocked_by_policy(config: Config, table: HazardTable) -> frozenset[str]:
+    """Elements the active profile blocks before any request is considered."""
+    tox = config.toxicity
+    return frozenset(
+        (_blocked_by_tier(table, tox.blocklist_tiers) | set(tox.element_blocklist))
+        - set(tox.element_allowlist)
+    )
+
+
 def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Effective, list[Deviation]]:
     deviations: list[Deviation] = []
     tox = config.toxicity
@@ -51,7 +60,8 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
         )
 
     # ---- request-level deviations ---------------------------------------------------
-    request_allow = {e for e in criteria.allow_elements}
+    policy_blocked = blocked_by_policy(config, table)
+    request_allow = {e for e in criteria.allow_elements if e in policy_blocked}
     if request_allow:
         deviations.append(
             Deviation(
@@ -124,8 +134,7 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
                 )
             )
 
-    blocked = _blocked_by_tier(table, tox.blocklist_tiers) | set(tox.element_blocklist)
-    blocked |= set(criteria.exclude_elements)
+    blocked = set(policy_blocked) | set(criteria.exclude_elements)
     allowed = profile_allow | request_allow
     blocked -= allowed
 

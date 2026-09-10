@@ -67,11 +67,21 @@ IMPOSSIBLE_RULES: list[Rule] = [
 ]
 
 INTEGRITY_RULES: list[Rule] = [
+    # "cite ... a paper/reference" is a request to produce evidence, whatever follows.
     _r(
         "fabricate_citation",
-        r"\b(cite|find|give|provide|add|include|make up|invent|generate)\b[^.]{0,30}?"
+        r"\bcite\b[^.]{0,30}?\b(papers?|references?|citations?|sources?|studies|study|publications?)\b",
+        "A citation is evidence. This tool only reports literature records it actually retrieved; "
+        "it cannot produce a reference to support a conclusion.",
+    ),
+    # "find/give me a paper that supports the top pick" — the object is the tool's own result.
+    _r(
+        "fabricate_citation",
+        r"\b(find|give|provide|add|include|make up|invent|generate)\b[^.]{0,30}?"
         r"\b(a |some |any |one )?(papers?|references?|citations?|sources?|studies|study|publications?)\b"
-        r"[^.]{0,40}?\b(support\w*|show\w*|prov\w*|confirm\w*|back\w*|justif\w*|say\w*|claim\w*|that)\b",
+        r"[^.]{0,20}?\b(support\w*|prov(?:e|es|ing)|confirm\w*|back\w*|justif\w*)\b[^.]{0,20}?"
+        r"\b(the |this |that |your |our |its |my )?(top|pick|choice|rank\w*|result|conclusion|claim|"
+        r"recommendation|shortlist|answer|candidates?|number|value)\b",
         "A citation is evidence. This tool only reports literature records it actually retrieved; "
         "it cannot produce a reference to support a conclusion.",
     ),
@@ -107,10 +117,12 @@ INTEGRITY_RULES: list[Rule] = [
         "Ranking on absent data would present a fabrication as a result. Candidates with missing "
         "data are scored on what exists and the gaps are listed explicitly.",
     ),
+    # "gaps" alone is the domain's word for band gaps; only uncertainty vocabulary counts here.
     _r(
         "hide_uncertainty",
         r"\b(drop|remove|hide|suppress|omit|leave out|skip|don'?t (show|include|mention|list))\b"
-        r"[^.]{0,20}?\b(the )?(caveats?|uncertaint\w*|missing[- ]data|warnings?|gaps|limitations?)\b",
+        r"[^.]{0,20}?\b(the )?(caveats?|uncertaint\w*|missing[- ]data|data gaps|warnings?|limitations?|"
+        r"confidence labels?)\b",
         "Caveats and data gaps are part of the result, not decoration. The PI summary already "
         "compresses them to one line per candidate.",
     ),
@@ -128,13 +140,16 @@ TRIAGE_INTENT_RE = re.compile(
 )
 
 
-def _hazard_allowances(text: str, table: HazardTable) -> list[GuardFinding]:
+def _hazard_allowances(
+    text: str, table: HazardTable, blocked: frozenset[str] | None = None
+) -> list[GuardFinding]:
     findings: list[GuardFinding] = []
     seen: set[str] = set()
     for m in ALLOW_RE.finditer(text):
         for sym in find_elements(m.group(0)):
             tier, basis, _ = table.lookup(sym)
-            if tier >= 1 and sym not in seen:
+            is_blocked = (sym in blocked) if blocked is not None else tier >= 2
+            if is_blocked and sym not in seen:
                 seen.add(sym)
                 findings.append(
                     GuardFinding(
@@ -151,7 +166,9 @@ def _hazard_allowances(text: str, table: HazardTable) -> list[GuardFinding]:
     return findings
 
 
-def guard_request(text: str, table: HazardTable) -> GuardDecision:
+def guard_request(text: str, table: HazardTable, blocked: frozenset[str] | None = None) -> GuardDecision:
+    """``blocked`` is the set of elements the active profile blocks; when omitted, tier-2
+    elements are assumed blocked (the shipped default)."""
     findings: list[GuardFinding] = []
 
     for rule in INTEGRITY_RULES:
@@ -176,7 +193,7 @@ def guard_request(text: str, table: HazardTable) -> GuardDecision:
                     explanation=rule.explanation,
                 )
             )
-    findings.extend(_hazard_allowances(text, table))
+    findings.extend(_hazard_allowances(text, table, blocked))
 
     integrity = [f for f in findings if f.bin == RequestBin.INTEGRITY]
     impossible = [f for f in findings if f.bin == RequestBin.IMPOSSIBLE]

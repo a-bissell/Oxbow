@@ -100,14 +100,29 @@ SYMBOLS: frozenset[str] = frozenset(SYMBOL_BY_NAME.values())
 _NAME_RE = re.compile(r"\b(" + "|".join(sorted(SYMBOL_BY_NAME, key=len, reverse=True)) + r")\b", re.I)
 # Bare symbols are ambiguous in prose ("In", "As", "I", "W", "K", "O" ...) so only accept
 # them when the token is capitalised exactly as a symbol and not a common English word.
-_AMBIGUOUS = {"In", "As", "I", "W", "K", "O", "At", "Be", "He", "No", "Am", "Pa", "Ac", "Re", "Sn", "Er"}
+_AMBIGUOUS = {"In", "As", "I", "W", "K", "O", "At", "Be", "He", "No", "Am", "Pa", "Ac", "Re", "Sn", "Er", "V"}
 _SYMBOL_RE = re.compile(r"(?<![A-Za-z])(" + "|".join(sorted(SYMBOLS, key=len, reverse=True)) + r")(?![a-z])")
+
+
+# "lead" is also an English verb. Treat it as the element only when it is not used as one.
+_LEAD_VERB_AFTER = re.compile(
+    r"^\s+(to|the|in|on|a|an|us|them|towards?|away|from|with|into|by|off|up|out|through|our|your)\b", re.I
+)
+_LEAD_VERB_BEFORE = re.compile(
+    r"\b(could|can|may|might|will|would|shall|should|to|that|which|who|they|we|you|it|and)\s+$", re.I
+)
+
+
+def _is_verb_lead(text: str, start: int, end: int) -> bool:
+    return bool(_LEAD_VERB_AFTER.match(text[end:])) or bool(_LEAD_VERB_BEFORE.search(text[:start]))
 
 
 def find_elements(text: str) -> list[str]:
     """Return element symbols mentioned by name or unambiguous symbol, in order of appearance."""
     found: list[tuple[int, str]] = []
     for m in _NAME_RE.finditer(text):
+        if m.group(1).lower() == "lead" and _is_verb_lead(text, m.start(), m.end()):
+            continue
         found.append((m.start(), SYMBOL_BY_NAME[m.group(1).lower()]))
     for m in _SYMBOL_RE.finditer(text):
         sym = m.group(1)

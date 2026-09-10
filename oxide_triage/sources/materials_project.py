@@ -156,12 +156,15 @@ class MaterialsProject(CachedSource):
                     continue
                 self.cache.put(self.name, f"summary:{doc['material_id']}", doc)
                 ids.append(doc["material_id"])
+            if not ids:
+                raise SourceError("universe query returned no candidates; not caching an empty universe")
             return {"material_ids": sorted(ids), "n_returned": len(docs)}
 
         payload, _ts, status = self.cached(key, fetch)
+        extra = self.on_demand_ids(cations, max_elements, hull_ceiling, min_gap)
         if payload is None:
-            return [], status
-        return list(payload["material_ids"]), status
+            return sorted(extra), status
+        return sorted(set(payload["material_ids"]) | set(extra)), status
 
     def fetch_by_formula(self, formula: str, allowed_elements: set[str]) -> list[str]:
         """Pull every non-deprecated MP entry for a reduced formula into the cache (online only).
@@ -184,17 +187,23 @@ class MaterialsProject(CachedSource):
     def add_to_universe(
         self, cations: list[str], max_elements: int, hull_ceiling: float, min_gap: float, ids: list[str]
     ) -> int:
-        """Append material ids to the cached universe for these query parameters."""
-        key = self.universe_key(cations, max_elements, hull_ceiling, min_gap)
+        """Record on-demand additions for these universe parameters. They live in a separate
+        ``ondemand:`` row and are merged in by ``fetch_universe``, so they can never stand in for,
+        or mask, the real universe query."""
+        key = "ondemand:" + self.universe_key(cations, max_elements, hull_ceiling, min_gap)
         hit = self.cache.get(self.name, key)
-        payload = hit[0] if hit else {"material_ids": [], "n_returned": 0}
-        current = set(payload.get("material_ids", []))
+        current = set(hit[0].get("material_ids", [])) if hit else set()
         new = [i for i in ids if i not in current]
         if new:
-            payload["material_ids"] = sorted(current | set(new))
-            payload["added_on_demand"] = sorted(set(payload.get("added_on_demand", [])) | set(new))
-            self.cache.put(self.name, key, payload, hit[1] if hit else None)
+            self.cache.put(self.name, key, {"material_ids": sorted(current | set(new))})
         return len(new)
+
+    def on_demand_ids(
+        self, cations: list[str], max_elements: int, hull_ceiling: float, min_gap: float
+    ) -> list[str]:
+        key = "ondemand:" + self.universe_key(cations, max_elements, hull_ceiling, min_gap)
+        hit = self.cache.get(self.name, key)
+        return list(hit[0].get("material_ids", [])) if hit else []
 
     def refresh_functional(self, material_id: str) -> str:
         """Acquisition route for an unresolved band-gap functional: re-fetch the summary (origins
