@@ -54,24 +54,31 @@ class DataLayer:
 
     @classmethod
     def from_config(
-        cls, config: Config, cache: Cache | None = None, offline: bool | None = None
+        cls,
+        config: Config,
+        cache: Cache | None = None,
+        offline: bool | None = None,
+        http: Any | None = None,
     ) -> DataLayer:
+        """``http`` lets every client share one transport, e.g. a ``ReplayHttp`` over recorded
+        responses in tests; by default each client builds its own live ``Http``."""
         cache = cache or Cache(config.cache.path)
         off = config.cache.offline if offline is None else offline
         ttl = config.cache.ttl_days
         return cls(
             config=config,
             cache=cache,
-            mp=MaterialsProject(cache, ttl, off),
-            oqmd=OQMD(cache, ttl, off),
+            mp=MaterialsProject(cache, ttl, off, http=http),
+            oqmd=OQMD(cache, ttl, off, http=http),
             openalex=OpenAlex(
                 cache,
                 ttl,
                 off,
+                http=http,
                 sample_size=config.candidates.literature_sample_size,
                 mailto=os.environ.get("OPENALEX_MAILTO"),
             ),
-            pubchem=PubChem(cache, ttl, off),
+            pubchem=PubChem(cache, ttl, off, http=http),
             hazard_table=load_hazard_table(config.toxicity.table_file),
             aliases=load_compound_aliases(),
             cations=load_cation_allowlist(config.candidates.cation_allowlist_file),

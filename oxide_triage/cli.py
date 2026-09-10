@@ -116,10 +116,18 @@ def report(
 @app.command("warm-cache")
 def warm_cache_cmd(
     profile: str = typer.Option("default", "--profile", "-p"),
+    record: Path | None = typer.Option(
+        None, "--record", help="Also save every raw API response under this directory (replayable in tests)."
+    ),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
     """Fetch the candidate universe and all per-candidate records, then run the self-check."""
     _setup_logging(verbose)
+    if record is not None:
+        import os
+
+        os.environ["OXIDE_TRIAGE_RECORD_DIR"] = str(record)
+        typer.echo(f"Recording raw responses to {record} (no headers/keys are written).")
     config = load_config(profile)
     typer.echo(f"Warming cache at {config.cache.path} (universe params from profile '{profile}')...")
     summary = warm_cache(config)

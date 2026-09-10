@@ -179,6 +179,23 @@ Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache p
 Keys are read from the environment only. `.env` is git-ignored; `.env.example` documents every
 variable.
 
+### Recording the first live run
+
+The clients were written against the documented APIs and exercised only on synthetic data until
+the first live warm. Capture that run so it becomes a permanent regression test:
+
+```bash
+oxide-triage warm-cache --record tests/recorded     # or: OXIDE_TRIAGE_RECORD_DIR=tests/recorded
+pytest tests/test_recorded.py                        # replays the recordings through the real clients
+```
+
+Every raw response is saved as `tests/recorded/<host>/<key>.json` (URL, parameters, response;
+headers and keys are never written). While that directory holds only its README the replay test
+is skipped; once recordings exist it fails loudly if a field the code depends on is missing from
+the real API shape, checks that the workhorses are in the live universe, that dielectric coverage
+is partial as expected, and that the self-check passes. Commit the recordings if their size is
+acceptable, or keep them out of git and run the test locally.
+
 ### Self-check before serving
 
 After every `warm-cache`, `load-fixtures` or `add-material`, the system runs the known-answer
@@ -309,7 +326,7 @@ from it carries the fixture banner.
 
 ```bash
 pip install -e ".[all]"
-pytest                       # 110 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, acquisition, HTML report
+pytest                       # 114 tests: scoring core, guard, config, refutation, pipeline, injection, session, self-check, MCP, acquisition, HTML report, record/replay
 ruff check . && ruff format .
 python -m eval.run_eval      # evaluation report -> eval/output/report.md
 jupyter lab eval/evaluation.ipynb

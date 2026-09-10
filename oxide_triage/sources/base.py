@@ -14,9 +14,13 @@ this package ever interprets it as an instruction.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
+import os
 import time
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -32,17 +36,94 @@ class SourceError(Exception):
     """A remote source could not be reached or returned an unusable response."""
 
 
-class Http:
-    """Thin httpx wrapper: timeouts, retries with backoff, 429 handling, proxy-aware."""
+VOLATILE_PARAMS = {"mailto"}  # excluded from recording keys; never affect the response shape
+RECORD_ENV = "OXIDE_TRIAGE_RECORD_DIR"
 
-    def __init__(self, timeout_s: float = 30.0, max_retries: int = 3, user_agent: str = ""):
+
+def request_key(url: str, params: dict[str, Any] | None) -> str:
+    clean = {k: v for k, v in (params or {}).items() if k not in VOLATILE_PARAMS}
+    blob = json.dumps({"url": url, "params": clean}, sort_keys=True, default=str)
+    return hashlib.sha256(blob.encode()).hexdigest()[:20]
+
+
+class Recorder:
+    """Writes every successful response to ``<dir>/<host>/<key>.json``. Headers (which carry
+    the API key) are never written. Set ``OXIDE_TRIAGE_RECORD_DIR`` to record a live cache warm;
+    the files become replayable fixtures for tests (see ``ReplayHttp``)."""
+
+    def __init__(self, directory: str | Path):
+        self.dir = Path(directory)
+
+    @classmethod
+    def from_env(cls) -> Recorder | None:
+        d = os.environ.get(RECORD_ENV)
+        return cls(d) if d else None
+
+    def save(self, url: str, params: dict[str, Any] | None, response: Any) -> Path:
+        host = httpx.URL(url).host or "unknown"
+        path = self.dir / host / f"{request_key(url, params)}.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        clean = {k: v for k, v in (params or {}).items() if k not in VOLATILE_PARAMS}
+        path.write_text(
+            json.dumps(
+                {"url": url, "params": clean, "response": response}, indent=1, sort_keys=True, default=str
+            ),
+            encoding="utf-8",
+        )
+        return path
+
+
+class ReplayHttp:
+    """Serves recorded responses; anything unrecorded raises ``SourceError``. Drop-in for ``Http``."""
+
+    def __init__(self, directory: str | Path):
+        self.dir = Path(directory)
+        self.calls: list[tuple[str, dict[str, Any] | None]] = []
+        self.index: dict[str, Path] = {p.stem: p for p in self.dir.rglob("*.json")}
+
+    def __len__(self) -> int:
+        return len(self.index)
+
+    def get_json(
+        self, url: str, params: dict[str, Any] | None = None, headers: dict[str, str] | None = None
+    ) -> Any:
+        self.calls.append((url, params))
+        path = self.index.get(request_key(url, params))
+        if path is None:
+            raise SourceError(f"no recording for {url} {params}")
+        return json.loads(path.read_text(encoding="utf-8"))["response"]
+
+    def close(self) -> None:
+        return None
+
+
+class Http:
+    """Thin httpx wrapper: timeouts, retries with backoff, 429 handling, proxy-aware, optional
+    recording of every response for replay in tests."""
+
+    def __init__(
+        self,
+        timeout_s: float = 30.0,
+        max_retries: int = 3,
+        user_agent: str = "",
+        recorder: Recorder | None = None,
+    ):
         headers = {"Accept": "application/json"}
         if user_agent:
             headers["User-Agent"] = user_agent
         self._client = httpx.Client(timeout=timeout_s, headers=headers, trust_env=True)
         self.max_retries = max_retries
+        self.recorder = recorder if recorder is not None else Recorder.from_env()
 
     def get_json(
+        self, url: str, params: dict[str, Any] | None = None, headers: dict[str, str] | None = None
+    ) -> Any:
+        data = self._get_json(url, params, headers)
+        if self.recorder is not None:
+            self.recorder.save(url, params, data)
+        return data
+
+    def _get_json(
         self, url: str, params: dict[str, Any] | None = None, headers: dict[str, str] | None = None
     ) -> Any:
         last_exc: Exception | None = None
