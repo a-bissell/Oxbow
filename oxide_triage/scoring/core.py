@@ -526,14 +526,23 @@ def rank(
     return passing, excluded
 
 
-def retrieval_completeness(ranked: list[ScoredCandidate], config: Config) -> RetrievalCompleteness:
+def retrieval_completeness(
+    ranked: list[ScoredCandidate], config: Config, scope_n: int | None = None
+) -> RetrievalCompleteness:
     """Measure how much of the data the ranking wanted was actually fetched into this cache.
 
     Reported per result rather than per candidate because the damage is comparative: one
     unfetched candidate is a caveat on that row, but a cache that is broadly unretrieved makes
     the *ordering* a partial artefact of which fetches happened to finish.
+
+    ``scope_n`` restricts the measure to the top ``scope_n`` ranked candidates: under on-demand
+    formula sources that is the settled pool the shortlist is drawn from, and everything below
+    it is unretrieved by design and labelled as such on each row.
     """
     floor = config.retrieval.min_completeness_warn
+    scoped = scope_n is not None and scope_n < len(ranked)
+    if scoped:
+        ranked = ranked[:scope_n]
     if not ranked:
         return RetrievalCompleteness(
             completeness=1.0,
@@ -570,16 +579,21 @@ def retrieval_completeness(ranked: list[ScoredCandidate], config: Config) -> Ret
         if not s.not_retrieved_criteria and s.record.cross_check.status != DataStatus.NOT_RETRIEVED
     )
     comparable = completeness >= floor
+    where = (
+        f"the top {len(ranked)} ranked candidates (the on-demand pool)"
+        if scoped
+        else f"{len(ranked)} ranked candidates"
+    )
     if comparable:
         note = (
-            f"{completeness:.1%} of the scoring weight across {len(ranked)} ranked candidates was "
+            f"{completeness:.1%} of the scoring weight across {where} was "
             f"retrieved into this cache; ranks are comparable."
         )
     else:
         worst = ", ".join(f"{k} ({v} candidates)" for k, v in sorted(nr_by.items(), key=lambda kv: -kv[1]))
         note = (
             f"INCOMPLETE RETRIEVAL: only {completeness:.1%} of the scoring weight across "
-            f"{len(ranked)} ranked candidates was retrieved (floor {floor:.0%}); "
+            f"{where} was retrieved (floor {floor:.0%}); "
             f"{n_full} candidates have complete data. Never retrieved: {worst}. "
             "Because unretrieved criteria lower a score, this ordering partly reflects which "
             "fetches finished rather than which materials are better. Warm the cache to completion "

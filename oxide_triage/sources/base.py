@@ -223,6 +223,14 @@ class CachedSource:
         self.ttl_days = ttl_days
         self.offline = offline
 
+    def peek(self, key: str) -> tuple[Any | None, str | None, FetchStatus]:
+        """Cache-only read: never fetches, never logs. ``not_fetched`` when nothing is cached,
+        which ``status_for`` maps to NOT_RETRIEVED (a fact about this cache, not the source)."""
+        hit = self.cache.get(self.name, key)
+        if hit is None:
+            return None, None, "not_fetched"
+        return hit[0], hit[1], "cached"
+
     def cached(self, key: str, fetch: Callable[[], Any]) -> tuple[Any | None, str | None, FetchStatus]:
         hit = self.cache.get(self.name, key)
         if hit is not None:

@@ -36,6 +36,9 @@ from oxide_triage.sources.fixtures import load_fixture
 log = logging.getLogger(__name__)
 
 
+MAX_SETTLE_ROUNDS = 6  # on-demand fill rounds per query before giving up on a moving pool
+
+
 def _now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
@@ -166,35 +169,62 @@ def run_triage(
             return TriageResult(**base, cache_fingerprint=cache.fingerprint([]), warnings=[block_msg])
 
         layer = DataLayer.from_config(config, cache=cache, offline=offline)
-        literature_note: str | None = None
+        fill_note: str | None = None
+        retrieval_scope: int | None = None
         try:
             records = layer.build_candidates()
             ranked, excluded = rank(records, config, eff)
-            if config.literature.fetch == "on_demand" and not layer.offline and ranked:
-                # Literature is fetched per query for the top of the ranking only (OpenAlex
-                # meters a small daily budget). Literature credit is never negative, so the
-                # pool can only move up relative to the rest; the shortlist is drawn from it.
-                pool_size = max(
-                    config.literature.on_demand_pool, eff.top_k
-                )  # never smaller than the shortlist
-                pool = [s.record for s in ranked[:pool_size]]
-                filled, counts = layer.fill_literature(pool)
-                by_id = {r.material_id: r for r in filled}
-                records = [by_id.get(r.material_id, r) for r in records]
-                ranked, excluded = rank(records, config, eff)
+            if config.candidates.formula_sources == "on_demand" and not layer.offline and ranked:
+                # The formula-keyed sources (OQMD, OpenAlex, PubChem) are fetched per query for
+                # the top of the ranking only. Literature and compound hazards can only add
+                # credit or caveats, but an OQMD disagreement lowers a score, so after each fill
+                # the ranking is recomputed and whatever newly entered the pool is filled too,
+                # until the pool is settled. The shortlist is then drawn from a fully retrieved
+                # pool; rows below it say they were not retrieved.
+                pool_size = max(config.candidates.on_demand_pool, eff.top_k)
+                attempted: set[str] = set()
+                failed = 0
+                rounds = 0
+                while rounds < MAX_SETTLE_ROUNDS:
+                    pool = [
+                        s.record
+                        for s in ranked[:pool_size]
+                        if s.record.material_id not in attempted and layer.needs_formula_sources(s.record)
+                    ]
+                    if not pool:
+                        break
+                    rounds += 1
+                    attempted.update(r.material_id for r in pool)
+                    filled, counts = layer.fill_formula_sources(pool)
+                    failed += counts.get("failed", 0)
+                    by_id = {r.material_id: r for r in filled}
+                    records = [by_id.get(r.material_id, r) for r in records]
+                    ranked, excluded = rank(records, config, eff)
+                retrieval_scope = pool_size
+                settled_pool = ranked[:pool_size]
+                unresolved = sum(1 for s in settled_pool if layer.needs_formula_sources(s.record))
                 scope = (
-                    f"all {len(pool)} ranked candidates"
-                    if len(pool) >= len(ranked)
-                    else f"the top {len(pool)} of {len(ranked)} ranked candidates"
+                    f"all {len(ranked)} ranked candidates"
+                    if pool_size >= len(ranked)
+                    else f"the top {pool_size} of {len(ranked)} ranked candidates"
                 )
-                literature_note = (
-                    f"Literature counts fetched on demand for {scope} ({counts.get('resolved', 0)} resolved)"
+                fill_note = (
+                    f"OQMD, OpenAlex and PubChem were queried on demand for {scope}"
+                    + (f" over {rounds} rounds" if rounds > 1 else "")
+                    + f" ({len(attempted)} candidates fetched, {unresolved} still unretrieved)"
                 )
-                if len(pool) < len(ranked):
-                    literature_note += "; candidates ranked below carry no literature credit"
-                if counts.get("failed"):
-                    literature_note += f"; {counts['failed']} OpenAlex lookups failed (see cache log)"
-                literature_note += "."
+                if pool_size < len(ranked):
+                    fill_note += (
+                        "; candidates ranked below carry no cross-check, literature or compound-hazard data"
+                    )
+                if failed:
+                    fill_note += f"; {failed} lookups failed (see cache log)"
+                if rounds >= MAX_SETTLE_ROUNDS and any(
+                    s.record.material_id not in attempted and layer.needs_formula_sources(s.record)
+                    for s in settled_pool
+                ):
+                    fill_note += f"; the pool did not settle within {MAX_SETTLE_ROUNDS} rounds"
+                fill_note += "."
         finally:
             layer.close()
         shortlist, beyond = ranked[: eff.top_k], ranked[eff.top_k :]
@@ -205,12 +235,12 @@ def run_triage(
         for sc in ranked:
             sc.rationale = rationale_line(sc)
 
-        retrieval = retrieval_completeness(ranked, config)
+        retrieval = retrieval_completeness(ranked, config, scope_n=retrieval_scope)
         warnings = list(layer.warnings)
         if not retrieval.comparable:
             warnings.append(retrieval.note)
-        if literature_note:
-            warnings.append(literature_note)
+        if fill_note:
+            warnings.append(fill_note)
         if status == "not_run" and not skip_selfcheck:
             warnings.append(
                 "Self-check has not been run on this cache; run `oxide-triage selfcheck` before trusting results."
@@ -335,6 +365,7 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
         # Build the per-candidate records now so the next query is answered from cache, then
         # try alternative routes for whatever the first pass could not find.
         records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
+        records, _ = layer.fill_formula_sources(records)  # one compound: fetch everything now
         report = run_acquisition(config, cache, layer=layer, records=records, kinds=GAP_KINDS)
         if report is not None and report.n_filled:
             records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
@@ -373,13 +404,18 @@ def run_acquisition(
     kinds: set[str] | frozenset[str] | None = None,
 ) -> AcquisitionReport | None:
     """Gap-filling pass over the cache (online only). Returns None when disabled or offline.
-    Unless ``literature.fetch: warm``, literature gaps are left to the query path (fetching
-    them for the whole universe is what the on-demand mode exists to avoid); ``add-material``
-    passes every kind because a single compound is cheap."""
+    Unless ``candidates.formula_sources: warm``, literature and cross-check gaps are left to the
+    query path, which applies the same fallbacks for the ranked pool (fetching them for the whole
+    universe is what on-demand mode exists to avoid); ``add-material`` passes every kind because
+    a single compound is cheap."""
     if not config.acquisition.enabled:
         return None
     if kinds is None:
-        kinds = GAP_KINDS if config.literature.fetch == "warm" else GAP_KINDS - {"literature"}
+        kinds = (
+            GAP_KINDS
+            if config.candidates.formula_sources == "warm"
+            else GAP_KINDS - {"literature", "cross_check"}  # filled per query with their fallbacks
+        )
     own = cache is None and layer is None
     cache = cache or (layer.cache if layer else Cache(config.cache.path))
     own_layer = layer is None

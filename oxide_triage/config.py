@@ -102,11 +102,6 @@ class LiteratureConfig(BaseModel):
     thin_film_saturation: int = Field(gt=0)
     total_saturation: int = Field(gt=0)
     thin_film_weight: float = Field(ge=0, le=1)
-    # When OpenAlex counts are fetched. on_demand: at query time, for the top-ranked candidates
-    # only (OpenAlex meters a small daily budget). warm: for every formula during warm-cache.
-    # never: literature stays unknown unless already cached (fixtures, earlier warms).
-    fetch: Literal["on_demand", "warm", "never"] = "on_demand"
-    on_demand_pool: int = Field(default=25, ge=1, le=500)  # ranked candidates fetched per query
 
 
 class MissingDataConfig(BaseModel):
@@ -141,6 +136,11 @@ class CandidatesConfig(BaseModel):
     # whose only observed entry falls outside the hull/gap window is dropped with it; measured at
     # 25 of 1,067 all-theoretical formulas on the first live warm. ``add-material`` bypasses this.
     observed_only: bool = True
+    # The formula-keyed sources (OQMD, PubChem, OpenAlex) are slow or metered, so by default the
+    # warm fetches Materials Project only and a query fills the top-ranked pool on demand, then
+    # re-ranks until the pool is settled. ``warm`` fetches them for every formula at warm time.
+    formula_sources: Literal["on_demand", "warm"] = "on_demand"
+    on_demand_pool: int = Field(default=25, ge=1, le=500)  # ranked candidates filled per query
     literature_sample_size: int = Field(ge=0, le=25)
     fetch_workers: int = Field(default=4, ge=0, le=16)  # threads per source for the warm
     fetch: dict[str, SourceFetchConfig] = Field(default_factory=dict)  # per-source overrides

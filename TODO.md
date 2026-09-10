@@ -9,12 +9,17 @@ Ideas / planned work for this project.
       `band_gap` origin); verified live, 40/40 resolve to GGA.
 - [ ] **Commit the recorded live fixtures** under `tests/recorded/` once the replay test
       passes on a complete recording (Materials Project, OQMD, PubChem).
-- [ ] **Finish the re-record** — the 2026-09-10 re-record (tighter universe: 4,769 materials,
-      2,651 formulas) stopped early on OpenAlex's daily budget. Literature is now fetched per
-      query instead of at warm time, so the warm and the recording cover Materials Project,
-      OQMD and PubChem only (~5,300 formula requests). OQMD returned 429 at four concurrent
-      workers but recovered within a minute; a retry pass resumes from `data/record-cache.sqlite`
-      (`OXIDE_TRIAGE_CACHE=data/record-cache.sqlite oxide-triage warm-cache --record tests/recorded`).
+- [x] **Rescope the universe** — done 2026-09-10: observed structures only
+      (`candidates.observed_only`) and the dielectric-minded cation allowlist v2 (wide list kept
+      as `cation_allowlist_wide.yaml`). Confirm the cation list with the PI's group.
+- [x] **Fetch OQMD, PubChem and OpenAlex per query** — done 2026-09-10
+      (`candidates.formula_sources: on_demand`): the warm is Materials Project only; a query
+      fills the top-ranked pool and re-ranks until it settles; completeness is measured over the
+      pool; the self-check fills its own pool online on a live cache.
+- [ ] **Finish the re-record** — the warm now covers Materials Project only (minutes). Run
+      `oxide-triage warm-cache --record tests/recorded` against a fresh cache, then commit the
+      recordings once `tests/test_recorded.py` passes. The partial recordings under
+      `tests/recorded/` predate the rescoped universe query and can be discarded.
 - [x] **Per-source concurrency and rate limits** — done 2026-09-10: `candidates.fetch.<source>`
       sets `workers` and `max_rps` per source (OQMD 8 workers at 1 req/s, PubChem 4 at 4 req/s,
       OpenAlex 4 at 5 req/s); the cap lives in the HTTP client, so retries and the on-demand

@@ -107,11 +107,12 @@ per call and the whole universe warms in minutes. The formula-keyed sources are 
 a composition it has not cached in 10–50 s and returns 429 above about 2.4 requests/s; OpenAlex
 now meters a daily budget ($0.10/day per IP, $1/day with a free key, $0.001 per full-text
 search, two per formula). Warming literature for thousands of formulas would take days, so it is
-fetched per query for the top-ranked pool instead (§8) and never at warm time. The same treatment
-is planned for OQMD and PubChem, so that a warm touches MP only and a reviewer's first run takes
-minutes: fill the ranked pool, then settle, because unlike literature a cross-check disagreement
-or a GHS statement can move or exclude a candidate. Per-source worker pools and request-rate caps
-bound the pressure on each source meanwhile.
+fetched per query for the top-ranked pool instead (§8) and never at warm time, and OQMD and
+PubChem get the same treatment: a warm touches MP only, so a reviewer's first run takes minutes,
+and a query fills the ranked pool, re-ranks, and repeats until the pool is settled, because
+unlike literature an OQMD disagreement lowers a score. The shortlist is drawn from that fully
+retrieved pool, rows below it say so, and retrieval completeness is measured over the pool.
+Per-source worker pools and request-rate caps bound the pressure on each source.
 
 ## 4. Domain handling a materials scientist checks first
 
@@ -130,6 +131,32 @@ about it. A structural scope-limitation statement appears in every output.
 **Dielectric coverage is sparse.** `unknown` is a distinct `DataStatus`, not a value. It
 propagates through scoring as `None`, lowers `data_coverage`, caps the confidence label at
 *medium*, appears by name in the shortlist entry, and generates a caveat.
+
+**There are two kinds of unknown, and merging them corrupts the ranking.** This is the thing the
+first live warm taught us that the fixture never could. MP holds no DFPT tensor for 1,979 of the
+ranked candidates — a fact about the data, stable across runs, and exactly the sparse-coverage
+case the brief describes. But our warm also died partway through: OQMD rate-limited and OpenAlex
+hit its daily budget, leaving 1,791 candidates with no cross-check and 1,731 with no literature
+counts. Both arrived at the scorer as the same `UNKNOWN`.
+
+That is not a labelling nicety. Because missing criteria reduce `data_coverage`, and coverage
+multiplies the score under `no_credit`, a candidate whose fetches failed is pushed down the
+ranking for a reason that has nothing to do with the material. On our own partial cache the top
+twenty were 17/20 cross-checked against 20% across the ranked set: the head of the list was
+substantially *the subset whose downloads finished*. A tool that reports this as a ranking is
+lying, and lying in the specific way the whole design is meant to prevent — the presentation
+carrying more authority than the evidence under it.
+
+So `DataStatus` splits into `ABSENT` (the source answered; it holds no record) and
+`NOT_RETRIEVED` (we never got an answer here). The fetch layer always knew the difference; it
+was being discarded one layer up. The scoring arithmetic is deliberately unchanged — we do not
+know the value either way, and crediting an unfetched candidate would be the worse error — but
+everything a reader sees now keeps them apart. A candidate carries `retrieval_gap` and a
+`comparable` flag; the refutation pass raises `incomplete_retrieval` as a *critical* caveat
+saying the rank is not comparable; and each result reports a `retrieval_completeness` measure
+that warns when the cache is too patchy to compare candidates at all, with a configurable floor
+below which no ranking is served. Only one of the two states is fixable by warming the cache,
+and the output now says which.
 
 ## 5. Ranking
 
@@ -224,19 +251,27 @@ fixture data all pass: the PI's request yields a ranked shortlist with caveats a
 request per bin behaves as specified; HfO₂ and Al₂O₃ lead the default run, ZrO₂ is third, and
 Ta₂O₅ is excluded by the 4 eV gate *with the reason stated* and ranks seventh under the wide-net
 profile; two runs are identical; no candidate lacking a dielectric value is scored as if it had one.
-The known-answer check is presented as what it is:
-ground-truth validation before trusting the system on unknowns, and the check that already caught
-one real bug.
+The known-answer check is presented as what it is: ground-truth validation before trusting the
+system on unknowns. It has now caught two real bugs, which is the argument for having it. The
+first was a scoring policy under which missing data could *raise* a candidate's rank. The second
+was subtler. Replayed against the incomplete live recording the check failed — HfO₂ at 11, Al₂O₃
+at 39 — and the failure was not about ranking at all: the workhorses had sunk because their
+cross-check and literature lookups were never retrieved. A ground-truth test run on data that was
+never fetched tests the cache, not the ranker, and calling that FAIL points the operator at the
+wrong thing. The check now measures retrieval completeness first and reports `INCONCLUSIVE` with
+the reason when the cache is too sparse to validate ranks (76.8% on that recording, against a 90%
+floor), reserving FAIL for a ranker that genuinely got a known answer wrong.
 
 ## 11. Limitations and next steps
 
 The first live warm replaced the fixture as evidence (§3), but its recording is partial: OQMD's
-latency and OpenAlex's budget stopped it, and it completes once the universe is rescoped and the
-remaining formula-keyed sources move on demand. Literature counts from formula-string search are
+latency and OpenAlex's budget stopped it, and it completes on the rescoped, MP-only warm. Until then the system declines to present that
+cache as a ranking — 78.9% retrieved against a 95% floor — rather than quietly serving an order
+that partly reflects which downloads finished. Polymorphs are also not deduplicated, so one
+compound can occupy several shortlist rows. Literature counts from formula-string search are
 noisy for short formulae (flagged per candidate). The hazard table is a screen, not a
 toxicological assessment. Nothing about films is modelled, by design. The alternative
 acquisition routes are tested against fake responses; only the OpenAlex ones have run live. Next:
-rescope the universe as set out in §3 and confirm the cation list with the PI, move OQMD and
-PubChem on demand, complete and commit the recorded live fixture, then run against real data
-with the group, retune profiles with them, and add the JARVIS-DFT bulk dataset as a second
-dielectric route.
+confirm the cation list with the PI, complete and commit the recorded live fixture, then run
+against real data with the group, retune profiles with them, and add the JARVIS-DFT bulk
+dataset as a second dielectric route.

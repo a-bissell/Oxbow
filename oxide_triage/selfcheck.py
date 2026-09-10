@@ -47,15 +47,24 @@ def _ranked(res: TriageResult) -> list[str]:
     return [s.record.formula for s in res.shortlist + res.ranked_beyond_shortlist]
 
 
-def run_selfcheck(config: Config, cache: Cache) -> SelfCheck:
+def run_selfcheck(config: Config, cache: Cache, offline: bool | None = None) -> SelfCheck:
+    """Known-answer check. Runs from the cache alone, except under on-demand formula sources on
+    a live cache, where the ranked pool is filled online first: the warm deliberately leaves
+    those sources unfetched, and a check that then reported "too sparse" would test nothing."""
     from oxide_triage.pipeline import run_triage  # local import: pipeline imports this module
 
     sc = config.selfcheck
     details: list[str] = []
     ok = True
+    if offline is None:
+        offline = not (
+            config.candidates.formula_sources == "on_demand"
+            and not config.cache.offline
+            and not cache.has_fixture_data
+        )
 
     default_cfg = load_config("default", use_env=False, overrides={"cache": {"path": config.cache.path}})
-    res = run_triage(PI, default_cfg, cache=cache, offline=True, skip_selfcheck=True, llm=NullLLM())
+    res = run_triage(PI, default_cfg, cache=cache, offline=offline, skip_selfcheck=True, llm=NullLLM())
     ranked = _ranked(res)
     universe = {s.record.formula for s in res.shortlist + res.ranked_beyond_shortlist + res.excluded}
     if not universe:
@@ -111,7 +120,7 @@ def run_selfcheck(config: Config, cache: Cache) -> SelfCheck:
             details.append(f"{lead}: expected in default top 5, found at {ranked.index(lead) + 1} (FAIL)")
 
     wide_cfg = load_config("exploratory", use_env=False, overrides={"cache": {"path": config.cache.path}})
-    wide = run_triage(PI, wide_cfg, cache=cache, offline=True, skip_selfcheck=True, llm=NullLLM())
+    wide = run_triage(PI, wide_cfg, cache=cache, offline=offline, skip_selfcheck=True, llm=NullLLM())
     wide_ranked = _ranked(wide)
     in_top10 = [w for w in sc.workhorses if w in wide_ranked[:10]]
     need = min(sc.min_workhorses_in_wide_top10, len(sc.workhorses))

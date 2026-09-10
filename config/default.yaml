@@ -79,12 +79,6 @@ literature:
   thin_film_saturation: 50      # thin-film works at which the sub-score saturates
   total_saturation: 500
   thin_film_weight: 0.7         # remainder goes to total works
-  # OpenAlex meters a daily budget ($0.10/day per IP anonymously, $1/day with a free account's
-  # key; a full-text search costs $0.001 and each formula needs two). Fetching every formula at
-  # warm time would take days, so by default counts are fetched at query time for the
-  # top-ranked candidates only; everything below the pool scores "literature unknown".
-  fetch: on_demand              # on_demand | warm | never
-  on_demand_pool: 25            # ranked candidates fetched per query (~50 searches, $0.05)
 
 # How an UNKNOWN criterion affects ranking. It is always displayed as unknown (never as
 # zero) and always lowers the confidence label. For the ranking arithmetic:
@@ -112,6 +106,15 @@ candidates:
   # hypothetical polymorphs. The group will deposit films of what comes out, so a structure
   # nobody has synthesised is a discovery target, not a triage candidate.
   observed_only: true
+  # Where the formula-keyed sources (OQMD, PubChem, OpenAlex) are fetched. Materials Project
+  # warms in minutes; OQMD answers an uncached composition in 10-50 s and OpenAlex meters a
+  # daily budget ($0.10/day per IP, $1/day with a free key, $0.001 per search, two per
+  # formula), so warming them for thousands of formulas takes hours to days. on_demand: the
+  # warm fetches MP only, and each query fills the top-ranked pool, re-ranking until the pool
+  # is settled; candidates below the pool carry no cross-check, literature or compound-hazard
+  # data and the output says so. warm: fetch them for every formula during warm-cache.
+  formula_sources: on_demand
+  on_demand_pool: 25            # ranked candidates filled per query, never fewer than top_k
   # The first live warm at 0.20 eV/atom and 1.0 eV pulled 7,124 candidates. No shipped profile
   # gates above 0.08 eV/atom or below 2.5 eV effective (1.8 eV before a 1.4x correction), so
   # anything outside these bounds could never be ranked. Widen them if you add a looser profile.
