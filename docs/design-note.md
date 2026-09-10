@@ -118,7 +118,9 @@ it. The shipped default is `no_credit`: an unknown criterion earns nothing, is d
 unknown, and lowers confidence, so a candidate can never outrank another by having less data.
 `renormalize` is kept as a documented option so the comparison can be reproduced. The preference
 curves were tuned on four compounds, with the reasoning in `default.yaml`; the profiles exist so
-a site can retune against its own judgement.
+a site can retune against its own judgement. On live data the dielectric curve alone decides
+the order of the top five, and the README walks through why LaAlO3 leads HfO2 and which single
+setting reverses it.
 
 ## 6. Refutation pass
 
