@@ -261,4 +261,8 @@ def test_empty_cache_is_a_normal_first_run_state(tmp_path, monkeypatch):
         conv = c.post("/api/conversations", json={}).json()
         final, _ = turn(c, conv["id"], text=PI)
         assert final["error"] is None and final["result_id"]
-        assert "no candidates" in final["text"].lower() or "no shortlist" in final["text"].lower() or "not" in final["text"].lower()
+        assert (
+            "no candidates" in final["text"].lower()
+            or "no shortlist" in final["text"].lower()
+            or "not" in final["text"].lower()
+        )
