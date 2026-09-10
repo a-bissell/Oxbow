@@ -57,6 +57,28 @@ ALL_ELEMENTS = (
 ).split()
 
 
+# The API caps `exclude_elements` at 60 characters (HTTP 422 otherwise; found on the first live
+# warm). Send the exclusions that remove the most non-oxide chemistry server-side, in priority
+# order, and rely on the local allowlist filter for the rest.
+MAX_EXCLUDE_CHARS = 60
+EXCLUDE_PRIORITY = (
+    "H C N F S Cl Br I Se As Ag Pd Pt Ru Rh Ir Os Au Re Tc Hg Pm Po Ra Ac Pa Np Pu He Ne Ar Kr Xe Rn At Fr"
+).split()
+
+
+def server_side_exclusions(allowed: set[str], max_chars: int = MAX_EXCLUDE_CHARS) -> str:
+    """Comma-joined exclusion list that fits the API limit, most valuable exclusions first."""
+    ordered = [el for el in EXCLUDE_PRIORITY if el not in allowed]
+    ordered += [el for el in ALL_ELEMENTS if el not in allowed and el not in ordered]
+    out: list[str] = []
+    for el in ordered:
+        candidate = ",".join([*out, el])
+        if len(candidate) > max_chars:
+            break
+        out.append(el)
+    return ",".join(out)
+
+
 def normalize_run_type(run_type: str | None) -> str:
     if not run_type:
         return "unknown"
@@ -132,14 +154,14 @@ class MaterialsProject(CachedSource):
         """Return (material_ids, status). Summaries are cached one row per material."""
         key = self.universe_key(cations, max_elements, hull_ceiling, min_gap)
         allowed = set(cations) | {"O"}
-        excluded = [el for el in ALL_ELEMENTS if el not in allowed]
+        excluded = server_side_exclusions(allowed)
 
         def fetch() -> dict[str, Any]:
             docs = self._paged(
                 "/materials/summary/",
                 {
                     "elements": "O",
-                    "exclude_elements": ",".join(excluded),
+                    "exclude_elements": excluded,
                     "nelements_min": 2,
                     "nelements_max": max_elements,
                     "energy_above_hull_max": hull_ceiling,
@@ -150,8 +172,8 @@ class MaterialsProject(CachedSource):
             )
             ids = []
             for doc in docs:
-                # Defensive local filter: the API's exclude list is authoritative but cheap
-                # to double check, and it keeps fixture and live paths identical.
+                # The local allowlist filter is authoritative: the server-side exclusion list
+                # is truncated to the API's 60-character limit.
                 if any(el not in allowed for el in doc.get("elements", [])):
                     continue
                 self.cache.put(self.name, f"summary:{doc['material_id']}", doc)

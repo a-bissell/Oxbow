@@ -239,3 +239,19 @@ def test_gaps_are_deduplicated_per_formula_for_formula_keyed_sources():
     records = DataLayer.from_config(cfg, cache=cache, offline=True).build_candidates()
     hf_gaps = [g for g in detect_gaps(records) if g.formula == "HfO2" and g.kind == "cross_check"]
     assert len(hf_gaps) == 1
+
+
+# ---- Materials Project exclude_elements limit (found on the first live warm) -------------------
+
+
+def test_server_side_exclusions_fit_the_api_limit_and_prioritise_non_oxide_chemistry():
+    from oxide_triage.config import load_cation_allowlist
+    from oxide_triage.sources.materials_project import MAX_EXCLUDE_CHARS, server_side_exclusions
+
+    allowed = set(load_cation_allowlist()) | {"O"}
+    excl = server_side_exclusions(allowed)
+    assert 0 < len(excl) <= MAX_EXCLUDE_CHARS
+    parts = excl.split(",")
+    assert parts[:4] == ["H", "C", "N", "F"]
+    assert not (set(parts) & allowed)
+    assert len(parts) == len(set(parts))
