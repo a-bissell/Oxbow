@@ -19,7 +19,14 @@ from oxide_triage.schemas import (
     StabilityRecord,
 )
 from oxide_triage.scoring.bandgap import assess_band_gap
-from oxide_triage.scoring.core import aggregate, evaluate_gates, rank, score_candidate, score_components
+from oxide_triage.scoring.core import (
+    aggregate,
+    evaluate_gates,
+    rank,
+    retrieval_completeness,
+    score_candidate,
+    score_components,
+)
 from oxide_triage.scoring.settings import resolve
 
 TABLE = load_hazard_table()
@@ -47,24 +54,24 @@ def make_record(
         n_elements=len(elements),
         stability=StabilityRecord(
             energy_above_hull_ev_atom=e_hull,
-            status=DataStatus.KNOWN if e_hull is not None else DataStatus.UNKNOWN,
+            status=DataStatus.KNOWN if e_hull is not None else DataStatus.ABSENT,
             functional="test",
         ),
         band_gap=BandGapRecord(
             value_ev=gap,
             functional=functional,
-            status=DataStatus.KNOWN if gap is not None else DataStatus.UNKNOWN,
+            status=DataStatus.KNOWN if gap is not None else DataStatus.ABSENT,
         ),
         dielectric=DielectricRecord(
-            e_total=e_total, status=DataStatus.KNOWN if e_total is not None else DataStatus.UNKNOWN
+            e_total=e_total, status=DataStatus.KNOWN if e_total is not None else DataStatus.ABSENT
         ),
         cross_check=CrossCheckRecord(
-            stability_ev_atom=oqmd, status=DataStatus.KNOWN if oqmd is not None else DataStatus.UNKNOWN
+            stability_ev_atom=oqmd, status=DataStatus.KNOWN if oqmd is not None else DataStatus.ABSENT
         ),
         literature=LiteratureRecord(
             total_works=total,
             thin_film_works=thin_film,
-            status=DataStatus.KNOWN if thin_film is not None else DataStatus.UNKNOWN,
+            status=DataStatus.KNOWN if thin_film is not None else DataStatus.ABSENT,
         ),
         hazard=HazardRecord(
             element_tiers=tiers,
@@ -122,7 +129,7 @@ class TestBandGap:
         assert a.corrected is False and a.effective_ev == 4.0
 
     def test_unknown_gap_stays_unknown(self, cfg):
-        a = assess_band_gap(BandGapRecord(status=DataStatus.UNKNOWN), cfg.band_gap)
+        a = assess_band_gap(BandGapRecord(status=DataStatus.ABSENT), cfg.band_gap)
         assert a.effective_ev is None and a.corrected is False
 
 
@@ -230,7 +237,7 @@ class TestComponents:
         r = make_record(e_total=None)
         comps, _ = score_components(r, assess_band_gap(r.band_gap, cfg.band_gap), eff, cfg)
         d = [c for c in comps if c.criterion == "dielectric"][0]
-        assert d.status == DataStatus.UNKNOWN
+        assert d.status == DataStatus.ABSENT
         assert d.normalized is None and d.contribution is None
         assert "UNKNOWN" in d.raw_label
 
@@ -274,9 +281,9 @@ class TestComponents:
 
     def test_all_unknown_gives_none_score(self, cfg, eff):
         r = make_record(e_hull=None, gap=None, e_total=None, oqmd=None, thin_film=None, total=None)
-        r.hazard.status = DataStatus.UNKNOWN
+        r.hazard.status = DataStatus.ABSENT
         comps, _ = score_components(r, assess_band_gap(r.band_gap, cfg.band_gap), eff, cfg)
-        raw, cov, adj, missing, conf = aggregate(comps, cfg)
+        raw, cov, adj, missing, _absent, _nr, _gap, conf = aggregate(comps, cfg)
         # simplicity is always computable, so coverage is exactly its weight
         assert cov == pytest.approx(eff.weights["simplicity"])
         assert conf == "low"
@@ -315,3 +322,100 @@ class TestRanking:
         eff_k = resolve(cfg, Criteria(weight_overrides={"band_gap": 0.05, "dielectric": 0.6}), TABLE)[0]
         assert rank([wide_gap_low_k, high_k_low_gap], cfg, eff_gap)[0][0].record.material_id == "gap"
         assert rank([wide_gap_low_k, high_k_low_gap], cfg, eff_k)[0][0].record.material_id == "k"
+
+
+class TestRetrievalProvenance:
+    """ABSENT vs NOT_RETRIEVED: the source has no record, versus this cache never asked.
+
+    Scoring must treat them identically — we do not know the value either way, and letting an
+    unfetched candidate score as though its data were good is exactly the failure this split
+    exists to prevent. Everything the reader sees must keep them apart, because only one of the
+    two is fixable by warming the cache.
+    """
+
+    def _pair(self, cfg, eff):
+        """The same material, its dielectric absent from the source vs never retrieved."""
+        absent = make_record(e_total=None)
+        absent.dielectric.status = DataStatus.ABSENT
+        unfetched = make_record(e_total=None)
+        unfetched.dielectric.status = DataStatus.NOT_RETRIEVED
+        return score_candidate(absent, cfg, eff), score_candidate(unfetched, cfg, eff)
+
+    def test_scores_are_identical_whatever_the_reason(self, cfg, eff):
+        a, u = self._pair(cfg, eff)
+        assert a.adjusted_score == u.adjusted_score
+        assert a.data_coverage == u.data_coverage
+        assert a.missing_criteria == u.missing_criteria == ["dielectric"]
+
+    def test_the_reason_is_reported_and_flags_comparability(self, cfg, eff):
+        a, u = self._pair(cfg, eff)
+        assert a.absent_criteria == ["dielectric"] and a.not_retrieved_criteria == []
+        assert u.not_retrieved_criteria == ["dielectric"] and u.absent_criteria == []
+        # only the unfetched candidate is off the common footing
+        assert a.comparable is True and a.retrieval_gap == 0.0
+        assert u.comparable is False
+        assert u.retrieval_gap == pytest.approx(eff.weights["dielectric"])
+
+    def test_component_carries_the_reason_in_its_note(self, cfg, eff):
+        a, u = self._pair(cfg, eff)
+        note_of = lambda s: " ".join(n for c in s.components if c.criterion == "dielectric" for n in c.notes)
+        assert "NOT RETRIEVED" in note_of(u)
+        assert "NOT RETRIEVED" not in note_of(a)
+
+    def test_unfetched_data_never_earns_confidence(self, cfg, eff):
+        _, u = self._pair(cfg, eff)
+        assert u.confidence == "low"
+
+    def test_untested_cross_check_is_not_a_single_source_claim(self, cfg, eff):
+        """'No OQMD entry' is evidence; 'OQMD was never asked' is not."""
+        no_entry = make_record(oqmd=None)
+        no_entry.cross_check.status = DataStatus.ABSENT
+        never_asked = make_record(oqmd=None)
+        never_asked.cross_check.status = DataStatus.NOT_RETRIEVED
+        assert score_candidate(no_entry, cfg, eff).cross_source_agreement == "unavailable"
+        assert score_candidate(never_asked, cfg, eff).cross_source_agreement == "untested"
+
+    def _mixed(self, n_good: int, n_bad: int):
+        recs = [make_record(mid=f"g-{i}") for i in range(n_good)]
+        for i in range(n_bad):
+            r = make_record(mid=f"b-{i}", e_total=None, thin_film=None, total=None)
+            r.dielectric.status = DataStatus.NOT_RETRIEVED
+            r.literature.status = DataStatus.NOT_RETRIEVED
+            recs.append(r)
+        return recs
+
+    def test_completeness_reports_the_shape_of_the_gap(self, cfg, eff):
+        ranked, _ = rank(self._mixed(4, 6), cfg, eff)
+        rc = retrieval_completeness(ranked, cfg)
+        assert rc.n_ranked == 10 and rc.n_fully_retrieved == 4
+        assert rc.not_retrieved_by_criterion == {"dielectric": 6, "literature": 6}
+        assert 0.0 < rc.completeness < 1.0
+        assert not rc.comparable and "INCOMPLETE RETRIEVAL" in rc.note
+        assert "dielectric (6 candidates)" in rc.note
+
+    def test_a_small_gap_stays_within_the_floor(self, cfg, eff):
+        """The floor is a judgement call, not a purity test: a couple of holes in ten candidates
+        is still a comparable ranking, and saying otherwise would cry wolf on every real cache."""
+        ranked, _ = rank(self._mixed(9, 1), cfg, eff)
+        rc = retrieval_completeness(ranked, cfg)
+        assert rc.comparable and rc.completeness >= cfg.retrieval.min_completeness_warn
+
+    def test_a_fully_retrieved_cache_is_comparable(self, cfg, eff):
+        ranked, _ = rank([make_record(mid=f"g-{i}") for i in range(5)], cfg, eff)
+        rc = retrieval_completeness(ranked, cfg)
+        assert rc.completeness == 1.0 and rc.comparable
+        assert rc.not_retrieved_by_criterion == {}
+
+    def test_missing_cross_check_counts_against_completeness(self, cfg, eff):
+        """The cross-check moves the score through the stability bonus rather than a weight of
+        its own; a completeness measure that ignored it once reported 90% on a cache missing
+        84% of its cross-checks."""
+        recs = []
+        for i in range(4):
+            r = make_record(mid=f"x-{i}", oqmd=None)
+            r.cross_check.status = DataStatus.NOT_RETRIEVED
+            recs.append(r)
+        ranked, _ = rank(recs, cfg, eff)
+        rc = retrieval_completeness(ranked, cfg)
+        assert rc.not_retrieved_by_criterion.get("cross_check") == 4
+        assert rc.completeness < 1.0 and rc.n_fully_retrieved == 0
