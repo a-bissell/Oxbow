@@ -1,0 +1,50 @@
+{
+ "params": {
+  "composition": "Ba2ZrO4",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.27346114335929,
+    "entry_id": 7156,
+    "name": "Ba2ZrO4",
+    "spacegroup": "I4/mmm",
+    "stability": 0.0018466471428557618
+   },
+   {
+    "delta_e": -3.2753077905021457,
+    "entry_id": 1987270,
+    "name": "Ba2ZrO4",
+    "spacegroup": "I4/mmm",
+    "stability": 0.0
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 2,
+   "data_returned": 2,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Ba2ZrO4&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 12:31:38"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

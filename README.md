@@ -116,7 +116,12 @@ Site vocabulary (e.g. *hafnia*, *high-k*) is mapped through `terminology` in the
 
 **PI summary** — top candidates, one line of rationale each, the single most important caveat.
 Each entry shows its score, a **confidence** label and, when relevant, the criteria that had
-**no data** behind them. A candidate ranked on partial data says so.
+**no data** behind them. A candidate ranked on partial data says so. **One row per compound:**
+Materials Project holds several phases of many oxides and each passes the gates on its own, so
+the best-ranked phase leads the row, the other passing phases are listed under it with their
+own hull distance, gap and score (`+2 phases` on the card; a table in the focus view), and a
+caveat says which phase a film adopts is not modelled. On live data this turns 497 passing
+materials into 317 compounds. `output.group_polymorphs: false` ranks materials instead.
 
 **Audit view** — every score component with its weight and contribution, every gate with its
 threshold and the observed value, the DFT functional behind each number, source ids and retrieval

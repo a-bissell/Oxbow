@@ -1,0 +1,99 @@
+{
+ "params": {
+  "composition": "Dy2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.78775973819392,
+    "entry_id": 20294,
+    "name": "Dy2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.062273314750000086
+   },
+   {
+    "delta_e": -3.83731374419392,
+    "entry_id": 5434,
+    "name": "Dy2O3",
+    "spacegroup": "I213",
+    "stability": 0.01271930875000038
+   },
+   {
+    "delta_e": -2.90446786819392,
+    "entry_id": 354794,
+    "name": "Dy2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.94556518475
+   },
+   {
+    "delta_e": -3.80689051219392,
+    "entry_id": 20308,
+    "name": "Dy2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.04314254075000035
+   },
+   {
+    "delta_e": -3.79800883319392,
+    "entry_id": 426798,
+    "name": "Dy2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.05202421975000027
+   },
+   {
+    "delta_e": -3.85003305294392,
+    "entry_id": 7457,
+    "name": "Dy2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.71346925469392,
+    "entry_id": 1343309,
+    "name": "Dy2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.1365637982500001
+   },
+   {
+    "delta_e": -3.64056054819392,
+    "entry_id": 1442700,
+    "name": "Dy2O3",
+    "spacegroup": "P321",
+    "stability": 0.20947250475000034
+   },
+   {
+    "delta_e": -3.63761350419392,
+    "entry_id": 1444196,
+    "name": "Dy2O3",
+    "spacegroup": "P-62m",
+    "stability": 0.21241954875000024
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 9,
+   "data_returned": 9,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Dy2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 12:31:34"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

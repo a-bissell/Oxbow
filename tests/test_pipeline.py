@@ -188,3 +188,47 @@ def test_offline_with_empty_cache_is_honest():
     res = run_triage(PI, load_config("default", use_env=False), cache=Cache(":memory:"), offline=True)
     assert res.guard.proceed and res.shortlist == []
     assert any("No candidates available" in w for w in res.warnings)
+
+
+# Polymorph grouping ------------------------------------------------------------------------------
+
+
+def test_polymorphs_collapse_into_one_row_per_compound(cache):
+    # The fixture holds two HfO2 phases (monoclinic on hull; a theoretical cubic one 78 meV up),
+    # so with the observed-only filter lifted both pass the exploratory gates.
+    base = {"candidates": {"observed_only": False}}
+    cfg_off = load_config(
+        "exploratory", use_env=False, overrides={**base, "output": {"group_polymorphs": False}}
+    )
+    ungrouped = run_triage(PI, cfg_off, cache=cache, offline=True)
+    forms = [s.record.formula for s in ungrouped.shortlist + ungrouped.ranked_beyond_shortlist]
+    assert forms.count("HfO2") == 2 and ungrouped.collapsed_polymorphs == []
+
+    res = run_triage(PI, load_config("exploratory", use_env=False, overrides=base), cache=cache, offline=True)
+    passing = res.shortlist + res.ranked_beyond_shortlist
+    forms = [s.record.formula for s in passing]
+    assert forms.count("HfO2") == 1 and len(set(forms)) == len(forms)
+    assert [s.rank for s in passing] == list(range(1, len(passing) + 1))
+    assert len(res.collapsed_polymorphs) == 1
+    lead = next(s for s in passing if s.record.formula == "HfO2")
+    other = res.collapsed_polymorphs[0]
+    assert other.record.formula == "HfO2" and other.collapsed_under == lead.record.material_id
+    assert other.rank is None and other.rank_by_material is not None
+    assert lead.rank_by_material is not None and lead.rank_by_material < other.rank_by_material
+    assert [p.material_id for p in lead.polymorphs] == [other.record.material_id]
+    cav = next(c for c in lead.caveats if c.code == "polymorphs_collapsed")
+    assert other.record.material_id in cav.evidence["collapsed"] and "not modelled" in cav.text
+    # the leading phase is the better-ranked one, and its own numbers are unchanged
+    lead_u = next(
+        s
+        for s in ungrouped.shortlist + ungrouped.ranked_beyond_shortlist
+        if s.record.material_id == lead.record.material_id
+    )
+    assert lead_u.adjusted_score == lead.adjusted_score
+    # follow-ups still resolve the collapsed phase by id and say where it went
+    from oxide_triage.session import explain_candidate, list_candidates
+
+    text = explain_candidate(res, other.record.material_id)
+    assert "collapsed under the leading HfO2 phase" in text
+    assert "+1 other phase" in list_candidates(res, "shortlist", 50) + list_candidates(res, "beyond", 500)
+    assert "1 further phases collapsed" in render(res, "pi_summary")

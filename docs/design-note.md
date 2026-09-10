@@ -106,7 +106,9 @@ Six criteria, each a weight and a normalised score in [0, 1]: stability (with a 
 agreement bonus and disagreement penalty), effective band gap, dielectric constant where known,
 hazard tier, compositional simplicity, literature evidence (thin-film-weighted, log-saturating).
 Hard gates exclude before scoring with a stated reason; every contribution is in the audit view;
-ties break on material id.
+ties break on material id. Materials Project holds several phases of many oxides, so after
+ranking a compound's best phase leads one row and its other passing phases collapse under it
+with their own numbers and a caveat: on live data 497 passing materials become 317 compounds.
 
 The missing-data policy is the interesting part, because the first version was wrong. The
 natural choice, renormalising over the criteria that have data, put five candidates with **no**
@@ -196,7 +198,8 @@ reports `INCONCLUSIVE` on a sparse cache and reserves `FAIL` for a wrong known a
 
 ## 11. Limitations and next steps
 
-Polymorphs are not deduplicated, so one compound can occupy two shortlist rows. Literature counts from formula-string search are noisy for
+Polymorphs are grouped by formula after ranking, with the leading phase's numbers shown and
+the others listed under it; which phase a film adopts is still not modelled. Literature counts from formula-string search are noisy for
 short formulae, and flagged. The hazard table is a screen, not a toxicological assessment.
 Nothing about films is modelled, by design. Next: confirm the cation list and the dielectric
 preference curve with the PI's group, retune profiles with them against the live data, and add

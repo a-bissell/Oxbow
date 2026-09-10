@@ -1,0 +1,127 @@
+{
+ "params": {
+  "composition": "MgAl2O4",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.22935432895453,
+    "entry_id": 4171,
+    "name": "MgAl2O4",
+    "spacegroup": "Fd-3m",
+    "stability": 0.0016339221428536277
+   },
+   {
+    "delta_e": -3.22983205966881,
+    "entry_id": 6015,
+    "name": "MgAl2O4",
+    "spacegroup": "I41/amd",
+    "stability": 0.0011561914285738162
+   },
+   {
+    "delta_e": -3.11962750324024,
+    "entry_id": 20391,
+    "name": "MgAl2O4",
+    "spacegroup": "Cmcm",
+    "stability": 0.11136074785714367
+   },
+   {
+    "delta_e": -3.12669552002596,
+    "entry_id": 20390,
+    "name": "MgAl2O4",
+    "spacegroup": "Pnma",
+    "stability": 0.1042927310714239
+   },
+   {
+    "delta_e": -3.1200726275259556,
+    "entry_id": 1574639,
+    "name": "MgAl2O4",
+    "spacegroup": "Cmcm",
+    "stability": 0.11091562357142815
+   },
+   {
+    "delta_e": -3.084311814668813,
+    "entry_id": 1574816,
+    "name": "MgAl2O4",
+    "spacegroup": "Cmca",
+    "stability": 0.14667643642857087
+   },
+   {
+    "delta_e": -3.2309214182402415,
+    "entry_id": 1574872,
+    "name": "MgAl2O4",
+    "spacegroup": "I41/amd",
+    "stability": 6.683285714226272e-05
+   },
+   {
+    "delta_e": -3.1259926821688127,
+    "entry_id": 1574926,
+    "name": "MgAl2O4",
+    "spacegroup": "Pnma",
+    "stability": 0.10499556892857109
+   },
+   {
+    "delta_e": -2.2741812460973843,
+    "entry_id": 1574980,
+    "name": "MgAl2O4",
+    "spacegroup": "I4/mmm",
+    "stability": 0.9568070049999995
+   },
+   {
+    "delta_e": -3.104413317704527,
+    "entry_id": 1574757,
+    "name": "MgAl2O4",
+    "spacegroup": "P21/c",
+    "stability": 0.12657493339285653
+   },
+   {
+    "delta_e": -3.1189652668116703,
+    "entry_id": 1574698,
+    "name": "MgAl2O4",
+    "spacegroup": "Pbcm",
+    "stability": 0.11202298428571345
+   },
+   {
+    "delta_e": -3.2309882510973837,
+    "entry_id": 1454793,
+    "name": "MgAl2O4",
+    "spacegroup": "I41/amd",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.1508209250259553,
+    "entry_id": 2045254,
+    "name": "MgAl2O4",
+    "spacegroup": "Pnma",
+    "stability": 0.0801673260714284
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 13,
+   "data_returned": 13,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=MgAl2O4&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 12:31:37"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

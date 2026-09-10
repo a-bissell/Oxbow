@@ -137,6 +137,12 @@ output:
   default_template: pi_summary   # pi_summary | audit | json
   top_k: 5
   verbosity: normal              # terse | normal | verbose
+  # One shortlist row per compound. Materials Project holds several phases of many oxides
+  # (monoclinic and tetragonal HfO2, ...) and each passes the gates on its own, so without
+  # grouping one compound can fill three rows. The best-ranked phase leads the row; the other
+  # passing phases are listed under it with their own hull distance, gap and score, and a
+  # caveat says which phase a film adopts is not modelled. Set false to rank materials.
+  group_polymorphs: true
 
 # Site-local vocabulary -> canonical terms understood by the parser
 terminology:

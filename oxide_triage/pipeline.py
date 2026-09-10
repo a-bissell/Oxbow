@@ -28,10 +28,18 @@ from oxide_triage.config import (
 from oxide_triage.edges.llm import LLMClient, make_llm
 from oxide_triage.edges.parse import parse_request
 from oxide_triage.edges.render import rationale_line
+from oxide_triage.grouping import group_polymorphs, polymorph_caveat
 from oxide_triage.guard import guard_request
 from oxide_triage.progress import ProgressFn, emit
 from oxide_triage.refute import refute, rule_caveats
-from oxide_triage.schemas import CandidateRecord, Criteria, GuardDecision, ScopeInfo, TriageResult
+from oxide_triage.schemas import (
+    CandidateRecord,
+    Criteria,
+    GuardDecision,
+    ScopeInfo,
+    ScoredCandidate,
+    TriageResult,
+)
 from oxide_triage.scoring.core import explanation, rank, retrieval_completeness
 from oxide_triage.scoring.settings import blocked_by_policy, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
@@ -44,6 +52,22 @@ log = logging.getLogger(__name__)
 
 
 MAX_SETTLE_ROUNDS = 6  # on-demand fill rounds per query before giving up on a moving pool
+
+
+def _pool_rows(ranked: list[ScoredCandidate], pool_size: int, by_compound: bool) -> list[ScoredCandidate]:
+    """The top of the ranking that the on-demand fill covers. With polymorph grouping the pool
+    is the first ``pool_size`` compounds and every passing phase of each, since any phase may
+    lead its row once the fill has changed the scores."""
+    if not by_compound:
+        return ranked[:pool_size]
+    formulas: list[str] = []
+    for s in ranked:
+        if s.record.formula not in formulas:
+            if len(formulas) == pool_size:
+                break
+            formulas.append(s.record.formula)
+    keep = set(formulas)
+    return [s for s in ranked if s.record.formula in keep]
 
 
 def _now() -> str:
@@ -242,7 +266,7 @@ def run_triage(
                 while rounds < MAX_SETTLE_ROUNDS:
                     pool = [
                         s.record
-                        for s in ranked[:pool_size]
+                        for s in _pool_rows(ranked, pool_size, config.output.group_polymorphs)
                         if s.record.material_id not in attempted and layer.needs_formula_sources(s.record)
                     ]
                     if not pool:
@@ -267,7 +291,7 @@ def run_triage(
                     records = [by_id.get(r.material_id, r) for r in records]
                     ranked, excluded = rank(records, config, eff)
                 retrieval_scope = pool_size
-                settled_pool = ranked[:pool_size]
+                settled_pool = _pool_rows(ranked, pool_size, config.output.group_polymorphs)
                 unresolved = sum(1 for s in settled_pool if layer.needs_formula_sources(s.record))
                 scope = (
                     f"all {len(ranked)} ranked candidates"
@@ -293,13 +317,21 @@ def run_triage(
                 fill_note += "."
         finally:
             layer.close()
+        collapsed: list[ScoredCandidate] = []
+        if config.output.group_polymorphs:
+            ranked, collapsed = group_polymorphs(ranked)
         shortlist, beyond = ranked[: eff.top_k], ranked[eff.top_k :]
 
         emit(progress, "refute", f"Arguing against each of the {len(shortlist)} shortlisted candidates")
         llm_usage["refute"] = refute(shortlist, eff, config, llm)
-        for sc in beyond + excluded:
+        for sc in beyond + excluded + collapsed:
             sc.caveats = rule_caveats(sc, eff, config)
         for sc in ranked:
+            if (pc := polymorph_caveat(sc)) is not None:
+                # A material spread between phases leads the caveats; a mere note does not
+                # displace a more important one as the row's main caveat.
+                sc.caveats.insert(0, pc) if pc.severity != "info" else sc.caveats.append(pc)
+        for sc in ranked + collapsed:
             sc.rationale = rationale_line(sc)
 
         if config.candidates.formula_sources == "on_demand" and ranked and retrieval_scope is None:
@@ -357,6 +389,7 @@ def run_triage(
             shortlist=shortlist,
             ranked_beyond_shortlist=beyond,
             excluded=excluded,
+            collapsed_polymorphs=collapsed,
             n_candidates_considered=len(records),
             scope=scope_info,
             warnings=warnings,

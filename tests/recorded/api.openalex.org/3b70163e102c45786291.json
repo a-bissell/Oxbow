@@ -1,0 +1,111 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Dy2O3) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 74,
+   "db_response_time_ms": 152,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    Dy2O3\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "Dy2O3"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:Dy2O3,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/j.apsusc.2007.08.041",
+    "id": "https://openalex.org/W2090281582",
+    "publication_year": 2007,
+    "title": "Properties of Dy-doped ZnO nanocrystalline thin films prepared by pulsed laser deposition"
+   },
+   {
+    "doi": "https://doi.org/10.1116/11.20080702",
+    "id": "https://openalex.org/W1998915045",
+    "publication_year": 2007,
+    "title": "Nanostructured Dy2O3 films: An XPS Investigation"
+   },
+   {
+    "doi": "https://doi.org/10.1021/cm2020862",
+    "id": "https://openalex.org/W1968810435",
+    "publication_year": 2012,
+    "title": "Atomic Layer Deposition of Gd2O3 and Dy2O3: A Study of the ALD Characteristics and Structural and Electrical Properties"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.2767380",
+    "id": "https://openalex.org/W1643392277",
+    "publication_year": 2007,
+    "title": "Electrical characterization and current transportation in metal\u2215Dy2O3\u2215Si structure"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.apsusc.2010.11.144",
+    "id": "https://openalex.org/W2075996237",
+    "publication_year": 2010,
+    "title": "Structural properties and electrical characteristics of high-k Dy2O3 gate dielectrics"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

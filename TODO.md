@@ -36,8 +36,11 @@ Ideas / planned work for this project.
       pass on the live cache; the eval's known-answer check now defers to the configured
       self-check instead of carrying its own windows. Live default top five: LaAlO3, SrHfO3,
       LaScO3, CaZrO3, HfO2.
-- [ ] **Group polymorphs by formula in the shortlist** — the live exploratory top five lists
-      SrZrO3 twice; one compound should occupy one row with its other phases collapsed under it.
+- [x] **Group polymorphs by formula in the shortlist** — done 2026-09-10
+      (`output.group_polymorphs`, `oxide_triage/grouping.py`): the best-ranked phase leads the
+      row, other passing phases collapse under it with their own numbers and a caveat, ranks
+      are over compounds, the on-demand pool counts compounds, and `explain` still resolves a
+      collapsed phase by id. Live: 497 passing materials become 317 compounds.
 - [x] **Anthropic structured output** — done 2026-09-10: the API rejects `minimum`/`maximum`/
       `maxItems`/`maxLength` and a `null` inside an `enum`; the schemas are cleaned on the way
       out (Python validates the result anyway). Before this the model edges always fell back to
