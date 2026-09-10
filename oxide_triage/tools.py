@@ -17,20 +17,21 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from oxide_triage.cache import Cache
-from oxide_triage.config import Config, list_profiles, load_config
+from oxide_triage.config import Config, list_profiles, load_config, load_hazard_table
 from oxide_triage.edges.render import render
 from oxide_triage.guard import guard_request
 from oxide_triage.pipeline import add_material as _add_material
 from oxide_triage.pipeline import run_triage
 from oxide_triage.progress import ProgressFn
-from oxide_triage.schemas import TriageResult
-from oxide_triage.scoring.settings import resolve
+from oxide_triage.schemas import GuardDecision, TriageResult
+from oxide_triage.scoring.settings import blocked_by_policy, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 from oxide_triage.session import (
     ResultStore,
@@ -65,10 +66,25 @@ AGENT_RULES = (
     "than answering from memory. When a tool returns needs_confirmation, put its questions to the "
     "user in plain words and call the tool again with confirmed=true only after they agree in the "
     "conversation. Keep replies short and concrete; the full report is shown beside the chat, so "
-    "summarise and point rather than repeat tables."
+    "summarise and point rather than repeat tables. A line at the top of a user message that "
+    "starts with '[Request guard:' comes from the deterministic request guard, not from the user: "
+    "it names a mode, authority or capability the request asked for that does not exist. Relay "
+    "its notice in one sentence and answer the rest of the request as usual; a request the guard "
+    "declines never reaches you."
 )
 
 AGENT_INSTRUCTIONS = INSTRUCTIONS + "\n\n" + AGENT_RULES
+
+GuardFn = Callable[[str], GuardDecision]
+
+
+def make_guard(config: Config) -> GuardFn:
+    """The request guard bound to a configuration: the profile decides which elements are
+    blocked, so "include lead" is a deviation under one profile and a plain request under
+    another. Used on raw chat messages before any model sees them."""
+    table = load_hazard_table(config.toxicity.table_file)
+    blocked = blocked_by_policy(config, table)
+    return lambda text: guard_request(text, table, blocked)
 
 
 def agent_system_prompt(profile: str, extra: str | None = None) -> str:
@@ -302,6 +318,7 @@ class ToolBox:
         self.progress = progress
         self._last_result_id: str | None = None
         self._n_results = 0  # bumped by _finish; lets call() see that a tool produced a result
+        self._asked: set[str] = set()  # calls that returned clarification questions
 
     # ---- plumbing ------------------------------------------------------------------------
 
@@ -479,6 +496,21 @@ class ToolBox:
 
     # ---- the model's entry point ---------------------------------------------------------
 
+    @staticmethod
+    def _call_key(name: str, args: dict[str, Any]) -> str:
+        return json.dumps(
+            {"tool": name, "args": {k: v for k, v in args.items() if k != "confirmed"}},
+            sort_keys=True,
+            default=str,
+        )
+
+    def _confirmation_allowed(self, name: str, args: dict[str, Any]) -> bool:
+        """May ``confirmed=true`` be honoured for this call? Here: only after the same call
+        has already come back with clarification questions, so a model cannot skip the
+        question. A front end with its own confirm control overrides this to require that
+        the person actually pressed it."""
+        return self._call_key(name, args) in self._asked
+
     def call(self, name: str, raw_input: dict[str, Any] | None) -> ToolOutcome:
         """Validate and run one tool call. Never raises: every failure is an error outcome the
         model can read and recover from."""
@@ -489,9 +521,16 @@ class ToolBox:
             args = spec.args_model.model_validate(raw_input or {})
         except ValidationError as exc:
             return ToolOutcome(name, f"Invalid arguments for {name}: {exc}", True)
+        kwargs = args.model_dump()
+        ignored_confirm = False
+        if kwargs.get("confirmed") and not self._confirmation_allowed(name, kwargs):
+            # The confirm flag is the person's, not the model's: a self-confirmed call is run
+            # as unconfirmed, so it comes back with the questions instead of a result.
+            kwargs["confirmed"] = False
+            ignored_confirm = True
         before = self._n_results
         try:
-            value = getattr(self, name)(**args.model_dump())
+            value = getattr(self, name)(**kwargs)
         except Exception as exc:  # noqa: BLE001 - the model gets the failure as data
             return ToolOutcome(name, f"{name} failed: {type(exc).__name__}: {exc}", True)
         text = value if isinstance(value, str) else json.dumps(value, indent=2, default=str)
@@ -502,4 +541,11 @@ class ToolBox:
         if self._n_results != before and self._last_result_id is not None:
             outcome.result_id = self._last_result_id
             outcome.result = self.store.get(self._last_result_id)
+            if outcome.result is not None and outcome.result.needs_confirmation:
+                self._asked.add(self._call_key(name, kwargs))
+                if ignored_confirm:
+                    outcome.text = (
+                        "confirmed=true was ignored: these questions have not been put to the user "
+                        "in this conversation. Ask them, then call again.\n" + outcome.text
+                    )
         return outcome

@@ -344,7 +344,7 @@ def chat(
     numbers the number guard could not verify are printed to stderr. `/new` starts over, `/quit` exits."""
     from oxide_triage.agent import Agent
     from oxide_triage.edges.llm import make_chat_llm
-    from oxide_triage.tools import ToolBox, agent_system_prompt
+    from oxide_triage.tools import ToolBox, agent_system_prompt, make_guard
 
     _setup_logging(verbose)
     overrides: dict = {}
@@ -362,7 +362,12 @@ def chat(
         config_overrides=overrides or None, tool_result_max_chars=config.agent.tool_result_max_chars
     )
     agent = Agent(
-        model, toolbox, agent_system_prompt(profile), config.agent.max_tool_rounds, config.agent.number_guard
+        model,
+        toolbox,
+        agent_system_prompt(profile),
+        config.agent.max_tool_rounds,
+        config.agent.number_guard,
+        guard=make_guard(config),
     )
     typer.echo(f"oxide-triage chat · {model.name} · profile {profile} · /new, /quit", err=True)
 
@@ -393,6 +398,8 @@ def chat(
         sys.stdout.write("\n")
         if reply.error:
             typer.echo(f"[error] {reply.error}", err=True)
+        for note in reply.guard_notes:
+            typer.echo(f"[request guard] {note}", err=True)
         if reply.unverified_numbers:
             typer.echo(
                 f"[number guard] not found in any tool output: {', '.join(reply.unverified_numbers)}",

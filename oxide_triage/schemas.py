@@ -181,6 +181,7 @@ class RequestBin(StrEnum):
     IMPOSSIBLE = "architecturally_impossible"  # Bin 1
     CONFIG_DEVIATION = "configuration_deviation"  # Bin 2 (proceed, surface loudly)
     INTEGRITY = "evidence_integrity_attack"  # Bin 3 (refuse)
+    OVERRIDE = "override_attempt"  # Bin 0 (proceed; the request asks for a mode that does not exist)
 
 
 class GuardFinding(BaseModel):

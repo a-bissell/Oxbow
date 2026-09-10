@@ -16,6 +16,15 @@ What it guarantees, and how:
 * Numbers are checked. After the reply, every number in the prose is looked up in the numbers
   the tools printed (and in the user's own words). Anything else is reported as unverified; the
   front end marks it. The check flags, it does not rewrite.
+* The request guard runs on the user's own words before any model sees them. A request the
+  guard declines (one that would need fabricated evidence) is answered with the refusal and no
+  model call; a request with a notice (an override attempt, a capability the deployment lacks)
+  reaches the model with the notice prepended, so the model relays it rather than deciding
+  alone whether to. Without this the guard would see only the model's paraphrase of the
+  request, which is exactly what a social-engineering prompt is designed to shape.
+* The confirm flag is the person's. ``ToolBox.call`` ignores ``confirmed=true`` on a call that
+  has not been held for questions first, so the model cannot pre-approve a change on the
+  user's behalf.
 """
 
 from __future__ import annotations
@@ -34,12 +43,15 @@ from oxide_triage.edges.llm import (
     Turn,
     UserTurn,
 )
+from oxide_triage.guard import guard_notice
 from oxide_triage.refute import allowed_numbers, unverified_numbers
-from oxide_triage.tools import TOOL_SPECS, ToolBox, ToolOutcome, ToolSpec
+from oxide_triage.schemas import GuardDecision
+from oxide_triage.tools import TOOL_SPECS, GuardFn, ToolBox, ToolOutcome, ToolSpec
 
 log = logging.getLogger(__name__)
 
 ROUND_CAP_MESSAGE = "tool budget for this message is exhausted; answer from what you already have"
+GUARD_REFUSAL = "guard_refusal"  # stop_reason of a turn the request guard answered
 
 
 @dataclass
@@ -58,6 +70,8 @@ class AgentReply:
     error: str | None = None
     stop_reason: str | None = None
     usage: dict[str, int] = field(default_factory=dict)
+    guard: GuardDecision | None = None  # the guard's reading of the user's own words
+    guard_notes: list[str] = field(default_factory=list)  # what was prepended for the model
 
 
 ToolCallback = Callable[[ToolEvent], None]
@@ -72,12 +86,14 @@ class Agent:
         max_tool_rounds: int = 8,
         number_guard: str = "flag",
         specs: list[ToolSpec] | None = None,
+        guard: GuardFn | None = None,
     ):
         self.llm = llm
         self.toolbox = toolbox
         self.system = system
         self.max_tool_rounds = max_tool_rounds
         self.number_guard = number_guard
+        self.guard = guard
         self.specs = list(specs) if specs is not None else list(TOOL_SPECS)
         self.transcript: list[Turn] = []
         self.results: list[str] = []  # result ids produced in this conversation, oldest first
@@ -121,11 +137,28 @@ class Agent:
         self,
         user_text: str,
         *,
+        prefix: str = "",
         on_text: TextCallback | None = None,
         on_tool: ToolCallback | None = None,
     ) -> AgentReply:
+        """``prefix`` is context a front end puts before the user's words (the focused
+        material, the scope strip). The guard reads ``user_text`` alone."""
         reply = AgentReply()
-        new: list[Turn] = [UserTurn(user_text)]
+        shown = user_text
+        if self.guard is not None:
+            reply.guard = decision = self.guard(user_text)
+            if not decision.proceed:
+                refusal = decision.refusal_message or "This request was declined by the request guard."
+                turn = AssistantTurn(text=refusal, stop_reason=GUARD_REFUSAL)
+                self.transcript.extend([UserTurn(prefix + user_text), turn])
+                reply.text, reply.stop_reason = refusal, GUARD_REFUSAL
+                if on_text is not None:
+                    on_text(refusal)
+                return reply
+            reply.guard_notes = guard_notice(decision)
+            if reply.guard_notes:
+                shown = "[Request guard: " + " ".join(reply.guard_notes) + "]\n\n" + user_text
+        new: list[Turn] = [UserTurn(prefix + shown)]
         try:
             turn: AssistantTurn | None = None
             for _ in range(self.max_tool_rounds):

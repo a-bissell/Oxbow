@@ -127,7 +127,8 @@ def rule_parse(text: str, table: HazardTable, blocked: frozenset[str] | None = N
         exclude.extend(find_elements(m.group(1)))
 
     for m in re.finditer(
-        r"\b(?:include|allow|permit|consider|keep|accept|add|don'?t (?:exclude|block|filter)|do not (?:exclude|block|filter))\s+([^.;]{1,60})",
+        r"\b(?:include|allow|permit|consider|keep|accept|add|unblock|don'?t (?:exclude|block|filter)|do not (?:exclude|block|filter)|"
+        r"(?:lift|remove|drop|relax)\s+the\s+(?:block|restrictions?|ban|filter|blocklist)\s+(?:on|for|against))\s+([^.;]{1,60})",
         t,
         re.I,
     ):
@@ -289,7 +290,8 @@ def merge(rules: Criteria, model: Criteria | None) -> Criteria:
         filled.append("weight_overrides")
     if filled:
         out.interpretation_notes.append("filled by language model (validated): " + ", ".join(filled))
-        out.interpretation_notes.extend(f"model note: {n}" for n in model.interpretation_notes[:5])
+        # Model text reaches the output header here, labelled and clipped: never as a value.
+        out.interpretation_notes.extend(f"model note: {str(n)[:120]}" for n in model.interpretation_notes[:5])
     return out
 
 
