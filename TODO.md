@@ -98,6 +98,26 @@ Ideas / planned work for this project.
             running; thread a cancellation token through the on-demand fill.
       - [ ] Clickable HTML report export that seeds the same follow-ups as the canvas.
 
+## Deployment
+
+- [x] **Offline release pipeline** — done 2026-09-10 (`.github/workflows/release.yml`,
+      `oxide_triage/bundle.py`, `docker/compose.offline.yml`, `docker/OFFLINE.md`): a tag warms
+      the cache with the repository's key, fills every profile's on-demand pool, self-checks,
+      packages `cache.sqlite` with a manifest (sources, timestamps, self-check, commit, SHA-256),
+      saves the image and an index-free wheel set, then proves the lot with `--network none`
+      (install, self-check, the PI's request, the documented compose steps) before publishing
+      with a provenance attestation. `oxide-triage bundle build|verify|install`; `doctor` and
+      the web status name the installed release. CI (`ci.yml`) lints, tests and smokes the
+      image on every push. Follow-ups:
+      - [ ] Multi-arch image (arm64) and a wheel set per platform; the wheels are built for the
+            runner (linux x86_64, CPython 3.11) and say so in their name.
+      - [ ] Optional local-model asset: a companion archive with weights and the vLLM or Ollama
+            image for sites that want the model driver offline. Multi-gigabyte, per-site choice.
+      - [ ] Refresh bundle: a scheduled run that re-warms and publishes a cache-only release so
+            a site can update the data without a new image.
+      - [ ] Bundle install from the admin panel (upload a bundle, verify, install) for sites
+            where nobody wants to type a compose command.
+
 ## With the PI's group
 
 - [ ] **Run against real data with the group and retune the scoring profiles** with them.

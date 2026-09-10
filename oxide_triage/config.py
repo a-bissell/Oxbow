@@ -37,7 +37,25 @@ log = logging.getLogger(__name__)
 PACKAGE_DIR = Path(__file__).resolve().parent
 DATA_DIR = PACKAGE_DIR / "data"
 REPO_ROOT = PACKAGE_DIR.parent
-DEFAULT_CONFIG_DIR = REPO_ROOT / "config"
+CONFIG_DIR_ENV = "OXIDE_TRIAGE_CONFIG_DIR"
+
+
+def resolve_config_dir() -> Path:
+    """Where the shipped YAML lives. In a checkout it is ``config/`` beside the package. An
+    installed wheel has no such directory, so a deployment names it with ``OXIDE_TRIAGE_CONFIG_DIR``
+    (the container image does) or runs from a directory that contains ``config/`` (a release
+    unpacked from the offline archive does). The first that exists wins; a missing directory is
+    reported at first use, not here, so ``--help`` and ``bundle verify`` need no configuration."""
+    env = os.environ.get(CONFIG_DIR_ENV)
+    if env:
+        return Path(env).expanduser()
+    for candidate in (REPO_ROOT / "config", Path.cwd() / "config"):
+        if (candidate / "default.yaml").is_file():
+            return candidate
+    return REPO_ROOT / "config"
+
+
+DEFAULT_CONFIG_DIR = resolve_config_dir()
 
 SITE_CONFIG_ENV = "OXIDE_TRIAGE_SITE_CONFIG"
 ADMIN_ENV = "OXIDE_TRIAGE_ADMIN"
@@ -699,6 +717,11 @@ def config_layers(
     if use_env:
         load_dotenv()
     name = profile or "default"
+    if not (config_dir / "default.yaml").is_file():
+        raise FileNotFoundError(
+            f"no configuration at {config_dir}: set {CONFIG_DIR_ENV} to the directory holding "
+            "default.yaml and profiles/, or run from a directory that contains config/"
+        )
     default = _read_yaml(config_dir / "default.yaml")
     prof: dict[str, Any] = {}
     if name != "default":

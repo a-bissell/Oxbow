@@ -198,6 +198,13 @@ with a persistent cache volume; once warmed the containers run fully offline. A 
 runs vLLM serving Qwen3-8B beside the app: the model's job is small enough that an 8B local model
 loses nothing, so a centre that forbids sending request text off-site keeps every capability.
 
+The offline claim is made good by CI rather than asserted: every tag warms a cache from the public
+sources, self-checks it, packages it with a manifest (sources, timestamps, self-check, commit,
+SHA-256) beside the image and an index-free wheel set, then loads the image with the network
+disabled and runs the install, the self-check and the PI's request against the bundle before
+anything is published. `bundle install` at the site verifies the checksum and the stamp inside
+the cache, and `doctor` names the release and its build date, since a cache has a shelf life.
+
 ## 10. Evaluation
 
 Five checks, as pytest tests and as a report (`eval/run_eval.py`, `eval/evaluation.ipynb`), all

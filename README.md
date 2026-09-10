@@ -354,6 +354,41 @@ Python 3.11+. `pip install -e ".[web,llm]"`, then the same commands (`oxide-tria
 the web app). The front end is prebuilt and committed; Node is only needed to change it. The cache path defaults to
 `data/cache.sqlite` (override with `OXIDE_TRIAGE_CACHE`).
 
+### Offline release: install from a USB stick
+
+Every tagged release ships the whole deployment for a machine that will never see the network:
+
+| Asset | Contents |
+|---|---|
+| `oxide-triage-<v>-offline.tar.gz` | the warmed cache with its manifest, the compose files, the shipped config, an offline `.env`, and `OFFLINE.md` with the install steps |
+| `oxide-triage-<v>-image.tar.zst` | the container image (`docker load`) |
+| `oxide-triage-<v>-wheels-<platform>.tar.gz` | the package and every dependency as wheels, for `pip install --no-index` on a box with Python and no Docker |
+| `SHA256SUMS`, `oxide-triage-<v>-manifest.json` | checksums of every asset; the cache manifest on its own |
+
+The release workflow (`.github/workflows/release.yml`) warms the cache from the public sources
+with the repository's own key, fills the on-demand pools for every profile, runs the self-check
+and refuses to package a cache that did not pass. It then loads the image and runs it with
+`--network none` against the bundle: install, self-check, the PI's request, and the documented
+compose steps end to end. Only a release that passed that gate is published, with a
+build-provenance attestation. Nothing in the box is a claim; the pipeline proved it.
+
+At the site:
+
+```bash
+docker load < oxide-triage-<v>-image.tar          # zstd -d first if docker cannot read .zst
+tar xzf oxide-triage-<v>-offline.tar.gz && cd oxide-triage-<v>-offline
+docker compose -f docker/compose.yml -f docker/compose.offline.yml run --rm app oxide-triage bundle install /bundle
+docker compose -f docker/compose.yml -f docker/compose.offline.yml up -d
+```
+
+`bundle install` verifies the checksum, the recorded self-check and the release stamp inside the
+cache before copying anything, and refuses to replace a populated cache without `--force`.
+`oxide-triage doctor` and the web app's status then name the release, its commit and its build
+date, because a cache has a shelf life and the date is how you know how stale it is. To make a
+bundle from your own warmed cache, `oxide-triage bundle build --out bundle/`; `bundle verify`
+checks one you were handed. The bundle holds no language model: the assistant runs on rules
+unless a local model comes along on the same media (`docker/compose.local-llm.yml`).
+
 ### Keys and environment
 
 | Variable | Needed for | Where to get it |
@@ -367,6 +402,7 @@ the web app). The front end is prebuilt and committed; Node is only needed to ch
 | `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT` | MCP server defaults (`stdio`, `127.0.0.1`, `8765`) | — |
 | `OXIDE_TRIAGE_ADMIN` | `1` enables editing and cache operations on the Admin page (read-only otherwise) | — |
 | `OXIDE_TRIAGE_SITE_CONFIG` | path of the site overrides file (default `site.yaml` next to the cache; `off` disables) | — |
+| `OXIDE_TRIAGE_CONFIG_DIR` | directory holding `default.yaml` and `profiles/`. Unset, a checkout uses its own `config/`, else `./config` in the working directory; an installed wheel outside a checkout needs one of the two (the image sets `/app/config`) | — |
 
 Keys are read from the environment. A `.env` file in the current directory or the repository root
 is loaded automatically by the CLI, the app and the MCP server (existing environment variables win).
@@ -640,6 +676,10 @@ from it carries the fixture banner.
 ---
 
 ## Development
+
+CI (`.github/workflows/ci.yml`) runs ruff, the test suite and a `--network none` smoke of the
+container image on every push and pull request. Tags starting with `v` run the release workflow
+described under *Offline release*.
 
 ```bash
 pip install -e ".[all]"

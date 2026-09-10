@@ -296,3 +296,26 @@ def test_is_policy_key():
     assert is_policy_key("candidates.min_reported_gap_ev") and is_policy_key("literature.fetch")
     assert not is_policy_key("candidates.fetch") and not is_policy_key("terminology")
     assert not is_policy_key("cache.ttl_days") and not is_policy_key("agent.max_tool_rounds")
+
+
+def test_config_dir_resolves_from_env_then_cwd_then_checkout(tmp_path, monkeypatch):
+    """An installed wheel has no config/ beside the package: the directory comes from the
+    environment or the working directory, and a missing one is a clear error, not a traceback
+    into site-packages."""
+    import shutil
+
+    from oxide_triage.config import DEFAULT_CONFIG_DIR, load_config, resolve_config_dir
+
+    site = tmp_path / "release" / "config"
+    shutil.copytree(DEFAULT_CONFIG_DIR, site)
+    monkeypatch.delenv("OXIDE_TRIAGE_CONFIG_DIR", raising=False)
+    monkeypatch.chdir(tmp_path)
+    assert resolve_config_dir() == DEFAULT_CONFIG_DIR  # the checkout wins while it exists
+    monkeypatch.setenv("OXIDE_TRIAGE_CONFIG_DIR", str(site))
+    assert resolve_config_dir() == site
+    assert load_config("conservative", config_dir=site, use_env=False).profile_name == "conservative"
+    monkeypatch.chdir(tmp_path / "release")
+    monkeypatch.delenv("OXIDE_TRIAGE_CONFIG_DIR")
+    assert resolve_config_dir() == DEFAULT_CONFIG_DIR
+    with pytest.raises(FileNotFoundError, match="OXIDE_TRIAGE_CONFIG_DIR"):
+        load_config("default", config_dir=tmp_path / "nowhere", use_env=False)

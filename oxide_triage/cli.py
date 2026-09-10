@@ -12,6 +12,9 @@ oxide-triage config                # effective configuration with the origin of 
 oxide-triage chat                  # talk to the agent in the terminal (needs a language model provider)
 oxide-triage profiles
 oxide-triage cache-status
+oxide-triage bundle build --out bundle/   # package the warmed cache for an offline site (USB stick)
+oxide-triage bundle verify bundle/        # checksum, self-check and release stamp of a bundle
+oxide-triage bundle install bundle/       # copy a verified bundle into the configured cache path
 oxide-triage eval                  # runs the evaluation suite
 oxide-triage mcp [--transport http]  # MCP server for Claude Desktop / Cowork / Cursor
 oxide-triage serve                 # web app: the assistant and the admin panel on http://127.0.0.1:8000
@@ -26,6 +29,14 @@ from pathlib import Path
 
 import typer
 
+from oxide_triage.bundle import (
+    BundleError,
+    build_bundle,
+    describe,
+    install_bundle,
+    read_release,
+    verify_bundle,
+)
 from oxide_triage.cache import Cache
 from oxide_triage.config import list_profiles, load_config
 from oxide_triage.edges.render import render
@@ -276,6 +287,12 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
             f"cache: {cache.count()} rows, fixture={cache.has_fixture_data}, "
             f"selfcheck={'not run' if sc is None else ('passed' if sc.passed else 'FAILED')}"
         )
+        rel = read_release(cache)
+        if rel is not None:
+            typer.echo(
+                f"release: {rel.get('version')} ({(rel.get('commit') or 'unknown')[:12]}) "
+                f"built {rel.get('built_at')} (installed from a bundle)"
+            )
     finally:
         cache.close()
     if config.cache.offline:
@@ -502,3 +519,72 @@ def serve(
         threading.Timer(1.0, lambda: webbrowser.open(f"http://{host}:{port}")).start()
     typer.echo(f"Oxide Triage on http://{host}:{port}  (API docs at /api/docs)")
     uvicorn.run(create_app(offline=offline), host=host, port=port, log_level="info" if verbose else "warning")
+
+
+# ---- release bundles ---------------------------------------------------------------------------
+
+bundle_app = typer.Typer(
+    add_completion=False,
+    no_args_is_help=True,
+    help="Package a warmed cache for a site with no network, and verify or install one there.",
+)
+app.add_typer(bundle_app, name="bundle")
+
+
+@bundle_app.command("build")
+def bundle_build_cmd(
+    out: Path = typer.Option(
+        Path("bundle"), "--out", "-o", help="Directory to write cache.sqlite and manifest.json into."
+    ),
+    profile: str = typer.Option("default", "--profile", "-p"),
+    version: str | None = typer.Option(
+        None, "--version", help="Release version to stamp (default: the package version)."
+    ),
+    commit: str | None = typer.Option(
+        None, "--commit", help="Source commit to stamp (default: git HEAD if available)."
+    ),
+    allow_fixture: bool = typer.Option(
+        False, "--allow-fixture", help="Permit a demo bundle from synthetic fixture data."
+    ),
+) -> None:
+    """Copy the current cache into a bundle directory with a manifest (checksum, sources, self-check).
+    Refuses a cache whose self-check is missing, failed or inconclusive."""
+    config = load_config(profile)
+    try:
+        manifest = build_bundle(config, out, version=version, commit=commit, allow_fixture=allow_fixture)
+    except BundleError as exc:
+        typer.echo(f"not built: {exc}", err=True)
+        raise typer.Exit(code=4) from None
+    typer.echo(f"wrote {out / 'cache.sqlite'} and {out / 'manifest.json'}")
+    typer.echo(describe(manifest))
+    typer.echo(f"sha256 {manifest['cache']['sha256']}")
+
+
+@bundle_app.command("verify")
+def bundle_verify_cmd(bundle_dir: Path = typer.Argument(Path("bundle"))) -> None:
+    """Check a bundle's files, checksum, self-check and release stamp. Exit 4 if anything is off."""
+    try:
+        manifest = verify_bundle(bundle_dir)
+    except BundleError as exc:
+        typer.echo(f"NOT OK: {exc}", err=True)
+        raise typer.Exit(code=4) from None
+    typer.echo("OK " + describe(manifest))
+
+
+@bundle_app.command("install")
+def bundle_install_cmd(
+    bundle_dir: Path = typer.Argument(Path("bundle")),
+    profile: str = typer.Option("default", "--profile", "-p"),
+    force: bool = typer.Option(False, "--force", help="Replace an existing non-empty cache."),
+) -> None:
+    """Verify a bundle and copy its cache to the configured cache path (OXIDE_TRIAGE_CACHE)."""
+    config = load_config(profile)
+    try:
+        manifest = install_bundle(bundle_dir, Path(config.cache.path), force=force)
+    except BundleError as exc:
+        typer.echo(f"not installed: {exc}", err=True)
+        raise typer.Exit(code=4) from None
+    typer.echo(f"installed {describe(manifest)}")
+    typer.echo(f"cache: {config.cache.path}")
+    if manifest.get("fixture_data"):
+        typer.echo("WARNING: this bundle holds synthetic fixture data; every output will say so.", err=True)

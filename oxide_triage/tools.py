@@ -23,6 +23,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from oxide_triage.bundle import read_release
 from oxide_triage.cache import Cache
 from oxide_triage.config import Config, list_profiles, load_config, load_hazard_table
 from oxide_triage.edges.render import render
@@ -482,6 +483,7 @@ class ToolBox:
                 "fixture_data": cache.has_fixture_data,
                 "sources": cache.sources_summary(),
                 "selfcheck": None if sc is None else sc.model_dump(),
+                "release": read_release(cache),
             }
         finally:
             cache.close()
