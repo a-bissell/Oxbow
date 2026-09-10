@@ -25,7 +25,7 @@ from oxide_triage.edges.render import rationale_line
 from oxide_triage.guard import guard_request
 from oxide_triage.refute import refute, rule_caveats
 from oxide_triage.schemas import Criteria, GuardDecision, TriageResult
-from oxide_triage.scoring.core import explanation, rank
+from oxide_triage.scoring.core import explanation, rank, retrieval_completeness
 from oxide_triage.scoring.settings import blocked_by_policy, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 from oxide_triage.session import clarifications
@@ -65,7 +65,14 @@ def _log_deviations(config: Config, result: TriageResult) -> None:
 
 
 def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
-    """Return (status, blocking_message). status: passed | failed | not_run | skipped."""
+    """Return (status, blocking_message).
+
+    status: passed | failed | inconclusive | not_run | skipped. ``inconclusive`` means the
+    known-answer test could not run because the cache is too sparsely retrieved to validate a
+    ranking. That is a statement about the cache, not a verdict on the ranker, so it warns
+    loudly rather than blocking — the retrieval floors in ``retrieval:`` decide whether a
+    ranking is served at all.
+    """
     if not config.selfcheck.enabled:
         return "skipped", None
     sc = read_selfcheck(cache)
@@ -73,6 +80,8 @@ def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
         return "not_run", None
     if sc.passed:
         return "passed", None
+    if sc.inconclusive:
+        return "inconclusive", None
     msg = (
         "SELF-CHECK FAILED on this cache: the known-answer test did not pass ("
         + "; ".join(sc.details)
@@ -196,7 +205,10 @@ def run_triage(
         for sc in ranked:
             sc.rationale = rationale_line(sc)
 
+        retrieval = retrieval_completeness(ranked, config)
         warnings = list(layer.warnings)
+        if not retrieval.comparable:
+            warnings.append(retrieval.note)
         if literature_note:
             warnings.append(literature_note)
         if status == "not_run" and not skip_selfcheck:
@@ -207,6 +219,29 @@ def run_triage(
             warnings.append(
                 "Self-check FAILED on this cache (selfcheck.on_failure=warn). Treat this shortlist with suspicion."
             )
+        elif status == "inconclusive":
+            sc = read_selfcheck(cache)
+            warnings.append(
+                "Self-check INCONCLUSIVE: the cache is too sparsely retrieved for the known-answer "
+                "test to validate ranks, so this shortlist has not been ground-truth checked. "
+                + (sc.details[0] if sc and sc.details else "")
+            )
+
+        # A cache too sparse to rank honestly is not served at all, if the site says so.
+        serve_floor = config.retrieval.min_completeness_serve
+        if serve_floor > 0 and retrieval.completeness < serve_floor:
+            return TriageResult(
+                **base,
+                cache_fingerprint=cache.fingerprint(),
+                retrieval=retrieval,
+                n_candidates_considered=len(records),
+                warnings=[
+                    f"No ranking served: retrieval completeness {retrieval.completeness:.1%} is below "
+                    f"the configured floor of {serve_floor:.0%}. {retrieval.note} "
+                    "Run `oxide-triage warm-cache` to fill the gaps, or lower "
+                    "retrieval.min_completeness_serve if a partial ranking is acceptable here."
+                ],
+            )
 
         base.update(fixture_data=cache.has_fixture_data, offline=layer.offline)
         last = read_report(cache)
@@ -214,6 +249,7 @@ def run_triage(
         result = TriageResult(
             **base,
             cache_fingerprint=cache.fingerprint(),
+            retrieval=retrieval,
             shortlist=shortlist,
             ranked_beyond_shortlist=beyond,
             excluded=excluded,
@@ -294,6 +330,7 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
             c.energy_above_hull_ceiling_ev_atom,
             c.min_reported_gap_ev,
             ids,
+            c.observed_only,
         )
         # Build the per-candidate records now so the next query is answered from cache, then
         # try alternative routes for whatever the first pass could not find.

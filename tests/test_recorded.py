@@ -16,13 +16,16 @@ from typing import Any
 import pytest
 
 from oxide_triage.cache import Cache
-from oxide_triage.config import load_config
-from oxide_triage.schemas import DataStatus
+from oxide_triage.config import load_config, load_hazard_table
+from oxide_triage.schemas import Criteria, DataStatus
+from oxide_triage.scoring.core import rank, retrieval_completeness
+from oxide_triage.scoring.settings import resolve
 from oxide_triage.selfcheck import run_selfcheck
 from oxide_triage.sources.assemble import DataLayer
 from oxide_triage.sources.base import Http, Recorder, ReplayHttp, SourceError, request_key
 
 RECORDED = Path(__file__).parent / "recorded"
+TABLE = load_hazard_table(load_config("default", use_env=False).toxicity.table_file)
 
 
 class CannedTransport(Http):
@@ -91,5 +94,46 @@ def test_live_shape_replay_warm_and_selfcheck(monkeypatch):
     assert functionals - {"unknown"}, "no band-gap functional resolved from the tasks endpoint"
     known_diel = sum(r.dielectric.status == DataStatus.KNOWN for r in records)
     assert 0 < known_diel < len(records), "dielectric coverage should be partial on real data"
+    # The recorded warm is incomplete: OpenAlex stopped on its daily budget and OQMD rate-limited
+    # partway through, so most candidates have no literature counts and no cross-check. That must
+    # surface as an *inconclusive* self-check naming the reason, never as a ranking failure — a
+    # known-answer test cannot validate ranks built on data that was never fetched.
     check = run_selfcheck(cfg, cache)
-    assert check.passed, check.details
+    assert check.retrieval_completeness is not None
+    if check.retrieval_completeness < cfg.selfcheck.min_retrieval_completeness:
+        assert check.inconclusive, check.details
+        assert not check.passed  # inconclusive is not a pass
+        assert "INCONCLUSIVE" in check.details[0] and "retrieval completeness" in check.details[0]
+    else:
+        assert check.passed, check.details
+        assert not check.inconclusive
+
+
+@pytest.mark.skipif(not _has_recordings(), reason="no recorded live responses under tests/recorded/")
+def test_replayed_gaps_are_not_retrieved_not_absent(monkeypatch):
+    """The distinction the recording exists to prove: a source that never answered leaves
+    NOT_RETRIEVED, not ABSENT. Collapsing the two is what let an incomplete warm look like a
+    universe of genuinely data-poor materials."""
+    monkeypatch.setenv("MP_API_KEY", "recorded")
+    cfg = load_config("default", use_env=False)
+    cache = Cache(":memory:")
+    layer = DataLayer.from_config(cfg, cache=cache, offline=False, http=ReplayHttp(RECORDED))
+    records = layer.build_candidates()
+    if not records:
+        pytest.skip("recordings predate the current universe query parameters; re-record the warm")
+
+    # MP answered for every candidate, so its own fields are never NOT_RETRIEVED.
+    assert all(r.stability.status == DataStatus.KNOWN for r in records)
+    assert not any(r.dielectric.status == DataStatus.NOT_RETRIEVED for r in records), (
+        "MP answered the dielectric query for every candidate; a null result is ABSENT"
+    )
+    # OQMD and OpenAlex did not finish, so their gaps must be attributed to the cache.
+    unretrieved_xcheck = [r for r in records if r.cross_check.status == DataStatus.NOT_RETRIEVED]
+    assert unretrieved_xcheck, "the recording is known to be missing most OQMD lookups"
+    note = unretrieved_xcheck[0].cross_check.provenance.note or ""
+    assert "never successfully queried" in note
+
+    result = retrieval_completeness(rank(records, cfg, resolve(cfg, Criteria(), TABLE)[0])[0], cfg)
+    assert not result.comparable
+    assert "INCOMPLETE RETRIEVAL" in result.note
+    assert result.not_retrieved_by_criterion, result.note

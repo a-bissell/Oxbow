@@ -33,12 +33,18 @@ from oxide_triage.schemas import (
     StabilityRecord,
     WorkRef,
 )
-from oxide_triage.sources.base import Http, SourceError
+from oxide_triage.sources.base import Http, SourceError, status_for
 from oxide_triage.sources.hazards import hazard_record
 from oxide_triage.sources.materials_project import THERMO_FUNCTIONAL_LABEL, MaterialsProject
 from oxide_triage.sources.openalex import OpenAlex
 from oxide_triage.sources.oqmd import OQMD
 from oxide_triage.sources.pubchem import PubChem
+
+
+def _why(status: DataStatus, absent_note: str, unretrieved_note: str) -> str:
+    """Pick the note that explains *why* a value is missing."""
+    return absent_note if status is DataStatus.ABSENT else unretrieved_note
+
 
 log = logging.getLogger(__name__)
 
@@ -122,7 +128,11 @@ class DataLayer:
     def universe_ids(self) -> list[str]:
         c = self.config.candidates
         ids, status = self.mp.fetch_universe(
-            self.cations, c.max_elements_query, c.energy_above_hull_ceiling_ev_atom, c.min_reported_gap_ev
+            self.cations,
+            c.max_elements_query,
+            c.energy_above_hull_ceiling_ev_atom,
+            c.min_reported_gap_ev,
+            c.observed_only,
         )
         if ids:
             return ids
@@ -136,6 +146,8 @@ class DataLayer:
                 continue
             doc = hit[0]
             if doc.get("deprecated"):
+                continue
+            if c.observed_only and doc.get("theoretical") is True:
                 continue
             if any(el not in allowed for el in doc.get("elements", [])):
                 continue
@@ -333,7 +345,8 @@ class DataLayer:
             ),
             is_stable=doc.get("is_stable"),
             functional=THERMO_FUNCTIONAL_LABEL,
-            status=DataStatus.KNOWN if e_hull is not None else DataStatus.UNKNOWN,
+            # the summary doc was retrieved; a null field is the source's answer, not a gap
+            status=DataStatus.KNOWN if e_hull is not None else DataStatus.ABSENT,
             provenance=mp_prov,
         )
 
@@ -347,12 +360,16 @@ class DataLayer:
             value_ev=None if gap is None else float(gap),
             functional=functional if gap is not None else None,
             is_direct=doc.get("is_gap_direct"),
-            status=DataStatus.KNOWN if gap is not None else DataStatus.UNKNOWN,
+            status=DataStatus.KNOWN if gap is not None else DataStatus.ABSENT,
             provenance=mp_prov,
         )
 
-        diel_payload, diel_ts, _ = self.mp.dielectric(mid)
-        if diel_payload and diel_payload.get("found") and diel_payload.get("e_total") is not None:
+        diel_payload, diel_ts, diel_fetch = self.mp.dielectric(mid)
+        diel_found = bool(
+            diel_payload and diel_payload.get("found") and diel_payload.get("e_total") is not None
+        )
+        diel_status = status_for(diel_fetch, diel_found)
+        if diel_found and diel_payload is not None:
             dielectric = DielectricRecord(
                 e_total=float(diel_payload["e_total"]),
                 e_electronic=_opt_float(diel_payload.get("e_electronic")),
@@ -365,19 +382,23 @@ class DataLayer:
             )
         else:
             dielectric = DielectricRecord(
-                status=DataStatus.UNKNOWN,
+                status=diel_status,
                 provenance=mp_prov.model_copy(
                     update={
                         "retrieved_at": diel_ts,
-                        "note": "no DFPT dielectric record in MP"
-                        if diel_payload
-                        else "dielectric lookup unavailable",
+                        "note": _why(
+                            diel_status,
+                            "no DFPT dielectric record in MP for this material",
+                            f"MP dielectric lookup never completed here ({diel_fetch}); "
+                            "this is a gap in the cache, not in MP",
+                        ),
                     }
                 ),
             )
 
-        oq_payload, oq_ts, _ = self.oqmd.lookup(formula)
-        if oq_payload and oq_payload.get("found"):
+        oq_payload, oq_ts, oq_fetch = self.oqmd.lookup(formula)
+        oq_status = status_for(oq_fetch, bool(oq_payload and oq_payload.get("found")))
+        if oq_status is DataStatus.KNOWN and oq_payload is not None:
             # OQMD reports `stability` <= 0 for phases on its hull (depth below the competing
             # phases); MP's energy_above_hull is >= 0. Clamp so the two are comparable.
             raw_stab = _opt_float(oq_payload.get("stability"))
@@ -410,11 +431,16 @@ class DataLayer:
             )
         else:
             cross = CrossCheckRecord(
-                status=DataStatus.UNKNOWN,
+                status=oq_status,
                 provenance=Provenance(
                     source="fixture" if is_fixture else "oqmd",
                     retrieved_at=oq_ts,
-                    note="no OQMD entry for formula" if oq_payload else "OQMD lookup unavailable",
+                    note=_why(
+                        oq_status,
+                        "no OQMD entry for this formula: stability rests on one source",
+                        f"OQMD was never successfully queried for this formula here ({oq_fetch}); "
+                        "no cross-check was attempted, so agreement is untested rather than absent",
+                    ),
                 ),
             )
 
@@ -423,8 +449,8 @@ class DataLayer:
             formula, names, is_fixture, fetch=self.config.literature.fetch == "warm"
         )
 
-        pc_payload, pc_ts, _ = self.pubchem.hazards(formula, names)
-        hazard = hazard_record(elements, self.hazard_table, pc_payload, pc_ts)
+        pc_payload, pc_ts, pc_fetch = self.pubchem.hazards(formula, names)
+        hazard = hazard_record(elements, self.hazard_table, pc_payload, pc_ts, pc_fetch)
 
         return CandidateRecord(
             material_id=mid,
@@ -448,9 +474,9 @@ class DataLayer:
         cached (warm mode, and the on-demand fill), ``fetch=False`` never leaves the cache."""
         src_note = "synthetic fixture record, NOT real data" if is_fixture else None
         if fetch:
-            lit_payload, lit_ts, _ = self.openalex.evidence(formula, names)
+            lit_payload, lit_ts, lit_fetch = self.openalex.evidence(formula, names)
         else:
-            lit_payload, lit_ts, _ = self.openalex.evidence_cached(formula)
+            lit_payload, lit_ts, lit_fetch = self.openalex.evidence_cached(formula)
         if lit_payload:
             return LiteratureRecord(
                 total_works=int(lit_payload.get("total_works", 0)),
@@ -469,9 +495,12 @@ class DataLayer:
                     ),
                 ),
             )
+        # A literature hole is almost never a fact about OpenAlex: an empty result still comes
+        # back as a payload with zero works. Reaching here means we did not get an answer.
         mode = self.config.literature.fetch
+        status = DataStatus.NOT_RETRIEVED
         if fetch or mode == "warm":
-            note = "literature lookup unavailable"
+            note = f"OpenAlex lookup did not complete here ({lit_fetch})"
         elif mode == "on_demand":
             note = (
                 "not fetched at warm; literature is fetched at query time for the top "
@@ -479,8 +508,9 @@ class DataLayer:
             )
         else:
             note = "literature fetching disabled (literature.fetch: never)"
+            status = DataStatus.NOT_APPLICABLE  # not sought by configuration, so not a cache gap
         return LiteratureRecord(
-            status=DataStatus.UNKNOWN,
+            status=status,
             provenance=Provenance(source="openalex", retrieved_at=lit_ts, note=note),
         )
 

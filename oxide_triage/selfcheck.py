@@ -37,6 +37,10 @@ class SelfCheck(BaseModel):
     fixture: bool
     n_candidates: int
     details: list[str] = Field(default_factory=list)
+    # A check that could not run for lack of data is not a check that failed. `inconclusive`
+    # keeps the two apart so an under-warmed cache does not read as a broken ranker.
+    inconclusive: bool = False
+    retrieval_completeness: float | None = None
 
 
 def _ranked(res: TriageResult) -> list[str]:
@@ -62,6 +66,28 @@ def run_selfcheck(config: Config, cache: Cache) -> SelfCheck:
             n_candidates=0,
             details=["no candidates in cache"],
         )
+
+    # Ground truth cannot be tested on data that was never fetched. Missing criteria lower a
+    # score, so on a half-retrieved cache the workhorses sink for reasons that say nothing about
+    # the ranker. Report that honestly instead of raising a false alarm.
+    completeness = res.retrieval.completeness if res.retrieval else 1.0
+    if completeness < sc.min_retrieval_completeness:
+        note = (
+            f"INCONCLUSIVE: retrieval completeness {completeness:.1%} is below the "
+            f"{sc.min_retrieval_completeness:.0%} required to validate ranks. "
+            + (res.retrieval.note if res.retrieval else "")
+        )
+        result = SelfCheck(
+            passed=False,
+            inconclusive=True,
+            retrieval_completeness=completeness,
+            checked_at=utcnow_iso(),
+            fixture=cache.has_fixture_data,
+            n_candidates=res.n_candidates_considered,
+            details=[note, "Warm the cache to completion and re-run `oxide-triage selfcheck`."],
+        )
+        cache.set_meta(META_KEY, result.model_dump_json())
+        return result
 
     for w in sc.workhorses:
         if w not in universe:
@@ -104,6 +130,7 @@ def run_selfcheck(config: Config, cache: Cache) -> SelfCheck:
         fixture=cache.has_fixture_data,
         n_candidates=res.n_candidates_considered,
         details=details,
+        retrieval_completeness=completeness,
     )
     cache.set_meta(META_KEY, result.model_dump_json())
     return result

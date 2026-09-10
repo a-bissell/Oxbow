@@ -103,8 +103,15 @@ missing_data:
 # Candidate universe (what is pulled from Materials Project into the cache)
 # ---------------------------------------------------------------------------
 candidates:
+  # cation_allowlist.yaml is the dielectric-minded list (rationale per family inside the file);
+  # cation_allowlist_wide.yaml is the original wide list for profiles that want it.
   cation_allowlist_file: cation_allowlist.yaml
   max_elements_query: 3
+  # Experimentally observed structures only (MP theoretical: false). On the first live warm this
+  # removed 40% of the universe and a third of the dielectric-bearing entries, nearly all
+  # hypothetical polymorphs. The group will deposit films of what comes out, so a structure
+  # nobody has synthesised is a discovery target, not a triage candidate.
+  observed_only: true
   # The first live warm at 0.20 eV/atom and 1.0 eV pulled 7,124 candidates. No shipped profile
   # gates above 0.08 eV/atom or below 2.5 eV effective (1.8 eV before a 1.4x correction), so
   # anything outside these bounds could never be ranked. Widen them if you add a looser profile.
@@ -163,6 +170,14 @@ llm:
     rationale: false # one-line plain-language rationale per candidate (numeric-guarded)
 
 # ---------------------------------------------------------------------------
+# Retrieval completeness. Missing data lowers a score, so on a partly-warmed cache the
+# ranking partly reflects which fetches finished rather than which materials are better.
+# These floors decide when the system says so, and when it refuses to rank at all.
+retrieval:
+  min_completeness_warn: 0.95   # below this fraction of retrieved scoring weight, warn on every result
+  min_completeness_serve: 0.0   # below this, refuse to serve a ranking (0.0 disables the block)
+
+# ---------------------------------------------------------------------------
 # Self-check: the known-answer test the system runs on itself after every cache warm,
 # fixture load or on-demand material addition. Workhorse dielectrics must surface near the
 # top of an unconstrained run or be excluded by a stated gate; a workhorse missing from the
@@ -171,6 +186,7 @@ llm:
 selfcheck:
   enabled: true
   on_failure: block
+  min_retrieval_completeness: 0.9   # below this, the known-answer check reports insufficient_data, not FAIL
   workhorses: [HfO2, ZrO2, Al2O3, Ta2O5]
   leaders: [HfO2, Al2O3]          # expected in the default top 5 when present
   min_workhorses_in_wide_top10: 3 # under the exploratory profile

@@ -136,6 +136,11 @@ class CandidatesConfig(BaseModel):
     max_elements_query: int = Field(ge=2, le=6)
     energy_above_hull_ceiling_ev_atom: float = Field(ge=0)
     min_reported_gap_ev: float = Field(ge=0)
+    # Keep only entries Materials Project matches to an experimentally observed structure
+    # (``theoretical: false``). The flag is per structure entry, not per compound, so a compound
+    # whose only observed entry falls outside the hull/gap window is dropped with it; measured at
+    # 25 of 1,067 all-theoretical formulas on the first live warm. ``add-material`` bypasses this.
+    observed_only: bool = True
     literature_sample_size: int = Field(ge=0, le=25)
     fetch_workers: int = Field(default=4, ge=0, le=16)  # threads per source for the warm
     fetch: dict[str, SourceFetchConfig] = Field(default_factory=dict)  # per-source overrides
@@ -175,12 +180,27 @@ class LLMConfig(BaseModel):
     use_for: LLMUseFor = Field(default_factory=LLMUseFor)
 
 
+class RetrievalConfig(BaseModel):
+    """How complete a cache has to be before its ranking is treated as comparable.
+
+    Missing data lowers a candidate's score, so when retrieval is patchy the ordering partly
+    reflects which fetches finished rather than which materials are better. These floors decide
+    when to say so and when to stop serving a ranking altogether.
+    """
+
+    min_completeness_warn: float = Field(default=0.95, ge=0, le=1)  # below this, warn on every result
+    min_completeness_serve: float = Field(default=0.0, ge=0, le=1)  # below this, refuse to rank (0 = never)
+
+
 class SelfCheckConfig(BaseModel):
     enabled: bool = True
     on_failure: Literal["block", "warn"] = "block"
     workhorses: list[str] = Field(default_factory=lambda: ["HfO2", "ZrO2", "Al2O3", "Ta2O5"])
     leaders: list[str] = Field(default_factory=lambda: ["HfO2", "Al2O3"])
     min_workhorses_in_wide_top10: int = Field(default=3, ge=0)
+    # A known-answer check on a half-retrieved cache tests the cache, not the ranker. Below this
+    # completeness the check reports `insufficient_data` instead of a misleading FAIL.
+    min_retrieval_completeness: float = Field(default=0.9, ge=0, le=1)
 
 
 class AcquisitionConfig(BaseModel):
@@ -201,6 +221,7 @@ class Config(BaseModel):
     simplicity: SimplicityConfig
     literature: LiteratureConfig
     missing_data: MissingDataConfig
+    retrieval: RetrievalConfig = Field(default_factory=RetrievalConfig)
     candidates: CandidatesConfig
     output: OutputConfig
     terminology: dict[str, str] = Field(default_factory=dict)

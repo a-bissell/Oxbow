@@ -2,7 +2,8 @@
 
 Everything that crosses a layer boundary (data layer -> scoring -> refutation -> rendering)
 is one of these models. The models are deliberately explicit about *missing* data:
-``DataStatus.UNKNOWN`` is a first-class state, distinct from a zero or a low value.
+a missing value is a first-class state, distinct from a zero or a low value, and it records
+whether the value is absent from the source or simply was never retrieved.
 """
 
 from __future__ import annotations
@@ -21,11 +22,35 @@ SCOPE_LIMITATION = (
 
 
 class DataStatus(StrEnum):
-    """Whether a value is backed by data."""
+    """Whether a value is backed by data, and when it is not, *why* not.
+
+    The split between ABSENT and NOT_RETRIEVED is the difference between a fact about the
+    source and a fact about this cache. ABSENT is stable: OQMD holds no entry for this
+    formula, and it will still hold none tomorrow. NOT_RETRIEVED is an accident of one warm
+    run — a 429, an exhausted daily budget, an offline query, a fetch that never happened.
+
+    Collapsing the two is not cosmetic. Because missing criteria reduce ``data_coverage``
+    and coverage scales the adjusted score, an incomplete warm is otherwise indistinguishable
+    from a material with genuinely sparse data, and the ranking silently sorts on which
+    fetches happened to finish. Scoring still treats both as "no value" (we do not know it
+    either way); reporting, the refutation pass and the self-check do not.
+    """
 
     KNOWN = "known"
-    UNKNOWN = "unknown"  # sought in the configured sources and not found
+    ABSENT = "absent"  # queried successfully; the source holds no record for this key
+    NOT_RETRIEVED = (
+        "not_retrieved"  # never successfully queried here: offline, failed, rate-limited, not yet run
+    )
     NOT_APPLICABLE = "not_applicable"  # the criterion does not apply to this record
+
+    @property
+    def is_known(self) -> bool:
+        return self is DataStatus.KNOWN
+
+    @property
+    def is_unknown(self) -> bool:
+        """No usable value, for either reason. Use where the *reason* genuinely does not matter."""
+        return self in (DataStatus.ABSENT, DataStatus.NOT_RETRIEVED)
 
 
 class Provenance(BaseModel):
@@ -46,7 +71,7 @@ class StabilityRecord(BaseModel):
     formation_energy_ev_atom: float | None = None
     is_stable: bool | None = None
     functional: str | None = None  # thermo functional label reported by the source
-    status: DataStatus = DataStatus.UNKNOWN
+    status: DataStatus = DataStatus.NOT_RETRIEVED
     provenance: Provenance | None = None
 
 
@@ -54,7 +79,7 @@ class BandGapRecord(BaseModel):
     value_ev: float | None = None
     functional: str | None = None  # e.g. GGA, GGA+U, r2SCAN, HSE06, unknown
     is_direct: bool | None = None
-    status: DataStatus = DataStatus.UNKNOWN
+    status: DataStatus = DataStatus.NOT_RETRIEVED
     provenance: Provenance | None = None
 
 
@@ -63,7 +88,7 @@ class DielectricRecord(BaseModel):
     e_electronic: float | None = None
     e_ionic: float | None = None
     refractive_index: float | None = None
-    status: DataStatus = DataStatus.UNKNOWN
+    status: DataStatus = DataStatus.NOT_RETRIEVED
     provenance: Provenance | None = None
 
 
@@ -73,7 +98,7 @@ class CrossCheckRecord(BaseModel):
     stability_ev_atom: float | None = None  # OQMD 'stability' = distance to hull
     formation_energy_ev_atom: float | None = None
     matched_formula: str | None = None
-    status: DataStatus = DataStatus.UNKNOWN
+    status: DataStatus = DataStatus.NOT_RETRIEVED
     provenance: Provenance | None = None
 
 
@@ -91,7 +116,7 @@ class LiteratureRecord(BaseModel):
     thin_film_works: int | None = None
     sample_works: list[WorkRef] = Field(default_factory=list)
     query_terms: list[str] = Field(default_factory=list)
-    status: DataStatus = DataStatus.UNKNOWN
+    status: DataStatus = DataStatus.NOT_RETRIEVED
     provenance: Provenance | None = None
 
 
@@ -103,8 +128,8 @@ class HazardRecord(BaseModel):
     table_version: str | None = None
     pubchem_cid: int | None = None
     ghs_hazard_codes: list[str] = Field(default_factory=list)
-    pubchem_status: DataStatus = DataStatus.UNKNOWN
-    status: DataStatus = DataStatus.UNKNOWN
+    pubchem_status: DataStatus = DataStatus.NOT_RETRIEVED
+    status: DataStatus = DataStatus.NOT_RETRIEVED
     provenance: Provenance | None = None
 
 
@@ -220,10 +245,18 @@ class ScoredCandidate(BaseModel):
     components: list[ComponentScore] = Field(default_factory=list)
     raw_score: float | None = None
     data_coverage: float = 0.0  # fraction of total weight backed by known data
-    missing_criteria: list[str] = Field(default_factory=list)
+    missing_criteria: list[str] = Field(default_factory=list)  # absent + not-retrieved, for display
+    absent_criteria: list[str] = Field(
+        default_factory=list
+    )  # the source has no record: a fact about the data
+    not_retrieved_criteria: list[str] = Field(
+        default_factory=list
+    )  # never fetched here: a fact about the cache
+    retrieval_gap: float = 0.0  # fraction of total weight that was never retrieved
+    comparable: bool = True  # False when retrieval_gap > 0: this score is not on equal footing
     adjusted_score: float | None = None
     confidence: Literal["high", "medium", "low"] = "low"
-    cross_source_agreement: Literal["agree", "disagree", "unavailable"] = "unavailable"
+    cross_source_agreement: Literal["agree", "disagree", "unavailable", "untested"] = "untested"
     caveats: list[Caveat] = Field(default_factory=list)
     rationale: str | None = None
 
@@ -234,6 +267,23 @@ class Deviation(BaseModel):
     code: str
     description: str
     origin: Literal["request", "profile", "cli"]
+
+
+class RetrievalCompleteness(BaseModel):
+    """How much of the data the ranking *wanted* was actually retrieved into this cache.
+
+    A ranking is only comparable across candidates when this is complete. When it is not,
+    candidates whose fetches finished outrank equally good candidates whose fetches did not,
+    for a reason that has nothing to do with the materials.
+    """
+
+    completeness: float  # fraction of scored criterion-weight across ranked candidates that was retrieved
+    n_ranked: int
+    n_fully_retrieved: int
+    not_retrieved_by_criterion: dict[str, int] = Field(default_factory=dict)
+    absent_by_criterion: dict[str, int] = Field(default_factory=dict)
+    comparable: bool  # completeness >= the configured floor
+    note: str
 
 
 class ScoringExplanation(BaseModel):
@@ -262,6 +312,7 @@ class TriageResult(BaseModel):
     ranked_beyond_shortlist: list[ScoredCandidate] = Field(default_factory=list)
     excluded: list[ScoredCandidate] = Field(default_factory=list)
     n_candidates_considered: int = 0
+    retrieval: RetrievalCompleteness | None = None  # how much of the ranked set was actually fetched
     warnings: list[str] = Field(default_factory=list)
     llm_usage: dict[str, str] = Field(default_factory=dict)  # edge -> provider/model or "none"
     clarifications: list[str] = Field(default_factory=list)  # questions worth asking before running
