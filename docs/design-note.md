@@ -69,10 +69,49 @@ because it is not. Absence is cached (an explicit `{found: false}` row with a ti
 the functional behind each gap is read from the producing MP task's `run_type`, or recorded as
 `unknown`, never guessed. **ICSD** and other closed sources are excluded and the README says why; MP's `theoretical` flag stands in for "has an experimentally observed structure".
 
-The environment this prototype was developed in had no egress to any of the four sources, so the
-clients follow the documented endpoints, sit behind one adapter, and are exercised against a
-**synthetic fixture** of ~35 well-known oxides. The first live `warm-cache` is where field names and coverage will be
-checked against reality, and the adapter is the only file that should need to change.
+The prototype was built without egress to any source: the clients follow the documented
+endpoints, sit behind one adapter, and were exercised against a **synthetic fixture** of ~35
+well-known oxides. The first live `warm-cache` (September 2026) then checked them against reality.
+It found one shape mismatch, in the adapter as intended: MP's summary carries no `band_gap` origin,
+so the functional behind a gap is now read from the `electronic_structure` origin's task. It also
+measured the universe and the cost of filling it, and both numbers changed the design.
+
+**Scope.** At the original fetch bounds (hull ≤ 0.20 eV/atom, reported gap ≥ 1.0 eV) the universe
+was 7,124 materials. No shipped profile gates looser than 0.10 eV/atom and 1.8 eV before
+correction, and at those bounds it is 4,769 materials over 2,651 formulas, 690 of them with a DFPT
+dielectric tensor. Within that set:
+
+| Filter | Materials | Formulas | With DFPT dielectric |
+|---|---|---|---|
+| bounds only | 4,769 | 2,651 | 690 |
+| experimentally observed (MP `theoretical: false`) | 2,221 | 1,584 | 449 |
+| observed, hull ≤ 0.05 | 2,129 | 1,553 | 440 |
+| observed, hull ≤ 0.02 | 1,828 | 1,419 | 406 |
+
+Two conclusions. Hull is not a scoping lever: below 0.10 it removes almost nothing, so the fetch
+bound sits at the loosest profile and the profiles' own gates do the rest. The `theoretical`
+flag is: it removes 40% of the universe and a third of the dielectric-bearing entries, nearly all
+hypothetical polymorphs, and it matches the tool's purpose. The group will deposit films of what
+comes out, so a structure nobody has synthesised is a discovery target, not a triage candidate.
+The commonest cations among the observed compounds (P, Si, B, Na, Al, V, Te, Ca, Li, K) say the
+allowlist is the other honest lever: phosphates, borates and alkali oxides are mobile-ion or
+glass-forming compounds no gate stack would use. The intended universe is therefore
+experimentally observed oxides of a dielectric-minded cation list (early transition metals, Al,
+Si, rare earths, alkaline earths, plus the hazardous cations a profile may opt into), which should
+roughly halve the universe again. That is a domain judgment, so it lives in the versioned
+allowlist with a rationale per family and is confirmed with the PI rather than set here.
+Polymorphs stay: which phase a film adopts is the whole question for the ferroelectric profile.
+
+**Cost.** Materials Project is cheap: universe, dielectric and task lookups batch a hundred ids
+per call and the whole universe warms in minutes. The formula-keyed sources are not. OQMD answers
+a composition it has not cached in 10–50 s and returns 429 above about 2.4 requests/s; OpenAlex
+now meters a daily budget ($0.10/day per IP, $1/day with a free key, $0.001 per full-text
+search, two per formula). Warming literature for thousands of formulas would take days, so it is
+fetched per query for the top-ranked pool instead (§8) and never at warm time. The same treatment
+is planned for OQMD and PubChem, so that a warm touches MP only and a reviewer's first run takes
+minutes: fill the ranked pool, then settle, because unlike literature a cross-check disagreement
+or a GHS statement can move or exclude a candidate. Per-source worker pools and request-rate caps
+bound the pressure on each source meanwhile.
 
 ## 4. Domain handling a materials scientist checks first
 
@@ -191,10 +230,13 @@ one real bug.
 
 ## 11. Limitations and next steps
 
-The fixture is an approximation; the first live cache warm will test field names, dielectric
-coverage and the functional lookup, and may move defaults. Literature counts from formula-string
-search are noisy for short formulae (flagged per candidate). The hazard table is a screen, not a
-toxicological assessment. Nothing about films is modelled, by design. The alternative acquisition
-routes are tested against fake responses; their live behaviour is unverified until the first
-real warm. Next: run against real data with the PI's group, retune profiles with them, and add
-the JARVIS-DFT bulk dataset as a second dielectric route.
+The first live warm replaced the fixture as evidence (§3), but its recording is partial: OQMD's
+latency and OpenAlex's budget stopped it, and it completes once the universe is rescoped and the
+remaining formula-keyed sources move on demand. Literature counts from formula-string search are
+noisy for short formulae (flagged per candidate). The hazard table is a screen, not a
+toxicological assessment. Nothing about films is modelled, by design. The alternative
+acquisition routes are tested against fake responses; only the OpenAlex ones have run live. Next:
+rescope the universe as set out in §3 and confirm the cation list with the PI, move OQMD and
+PubChem on demand, complete and commit the recorded live fixture, then run against real data
+with the group, retune profiles with them, and add the JARVIS-DFT bulk dataset as a second
+dielectric route.
