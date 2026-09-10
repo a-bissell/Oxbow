@@ -1,0 +1,131 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Ta2O5 OR tantala OR \"tantalum pentoxide\" OR \"tantalum oxide\") AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 3298,
+   "db_response_time_ms": 129,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    (\n      Ta2O5\n      or stemmed \"tantalum oxide\"\n      or stemmed \"tantalum pentoxide\"\n      or tantala\n    )\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "Ta2O5"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"tantalum oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"tantalum pentoxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "tantala"
+        }
+       ],
+       "join": "or"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:Ta2O5|%22tantalum oxide%22|%22tantalum pentoxide%22|tantala,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/s0927-796x(97)00023-5",
+    "id": "https://openalex.org/W2038274823",
+    "publication_year": 1998,
+    "title": "Tantalum pentoxide (Ta2O5) thin films for advanced dielectric applications"
+   },
+   {
+    "doi": "https://doi.org/10.1016/0079-6786(79)90001-3",
+    "id": "https://openalex.org/W2049414730",
+    "publication_year": 1979,
+    "title": "Optical properties of small inorganic and organic metal particles"
+   },
+   {
+    "doi": "https://doi.org/10.1038/nphoton.2011.259",
+    "id": "https://openalex.org/W2080566848",
+    "publication_year": 2011,
+    "title": "Unlocking the full potential of organic light-emitting diodes on flexible plastic"
+   },
+   {
+    "doi": "https://doi.org/10.1007/bf01144693",
+    "id": "https://openalex.org/W2025297303",
+    "publication_year": 1986,
+    "title": "Ion-based methods for optical thin film deposition"
+   },
+   {
+    "doi": "https://doi.org/10.1016/s1386-1425(99)00154-7",
+    "id": "https://openalex.org/W2166477765",
+    "publication_year": 2000,
+    "title": "In situ infrared spectroscopic analysis of the adsorption of aromatic carboxylic acids to TiO2, ZrO2, Al2O3, and Ta2O5 from aqueous solutions"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

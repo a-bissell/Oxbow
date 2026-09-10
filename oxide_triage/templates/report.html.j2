@@ -193,11 +193,11 @@ comparing candidates against each other.</div>
 {% endif %}
 
 {% if result.ranked_beyond_shortlist %}
-<h2>Passed the gates, beyond the shortlist ({{ result.ranked_beyond_shortlist | length }})</h2>
+<h2>Passed the gates, beyond the shortlist ({{ result.ranked_beyond_shortlist | length }} compounds{% if result.collapsed_polymorphs %}; {{ result.collapsed_polymorphs | length }} further phases collapsed under their compound's row{% endif %})</h2>
 <div class="wrap"><table>
   <tr><th>#</th><th>Formula</th><th>Score</th><th>Coverage</th><th>Confidence</th><th>Missing</th><th>Main caveat</th></tr>
   {% for sc in result.ranked_beyond_shortlist %}{% set cav = sc | primary_caveat %}
-  <tr><td class="mono">{{ sc.rank }}</td><td>{{ sc.record.formula }} <span class="tag">{{ sc.record.material_id }}</span></td><td class="mono">{{ sc.adjusted_score | fmt(3) }}</td><td class="mono">{{ sc.data_coverage | pct }}</td><td>{{ sc.confidence }}</td><td>{{ sc.absent_criteria | join(", ") or "—" }}{% if sc.not_retrieved_criteria %} <b>(not downloaded: {{ sc.not_retrieved_criteria | join(", ") }})</b>{% endif %}</td><td>{{ cav.code if cav else "—" }}</td></tr>
+  <tr><td class="mono">{{ sc.rank }}</td><td>{{ sc.record.formula }} <span class="tag">{{ sc.record.material_id }}</span>{% if sc.polymorphs %} <span class="tag">+{{ sc.polymorphs | length }} phase{{ "s" if sc.polymorphs | length > 1 }}</span>{% endif %}</td><td class="mono">{{ sc.adjusted_score | fmt(3) }}</td><td class="mono">{{ sc.data_coverage | pct }}</td><td>{{ sc.confidence }}</td><td>{{ sc.absent_criteria | join(", ") or "—" }}{% if sc.not_retrieved_criteria %} <b>(not downloaded: {{ sc.not_retrieved_criteria | join(", ") }})</b>{% endif %}</td><td>{{ cav.code if cav else "—" }}</td></tr>
   {% endfor %}
 </table></div>
 {% endif %}

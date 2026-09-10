@@ -1,0 +1,131 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(ZrO2 OR zirconia OR \"zirconium oxide\" OR \"zirconium dioxide\") AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 10643,
+   "db_response_time_ms": 114,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    (\n      ZrO2\n      or stemmed \"zirconium dioxide\"\n      or stemmed \"zirconium oxide\"\n      or zirconia\n    )\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "ZrO2"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"zirconium dioxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"zirconium oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "zirconia"
+        }
+       ],
+       "join": "or"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:ZrO2|%22zirconium dioxide%22|%22zirconium oxide%22|zirconia,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/s0079-6425(01)00009-3",
+    "id": "https://openalex.org/W2164070688",
+    "publication_year": 2003,
+    "title": "Chemical vapour deposition of coatings"
+   },
+   {
+    "doi": "https://doi.org/10.1038/nphoton.2013.341",
+    "id": "https://openalex.org/W2012327696",
+    "publication_year": 2013,
+    "title": "Perovskite solar cells employing organic charge-transport layers"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.4757907",
+    "id": "https://openalex.org/W2035931858",
+    "publication_year": 2013,
+    "title": "Crystallinity of inorganic films grown by atomic layer deposition: Overview and general trends"
+   },
+   {
+    "doi": "https://doi.org/10.1016/s0927-0256(03)00111-3",
+    "id": "https://openalex.org/W2084781518",
+    "publication_year": 2003,
+    "title": "A generalized synchronous transit method for transition state location"
+   },
+   {
+    "doi": "https://doi.org/10.1038/nmat769",
+    "id": "https://openalex.org/W2002738781",
+    "publication_year": 2002,
+    "title": "High-\u03ba dielectrics for advanced carbon-nanotube transistors and logic gates"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

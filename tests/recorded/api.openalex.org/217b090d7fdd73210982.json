@@ -1,0 +1,121 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(SrZrO3 OR \"strontium zirconate\") AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 174,
+   "db_response_time_ms": 89,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    (SrZrO3 or stemmed \"strontium zirconate\")\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "SrZrO3"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"strontium zirconate\""
+        }
+       ],
+       "join": "or"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:SrZrO3|%22strontium zirconate%22,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/s0167-2738(98)00428-7",
+    "id": "https://openalex.org/W1987125981",
+    "publication_year": 1999,
+    "title": "Ln0.4Sr0.6Co0.8Fe0.2O3\u2212 (Ln=La, Pr, Nd, Sm, Gd) for the electrode in solid oxide fuel cells"
+   },
+   {
+    "doi": "https://doi.org/10.1016/s0167-2738(97)00360-3",
+    "id": "https://openalex.org/W2015595847",
+    "publication_year": 1997,
+    "title": "Ln1\u2212Sr CoO3(Ln = Sm, Dy) for the electrode of solid oxide fuel cells"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.ssi.2007.12.008",
+    "id": "https://openalex.org/W2006776844",
+    "publication_year": 2008,
+    "title": "Ce0.8Gd0.2O2 \u2212 \u03b4 protecting layers manufactured by physical vapor deposition for IT-SOFC"
+   },
+   {
+    "doi": "https://doi.org/10.1109/led.2006.880660",
+    "id": "https://openalex.org/W2071873188",
+    "publication_year": 2006,
+    "title": "Resistive Switching Mechanisms ofV-Doped$hboxSrZrO_3$Memory Films"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.1379564",
+    "id": "https://openalex.org/W2012422032",
+    "publication_year": 2001,
+    "title": "Memory effect in the current\u2013voltage characteristic of a low-band gap conjugated polymer"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

@@ -1,0 +1,57 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(SiO2 OR silica OR \"silicon dioxide\")",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 723658,
+   "db_response_time_ms": 58,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (SiO2 or stemmed \"silicon dioxide\" or silica)",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "SiO2"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"silicon dioxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "silica"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:SiO2|%22silicon dioxide%22|silica&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1557/jmr.1992.1564",
+    "id": "https://openalex.org/W2086933933",
+    "publication_year": 1992,
+    "title": "An improved technique for determining hardness and elastic modulus using load and displacement sensing indentation experiments"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

@@ -1,0 +1,52 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(SrZrO3 OR \"strontium zirconate\")",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 1197,
+   "db_response_time_ms": 29,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (SrZrO3 or stemmed \"strontium zirconate\")",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "SrZrO3"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"strontium zirconate\""
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:SrZrO3|%22strontium zirconate%22&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/s0167-2738(01)00953-5",
+    "id": "https://openalex.org/W2077937071",
+    "publication_year": 2001,
+    "title": "Proton conducting alkaline earth zirconates and titanates for high drain electrochemical applications"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

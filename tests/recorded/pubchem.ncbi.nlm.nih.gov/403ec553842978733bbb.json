@@ -1,0 +1,11 @@
+{
+ "params": {},
+ "response": {
+  "IdentifierList": {
+   "CID": [
+    9855501
+   ]
+  }
+ },
+ "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/magnesium%20aluminate/cids/JSON"
+}

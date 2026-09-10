@@ -1,0 +1,111 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(CaZrO3) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 44,
+   "db_response_time_ms": 51,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    CaZrO3\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "CaZrO3"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:CaZrO3,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1021/nl504622w",
+    "id": "https://openalex.org/W2050034389",
+    "publication_year": 2015,
+    "title": "Creation of High Mobility Two-Dimensional Electron Gases via Strain Induced Polarization at an Otherwise Nonpolar Complex Oxide Interface"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.physc.2007.02.017",
+    "id": "https://openalex.org/W1969978285",
+    "publication_year": 2007,
+    "title": "Flux-pinning characteristics as a function of density of columnar defects comprised of self-assembled nanodots and nanorods in epitaxial YBa2Cu3O7\u2212\u03b4 films for coated conductor applications"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.tsf.2019.04.042",
+    "id": "https://openalex.org/W2941971248",
+    "publication_year": 2019,
+    "title": "Characterization and investigation of in vitro properties of antibacterial copper deposited on bioactive ZrO2 coatings on zirconium"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.tsf.2004.11.227",
+    "id": "https://openalex.org/W2062872918",
+    "publication_year": 2005,
+    "title": "Pulsed laser deposition of oxide gate dielectrics for pentacene organic field-effect transistors"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.physb.2004.01.147",
+    "id": "https://openalex.org/W2024189382",
+    "publication_year": 2004,
+    "title": "Preparation and characterization of sol\u2013gel derived CaZrO3 dielectric thin films for high-k applications"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

@@ -63,7 +63,7 @@ class ResultStore:
 
 
 def all_candidates(result: TriageResult) -> list[ScoredCandidate]:
-    return result.shortlist + result.ranked_beyond_shortlist + result.excluded
+    return result.shortlist + result.ranked_beyond_shortlist + result.excluded + result.collapsed_polymorphs
 
 
 def find_candidate(result: TriageResult, key: str) -> ScoredCandidate | None:
@@ -91,12 +91,31 @@ def explain_candidate(result: TriageResult, key: str) -> str:
         lines.append("> SYNTHETIC FIXTURE DATA: every value below is illustrative.")
     if sc.excluded:
         lines.append("**Excluded by a gate.** Reasons: " + "; ".join(sc.exclusion_reasons))
+    elif sc.collapsed_under:
+        lead = find_candidate(result, sc.collapsed_under)
+        lines.append(
+            f"**Passed the gates; collapsed under the leading {r.formula} phase** "
+            f"(`{sc.collapsed_under}`, rank {lead.rank if lead else '?'}). Ranked {sc.rank_by_material} over "
+            f"materials before grouping. Adjusted score {sc.adjusted_score:.4f} "
+            f"(raw on available data {sc.raw_score:.4f}, coverage {sc.data_coverage:.0%}, confidence {sc.confidence})."
+        )
     else:
         n_pass = len(result.shortlist) + len(result.ranked_beyond_shortlist)
         lines.append(
-            f"**Rank {sc.rank} of {n_pass} passing.** Adjusted score {sc.adjusted_score:.4f} "
+            f"**Rank {sc.rank} of {n_pass} passing compounds.** Adjusted score {sc.adjusted_score:.4f} "
             f"(raw on available data {sc.raw_score:.4f}, coverage {sc.data_coverage:.0%}, confidence {sc.confidence})."
         )
+        if sc.polymorphs:
+            lines.append(
+                "**Other phases collapsed under this row:** "
+                + "; ".join(
+                    f"`{p.material_id}` {p.spacegroup_symbol or p.crystal_system or ''} "
+                    f"(E_hull {p.energy_above_hull_ev_atom if p.energy_above_hull_ev_atom is not None else '?'}, "
+                    f"gap {p.effective_band_gap_ev if p.effective_band_gap_ev is not None else '?'} eV, "
+                    f"score {p.adjusted_score if p.adjusted_score is not None else '?'})"
+                    for p in sc.polymorphs
+                )
+            )
     if sc.missing_criteria:
         lines.append("**No data for:** " + ", ".join(sc.missing_criteria))
     lines.append("")
@@ -281,7 +300,8 @@ def list_candidates(result: TriageResult, section: str = "shortlist", limit: int
             lines.append(f"- {r.formula} ({r.material_id}): excluded, " + "; ".join(sc.exclusion_reasons))
         else:
             score = "—" if sc.adjusted_score is None else f"{sc.adjusted_score:.3f}"
+            phases = f", +{len(sc.polymorphs)} other phase(s)" if sc.polymorphs else ""
             lines.append(
-                f"- #{sc.rank} {r.formula} ({r.material_id}): score {score}, confidence {sc.confidence}"
+                f"- #{sc.rank} {r.formula} ({r.material_id}): score {score}, confidence {sc.confidence}{phases}"
             )
     return "\n".join(lines)

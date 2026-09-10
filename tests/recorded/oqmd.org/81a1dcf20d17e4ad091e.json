@@ -1,0 +1,141 @@
+{
+ "params": {
+  "composition": "Y2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.73715441152725,
+    "entry_id": 20290,
+    "name": "Y2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.07103994900000021
+   },
+   {
+    "delta_e": -3.79532869927725,
+    "entry_id": 6307,
+    "name": "Y2O3",
+    "spacegroup": "I213",
+    "stability": 0.012865661250000215
+   },
+   {
+    "delta_e": -2.88830475152725,
+    "entry_id": 352101,
+    "name": "Y2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.9198896090000002
+   },
+   {
+    "delta_e": -3.76241426619392,
+    "entry_id": 20300,
+    "name": "Y2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.04578009433333019
+   },
+   {
+    "delta_e": -3.73331449352725,
+    "entry_id": 116699,
+    "name": "Y2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.07487986699999993
+   },
+   {
+    "delta_e": -3.68291796202725,
+    "entry_id": 22374,
+    "name": "Y2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.12527639850000005
+   },
+   {
+    "delta_e": -3.75829745352725,
+    "entry_id": 678215,
+    "name": "Y2O3",
+    "spacegroup": "R-3",
+    "stability": 0.049896906999999935
+   },
+   {
+    "delta_e": -3.80819436052725,
+    "entry_id": 3427,
+    "name": "Y2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.69648908502725,
+    "entry_id": 1276750,
+    "name": "Y2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.11170527550000031
+   },
+   {
+    "delta_e": -3.62313889252725,
+    "entry_id": 1343893,
+    "name": "Y2O3",
+    "spacegroup": "Fddd",
+    "stability": 0.18505546800000028
+   },
+   {
+    "delta_e": -3.75719410719392,
+    "entry_id": 1344022,
+    "name": "Y2O3",
+    "spacegroup": "P21/m",
+    "stability": 0.051000253333330026
+   },
+   {
+    "delta_e": -3.59938883552725,
+    "entry_id": 1442705,
+    "name": "Y2O3",
+    "spacegroup": "P321",
+    "stability": 0.20880552500000027
+   },
+   {
+    "delta_e": -3.59417218752725,
+    "entry_id": 1444201,
+    "name": "Y2O3",
+    "spacegroup": "P-62m",
+    "stability": 0.21402217300000004
+   },
+   {
+    "delta_e": -3.75499179452725,
+    "entry_id": 1440286,
+    "name": "Y2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.05320256599999995
+   },
+   {
+    "delta_e": -3.5454475535272536,
+    "entry_id": 1472689,
+    "name": "Y2O3",
+    "spacegroup": "C2/c",
+    "stability": 0.26274680699999653
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 15,
+   "data_returned": 15,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Y2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 12:31:33"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

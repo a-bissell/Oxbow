@@ -1,0 +1,126 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(ZrSiO4 OR zircon OR \"zirconium silicate\") AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 225,
+   "db_response_time_ms": 44,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    (ZrSiO4 or stemmed \"zirconium silicate\" or zircon)\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "ZrSiO4"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"zirconium silicate\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "zircon"
+        }
+       ],
+       "join": "or"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:ZrSiO4|%22zirconium silicate%22|zircon,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1063/1.125673",
+    "id": "https://openalex.org/W1992343392",
+    "publication_year": 2000,
+    "title": "Stable zirconium silicate gate dielectrics deposited directly on silicon"
+   },
+   {
+    "doi": "https://doi.org/10.4095/209089",
+    "id": "https://openalex.org/W2909223431",
+    "publication_year": 1997,
+    "title": "The GSC Sensitive High Resolution Ion Microprobe (SHRIMP): analytical techniques of zircon U-Th-Pb age determinations and performance evaluation"
+   },
+   {
+    "doi": "https://doi.org/10.1016/0016-7037(94)90521-5",
+    "id": "https://openalex.org/W2009232200",
+    "publication_year": 1994,
+    "title": "The microstructure of zircon and its influence on the age determination from Pb/U isotopic ratios measured by ion microprobe"
+   },
+   {
+    "doi": "https://doi.org/10.1016/s0009-2541(02)00152-3",
+    "id": "https://openalex.org/W2028134354",
+    "publication_year": 2002,
+    "title": "Annealing radiation damage and the recovery of cathodoluminescence"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.lithos.2009.07.003",
+    "id": "https://openalex.org/W2001561775",
+    "publication_year": 2009,
+    "title": "Migmatites formed by water-fluxed partial melting of a leucogranodiorite protolith: Microstructures in the residual rocks and source of the fluid"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

@@ -1,0 +1,57 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(MgAl2O4 OR \"magnesium aluminate\" OR spinel)",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 92800,
+   "db_response_time_ms": 53,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    MgAl2O4\n    or stemmed \"magnesium aluminate\"\n    or spinel\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "MgAl2O4"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"magnesium aluminate\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "spinel"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:MgAl2O4|%22magnesium aluminate%22|spinel&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/0016-0032(63)90675-6",
+    "id": "https://openalex.org/W4229594554",
+    "publication_year": 1963,
+    "title": "Microwave engineering"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

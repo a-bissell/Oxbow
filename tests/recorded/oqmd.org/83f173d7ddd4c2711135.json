@@ -1,0 +1,113 @@
+{
+ "params": {
+  "composition": "Tb2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.50383387539392,
+    "entry_id": 20293,
+    "name": "Tb2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.05643365424999969
+   },
+   {
+    "delta_e": -3.54766158189392,
+    "entry_id": 6309,
+    "name": "Tb2O3",
+    "spacegroup": "I213",
+    "stability": 0.012605947750000013
+   },
+   {
+    "delta_e": -2.61589903539392,
+    "entry_id": 351345,
+    "name": "Tb2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.9443684942499999
+   },
+   {
+    "delta_e": -3.52018099939392,
+    "entry_id": 20307,
+    "name": "Tb2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.040086530249999974
+   },
+   {
+    "delta_e": -3.56026752964392,
+    "entry_id": 7282,
+    "name": "Tb2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.42703263589392,
+    "entry_id": 1343701,
+    "name": "Tb2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.13323489375000008
+   },
+   {
+    "delta_e": -3.35071613739392,
+    "entry_id": 1442703,
+    "name": "Tb2O3",
+    "spacegroup": "P321",
+    "stability": 0.20955139224999986
+   },
+   {
+    "delta_e": -3.34844345739392,
+    "entry_id": 1444195,
+    "name": "Tb2O3",
+    "spacegroup": "P321",
+    "stability": 0.21182407224999977
+   },
+   {
+    "delta_e": -3.07608409739392,
+    "entry_id": 1442524,
+    "name": "Tb2O3",
+    "spacegroup": "Pn-3m",
+    "stability": 0.48418343225000005
+   },
+   {
+    "delta_e": -3.4036289343939217,
+    "entry_id": 1440985,
+    "name": "Tb2O3",
+    "spacegroup": "Fdd2",
+    "stability": 0.15663859524999824
+   },
+   {
+    "delta_e": -3.4012093468939213,
+    "entry_id": 1820525,
+    "name": "Tb2O3",
+    "spacegroup": "P21/c",
+    "stability": 0.1590581827499986
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 11,
+   "data_returned": 11,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Tb2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 12:31:35"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

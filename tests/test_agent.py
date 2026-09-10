@@ -496,3 +496,26 @@ def test_model_cannot_confirm_a_held_run_on_its_own(toolbox):
     second = reply.tool_events[0].outcome
     assert second.result is not None and not second.result.needs_confirmation
     assert any(d.code == "request_element_allowlist" for d in second.result.deviations)
+
+
+def test_anthropic_schema_drops_constraints_the_api_rejects():
+    from oxide_triage.edges.llm import anthropic_schema
+    from oxide_triage.edges.parse import CRITERIA_SCHEMA
+    from oxide_triage.refute import REFUTE_SCHEMA
+
+    def keys(o):
+        if isinstance(o, dict):
+            return set(o) | {k for v in o.values() for k in keys(v)}
+        if isinstance(o, list):
+            return {k for v in o for k in keys(v)}
+        return set()
+
+    banned = {"minimum", "maximum", "minItems", "maxItems", "minLength", "maxLength"}
+    assert keys(CRITERIA_SCHEMA) & banned and keys(REFUTE_SCHEMA) & banned  # the originals use them
+    for schema in (CRITERIA_SCHEMA, REFUTE_SCHEMA):
+        cleaned = anthropic_schema(schema)
+        assert not (keys(cleaned) & banned)
+        assert cleaned["required"] == schema["required"] and set(cleaned["properties"]) == set(
+            schema["properties"]
+        )
+    assert keys(CRITERIA_SCHEMA) & banned  # the input was not mutated

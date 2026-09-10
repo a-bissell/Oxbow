@@ -237,6 +237,19 @@ class Caveat(BaseModel):
     evidence: dict[str, Any] = Field(default_factory=dict)
 
 
+class PolymorphRef(BaseModel):
+    """Another phase of the same compound that passed the gates and is collapsed under the
+    leading row. Its own numbers are kept so a reader can see how the phases differ."""
+
+    material_id: str
+    crystal_system: str | None = None
+    spacegroup_symbol: str | None = None
+    energy_above_hull_ev_atom: float | None = None
+    effective_band_gap_ev: float | None = None
+    adjusted_score: float | None = None
+    rank_by_material: int | None = None  # its rank before grouping, over materials
+
+
 class ScoredCandidate(BaseModel):
     rank: int | None = None
     record: CandidateRecord
@@ -261,6 +274,10 @@ class ScoredCandidate(BaseModel):
     cross_source_agreement: Literal["agree", "disagree", "unavailable", "untested"] = "untested"
     caveats: list[Caveat] = Field(default_factory=list)
     rationale: str | None = None
+    # Polymorph grouping (post-core, see oxide_triage.grouping): a compound occupies one row.
+    rank_by_material: int | None = None  # rank before grouping, over materials
+    polymorphs: list[PolymorphRef] = Field(default_factory=list)  # other phases collapsed here
+    collapsed_under: str | None = None  # material_id of the leading phase, when this one is collapsed
 
 
 class Deviation(BaseModel):
@@ -322,6 +339,9 @@ class TriageResult(BaseModel):
     shortlist: list[ScoredCandidate] = Field(default_factory=list)
     ranked_beyond_shortlist: list[ScoredCandidate] = Field(default_factory=list)
     excluded: list[ScoredCandidate] = Field(default_factory=list)
+    # Passing phases collapsed under another row of the same compound (full objects, so
+    # `explain` still works on them). Empty when output.group_polymorphs is off.
+    collapsed_polymorphs: list[ScoredCandidate] = Field(default_factory=list)
     n_candidates_considered: int = 0
     scope: ScopeInfo | None = None
     retrieval: RetrievalCompleteness | None = None  # how much of the ranked set was actually fetched

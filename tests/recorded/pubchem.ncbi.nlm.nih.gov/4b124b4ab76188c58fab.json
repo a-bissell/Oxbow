@@ -1,0 +1,11 @@
+{
+ "params": {},
+ "response": {
+  "IdentifierList": {
+   "CID": [
+    159370
+   ]
+  }
+ },
+ "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Dy2O3/cids/JSON"
+}

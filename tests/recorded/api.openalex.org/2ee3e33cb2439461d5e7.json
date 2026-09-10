@@ -1,0 +1,126 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(MgO OR magnesia OR \"magnesium oxide\") AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 16409,
+   "db_response_time_ms": 87,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    (MgO or stemmed \"magnesium oxide\" or magnesia)\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "MgO"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"magnesium oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "magnesia"
+        }
+       ],
+       "join": "or"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:MgO|%22magnesium oxide%22|magnesia,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1038/nmat1256",
+    "id": "https://openalex.org/W2039780806",
+    "publication_year": 2004,
+    "title": "Giant tunnelling magnetoresistance at room temperature with MgO (100) tunnel barriers"
+   },
+   {
+    "doi": "https://doi.org/10.1103/physrevb.63.054416",
+    "id": "https://openalex.org/W2003671162",
+    "publication_year": 2001,
+    "title": "Spin-dependent tunneling conductance of Fe|MgO|Fe sandwiches"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.121384",
+    "id": "https://openalex.org/W1610206726",
+    "publication_year": 1998,
+    "title": "Mg x Zn 1\u2212x O as a II\u2013VI widegap semiconductor alloy"
+   },
+   {
+    "doi": "https://doi.org/10.1103/physrevb.63.220403",
+    "id": "https://openalex.org/W1996731722",
+    "publication_year": 2001,
+    "title": "Theory of tunneling magnetoresistance of an epitaxial Fe/MgO/Fe(001) junction"
+   },
+   {
+    "doi": "https://doi.org/10.1103/physrevb.59.3195",
+    "id": "https://openalex.org/W2122415545",
+    "publication_year": 1999,
+    "title": "In situXPS analysis of various iron oxide films grown by NO2 -assisted molecular-beam epitaxy"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

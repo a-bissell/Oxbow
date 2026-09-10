@@ -1,0 +1,111 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(MgTa2O6) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 5,
+   "db_response_time_ms": 27,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    MgTa2O6\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "MgTa2O6"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:MgTa2O6,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/j.jeurceramsoc.2003.07.004",
+    "id": "https://openalex.org/W2145612791",
+    "publication_year": 2003,
+    "title": "Topotaxial formation of Mg 4 Ta 2 O 9 and MgTa 2 O 6 thin films by vapour-solid reactions on MgO (001) crystals"
+   },
+   {
+    "doi": "https://doi.org/10.3762/bjnano.3.13",
+    "id": "https://openalex.org/W2007348156",
+    "publication_year": 2012,
+    "title": "Mesoporous MgTa2O6 thin films with enhanced photocatalytic activity: On the interplay between crystallinity and mesostructure"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.jeurceramsoc.2005.10.007",
+    "id": "https://openalex.org/W2108582867",
+    "publication_year": 2005,
+    "title": "Crystallography, microstructure and morphology of Mg4Nb2O9/MgO and Mg4Ta2O9/MgO interfaces formed by topotaxial solid state reactions"
+   },
+   {
+    "doi": "https://doi.org/10.3929/ethz-c-000795567",
+    "id": "https://openalex.org/W7130316328",
+    "publication_year": 2026,
+    "title": "Thin Film Ta-Oxynitride Semiconductor Architectures for Fundamental Investigations in Photoelectrocatalytic Water Splitting"
+   },
+   {
+    "doi": "https://doi.org/10.48422/imist.prsm/ajees-v4i2.11501",
+    "id": "https://openalex.org/W3151724187",
+    "publication_year": 2018,
+    "title": "Anticorrosive properties of pulsed laser deposition thin films of magnesium based pseudo-binary oxide materials on steel"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

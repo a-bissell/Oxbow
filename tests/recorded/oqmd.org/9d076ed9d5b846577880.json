@@ -1,16 +1,23 @@
 {
  "params": {
-  "composition": "Y3TaO7",
+  "composition": "Ba2ZrO4",
   "fields": "name,entry_id,delta_e,stability,spacegroup",
   "limit": 50
  },
  "response": {
   "data": [
    {
-    "delta_e": -3.66130553192284,
-    "entry_id": 22063,
-    "name": "Y3TaO7",
-    "spacegroup": "Cmcm",
+    "delta_e": -3.27346114335929,
+    "entry_id": 7156,
+    "name": "Ba2ZrO4",
+    "spacegroup": "I4/mmm",
+    "stability": 0.0018466471428557618
+   },
+   {
+    "delta_e": -3.2753077905021457,
+    "entry_id": 1987270,
+    "name": "Ba2ZrO4",
+    "spacegroup": "I4/mmm",
     "stability": 0.0
    }
   ],
@@ -27,14 +34,14 @@
   "meta": {
    "api_version": "1.0",
    "comments": "",
-   "data_available": 1,
-   "data_returned": 1,
+   "data_available": 2,
+   "data_returned": 2,
    "more_data_available": false,
    "query": {
-    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Y3TaO7&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Ba2ZrO4&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
    },
    "query_tree": "",
-   "time_stamp": "2026-09-09 22:23:53"
+   "time_stamp": "2026-09-10 12:31:38"
   },
   "resource": {},
   "response_message": "OK"

@@ -166,6 +166,11 @@ function CandidateCard({ sc, onOpen, focused }: { sc: ScoredCandidate; onOpen: (
             {r.spacegroup_symbol ? ` ${r.spacegroup_symbol}` : ""}
           </span>
           <Confidence sc={sc} />
+          {sc.polymorphs && sc.polymorphs.length > 0 && (
+            <span className="chip chip--sm" title={`Other phases of this compound that passed the gates: ${sc.polymorphs.map((p) => p.material_id).join(", ")}. The leading phase's numbers are shown.`}>
+              +{sc.polymorphs.length} phase{sc.polymorphs.length > 1 ? "s" : ""}
+            </span>
+          )}
           <MissingChips sc={sc} />
         </div>
         {sc.rationale && <div className="ccard__line">{sc.rationale}</div>}
@@ -389,13 +394,16 @@ function FocusView({ result, rid, candidate }: { result: TriageResult; rid: stri
             </span>
             {!sc.excluded && <Confidence sc={sc} />}
             {sc.excluded && <span className="chip chip--sm chip--crit">excluded</span>}
+            {sc.collapsed_under && <span className="chip chip--sm chip--warn">collapsed under {sc.collapsed_under}</span>}
             {r.theoretical && <span className="chip chip--sm chip--warn">no observed structure</span>}
             <MissingChips sc={sc} />
           </div>
           <div className="small muted">
             {sc.excluded
               ? `Excluded by a gate: ${sc.exclusion_reasons.join("; ")}`
-              : `Rank ${sc.rank} of ${nPass} passing · adjusted score ${fmt(sc.adjusted_score, 4)} · raw ${fmt(sc.raw_score, 4)} on ${pct(sc.data_coverage)} coverage · cross-check ${sc.cross_source_agreement}`}
+              : sc.collapsed_under
+                ? `Passed the gates; another phase of ${r.formula} leads the row (ranked ${sc.rank_by_material ?? "?"} over materials before grouping) · adjusted score ${fmt(sc.adjusted_score, 4)} · raw ${fmt(sc.raw_score, 4)} on ${pct(sc.data_coverage)} coverage`
+                : `Rank ${sc.rank} of ${nPass} passing compounds · adjusted score ${fmt(sc.adjusted_score, 4)} · raw ${fmt(sc.raw_score, 4)} on ${pct(sc.data_coverage)} coverage · cross-check ${sc.cross_source_agreement}`}
           </div>
         </div>
         <div className="row">
@@ -450,6 +458,28 @@ function FocusView({ result, rid, candidate }: { result: TriageResult; rid: stri
           <div className="small muted">{bg.correction_note}</div>
         </Panel>
 
+        {sc.polymorphs && sc.polymorphs.length > 0 && (
+          <Panel title="Other phases of this compound · collapsed under this row">
+            <table className="tbl">
+              <thead>
+                <tr><th>Material</th><th>Phase</th><th>E_hull (eV/atom)</th><th>Effective gap (eV)</th><th>Score</th><th>Rank over materials</th></tr>
+              </thead>
+              <tbody>
+                {sc.polymorphs.map((p) => (
+                  <tr key={p.material_id}>
+                    <td className="mono">{p.material_id}</td>
+                    <td>{[p.crystal_system, p.spacegroup_symbol].filter(Boolean).join(" ") || "?"}</td>
+                    <td className="mono">{p.energy_above_hull_ev_atom == null ? "?" : p.energy_above_hull_ev_atom.toFixed(3)}</td>
+                    <td className="mono">{p.effective_band_gap_ev == null ? "?" : p.effective_band_gap_ev.toFixed(2)}</td>
+                    <td className="mono">{fmt(p.adjusted_score)}</td>
+                    <td className="mono">{p.rank_by_material ?? "?"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="small muted">Which phase a deposited film adopts is not modelled. The numbers above this panel are for the leading phase.</div>
+          </Panel>
+        )}
         <Panel title="Caveats · the case against">
           {sc.caveats.filter((c) => c.code !== "fixture_data").length === 0 && <span className="small muted">No caveats raised.</span>}
           {sc.caveats

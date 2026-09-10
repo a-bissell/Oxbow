@@ -94,6 +94,19 @@ export interface ScoredCandidate {
   cross_source_agreement: "agree" | "disagree" | "unavailable" | "untested";
   caveats: Caveat[];
   rationale?: string | null;
+  rank_by_material?: number | null;
+  polymorphs?: PolymorphRef[];
+  collapsed_under?: string | null;
+}
+
+export interface PolymorphRef {
+  material_id: string;
+  crystal_system?: string | null;
+  spacegroup_symbol?: string | null;
+  energy_above_hull_ev_atom?: number | null;
+  effective_band_gap_ev?: number | null;
+  adjusted_score?: number | null;
+  rank_by_material?: number | null;
 }
 
 export interface Deviation {
@@ -118,6 +131,7 @@ export interface TriageResult {
   shortlist: ScoredCandidate[];
   ranked_beyond_shortlist: ScoredCandidate[];
   excluded: ScoredCandidate[];
+  collapsed_polymorphs?: ScoredCandidate[];
   n_candidates_considered: number;
   scope?: { families: string[]; n_universe: number; n_in_scope: number } | null;
   retrieval?: {

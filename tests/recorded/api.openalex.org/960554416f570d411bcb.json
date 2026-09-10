@@ -1,0 +1,67 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Al2O3 OR alumina OR \"aluminum oxide\" OR \"aluminium oxide\" OR sapphire)",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 447589,
+   "db_response_time_ms": 82,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    Al2O3\n    or stemmed \"aluminium oxide\"\n    or stemmed \"aluminum oxide\"\n    or alumina\n    or sapphire\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "Al2O3"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"aluminium oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"aluminum oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "alumina"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sapphire"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:Al2O3|%22aluminium oxide%22|%22aluminum oxide%22|alumina|sapphire&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1557/jmr.1992.1564",
+    "id": "https://openalex.org/W2086933933",
+    "publication_year": 1992,
+    "title": "An improved technique for determining hardness and elastic modulus using load and displacement sensing indentation experiments"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

@@ -42,7 +42,7 @@ _No ranking was run. Nothing below this line is a result._
 {% endif %}
 **Request:** {{ result.request_text }}
 
-**Profile:** `{{ result.profile_name }}` · **Candidates considered:** {{ result.n_candidates_considered }} · **Passed gates:** {{ result.shortlist | length + result.ranked_beyond_shortlist | length }} · **Shown:** {{ result.shortlist | length }}
+**Profile:** `{{ result.profile_name }}` · **Candidates considered:** {{ result.n_candidates_considered }} · **Passed gates:** {{ result.shortlist | length + result.ranked_beyond_shortlist | length }} compounds{% if result.collapsed_polymorphs %} ({{ result.collapsed_polymorphs | length }} further phases collapsed under their compound's row){% endif %} · **Shown:** {{ result.shortlist | length }}
 {% if result.criteria.interpretation_notes %}
 **How the request was read:** {{ result.criteria.interpretation_notes | join("; ") }}
 {% endif %}
@@ -54,7 +54,7 @@ _No candidate passed every gate under this configuration. See the audit view for
 {% endif %}
 {% for sc in result.shortlist %}
 {% set cav = sc | primary_caveat %}
-**{{ sc.rank }}. {{ sc.record.formula }}** ({{ sc.record.crystal_system or "?" }}, `{{ sc.record.material_id }}`) — score {{ sc.adjusted_score | fmt(2) }}, confidence **{{ sc.confidence }}**{% if sc.absent_criteria %}, no data for: {{ sc.absent_criteria | join(", ") }}{% endif %}{% if sc.not_retrieved_criteria %}, **never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}**{% endif %}
+**{{ sc.rank }}. {{ sc.record.formula }}** ({{ sc.record.crystal_system or "?" }}, `{{ sc.record.material_id }}`{% if sc.polymorphs %}, +{{ sc.polymorphs | length }} other phase{{ "s" if sc.polymorphs | length > 1 }}{% endif %}) — score {{ sc.adjusted_score | fmt(2) }}, confidence **{{ sc.confidence }}**{% if sc.absent_criteria %}, no data for: {{ sc.absent_criteria | join(", ") }}{% endif %}{% if sc.not_retrieved_criteria %}, **never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}**{% endif %}
 
 - Why: {{ sc.rationale }}
 {% if cav %}

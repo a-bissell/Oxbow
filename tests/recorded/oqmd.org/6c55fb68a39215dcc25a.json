@@ -1,0 +1,64 @@
+{
+ "params": {
+  "composition": "CaAl4O7",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.30712881509594,
+    "entry_id": 2899,
+    "name": "CaAl4O7",
+    "spacegroup": "C2/c",
+    "stability": 0.0028671670833300134
+   },
+   {
+    "delta_e": -3.30999598217927,
+    "entry_id": 1344481,
+    "name": "CaAl4O7",
+    "spacegroup": "C2/c",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.18887735551261,
+    "entry_id": 1347173,
+    "name": "CaAl4O7",
+    "spacegroup": "Pmn21",
+    "stability": 0.12111862666665996
+   },
+   {
+    "delta_e": -3.258964492179274,
+    "entry_id": 2047499,
+    "name": "CaAl4O7",
+    "spacegroup": "C2/c",
+    "stability": 0.05103148999999618
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 4,
+   "data_returned": 4,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=CaAl4O7&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 12:31:36"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

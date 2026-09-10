@@ -1,0 +1,42 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(DyTa7O19)",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 3,
+   "db_response_time_ms": 18,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (DyTa7O19)",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "(DyTa7O19)"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:%28DyTa7O19%29&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1107/s0108270195010353",
+    "id": "https://openalex.org/W1979688761",
+    "publication_year": 1996,
+    "title": "Dysprosium Tantalum Oxide, DyTa7O19"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

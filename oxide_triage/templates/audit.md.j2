@@ -26,7 +26,7 @@
 | Cache fingerprint | `{{ result.cache_fingerprint }}` (offline mode: {{ result.offline }}) |
 | Generated | {{ result.generated_at }} |
 | Candidates considered | {{ result.n_candidates_considered }} |
-| Passed all gates | {{ result.shortlist | length + result.ranked_beyond_shortlist | length }} |
+| Passed all gates | {{ result.shortlist | length + result.ranked_beyond_shortlist | length }} compounds{% if result.collapsed_polymorphs %} ({{ result.collapsed_polymorphs | length }} further phases collapsed under their compound's row; see each row's `polymorphs_collapsed` caveat){% endif %} |
 | Excluded by a gate | {{ result.excluded | length }} |
 | Language model use | {{ result.llm_usage | dictsort | map("join", ": ") | join("; ") }} |
 

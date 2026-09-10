@@ -176,35 +176,37 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
 
     # ---- 3. known answer --------------------------------------------------------------
     def known_answer() -> tuple[bool, str]:
+        # The configured self-check is the authority (windows under `selfcheck:` in the
+        # profile); the report adds the rank table so a reader can see the margins.
+        from oxide_triage.selfcheck import run_selfcheck
+
+        check = run_selfcheck(load_config("default"), cache, offline=True)
         default = run(PI)
         ranked = _ranked(default)
-        wide = run(PI, "exploratory")
-        wide_ranked = _ranked(wide)
+        wide_ranked = _ranked(run(PI, "exploratory"))
         rows = ["| Workhorse | Default rank (of passing) | Exploratory rank | Note |", "|---|---|---|---|"]
-        ok = bool(
-            {"HfO2", "Al2O3"} <= set(ranked[:5])
-            and wide_ranked
-            and wide_ranked[0] in set(WORKHORSES) | {"BaZrO3", "LaAlO3", "SrZrO3", "MgO", "SiO2"}
-        )
         for w in WORKHORSES:
             if w in ranked:
                 d = f"{ranked.index(w) + 1}/{len(ranked)}"
-                ok &= ranked.index(w) < len(ranked) / 2
                 note = ""
             else:
                 ex = next((s for s in default.excluded if s.record.formula == w), None)
                 d = "excluded"
                 note = ex.exclusion_reasons[0] if ex else "MISSING FROM UNIVERSE"
-                ok &= ex is not None
             e = f"{wide_ranked.index(w) + 1}/{len(wide_ranked)}" if w in wide_ranked else "excluded"
             rows.append(f"| {w} | {d} | {e} | {note} |")
         rows.append("")
         rows.append(f"Default top 5: {ranked[:5]}  ·  Exploratory top 5: {wide_ranked[:5]}")
+        verdict = "INCONCLUSIVE" if check.inconclusive else ("passed" if check.passed else "FAILED")
+        rows.append(
+            f"Self-check {verdict} (retrieval completeness {check.retrieval_completeness:.0%}): "
+            + "; ".join(check.details)
+        )
         rows.append(
             "Reading: this is ground-truth validation, not discovery. If an exotic compound outranks the "
             "workhorses on complete data, the scoring is wrong, not the literature."
         )
-        return bool(ok), "\n".join(rows)
+        return bool(check.passed and not check.inconclusive), "\n".join(rows)
 
     # ---- 4. determinism ---------------------------------------------------------------
     def determinism() -> tuple[bool, str]:

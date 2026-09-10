@@ -123,6 +123,10 @@ def probe_sources(timeout_s: float = 15) -> dict[str, str]:
                     if (left := r.headers.get("x-ratelimit-remaining-usd")) is not None:
                         limit = r.headers.get("x-ratelimit-limit-usd", "?")
                         note += f", budget ${left} of ${limit}/day left"
+                        # Prepaid credit is spent after the daily budget and keeps requests
+                        # succeeding at 200 when the daily figure reads zero.
+                        if (prepaid := r.headers.get("x-ratelimit-prepaid-remaining-usd")) is not None:
+                            note += f", prepaid credit ${prepaid} left"
                         if not os.environ.get("OPENALEX_API_KEY"):
                             note += " (anonymous; set OPENALEX_API_KEY for the account budget)"
             except httpx.HTTPError as exc:

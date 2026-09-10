@@ -1,0 +1,85 @@
+{
+ "params": {
+  "composition": "Sr2Nb2O7",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.12260843601375,
+    "entry_id": 1651,
+    "name": "Sr2Nb2O7",
+    "spacegroup": "Cmc21",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.06035098965012,
+    "entry_id": 1321573,
+    "name": "Sr2Nb2O7",
+    "spacegroup": "Fd-3m",
+    "stability": 0.06225744636362984
+   },
+   {
+    "delta_e": -3.08996381783194,
+    "entry_id": 1324092,
+    "name": "Sr2Nb2O7",
+    "spacegroup": "Imma",
+    "stability": 0.03264461818181008
+   },
+   {
+    "delta_e": -3.09578850828648,
+    "entry_id": 1330955,
+    "name": "Sr2Nb2O7",
+    "spacegroup": "C2/m",
+    "stability": 0.026819927727270265
+   },
+   {
+    "delta_e": -3.1205912414683,
+    "entry_id": 1344441,
+    "name": "Sr2Nb2O7",
+    "spacegroup": "Cmcm",
+    "stability": 0.0020171945454499074
+   },
+   {
+    "delta_e": -3.1172284214682975,
+    "entry_id": 1380344,
+    "name": "Sr2Nb2O7",
+    "spacegroup": "Cmcm",
+    "stability": 0.0053800145454525605
+   },
+   {
+    "delta_e": -3.1202821791955713,
+    "entry_id": 1379123,
+    "name": "Sr2Nb2O7",
+    "spacegroup": "Cmc21",
+    "stability": 0.0023262568181787735
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 7,
+   "data_returned": 7,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Sr2Nb2O7&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-10 12:09:50"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}
