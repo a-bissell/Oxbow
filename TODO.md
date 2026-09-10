@@ -40,23 +40,26 @@ Ideas / planned work for this project.
 
 ## UI
 
-- [x] **Admin UI panel** — done 2026-09-10: the "Admin" page. Every knob of the configuration,
-      generated from the schema, edited against the shipped policy and saved to a site overrides
-      file (`site.yaml` next to the cache; the shipped YAML is never written). Pending changes
-      show the ranking hash before/after; a policy change prints a `site` deviation on every
-      result and re-runs the self-check. Cache operations, the deviations log and the
-      environment (keys masked) live on the same page. `OXIDE_TRIAGE_ADMIN=1` gates editing.
+- [x] **Admin UI panel** — done 2026-09-10: profiles, universe families, language model, data
+      and cache jobs, sources and limits, deviations log, in the web app. Edits go to the site
+      overrides file next to the cache (`site.yaml`); the shipped YAML is never written, every
+      field shows the shipped value where it differs, and a policy change prints a `site`
+      deviation on every result. `OXIDE_TRIAGE_ADMIN=1` gates editing and cache fetches.
       Follow-ups:
-      - [ ] Site-defined profiles (new named profiles created from the page).
-      - [ ] Real authentication in front of the Admin page (a proxy today).
-- [x] **Interactive Agent UI** — done 2026-09-10: the Streamlit "Agent" page and
-      `oxide-triage chat`. The model drives the same tools the MCP server exposes (Anthropic
-      tool use, or OpenAI-compatible function calling for the local overlay); the report is
-      rendered as cards whose parts seed follow-up questions; a number guard flags any number
-      in a reply that no tool printed. Follow-ups:
-      - [ ] Clickable HTML report: a custom component that turns clicks inside the
-            self-contained report into the same `pending_prompt` hook the cards use.
-      - [ ] Persist conversations across sessions (the transcript is in-memory per session).
+      - [ ] Preview a profile edit: re-rank the last result under the draft before saving
+            (`preview_config` exists; needs an endpoint that runs a rerun against it).
+      - [ ] Site-defined profiles (new named profiles created from the panel).
+      - [ ] Real authentication in front of the admin panel (a proxy today).
+- [x] **Interactive Agent UI** — done 2026-09-10: chat beside a results canvas, click a
+      candidate to focus it, compare, rerun with a diff, clarify-before-run in the
+      conversation. The assistant drives the same tools the MCP server exposes through the
+      shared `ToolBox`; two drivers: rules (no key) and the shared chat agent (Anthropic tool
+      use or an OpenAI-compatible local model) with its number guard. Conversations persist
+      next to the cache. `oxide-triage chat` is the same agent in the terminal. Follow-ups:
+      - [ ] Conversation history page with search and delete (the landing page lists eight).
+      - [ ] Stop a running turn: the client can close the stream, but the pipeline keeps
+            running; thread a cancellation token through the on-demand fill.
+      - [ ] Clickable HTML report export that seeds the same follow-ups as the canvas.
 
 ## With the PI's group
 

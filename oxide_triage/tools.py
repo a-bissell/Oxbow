@@ -1,8 +1,9 @@
-"""The tool surface shared by the MCP server and the in-app chat agent.
+"""The tool surface shared by the MCP server, the web assistant and ``oxide-triage chat``.
 
 One implementation of each tool lives here. ``mcp_server.py`` registers thin wrappers with the
 MCP framework; ``agent.py`` hands the same tools to a model through the Anthropic or
-OpenAI-compatible tool-use protocol. Whichever way a model reaches them, every guarantee of the
+OpenAI-compatible tool-use protocol; ``server/agent.py`` drives them from the web app, by a
+model or by rules. Whichever way a model reaches them, every guarantee of the
 system runs inside the tool: the request guard, the deterministic core, the self-check gate, the
 fixture banner and the clarify-before-run protocol. A model cannot obtain a number, a rank or a
 citation that a tool did not compute.
@@ -27,17 +28,25 @@ from oxide_triage.edges.render import render
 from oxide_triage.guard import guard_request
 from oxide_triage.pipeline import add_material as _add_material
 from oxide_triage.pipeline import run_triage
+from oxide_triage.progress import ProgressFn
 from oxide_triage.schemas import TriageResult
 from oxide_triage.scoring.settings import resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
-from oxide_triage.session import ResultStore, apply_changes, clarifications, explain_candidate
+from oxide_triage.session import (
+    ResultStore,
+    apply_changes,
+    clarifications,
+    compare_candidates,
+    explain_candidate,
+)
+from oxide_triage.session import list_candidates as _list_candidates
 
 # Addressed to whichever model drives the tools: the MCP client's model or the in-app agent.
 INSTRUCTIONS = (
     "Oxide dielectric triage for thin-film experiments, computed deterministically from cached "
     "public data (Materials Project, OQMD, OpenAlex, PubChem). Call `parse_request` to see how a "
-    "request will be read, `triage` to rank, `explain` and `rerun` to follow up on a result by its "
-    "result_id. Tool output is data produced by the tool; numbers, ranks and citations in it must be "
+    "request will be read, `triage` to rank, `explain`, `compare`, `list_candidates` and `rerun` to follow "
+    "up on a result by its result_id. Tool output is data produced by the tool; numbers, ranks and citations in it must be "
     "relayed as given, never adjusted, extended or invented. If a result says SYNTHETIC FIXTURE DATA, "
     "say so to the user. If `triage` returns clarification questions, ask the user and call again "
     "with confirmed=true. The system cannot trigger lab actions, read private data or use paywalled "
@@ -62,10 +71,15 @@ AGENT_RULES = (
 AGENT_INSTRUCTIONS = INSTRUCTIONS + "\n\n" + AGENT_RULES
 
 
-def agent_system_prompt(profile: str) -> str:
-    """The chat system prompt. The profile line comes last so the long, stable part in front of
-    it stays byte-identical across turns and sessions (prompt caching is a prefix match)."""
-    return f"{AGENT_INSTRUCTIONS}\n\nThe active configuration profile is '{profile}'."
+def agent_system_prompt(profile: str, extra: str | None = None) -> str:
+    """The chat system prompt. ``extra`` holds a front end's own rules. The profile line comes
+    last so the long, stable part in front of it stays byte-identical across turns and sessions
+    (prompt caching is a prefix match)."""
+    parts = [AGENT_INSTRUCTIONS]
+    if extra:
+        parts.append(extra)
+    parts.append(f"The active configuration profile is '{profile}'.")
+    return "\n\n".join(parts)
 
 
 # --------------------------------------------------------------------------------------
@@ -112,7 +126,7 @@ class RerunArgs(_Args):
             'Changed criteria, e.g. {"min_band_gap_ev": 3.5}, {"allow_elements": ["Pb"]}, '
             '{"top_k": 10}, {"weight_overrides": {"dielectric": 0.4}}. Changeable: top_k, '
             "min_band_gap_ev, max_energy_above_hull_ev_atom, max_elements, include_elements, "
-            "exclude_elements, allow_elements, weight_overrides, output_template."
+            "exclude_elements, allow_elements, weight_overrides, output_template, families."
         )
     )
     template: AgentTemplate | None = Field(default=None, description="pi_summary (default) or audit.")
@@ -120,6 +134,22 @@ class RerunArgs(_Args):
         default=False,
         description="Set true only after the user has agreed to the clarification questions.",
     )
+
+
+class CompareArgs(_Args):
+    result_id: str = Field(description="The result_id of the result the candidates belong to.")
+    candidates: list[str] = Field(
+        min_length=2, description="Two or more formulas (HfO2) or material ids (mp-352) to compare."
+    )
+
+
+class ListCandidatesArgs(_Args):
+    result_id: str = Field(description="The result_id to list from.")
+    section: Literal["shortlist", "beyond", "excluded"] = Field(
+        default="shortlist",
+        description="shortlist, beyond (ranked below the shortlist) or excluded (with the gate that excluded each).",
+    )
+    limit: int = Field(default=25, ge=1, le=200, description="How many rows to list.")
 
 
 class AddMaterialArgs(_Args):
@@ -194,6 +224,24 @@ TOOL_SPECS: list[ToolSpec] = [
         RerunArgs,
     ),
     ToolSpec(
+        "compare",
+        (
+            "Compare two or more candidates of a previous result side by side: rank, score, every component "
+            "with its contribution, every gate, the main caveats, and the largest difference named. Use it "
+            "when the user asks how two materials differ or why one is above another."
+        ),
+        CompareArgs,
+    ),
+    ToolSpec(
+        "list_candidates",
+        (
+            "List one section of a previous result compactly: shortlist, beyond (ranked below the shortlist) "
+            "or excluded (each with the gate that excluded it). Use it before answering questions about what "
+            "was left out or what sits just below the shortlist."
+        ),
+        ListCandidatesArgs,
+    ),
+    ToolSpec(
         "add_material",
         (
             "Pull one compound (reduced formula, e.g. SrHfO3) from the public sources into the candidate "
@@ -232,7 +280,7 @@ class ToolOutcome:
 
 
 class ToolBox:
-    """The eight tools over one result store. ``config_overrides`` is applied to every profile
+    """The tools over one result store. ``config_overrides`` is applied to every profile
     load (the app passes the sidebar's offline toggle; the MCP server passes nothing and stays
     environment-driven)."""
 
@@ -241,10 +289,17 @@ class ToolBox:
         store: ResultStore | None = None,
         config_overrides: dict[str, Any] | None = None,
         tool_result_max_chars: int | None = None,
+        request_overrides: dict[str, Any] | None = None,
+        progress: ProgressFn | None = None,
     ):
+        """``request_overrides`` are criteria fields a front end's controls set (shortlist length,
+        gates, families); they apply to every triage without a clarification question and show
+        up as deviations. ``progress`` observes a run's stages and cannot change its result."""
         self.store = store or ResultStore(capacity=100)
         self.config_overrides = config_overrides
         self.tool_result_max_chars = tool_result_max_chars
+        self.request_overrides = request_overrides
+        self.progress = progress
         self._last_result_id: str | None = None
         self._n_results = 0  # bumped by _finish; lets call() see that a tool produced a result
 
@@ -332,7 +387,15 @@ class ToolBox:
         cfg = self._config(profile)
         cache = self._cache(cfg)
         try:
-            result = run_triage(request, cfg, cache=cache, template=template, confirmed=confirmed)
+            result = run_triage(
+                request,
+                cfg,
+                cache=cache,
+                template=template,
+                confirmed=confirmed,
+                progress=self.progress,
+                overrides=self.request_overrides,
+            )
         finally:
             cache.close()
         return self._finish(result, template, cfg.output.default_template)
@@ -342,6 +405,18 @@ class ToolBox:
         if result is None:
             return f"Unknown result_id '{result_id}'. Known: {', '.join(self.store.ids()) or 'none'}."
         return explain_candidate(result, candidate)
+
+    def compare(self, result_id: str, candidates: list[str]) -> str:
+        result = self.store.get(result_id)
+        if result is None:
+            return f"Unknown result_id '{result_id}'. Known: {', '.join(self.store.ids()) or 'none'}."
+        return compare_candidates(result, candidates)
+
+    def list_candidates(self, result_id: str, section: str = "shortlist", limit: int = 25) -> str:
+        result = self.store.get(result_id)
+        if result is None:
+            return f"Unknown result_id '{result_id}'. Known: {', '.join(self.store.ids()) or 'none'}."
+        return _list_candidates(result, section, limit)
 
     def rerun(
         self, result_id: str, changes: dict[str, Any], template: str | None = None, confirmed: bool = False
@@ -363,6 +438,7 @@ class ToolBox:
                 template=template,
                 criteria=criteria,
                 confirmed=confirmed,
+                progress=self.progress,
             )
         finally:
             cache.close()

@@ -16,11 +16,11 @@ The system is useful without any language model at all. With one configured (clo
 local), it reads requests more flexibly and phrases caveats, and nothing it says can change a
 number, a rank or a citation.
 
-It runs three ways from the same code: a CLI, a Streamlit app, and an **MCP server** so
-scientists can drive it from Claude Desktop, Claude Cowork, Cursor or any MCP-capable app. In
-that mode the client's model is the front edge and every guarantee still lives inside the tools.
-The app's **Agent page** hosts that same client in-process: a conversation with a model that
-drives the tools, beside a report whose every part can be asked about.
+It runs three ways from the same code: a CLI, a **web app** (an assistant that talks about a
+results canvas, plus an admin panel), and an **MCP server** so scientists can drive it from
+Claude Desktop, Claude Cowork, Cursor or any MCP-capable app. In the web app and over MCP a
+model may orchestrate the tools and phrase the answer; every guarantee still lives inside the
+tools, and without any model the assistant is driven by rules and works the same way.
 
 ---
 
@@ -34,12 +34,54 @@ oxide-triage load-fixtures          # synthetic demo data; every output says so
 oxide-triage query --offline        # the PI's request, default profile, PI summary
 oxide-triage query --offline --profile exploratory --template audit
 oxide-triage report --offline --out triage_report.html   # self-contained HTML report
-streamlit run oxide_triage/app.py   # browser front end
+oxide-triage serve --open           # the web app: assistant, results canvas, admin panel
 ```
 
 The fixture is a hand-written approximation of ~35 well-known oxides for development and demos.
 Every output produced from it carries a **SYNTHETIC FIXTURE DATA** banner. Real runs need the
 cache warmed from the public sources (see the admin section).
+
+
+### The web app
+
+`oxide-triage serve` (port 8000 by default) opens on a single text box. Ask in plain English,
+or pick a suggested request. Under the box is the **scope strip**: the profile, the material
+families in scope, the shortlist length and the two gates. Every chip is a popover; a value you
+change there applies to the next request without a clarification question, and is printed on
+the result as a configuration deviation like anything else a request changes.
+
+A request opens the **conversation** beside the **canvas**. The conversation shows every tool
+call the assistant made, one line each, with progress while data is fetched; the canvas shows
+the result object: shortlist cards with score, confidence, missing-data chips and the main
+caveat; tabs for the candidates ranked below the shortlist, everything excluded with the gate
+that excluded it, a data-gap map, and the scoring rules; and the report downloads. Click a
+candidate to **focus** it: the canvas shows every score component, every gate, the caveats and
+the provenance, and the composer gets a context chip so the next question is about that
+material. Ask "why is HfO2 sixth?", "compare HfO2 with SrHfO3", "rerun with top 10" or
+"include lead compounds"; a rerun shows what moved in and out of the shortlist, and a change
+that lifts a hazard block or moves a gate is held until you confirm it in the conversation.
+
+**Material families** narrow the cached universe per request: a material is in scope when every
+cation in it belongs to a selected family. The families and their rationale live in
+`oxide_triage/data/cation_allowlist.yaml` beside the fetch allowlist.
+
+The assistant has two drivers. With `LLM_PROVIDER=anthropic` and an `ANTHROPIC_API_KEY`, a Claude
+model (`claude-sonnet-5` by default; `agent.model`, `AGENT_MODEL` or `LLM_MODEL` override)
+orchestrates the same tools the MCP server exposes and phrases the answer; with
+`LLM_PROVIDER=openai_compatible` the local model does the same through function calling. Without
+a model, a rule-based driver routes each message by intent (new request, explain, compare, rerun
+with a change, what was excluded) and narrates from the result object. Both produce the same
+visible steps and the same canvas, and if the model is unreachable mid-conversation the rules
+answer that turn and say so.
+
+The **admin panel** (top right) edits profiles, the default families, the assistant and edge
+model settings, per-source fetch limits and retrieval floors, runs the cache jobs (warm, demo
+fixture, self-check, gap filling, add a compound) with a live log, and lists the deviations log.
+Edits are written to the site overrides file (`site.yaml` next to the cache), merged between the
+shipped defaults and each profile; the shipped YAML is never rewritten, every field shows the
+shipped value where it differs, and a change to the ranking policy prints a `site` deviation on
+every result. Editing and the fetching jobs are enabled by `OXIDE_TRIAGE_ADMIN=1`; the demo
+fixture and the self-check need no flag.
 
 ### Writing a request
 
@@ -104,42 +146,35 @@ Things to know before trusting a number:
 Every result is a complete object, so follow-ups never re-derive anything:
 
 * **Explain** a candidate (ranked or excluded): every component with weight and contribution,
-  every gate, the band-gap correction, provenance, all caveats. In the app: *Follow up → Explain*.
-  Over MCP: `explain(result_id, "Ta2O5")`.
+  every gate, the band-gap correction, provenance, all caveats. In the app: click the candidate,
+  or ask why it ranks where it does. Over MCP: `explain(result_id, "Ta2O5")`.
+* **Compare** two or more candidates side by side, with the largest difference named. In the
+  app: *Compare with …* on a focused candidate, or ask. Over MCP: `compare(result_id, [...])`.
 * **Rerun with a change** (gap threshold, hull threshold, element allow/exclude, weights,
-  shortlist length). The change is applied through the same deterministic core and printed as a
-  configuration deviation on the new result. In the app: *Follow up → Rerun*. Over MCP:
-  `rerun(result_id, {"min_band_gap_ev": 3.5})`.
+  shortlist length, families). The change is applied through the same deterministic core and
+  printed as a configuration deviation on the new result; the app shows what moved in and out of
+  the shortlist. Over MCP: `rerun(result_id, {"min_band_gap_ev": 3.5})`.
 * **Clarify before running.** When a request changes something material (lifts a hazard block,
   moves a gate, zeroes a criterion, or contains a part the deployment cannot do) the system asks
-  first. The app shows the questions and a confirm box; the CLI prompts (or `--yes`); over MCP,
-  `triage`/`rerun` return the questions and the client calls again with `confirmed=true`.
+  first. The app holds the run and shows the questions with a confirm button; the CLI prompts
+  (or `--yes`); over MCP, `triage`/`rerun` return the questions and the client calls again with
+  `confirmed=true`.
 
-### Talking to the agent (Agent page, `oxide-triage chat`)
+### The number guard, and the same agent in the terminal
 
-The app's **Agent** page is a conversation. You ask in plain English; a language model turns
-your words into calls to the same eight tools the MCP server exposes (`triage`, `explain`,
-`rerun`, `parse_request`, `profiles`, …) and relays what they computed. The result appears
-beside the chat as cards, and every part of the report carries a button that asks about it:
-*Why this rank?* on a candidate, *Ask* on a caveat, *Why excluded?* on an excluded row, *Missing
-dielectric?* on the data-gap map, *Rerun with gap ≥ 5 eV* on the scoring rules. A button seeds a
-chat turn naming the result id and the candidate; the model calls `explain` or `rerun` and
-answers from the output. `oxide-triage chat` is the same agent in the terminal.
+Whichever front end drives it, the model reaches data only through tools, each call is validated
+against the tool's schema before it runs, and the guard, the deterministic core, the self-check
+gate and the fixture banner run inside the tools. Two things are added for chat. The transcript
+is append-only, so nothing is edited or re-derived behind you. And a **number guard** checks every
+number in a reply against the numbers the tools printed (and your own words); anything else is
+listed under the reply as unverified. It flags, it does not rewrite, so a count such as "top 3"
+may be flagged too.
 
-What keeps it honest is the same as over MCP: the model reaches data only through tools, each
-call is validated against the tool's schema before it runs, and the guard, the deterministic
-core, the self-check gate and the fixture banner run inside the tools. Two things are added for
-chat. The transcript is append-only, so nothing is edited or re-derived behind you. And a
-**number guard** checks every number in a reply against the numbers the tools printed (and your
-own words); anything else is marked ⚠ and listed under the reply as unverified. It flags, it does
-not rewrite, so a count such as “top 3” may be flagged too.
-
-The page needs a model: `LLM_PROVIDER=anthropic` with `ANTHROPIC_API_KEY` (the conversation and
-the tool outputs go to Anthropic; no private data exists in this system), or
-`LLM_PROVIDER=openai_compatible` against the local overlay (nothing leaves the site). With
-`none` the page says so and the Triage page works as before. `oxide-triage doctor` reports
-whether chat is ready. The agent is limited to `agent.max_tool_rounds` tool calls per message
-(`config/default.yaml`).
+`oxide-triage chat` is the same agent in the terminal. It needs a model: `LLM_PROVIDER=anthropic`
+with `ANTHROPIC_API_KEY` (the conversation and the tool outputs go to Anthropic; no private data
+exists in this system), or `LLM_PROVIDER=openai_compatible` against the local overlay (nothing
+leaves the site). `oxide-triage doctor` reports whether chat is ready. The agent is limited to
+`agent.max_tool_rounds` tool calls per message (`config/default.yaml`).
 
 ### Using it from Claude Desktop, Claude Cowork or Cursor (MCP)
 
@@ -156,7 +191,7 @@ Add the server to your app's MCP config (see `docker/mcp-client-config.example.j
 ```
 
 Tools: `parse_request` (how a request will be read, plus clarification questions), `triage`,
-`explain`, `rerun`, `add_material` (pull one compound into the universe; online only),
+`explain`, `compare`, `rerun`, `add_material` (pull one compound into the universe; online only),
 `fill_gaps` (adaptive acquisition pass), `cache_status`, `selfcheck`, `profiles`. Resources: `oxide-triage://result/{id}` (full JSON) and
 `oxide-triage://scope` (the scope limitation). The server's instructions tell the client model
 to relay numbers, ranks and citations as given and to surface the fixture banner. The request
@@ -181,7 +216,7 @@ cannot bypass them.
 cp .env.example .env                 # set MP_API_KEY (free); OPENALEX_API_KEY is optional
 docker compose -f docker/compose.yml up --build -d
 docker compose -f docker/compose.yml run --rm app oxide-triage warm-cache   # ~minutes; rate-limit aware
-# open http://localhost:8501
+# open http://localhost:8000
 ```
 
 The cache lives in a named volume (`/data/cache.sqlite`). `./config` is mounted read-only so
@@ -191,7 +226,8 @@ editing). Once warmed, the container runs fully offline (`OXIDE_TRIAGE_OFFLINE=1
 
 ### Install without Docker
 
-Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache path defaults to
+Python 3.11+. `pip install -e ".[web,llm]"`, then the same commands (`oxide-triage serve` for
+the web app). The front end is prebuilt and committed; Node is only needed to change it. The cache path defaults to
 `data/cache.sqlite` (override with `OXIDE_TRIAGE_CACHE`).
 
 ### Keys and environment
@@ -201,7 +237,7 @@ Python 3.11+. `pip install -e ".[app,llm]"`, then the same commands. The cache p
 | `MP_API_KEY` | warming the cache from Materials Project | free, https://next-gen.materialsproject.org/api |
 | `OPENALEX_API_KEY` | optional. Literature counts are fetched per query for the top-ranked candidates (about 50 searches, $0.05). Without a key OpenAlex allows $0.10/day per IP (two queries); a free account's key allows $1/day (twenty) | free account at https://openalex.org |
 | `OPENALEX_MAILTO` | contact email on OpenAlex requests (optional; no rate-limit effect any more) | any contact email |
-| `LLM_PROVIDER` | `none` (default) / `anthropic` / `openai_compatible`. The Agent page and `oxide-triage chat` need one of the latter two | — |
+| `LLM_PROVIDER` | `none` (default) / `anthropic` / `openai_compatible`. With `none` the assistant is driven by rules; `oxide-triage chat` needs one of the latter two | — |
 | `ANTHROPIC_API_KEY` | only if `LLM_PROVIDER=anthropic` | https://console.anthropic.com |
 | `LLM_BASE_URL`, `LLM_MODEL` | only if `LLM_PROVIDER=openai_compatible` | your vLLM/Ollama endpoint |
 | `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT` | MCP server defaults (`stdio`, `127.0.0.1`, `8765`) | — |
@@ -354,7 +390,12 @@ the shipped policy (profile allowlist, site override, request-level threshold ch
 hazard block) prints the deviation in the output header and appends it to `deviations.jsonl` next
 to the cache; the Admin page shows that log.
 
-Templates are files in `oxide_triage/templates/*.md.j2` and can be edited without touching Python.
+Site-level edits made in the admin panel are written to `site.yaml` next to the cache (`base`
+for every profile, `profiles.<name>` per profile) and merged between the shipped defaults and
+each profile, so the shipped files are never rewritten and `git diff` never shows local policy.
+`OXIDE_TRIAGE_SITE_CONFIG` moves that file (`off` disables it); `oxide-triage config` prints the
+effective configuration with the origin of every value. Templates are files in
+`oxide_triage/templates/*.md.j2` and can be edited without touching Python.
 
 ### MCP over the network
 
@@ -367,7 +408,7 @@ over stdio.
 
 `docker/compose.local-llm.yml` adds a vLLM service serving **Qwen3-8B** and points the app at it.
 Nothing leaves the site. The model only parses the request, phrases caveats and drives the tools
-on the Agent page, so an 8B model is adequate; the ranking is identical with any provider or
+in the assistant, so an 8B model is adequate; the ranking is identical with any provider or
 none. The overlay starts vLLM with tool calling enabled (`--enable-auto-tool-choice
 --tool-call-parser hermes`); the chat path is exercised against a fake server in the tests and
 has not yet been verified against a live vLLM.
@@ -385,7 +426,7 @@ What leaves the site with each provider:
 |---|---|
 | `none` | nothing |
 | `openai_compatible` (local) | nothing |
-| `anthropic` | the request text and the *public* structured facts for shortlisted candidates; on the Agent page, the conversation and the tool outputs |
+| `anthropic` | the request text and the *public* structured facts for shortlisted candidates; in the assistant, the conversation and the tool outputs |
 
 No private lab data exists anywhere in this system, so the exposure with a cloud provider is the
 request wording itself. Sites for which that is unacceptable should use the local overlay.
@@ -426,8 +467,10 @@ from it carries the fixture banner.
 
 ```bash
 pip install -e ".[all]"
-pytest                       # 215 tests: scoring core, guard, config + site overrides, refutation, pipeline, injection, session, self-check, MCP, chat agent, admin page, acquisition, HTML report, record/replay
+pytest                       # scoring core, guard, config + site overrides, refutation, pipeline, injection, session, self-check, MCP, chat agent, web app, scope, acquisition, HTML report, record/replay
 ruff check . && ruff format .
+cd ui && npm install && npm run build   # rebuild the front end into oxide_triage/ui/dist (commit the result)
+npm run dev                             # front-end dev server on :5173, proxying /api to a running `oxide-triage serve`
 python -m eval.run_eval      # evaluation report -> eval/output/report.md
 jupyter lab eval/evaluation.ipynb
 ```
@@ -446,15 +489,18 @@ oxide_triage/
   edges/              llm providers (+ chat protocol with tool use), request parser, template renderer
   refute.py           rule-derived caveats + guarded model observations
   pipeline.py         orchestration: guard -> parse -> clarify -> self-check gate -> core -> refute
-  session.py          result store, explain, rerun, clarification questions (app + MCP)
-  tools.py            the eight tools (one implementation for the MCP server and the chat agent)
+  session.py          result store, explain, compare, rerun, clarification questions (app + MCP)
+  tools.py            the tools (one implementation for the MCP server, the web assistant and the chat CLI)
   agent.py            chat agent: provider-neutral tool-use loop, append-only transcript, number guard
   selfcheck.py        known-answer check run on the cache itself
   acquire.py          adaptive acquisition: gaps -> allowlisted routes -> report
+ui/                   React + TypeScript front end (Vite); `npm run build` writes oxide_triage/ui/dist
   formula.py          formula parsing for cross-database stoichiometry matching
   mcp_server.py       MCP tools/resources for Claude Desktop, Cowork, Cursor
-  cli.py, app.py      Typer CLI, Streamlit entry point (pages in ui/: sidebar, triage_page, agent_page,
-                      report_cards, admin_page, admin_form)
+  cli.py              Typer CLI (query, report, warm-cache, serve, mcp, ...)
+  server/             web backend: FastAPI app, conversation store, tool registry, agent turn loop, admin jobs
+  ui/dist             the built front end, served by the backend
+  progress.py         observation-only progress events for long runs
   templates/          pi_summary.md.j2, audit.md.j2, report.html.j2
   evaluation.py       the five evaluation checks (also `python -m eval.run_eval`)
   data/               element_hazards.yaml, cation_allowlist.yaml, compound_aliases.yaml,

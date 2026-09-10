@@ -156,6 +156,8 @@ class SourceFetchConfig(BaseModel):
 
 class CandidatesConfig(BaseModel):
     cation_allowlist_file: str
+    # Families (from the allowlist file) a query is limited to by default; empty = the whole universe.
+    default_families: list[str] = Field(default_factory=list)
     max_elements_query: int = Field(ge=2, le=6)
     energy_above_hull_ceiling_ev_atom: float = Field(ge=0)
     min_reported_gap_ev: float = Field(ge=0)
@@ -243,10 +245,11 @@ class AcquisitionConfig(BaseModel):
 
 
 class AgentConfig(BaseModel):
-    """The in-app chat agent (Streamlit Agent page, `oxide-triage chat`). It drives the same
-    tools the MCP server exposes; nothing here affects ranking, so it is excluded from the
-    config hash."""
+    """The in-app chat agent (the web assistant, `oxide-triage chat`). It drives the same tools
+    the MCP server exposes; nothing here affects ranking, so it is excluded from the config
+    hash."""
 
+    model: str | None = None  # assistant model; None = the provider's chat default (see make_chat_llm)
     max_tool_rounds: int = Field(default=8, ge=1, le=32)  # tool-call rounds per user message
     number_guard: Literal["flag", "off"] = "flag"  # flag numbers absent from every tool output
     max_tokens: int = Field(default=16000, ge=256)  # per model reply
@@ -765,6 +768,29 @@ def load_hazard_table(filename: str = "element_hazards.yaml") -> HazardTable:
 def load_cation_allowlist(filename: str = "cation_allowlist.yaml") -> list[str]:
     raw = _read_yaml(DATA_DIR / filename)
     return list(raw.get("cations", []))
+
+
+class CationFamily(BaseModel):
+    id: str
+    name: str
+    cations: list[str]
+    rationale: str = ""
+
+
+def load_cation_families(filename: str = "cation_allowlist.yaml") -> list[CationFamily]:
+    """Families group the allowlist's cations for the assistant's scope control. A file without
+    a ``families`` key yields one family holding every cation, so scoping degrades to 'all'."""
+    raw = _read_yaml(DATA_DIR / filename)
+    fams = [CationFamily.model_validate(f) for f in raw.get("families", []) or []]
+    if not fams:
+        fams = [CationFamily(id="all", name="All cations", cations=list(raw.get("cations", [])))]
+    return fams
+
+
+def cations_for_families(families: list[CationFamily], selected: list[str]) -> frozenset[str]:
+    """Cations covered by the selected family ids; an empty selection means every family."""
+    chosen = {f.id for f in families} if not selected else set(selected)
+    return frozenset(c for f in families if f.id in chosen for c in f.cations)
 
 
 def load_compound_aliases(filename: str = "compound_aliases.yaml") -> dict[str, list[str]]:

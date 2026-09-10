@@ -173,11 +173,12 @@ llm:
     rationale: false # one-line plain-language rationale per candidate (numeric-guarded)
 
 # ---------------------------------------------------------------------------
-# Chat agent (the Streamlit "Agent" page and `oxide-triage chat`). The model drives the same
+# Chat agent (the web assistant and `oxide-triage chat`). The model drives the same
 # tools the MCP server exposes; every number, rank and citation comes out of a tool. Needs
 # llm.provider to be anthropic or openai_compatible. Nothing here affects ranking.
 # ---------------------------------------------------------------------------
 agent:
+  model: null               # assistant model; null = claude-sonnet-5 for anthropic (AGENT_MODEL overrides)
   max_tool_rounds: 8        # tool-call rounds allowed per user message
   number_guard: flag        # flag | off: mark numbers in a reply that no tool output contains
   max_tokens: 16000         # per model reply

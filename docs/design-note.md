@@ -226,7 +226,17 @@ beyond MP's DFPT set) reported as unfillable rather than estimated. A model may 
 allowed routes for a gap and nothing more, and checks itself against ground truth
 after every change to its cache, refusing to serve from a cache that fails. It is not agentic
 where numbers and ranks are concerned: no model, no loop and no runtime choice sits between a
-retrieved value and a score. The **MCP server** makes the split literal. Claude in Desktop or
+retrieved value and a score. The **web app** is where this is most visible. Its assistant is a client for the same tools
+the MCP server exposes (triage, explain, compare, rerun, add a material, cache status), and it
+has two interchangeable drivers: a rule-based one that routes each message by intent and
+narrates from the result object, and a Claude model that orchestrates the tools and phrases the
+answer. Both produce the same visible steps in the conversation, one line per tool call, and the
+same canvas beside it, which renders result objects rather than model prose: shortlist cards,
+the excluded list with its gates, a data-gap map, a focus view per candidate with every
+component and provenance, and a diff after every rerun. A value set on the scope strip (profile,
+material families, shortlist length, gates) is applied deliberately, so it is not asked about,
+but it is still printed as a deviation; a change made in words that lifts a hazard block or
+moves a gate is held until the person confirms it. The **MCP server** makes the split literal. Claude in Desktop or
 Cowork becomes the front edge, turning a scientist's words into tool calls; the guard, the core,
 the self-check gate and the fixture banner run inside the tools and the server's instructions tell
 the client to relay results as given. A client prompt cannot bypass any of it. The **Agent
@@ -239,10 +249,10 @@ which a number could be invented.
 
 ## 9. Deployment and privacy
 
-Python 3.11, Pydantic schemas, SQLite, Typer CLI, Streamlit front end, Jinja templates as files
+Python 3.11, Pydantic schemas, SQLite, Typer CLI, a FastAPI + React web app (built bundle committed, so a pip install is the whole deployment), Jinja templates as files
 so a site admin can edit prose without touching code. One YAML config with three named profiles;
-an Admin page edits any of it into a site overrides file, never the shipped YAML, and every
-site departure from the shipped policy is a deviation on the result.
+the admin panel edits any of it into a site overrides file next to the cache, never the shipped
+YAML, and every site departure from the shipped ranking policy is a deviation on the result.
 `Dockerfile` plus compose with a persistent cache volume and an MCP service on loopback; once
 warmed the containers run fully offline. Keys come from the environment; `.env.example` documents each one.
 

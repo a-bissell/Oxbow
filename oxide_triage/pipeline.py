@@ -18,17 +18,24 @@ from typing import Any
 
 from oxide_triage.acquire import GAP_KINDS, AcquisitionReport, fill_gaps, make_planner, read_report
 from oxide_triage.cache import Cache
-from oxide_triage.config import Config, load_cation_allowlist, load_hazard_table
+from oxide_triage.config import (
+    Config,
+    cations_for_families,
+    load_cation_allowlist,
+    load_cation_families,
+    load_hazard_table,
+)
 from oxide_triage.edges.llm import LLMClient, make_llm
 from oxide_triage.edges.parse import parse_request
 from oxide_triage.edges.render import rationale_line
 from oxide_triage.guard import guard_request
+from oxide_triage.progress import ProgressFn, emit
 from oxide_triage.refute import refute, rule_caveats
-from oxide_triage.schemas import Criteria, GuardDecision, TriageResult
+from oxide_triage.schemas import CandidateRecord, Criteria, GuardDecision, ScopeInfo, TriageResult
 from oxide_triage.scoring.core import explanation, rank, retrieval_completeness
 from oxide_triage.scoring.settings import blocked_by_policy, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
-from oxide_triage.session import clarifications
+from oxide_triage.session import apply_changes, clarifications
 from oxide_triage.sources.assemble import DataLayer
 from oxide_triage.sources.base import SourceError
 from oxide_triage.sources.fixtures import load_fixture
@@ -99,6 +106,23 @@ def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
     return "failed", None
 
 
+def scope_records(
+    records: list[CandidateRecord], config: Config, families: list[str]
+) -> tuple[list[CandidateRecord], ScopeInfo]:
+    """Keep the records whose cations all belong to a selected family. Not a gate: a material
+    outside the scope was never a candidate for this run, so it is not listed as excluded."""
+    fams = load_cation_families(config.candidates.cation_allowlist_file)
+    known = {f.id for f in fams}
+    selected = [f for f in families if f in known]
+    info = ScopeInfo(families=selected, n_universe=len(records), n_in_scope=len(records))
+    if not selected or set(selected) == known:
+        return records, info
+    allowed = cations_for_families(fams, selected)
+    kept = [r for r in records if all(el == "O" or el in allowed for el in r.elements)]
+    info.n_in_scope = len(kept)
+    return kept, info
+
+
 def run_triage(
     request_text: str,
     config: Config,
@@ -110,26 +134,44 @@ def run_triage(
     confirmed: bool = True,
     skip_selfcheck: bool = False,
     http: Any | None = None,
+    progress: ProgressFn | None = None,
+    overrides: dict[str, Any] | None = None,
 ) -> TriageResult:
     """Run one triage request.
 
     ``criteria`` bypasses the parser (used by reruns with changed settings; the guard still runs
     on the original text). ``confirmed=False`` makes the run stop and return its clarification
     questions instead of a shortlist whenever there are any. ``http`` replaces every client's
-    transport (a replay of recorded responses in tests).
+    transport (a replay of recorded responses in tests). ``progress`` observes the stages of a
+    run (see ``oxide_triage.progress``) and cannot affect the result. ``overrides`` are
+    criteria fields set by a front end's controls (shortlist length, gates, families) and are
+    applied after parsing through the same validated path as a rerun, so they surface as
+    deviations like anything else the request changes.
     """
     table = load_hazard_table(config.toxicity.table_file)
     llm = llm or make_llm(config.llm)
     blocked = blocked_by_policy(config, table)
     guard: GuardDecision = guard_request(request_text, table, blocked)
+    emit(progress, "parse", "Reading the request")
     if criteria is None:
         criteria, parser_label = parse_request(request_text, config, table, llm, blocked)
     else:
         parser_label = "supplied (rerun)"
+    asked = criteria  # what the request itself says: only that needs confirming
+    if overrides:
+        # Values set on a front end's controls were chosen deliberately, so they are applied
+        # without a clarification question; they still surface as deviations on the result.
+        criteria, _ = apply_changes(criteria, overrides, note_prefix="scope")
+    if not criteria.families and config.candidates.default_families:
+        criteria.families = list(config.candidates.default_families)
     if template:
         criteria.output_template = template  # type: ignore[assignment]
     eff, deviations = resolve(config, criteria, table)
-    questions = clarifications(criteria, deviations, guard, config)
+    if overrides:
+        _, asked_devs = resolve(config, asked, table)
+        questions = clarifications(asked, asked_devs, guard, config)
+    else:
+        questions = clarifications(criteria, deviations, guard, config)
     llm_usage = {"parse": parser_label, "refute": "not run", "render": "templates only"}
 
     own_cache = cache is None
@@ -173,9 +215,19 @@ def run_triage(
         layer = DataLayer.from_config(config, cache=cache, offline=offline, http=http)
         fill_note: str | None = None
         retrieval_scope: int | None = None
+        scope_info: ScopeInfo | None = None
         try:
+            emit(progress, "rank", "Loading the candidate universe")
             records = layer.build_candidates()
+            records, scope_info = scope_records(records, config, criteria.families)
             ranked, excluded = rank(records, config, eff)
+            emit(
+                progress,
+                "rank",
+                f"Ranked {len(records)} candidates in scope, {len(ranked)} passed the gates",
+                done=len(ranked),
+                total=len(records),
+            )
             if config.candidates.formula_sources == "on_demand" and not layer.offline and ranked:
                 # The formula-keyed sources (OQMD, OpenAlex, PubChem) are fetched per query for
                 # the top of the ranking only. Literature and compound hazards can only add
@@ -197,7 +249,19 @@ def run_triage(
                         break
                     rounds += 1
                     attempted.update(r.material_id for r in pool)
+                    emit(
+                        progress,
+                        "fill",
+                        f"Fetching cross-checks, literature and hazards for {len(pool)} candidates"
+                        + (f" (round {rounds})" if rounds > 1 else ""),
+                        done=0,
+                        total=len(pool),
+                    )
+                    layer.on_progress = lambda d, t, f: emit(
+                        progress, "fill", f"Fetched {f}", done=d, total=t
+                    )
                     filled, counts = layer.fill_formula_sources(pool)
+                    layer.on_progress = None
                     failed += counts.get("failed", 0)
                     by_id = {r.material_id: r for r in filled}
                     records = [by_id.get(r.material_id, r) for r in records]
@@ -231,6 +295,7 @@ def run_triage(
             layer.close()
         shortlist, beyond = ranked[: eff.top_k], ranked[eff.top_k :]
 
+        emit(progress, "refute", f"Arguing against each of the {len(shortlist)} shortlisted candidates")
         llm_usage["refute"] = refute(shortlist, eff, config, llm)
         for sc in beyond + excluded:
             sc.caveats = rule_caveats(sc, eff, config)
@@ -267,6 +332,7 @@ def run_triage(
                 cache_fingerprint=cache.fingerprint(),
                 retrieval=retrieval,
                 n_candidates_considered=len(records),
+                scope=scope_info,
                 warnings=[
                     f"No ranking served: retrieval completeness {retrieval.completeness:.1%} is below "
                     f"the configured floor of {serve_floor:.0%}. {retrieval.note} "
@@ -286,9 +352,11 @@ def run_triage(
             ranked_beyond_shortlist=beyond,
             excluded=excluded,
             n_candidates_considered=len(records),
+            scope=scope_info,
             warnings=warnings,
         )
         _log_deviations(config, result)
+        emit(progress, "done", "Done")
         return result
     finally:
         if own_cache:

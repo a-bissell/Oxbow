@@ -1,5 +1,5 @@
 """The chat agent: a tool-use loop over the shared ``ToolBox``, independent of provider and of
-front end (the Streamlit Agent page and ``oxide-triage chat`` both drive it).
+front end (the web assistant and ``oxide-triage chat`` both drive it).
 
 What it guarantees, and how:
 
@@ -7,7 +7,7 @@ What it guarantees, and how:
   tool's schema and never raises; an unknown tool or bad arguments come back to the model as an
   error result it can read.
 * The transcript is append-only. New turns are built in a local list and committed only when the
-  turn completes, so a provider error or an interrupted Streamlit run leaves the conversation
+  turn completes, so a provider error or an interrupted turn leaves the conversation
   exactly as it was. Nothing is ever edited or truncated (thinking blocks are bound to the turn
   they were produced in).
 * Every tool call gets a result. Parallel calls are answered in one results turn, in order; when
@@ -35,7 +35,7 @@ from oxide_triage.edges.llm import (
     UserTurn,
 )
 from oxide_triage.refute import allowed_numbers, unverified_numbers
-from oxide_triage.tools import TOOL_SPECS, ToolBox, ToolOutcome
+from oxide_triage.tools import TOOL_SPECS, ToolBox, ToolOutcome, ToolSpec
 
 log = logging.getLogger(__name__)
 
@@ -71,12 +71,14 @@ class Agent:
         system: str,
         max_tool_rounds: int = 8,
         number_guard: str = "flag",
+        specs: list[ToolSpec] | None = None,
     ):
         self.llm = llm
         self.toolbox = toolbox
         self.system = system
         self.max_tool_rounds = max_tool_rounds
         self.number_guard = number_guard
+        self.specs = list(specs) if specs is not None else list(TOOL_SPECS)
         self.transcript: list[Turn] = []
         self.results: list[str] = []  # result ids produced in this conversation, oldest first
         self.usage: dict[str, int] = {}
@@ -127,7 +129,7 @@ class Agent:
         try:
             turn: AssistantTurn | None = None
             for _ in range(self.max_tool_rounds):
-                turn = self.llm.chat(self.system, self.transcript + new, TOOL_SPECS, on_text=on_text)
+                turn = self.llm.chat(self.system, self.transcript + new, self.specs, on_text=on_text)
                 new.append(turn)
                 self._add_usage(reply.usage, turn.usage)
                 if turn.stop_reason == "refusal":
@@ -151,7 +153,7 @@ class Agent:
                 if turn is not None and turn.tool_calls:
                     new.append(self._error_results(turn, ROUND_CAP_MESSAGE))
                 turn = self.llm.chat(
-                    self.system, self.transcript + new, TOOL_SPECS, allow_tools=False, on_text=on_text
+                    self.system, self.transcript + new, self.specs, allow_tools=False, on_text=on_text
                 )
                 new.append(turn)
                 self._add_usage(reply.usage, turn.usage)

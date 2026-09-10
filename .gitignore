@@ -13,3 +13,8 @@ venv/
 /data/
 eval/output/
 .streamlit/secrets.toml
+
+
+# the built front end is committed so a pip install needs no Node
+!oxide_triage/ui/dist/
+!oxide_triage/ui/dist/**

@@ -12,8 +12,8 @@ is still validated. A client model cannot obtain a number, a rank or a citation 
 not compute. Follow-up tools (`explain`, `rerun`) work from stored result objects, so a
 conversation about a shortlist never re-derives anything.
 
-The tool bodies live in ``oxide_triage.tools``; the in-app chat agent drives the same
-``ToolBox``. This module only registers them with the MCP framework, which derives each tool's
+The tool bodies live in ``oxide_triage.tools``; the web assistant and ``oxide-triage chat``
+drive the same ``ToolBox``. This module only registers them with the MCP framework, which derives each tool's
 schema from the wrapper's signature.
 
 Clarify-before-run protocol: `triage` and `rerun` return the clarification questions instead of a
@@ -67,6 +67,16 @@ def triage(
 @server.tool(description=_describe("explain"))
 def explain(result_id: str, candidate: str) -> str:
     return _toolbox.explain(result_id, candidate)
+
+
+@server.tool(description=_describe("compare"))
+def compare(result_id: str, candidates: list[str]) -> str:
+    return _toolbox.compare(result_id, candidates)
+
+
+@server.tool(description=_describe("list_candidates"))
+def list_candidates(result_id: str, section: str = "shortlist", limit: int = 25) -> str:
+    return _toolbox.list_candidates(result_id, section, limit)
 
 
 @server.tool(description=_describe("rerun"))

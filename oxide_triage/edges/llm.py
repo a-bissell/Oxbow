@@ -80,15 +80,21 @@ class AnthropicLLM:
 
     def complete_json(self, system: str, user: str, schema: dict[str, Any]) -> dict[str, Any] | None:
         try:
-            resp = self._client.messages.create(
+            # Streamed even for short answers: it is the SDK's recommended default and it is not
+            # subject to the response-decompression path that non-streaming calls go through.
+            with self._client.messages.stream(
                 model=self.model,
                 max_tokens=4096,
                 system=f"{SYSTEM_PREAMBLE}\n\n{system}",
                 messages=[{"role": "user", "content": user}],
                 output_config={"format": {"type": "json_schema", "schema": schema}},
-            )
+            ) as stream:
+                resp = stream.get_final_message()
         except self._anthropic.APIError as exc:
             log.warning("Anthropic call failed: %s", exc)
+            return None
+        except Exception as exc:  # transport-level faults (e.g. a broken decompressor) must fail closed
+            log.warning("Anthropic call failed (%s): %s", type(exc).__name__, exc)
             return None
         if resp.stop_reason == "refusal":
             log.warning("Anthropic refused the request (%s); falling back to rules", resp.stop_details)
@@ -311,6 +317,9 @@ def openai_messages(system: str, transcript: list[Turn]) -> list[dict[str, Any]]
 # ---- providers -------------------------------------------------------------------------
 
 
+DEFAULT_CHAT_MODEL = "claude-sonnet-5"
+
+
 class AnthropicChat:
     """Claude with tool use, streamed. Thinking is adaptive (the default on current models) and
     the returned content is replayed verbatim on later turns so thinking blocks stay valid."""
@@ -444,7 +453,7 @@ def chat_availability(cfg: LLMConfig) -> tuple[bool, str]:
             return False, "the anthropic SDK is not installed (pip install 'oxide-triage[llm]')"
         if not os.environ.get("ANTHROPIC_API_KEY") and not os.environ.get("ANTHROPIC_AUTH_TOKEN"):
             return False, "LLM_PROVIDER=anthropic but ANTHROPIC_API_KEY is not set"
-        return True, f"anthropic:{cfg.model or 'claude-opus-5'}"
+        return True, f"anthropic:{os.environ.get('AGENT_MODEL') or cfg.model or DEFAULT_CHAT_MODEL}"
     if cfg.provider == "openai_compatible":
         model, base_url = _openai_endpoint(cfg.model, cfg.base_url)
         return True, f"openai_compatible:{model}@{base_url}"
@@ -457,5 +466,8 @@ def make_chat_llm(cfg: LLMConfig, agent: AgentConfig | None = None) -> ChatLLM:
         raise RuntimeError(why)
     agent = agent or AgentConfig()
     if cfg.provider == "anthropic":
-        return AnthropicChat(cfg.model, agent.timeout_s, agent.max_tokens)
-    return OpenAICompatibleChat(cfg.model, cfg.base_url, agent.timeout_s, agent.max_tokens)
+        # The assistant answers interactively, so latency matters more than at the edges:
+        # Sonnet by default, or agent.model / AGENT_MODEL / LLM_MODEL in that order.
+        model = os.environ.get("AGENT_MODEL") or agent.model or cfg.model or DEFAULT_CHAT_MODEL
+        return AnthropicChat(model, agent.timeout_s, agent.max_tokens)
+    return OpenAICompatibleChat(agent.model or cfg.model, cfg.base_url, agent.timeout_s, agent.max_tokens)

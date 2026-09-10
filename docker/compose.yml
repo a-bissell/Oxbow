@@ -3,10 +3,10 @@
 #   cp .env.example .env            # add MP_API_KEY (and OPENALEX_MAILTO)
 #   docker compose -f docker/compose.yml up --build
 #   docker compose -f docker/compose.yml run --rm app oxide-triage warm-cache
-#   open http://localhost:8501
+#   open http://localhost:8000
 #
 # Everything the site admin edits lives in ./config (mounted read-only), .env, and the site
-# overrides file the Admin page writes to /data/site.yaml (OXIDE_TRIAGE_ADMIN=1 to enable editing).
+# overrides file the admin panel writes to /data/site.yaml (OXIDE_TRIAGE_ADMIN=1 to enable editing).
 name: oxide-triage
 
 services:
@@ -20,17 +20,17 @@ services:
     environment:
       OXIDE_TRIAGE_CACHE: /data/cache.sqlite
       # LLM_PROVIDER defaults to `none`: the system is fully functional without a model.
-      # The Agent page needs a provider: `LLM_PROVIDER=anthropic docker compose ...` with
+      # The assistant is driven by a model with a provider: `LLM_PROVIDER=anthropic docker compose ...` with
       # ANTHROPIC_API_KEY in .env, or the compose.local-llm.yml overlay. This line beats the
       # env_file, so the variable must be set in the shell that runs compose.
       LLM_PROVIDER: ${LLM_PROVIDER:-none}
-      # Admin page editing and cache operations. No per-user login: leave it off on a shared network.
+      # Admin panel editing and cache operations. No per-user login: leave it off on a shared network.
       OXIDE_TRIAGE_ADMIN: ${OXIDE_TRIAGE_ADMIN:-0}
     volumes:
       - cache:/data
       - ../config:/app/config:ro
     ports:
-      - "${OXIDE_TRIAGE_PORT:-8501}:8501"
+      - "${OXIDE_TRIAGE_PORT:-8000}:8000"
     restart: unless-stopped
 
   # MCP endpoint for Claude Desktop / Cowork / Cursor over the network (streamable HTTP).
