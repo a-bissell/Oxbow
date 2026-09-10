@@ -17,6 +17,14 @@
 _No ranking was run. Nothing below this line is a result._
 
 {% endif %}
+{% if result.retrieval and not result.retrieval.comparable %}
+> **The data behind this ranking is incomplete.** Only {{ result.retrieval.completeness | pct }} of
+> what the ranking needed was actually downloaded ({{ result.retrieval.n_fully_retrieved }} of
+> {{ result.retrieval.n_ranked }} candidates have a full record). Candidates are scored lower when
+> data is missing, so the *order* below partly reflects which downloads finished rather than which
+> materials are better. Treat it as a starting point, not a ranking, until the cache is refilled.
+
+{% endif %}
 {% if result.deviations %}
 > **Configuration deviations in effect** (read before the shortlist):
 {% for d in result.deviations %}
@@ -46,7 +54,7 @@ _No candidate passed every gate under this configuration. See the audit view for
 {% endif %}
 {% for sc in result.shortlist %}
 {% set cav = sc | primary_caveat %}
-**{{ sc.rank }}. {{ sc.record.formula }}** ({{ sc.record.crystal_system or "?" }}, `{{ sc.record.material_id }}`) — score {{ sc.adjusted_score | fmt(2) }}, confidence **{{ sc.confidence }}**{% if sc.missing_criteria %}, missing: {{ sc.missing_criteria | join(", ") }}{% endif %}
+**{{ sc.rank }}. {{ sc.record.formula }}** ({{ sc.record.crystal_system or "?" }}, `{{ sc.record.material_id }}`) — score {{ sc.adjusted_score | fmt(2) }}, confidence **{{ sc.confidence }}**{% if sc.absent_criteria %}, no data for: {{ sc.absent_criteria | join(", ") }}{% endif %}{% if sc.not_retrieved_criteria %}, **never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}**{% endif %}
 
 - Why: {{ sc.rationale }}
 {% if cav %}

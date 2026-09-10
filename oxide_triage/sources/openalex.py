@@ -112,13 +112,10 @@ class OpenAlex(CachedSource):
         return self.cached(f"formula:{formula}", lambda: self.fetch_evidence(formula, aliases))
 
     def evidence_cached(self, formula: str) -> tuple[dict[str, Any] | None, str | None, str]:
-        """Cache-only read that never fetches. Used during candidate assembly when literature is
-        fetched on demand (``literature.fetch: on_demand``): the warm does not touch OpenAlex,
-        and the query path fills the top-ranked candidates afterwards."""
-        hit = self.cache.get(self.name, f"formula:{formula}")
-        if hit is None:
-            return None, None, "not_fetched"
-        return hit[0], hit[1], "cached"
+        """Cache-only read that never fetches. Used during candidate assembly when the formula
+        sources are on demand: the warm does not touch OpenAlex, and the query path fills the
+        top-ranked candidates afterwards."""
+        return self.peek(f"formula:{formula}")
 
     # ---- alternative acquisition route --------------------------------------------------
 

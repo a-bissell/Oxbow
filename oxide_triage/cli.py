@@ -143,7 +143,15 @@ def warm_cache_cmd(
             "fixture banner. Use a separate cache path for real runs.",
             err=True,
         )
-    if not summary["selfcheck"]["passed"]:  # type: ignore[index]
+    check = summary["selfcheck"]  # type: ignore[index]
+    if check.get("inconclusive"):
+        typer.echo(
+            "SELF-CHECK INCONCLUSIVE: the cache is too sparsely retrieved to validate ranks. "
+            "Re-run `oxide-triage warm-cache` to fill the gaps before trusting a shortlist.",
+            err=True,
+        )
+        raise typer.Exit(code=5)
+    if not check["passed"]:
         typer.echo(
             "SELF-CHECK FAILED. See details above; triage runs will be blocked until it passes.", err=True
         )
@@ -207,12 +215,20 @@ def selfcheck(profile: str = typer.Option("default", "--profile", "-p")) -> None
         result = run_selfcheck(config, cache)
     finally:
         cache.close()
+    verdict = "INCONCLUSIVE" if result.inconclusive else ("PASSED" if result.passed else "FAILED")
+    completeness = (
+        "" if result.retrieval_completeness is None else f", {result.retrieval_completeness:.1%} retrieved"
+    )
     typer.echo(
-        f"self-check {'PASSED' if result.passed else 'FAILED'} at {result.checked_at} "
-        f"({result.n_candidates} candidates{', fixture data' if result.fixture else ''})"
+        f"self-check {verdict} at {result.checked_at} "
+        f"({result.n_candidates} candidates{completeness}{', fixture data' if result.fixture else ''})"
     )
     for d in result.details:
         typer.echo(f"  - {d}")
+    # Exit 5 for inconclusive: the cache is too sparse to validate ranks, which is a different
+    # operational problem from a ranker that got the known answers wrong (exit 4).
+    if result.inconclusive:
+        raise typer.Exit(code=5)
     if not result.passed:
         raise typer.Exit(code=4)
 

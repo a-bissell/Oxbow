@@ -25,7 +25,7 @@ from oxide_triage.edges.render import rationale_line
 from oxide_triage.guard import guard_request
 from oxide_triage.refute import refute, rule_caveats
 from oxide_triage.schemas import Criteria, GuardDecision, TriageResult
-from oxide_triage.scoring.core import explanation, rank
+from oxide_triage.scoring.core import explanation, rank, retrieval_completeness
 from oxide_triage.scoring.settings import blocked_by_policy, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 from oxide_triage.session import clarifications
@@ -34,6 +34,9 @@ from oxide_triage.sources.base import SourceError
 from oxide_triage.sources.fixtures import load_fixture
 
 log = logging.getLogger(__name__)
+
+
+MAX_SETTLE_ROUNDS = 6  # on-demand fill rounds per query before giving up on a moving pool
 
 
 def _now() -> str:
@@ -65,7 +68,14 @@ def _log_deviations(config: Config, result: TriageResult) -> None:
 
 
 def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
-    """Return (status, blocking_message). status: passed | failed | not_run | skipped."""
+    """Return (status, blocking_message).
+
+    status: passed | failed | inconclusive | not_run | skipped. ``inconclusive`` means the
+    known-answer test could not run because the cache is too sparsely retrieved to validate a
+    ranking. That is a statement about the cache, not a verdict on the ranker, so it warns
+    loudly rather than blocking — the retrieval floors in ``retrieval:`` decide whether a
+    ranking is served at all.
+    """
     if not config.selfcheck.enabled:
         return "skipped", None
     sc = read_selfcheck(cache)
@@ -73,6 +83,8 @@ def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
         return "not_run", None
     if sc.passed:
         return "passed", None
+    if sc.inconclusive:
+        return "inconclusive", None
     msg = (
         "SELF-CHECK FAILED on this cache: the known-answer test did not pass ("
         + "; ".join(sc.details)
@@ -97,12 +109,14 @@ def run_triage(
     criteria: Criteria | None = None,
     confirmed: bool = True,
     skip_selfcheck: bool = False,
+    http: Any | None = None,
 ) -> TriageResult:
     """Run one triage request.
 
     ``criteria`` bypasses the parser (used by reruns with changed settings; the guard still runs
     on the original text). ``confirmed=False`` makes the run stop and return its clarification
-    questions instead of a shortlist whenever there are any.
+    questions instead of a shortlist whenever there are any. ``http`` replaces every client's
+    transport (a replay of recorded responses in tests).
     """
     table = load_hazard_table(config.toxicity.table_file)
     llm = llm or make_llm(config.llm)
@@ -156,36 +170,63 @@ def run_triage(
         if block_msg:
             return TriageResult(**base, cache_fingerprint=cache.fingerprint([]), warnings=[block_msg])
 
-        layer = DataLayer.from_config(config, cache=cache, offline=offline)
-        literature_note: str | None = None
+        layer = DataLayer.from_config(config, cache=cache, offline=offline, http=http)
+        fill_note: str | None = None
+        retrieval_scope: int | None = None
         try:
             records = layer.build_candidates()
             ranked, excluded = rank(records, config, eff)
-            if config.literature.fetch == "on_demand" and not layer.offline and ranked:
-                # Literature is fetched per query for the top of the ranking only (OpenAlex
-                # meters a small daily budget). Literature credit is never negative, so the
-                # pool can only move up relative to the rest; the shortlist is drawn from it.
-                pool_size = max(
-                    config.literature.on_demand_pool, eff.top_k
-                )  # never smaller than the shortlist
-                pool = [s.record for s in ranked[:pool_size]]
-                filled, counts = layer.fill_literature(pool)
-                by_id = {r.material_id: r for r in filled}
-                records = [by_id.get(r.material_id, r) for r in records]
-                ranked, excluded = rank(records, config, eff)
+            if config.candidates.formula_sources == "on_demand" and not layer.offline and ranked:
+                # The formula-keyed sources (OQMD, OpenAlex, PubChem) are fetched per query for
+                # the top of the ranking only. Literature and compound hazards can only add
+                # credit or caveats, but an OQMD disagreement lowers a score, so after each fill
+                # the ranking is recomputed and whatever newly entered the pool is filled too,
+                # until the pool is settled. The shortlist is then drawn from a fully retrieved
+                # pool; rows below it say they were not retrieved.
+                pool_size = max(config.candidates.on_demand_pool, eff.top_k)
+                attempted: set[str] = set()
+                failed = 0
+                rounds = 0
+                while rounds < MAX_SETTLE_ROUNDS:
+                    pool = [
+                        s.record
+                        for s in ranked[:pool_size]
+                        if s.record.material_id not in attempted and layer.needs_formula_sources(s.record)
+                    ]
+                    if not pool:
+                        break
+                    rounds += 1
+                    attempted.update(r.material_id for r in pool)
+                    filled, counts = layer.fill_formula_sources(pool)
+                    failed += counts.get("failed", 0)
+                    by_id = {r.material_id: r for r in filled}
+                    records = [by_id.get(r.material_id, r) for r in records]
+                    ranked, excluded = rank(records, config, eff)
+                retrieval_scope = pool_size
+                settled_pool = ranked[:pool_size]
+                unresolved = sum(1 for s in settled_pool if layer.needs_formula_sources(s.record))
                 scope = (
-                    f"all {len(pool)} ranked candidates"
-                    if len(pool) >= len(ranked)
-                    else f"the top {len(pool)} of {len(ranked)} ranked candidates"
+                    f"all {len(ranked)} ranked candidates"
+                    if pool_size >= len(ranked)
+                    else f"the top {pool_size} of {len(ranked)} ranked candidates"
                 )
-                literature_note = (
-                    f"Literature counts fetched on demand for {scope} ({counts.get('resolved', 0)} resolved)"
+                fill_note = (
+                    f"OQMD, OpenAlex and PubChem were queried on demand for {scope}"
+                    + (f" over {rounds} rounds" if rounds > 1 else "")
+                    + f" ({len(attempted)} candidates fetched, {unresolved} still unretrieved)"
                 )
-                if len(pool) < len(ranked):
-                    literature_note += "; candidates ranked below carry no literature credit"
-                if counts.get("failed"):
-                    literature_note += f"; {counts['failed']} OpenAlex lookups failed (see cache log)"
-                literature_note += "."
+                if pool_size < len(ranked):
+                    fill_note += (
+                        "; candidates ranked below carry no cross-check, literature or compound-hazard data"
+                    )
+                if failed:
+                    fill_note += f"; {failed} lookups failed (see cache log)"
+                if rounds >= MAX_SETTLE_ROUNDS and any(
+                    s.record.material_id not in attempted and layer.needs_formula_sources(s.record)
+                    for s in settled_pool
+                ):
+                    fill_note += f"; the pool did not settle within {MAX_SETTLE_ROUNDS} rounds"
+                fill_note += "."
         finally:
             layer.close()
         shortlist, beyond = ranked[: eff.top_k], ranked[eff.top_k :]
@@ -196,9 +237,12 @@ def run_triage(
         for sc in ranked:
             sc.rationale = rationale_line(sc)
 
+        retrieval = retrieval_completeness(ranked, config, scope_n=retrieval_scope)
         warnings = list(layer.warnings)
-        if literature_note:
-            warnings.append(literature_note)
+        if not retrieval.comparable:
+            warnings.append(retrieval.note)
+        if fill_note:
+            warnings.append(fill_note)
         if status == "not_run" and not skip_selfcheck:
             warnings.append(
                 "Self-check has not been run on this cache; run `oxide-triage selfcheck` before trusting results."
@@ -207,6 +251,29 @@ def run_triage(
             warnings.append(
                 "Self-check FAILED on this cache (selfcheck.on_failure=warn). Treat this shortlist with suspicion."
             )
+        elif status == "inconclusive":
+            sc = read_selfcheck(cache)
+            warnings.append(
+                "Self-check INCONCLUSIVE: the cache is too sparsely retrieved for the known-answer "
+                "test to validate ranks, so this shortlist has not been ground-truth checked. "
+                + (sc.details[0] if sc and sc.details else "")
+            )
+
+        # A cache too sparse to rank honestly is not served at all, if the site says so.
+        serve_floor = config.retrieval.min_completeness_serve
+        if serve_floor > 0 and retrieval.completeness < serve_floor:
+            return TriageResult(
+                **base,
+                cache_fingerprint=cache.fingerprint(),
+                retrieval=retrieval,
+                n_candidates_considered=len(records),
+                warnings=[
+                    f"No ranking served: retrieval completeness {retrieval.completeness:.1%} is below "
+                    f"the configured floor of {serve_floor:.0%}. {retrieval.note} "
+                    "Run `oxide-triage warm-cache` to fill the gaps, or lower "
+                    "retrieval.min_completeness_serve if a partial ranking is acceptable here."
+                ],
+            )
 
         base.update(fixture_data=cache.has_fixture_data, offline=layer.offline)
         last = read_report(cache)
@@ -214,6 +281,7 @@ def run_triage(
         result = TriageResult(
             **base,
             cache_fingerprint=cache.fingerprint(),
+            retrieval=retrieval,
             shortlist=shortlist,
             ranked_beyond_shortlist=beyond,
             excluded=excluded,
@@ -294,10 +362,12 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
             c.energy_above_hull_ceiling_ev_atom,
             c.min_reported_gap_ev,
             ids,
+            c.observed_only,
         )
         # Build the per-candidate records now so the next query is answered from cache, then
         # try alternative routes for whatever the first pass could not find.
         records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
+        records, _ = layer.fill_formula_sources(records)  # one compound: fetch everything now
         report = run_acquisition(config, cache, layer=layer, records=records, kinds=GAP_KINDS)
         if report is not None and report.n_filled:
             records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
@@ -336,13 +406,18 @@ def run_acquisition(
     kinds: set[str] | frozenset[str] | None = None,
 ) -> AcquisitionReport | None:
     """Gap-filling pass over the cache (online only). Returns None when disabled or offline.
-    Unless ``literature.fetch: warm``, literature gaps are left to the query path (fetching
-    them for the whole universe is what the on-demand mode exists to avoid); ``add-material``
-    passes every kind because a single compound is cheap."""
+    Unless ``candidates.formula_sources: warm``, literature and cross-check gaps are left to the
+    query path, which applies the same fallbacks for the ranked pool (fetching them for the whole
+    universe is what on-demand mode exists to avoid); ``add-material`` passes every kind because
+    a single compound is cheap."""
     if not config.acquisition.enabled:
         return None
     if kinds is None:
-        kinds = GAP_KINDS if config.literature.fetch == "warm" else GAP_KINDS - {"literature"}
+        kinds = (
+            GAP_KINDS
+            if config.candidates.formula_sources == "warm"
+            else GAP_KINDS - {"literature", "cross_check"}  # filled per query with their fallbacks
+        )
     own = cache is None and layer is None
     cache = cache or (layer.cache if layer else Cache(config.cache.path))
     own_layer = layer is None

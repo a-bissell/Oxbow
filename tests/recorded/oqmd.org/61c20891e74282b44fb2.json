@@ -1,0 +1,92 @@
+{
+ "params": {
+  "composition": "Sr2Ta2O7",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.29141595419557,
+    "entry_id": 3426,
+    "name": "Sr2Ta2O7",
+    "spacegroup": "Cmc21",
+    "stability": 0.03756720681818004
+   },
+   {
+    "delta_e": -3.32898316101375,
+    "entry_id": 1741,
+    "name": "Sr2Ta2O7",
+    "spacegroup": "Cmcm",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.27751683601375,
+    "entry_id": 1321581,
+    "name": "Sr2Ta2O7",
+    "spacegroup": "Fd-3m",
+    "stability": 0.05146632499999981
+   },
+   {
+    "delta_e": -3.31333221237739,
+    "entry_id": 1324100,
+    "name": "Sr2Ta2O7",
+    "spacegroup": "Imma",
+    "stability": 0.015650948636360074
+   },
+   {
+    "delta_e": -3.25531526919557,
+    "entry_id": 1330963,
+    "name": "Sr2Ta2O7",
+    "spacegroup": "C2/m",
+    "stability": 0.07366789181818012
+   },
+   {
+    "delta_e": -3.2763894414683,
+    "entry_id": 1345032,
+    "name": "Sr2Ta2O7",
+    "spacegroup": "Fd-3m",
+    "stability": 0.05259371954544978
+   },
+   {
+    "delta_e": -3.32459805010466,
+    "entry_id": 1379131,
+    "name": "Sr2Ta2O7",
+    "spacegroup": "Cmc21",
+    "stability": 0.004385110909089995
+   },
+   {
+    "delta_e": -3.3269129382864806,
+    "entry_id": 1380352,
+    "name": "Sr2Ta2O7",
+    "spacegroup": "Cmcm",
+    "stability": 0.0020702227272693108
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 8,
+   "data_returned": 8,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Sr2Ta2O7&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:24:36"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

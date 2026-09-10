@@ -28,17 +28,24 @@ from oxide_triage.schemas import (
     CrossCheckRecord,
     DataStatus,
     DielectricRecord,
+    HazardRecord,
     LiteratureRecord,
     Provenance,
     StabilityRecord,
     WorkRef,
 )
-from oxide_triage.sources.base import Http, SourceError
+from oxide_triage.sources.base import Http, SourceError, status_for
 from oxide_triage.sources.hazards import hazard_record
 from oxide_triage.sources.materials_project import THERMO_FUNCTIONAL_LABEL, MaterialsProject
 from oxide_triage.sources.openalex import OpenAlex
 from oxide_triage.sources.oqmd import OQMD
 from oxide_triage.sources.pubchem import PubChem
+
+
+def _why(status: DataStatus, absent_note: str, unretrieved_note: str) -> str:
+    """Pick the note that explains *why* a value is missing."""
+    return absent_note if status is DataStatus.ABSENT else unretrieved_note
+
 
 log = logging.getLogger(__name__)
 
@@ -122,7 +129,11 @@ class DataLayer:
     def universe_ids(self) -> list[str]:
         c = self.config.candidates
         ids, status = self.mp.fetch_universe(
-            self.cations, c.max_elements_query, c.energy_above_hull_ceiling_ev_atom, c.min_reported_gap_ev
+            self.cations,
+            c.max_elements_query,
+            c.energy_above_hull_ceiling_ev_atom,
+            c.min_reported_gap_ev,
+            c.observed_only,
         )
         if ids:
             return ids
@@ -136,6 +147,8 @@ class DataLayer:
                 continue
             doc = hit[0]
             if doc.get("deprecated"):
+                continue
+            if c.observed_only and doc.get("theoretical") is True:
                 continue
             if any(el not in allowed for el in doc.get("elements", [])):
                 continue
@@ -160,13 +173,19 @@ class DataLayer:
 
     # ---- concurrent prefetch of formula-keyed sources -------------------------------
 
+    @property
+    def formula_sources(self) -> set[str]:
+        return {self.oqmd.name, self.openalex.name, self.pubchem.name}
+
+    @property
+    def warm_fetches_formula_sources(self) -> bool:
+        return self.config.candidates.formula_sources == "warm"
+
     def formula_sources_for_warm(self) -> set[str]:
-        """Sources fetched for every formula during a warm. OpenAlex joins only when
-        ``literature.fetch: warm``; otherwise it is fetched per query for the top-ranked pool."""
-        sources = {self.oqmd.name, self.pubchem.name}
-        if self.config.literature.fetch == "warm":
-            sources.add(self.openalex.name)
-        return sources
+        """Sources fetched for every formula during a warm: all three formula-keyed sources under
+        ``candidates.formula_sources: warm``, none under ``on_demand`` (the query path fills the
+        top-ranked pool instead, see ``fill_formula_sources``)."""
+        return self.formula_sources if self.warm_fetches_formula_sources else set()
 
     def prefetch_formula_sources(
         self, formulas: list[str], workers: int = 4, sources: set[str] | None = None
@@ -283,10 +302,13 @@ class DataLayer:
         total = len(ids)
         started = time.monotonic()
         if not self.offline:
+            warmed = ", ".join(sorted(self.formula_sources_for_warm()))
             log.info(
-                "universe: %d candidates; fetching per-candidate records (%s)",
+                "universe: %d candidates; assembling records (%s)",
                 total,
-                ", ".join(sorted(self.formula_sources_for_warm())),
+                f"per-formula sources warmed: {warmed}"
+                if warmed
+                else "formula sources on demand at query time",
             )
         for i, mid in enumerate(ids, 1):
             doc, ts = self.mp.summary(mid)
@@ -333,7 +355,8 @@ class DataLayer:
             ),
             is_stable=doc.get("is_stable"),
             functional=THERMO_FUNCTIONAL_LABEL,
-            status=DataStatus.KNOWN if e_hull is not None else DataStatus.UNKNOWN,
+            # the summary doc was retrieved; a null field is the source's answer, not a gap
+            status=DataStatus.KNOWN if e_hull is not None else DataStatus.ABSENT,
             provenance=mp_prov,
         )
 
@@ -347,12 +370,16 @@ class DataLayer:
             value_ev=None if gap is None else float(gap),
             functional=functional if gap is not None else None,
             is_direct=doc.get("is_gap_direct"),
-            status=DataStatus.KNOWN if gap is not None else DataStatus.UNKNOWN,
+            status=DataStatus.KNOWN if gap is not None else DataStatus.ABSENT,
             provenance=mp_prov,
         )
 
-        diel_payload, diel_ts, _ = self.mp.dielectric(mid)
-        if diel_payload and diel_payload.get("found") and diel_payload.get("e_total") is not None:
+        diel_payload, diel_ts, diel_fetch = self.mp.dielectric(mid)
+        diel_found = bool(
+            diel_payload and diel_payload.get("found") and diel_payload.get("e_total") is not None
+        )
+        diel_status = status_for(diel_fetch, diel_found)
+        if diel_found and diel_payload is not None:
             dielectric = DielectricRecord(
                 e_total=float(diel_payload["e_total"]),
                 e_electronic=_opt_float(diel_payload.get("e_electronic")),
@@ -365,19 +392,65 @@ class DataLayer:
             )
         else:
             dielectric = DielectricRecord(
-                status=DataStatus.UNKNOWN,
+                status=diel_status,
                 provenance=mp_prov.model_copy(
                     update={
                         "retrieved_at": diel_ts,
-                        "note": "no DFPT dielectric record in MP"
-                        if diel_payload
-                        else "dielectric lookup unavailable",
+                        "note": _why(
+                            diel_status,
+                            "no DFPT dielectric record in MP for this material",
+                            f"MP dielectric lookup never completed here ({diel_fetch}); "
+                            "this is a gap in the cache, not in MP",
+                        ),
                     }
                 ),
             )
 
-        oq_payload, oq_ts, _ = self.oqmd.lookup(formula)
-        if oq_payload and oq_payload.get("found"):
+        warm = self.warm_fetches_formula_sources
+        cross = self._cross_check(formula, is_fixture, fetch=warm)
+
+        names = self.aliases.get(formula, [])
+        literature = self._literature(formula, names, is_fixture, fetch=warm)
+        hazard = self._hazard(elements, formula, names, fetch=warm)
+
+        return CandidateRecord(
+            material_id=mid,
+            formula=formula,
+            elements=elements,
+            n_elements=int(doc.get("nelements") or len(elements)),
+            crystal_system=symmetry.get("crystal_system"),
+            spacegroup_symbol=symmetry.get("symbol"),
+            theoretical=doc.get("theoretical"),
+            stability=stability,
+            band_gap=band_gap,
+            dielectric=dielectric,
+            cross_check=cross,
+            literature=literature,
+            hazard=hazard,
+            is_fixture=is_fixture,
+        )
+
+    # ---- formula-keyed records (OQMD, OpenAlex, PubChem) ------------------------------
+    #
+    # Each helper reads the cache and, with ``fetch=True``, goes to the source when nothing is
+    # cached. ``fetch=False`` never leaves the cache: that is candidate assembly under
+    # ``candidates.formula_sources: on_demand``, where the warm has not touched these sources
+    # and the query path fills the top-ranked pool afterwards (``fill_formula_sources``).
+
+    def _on_demand_note(self, what: str) -> str:
+        return (
+            f"{what} not fetched at warm; queried on demand for the top "
+            f"{self.config.candidates.on_demand_pool} ranked candidates at query time"
+        )
+
+    def _cross_check(self, formula: str, is_fixture: bool, fetch: bool) -> CrossCheckRecord:
+        src_note = "synthetic fixture record, NOT real data" if is_fixture else None
+        if fetch:
+            oq_payload, oq_ts, oq_fetch = self.oqmd.lookup(formula)
+        else:
+            oq_payload, oq_ts, oq_fetch = self.oqmd.peek(f"formula:{formula}")
+        oq_status = status_for(oq_fetch, bool(oq_payload and oq_payload.get("found")))
+        if oq_status is DataStatus.KNOWN and oq_payload is not None:
             # OQMD reports `stability` <= 0 for phases on its hull (depth below the competing
             # phases); MP's energy_above_hull is >= 0. Clamp so the two are comparable.
             raw_stab = _opt_float(oq_payload.get("stability"))
@@ -387,7 +460,7 @@ class DataLayer:
                 if raw_stab is not None and raw_stab < 0
                 else None
             )
-            cross = CrossCheckRecord(
+            return CrossCheckRecord(
                 stability_ev_atom=clamped,
                 formation_energy_ev_atom=_opt_float(oq_payload.get("delta_e")),
                 matched_formula=oq_payload.get("name"),
@@ -409,48 +482,41 @@ class DataLayer:
                 ),
             )
         else:
-            cross = CrossCheckRecord(
-                status=DataStatus.UNKNOWN,
+            return CrossCheckRecord(
+                status=oq_status,
                 provenance=Provenance(
                     source="fixture" if is_fixture else "oqmd",
                     retrieved_at=oq_ts,
-                    note="no OQMD entry for formula" if oq_payload else "OQMD lookup unavailable",
+                    note=_why(
+                        oq_status,
+                        "no OQMD entry for this formula: stability rests on one source",
+                        self._on_demand_note("OQMD cross-check")
+                        if oq_fetch == "not_fetched" and not self.warm_fetches_formula_sources
+                        else f"OQMD was never successfully queried for this formula here ({oq_fetch}); "
+                        "no cross-check was attempted, so agreement is untested rather than absent",
+                    ),
                 ),
             )
 
-        names = self.aliases.get(formula, [])
-        literature = self._literature(
-            formula, names, is_fixture, fetch=self.config.literature.fetch == "warm"
-        )
-
-        pc_payload, pc_ts, _ = self.pubchem.hazards(formula, names)
-        hazard = hazard_record(elements, self.hazard_table, pc_payload, pc_ts)
-
-        return CandidateRecord(
-            material_id=mid,
-            formula=formula,
-            elements=elements,
-            n_elements=int(doc.get("nelements") or len(elements)),
-            crystal_system=symmetry.get("crystal_system"),
-            spacegroup_symbol=symmetry.get("symbol"),
-            theoretical=doc.get("theoretical"),
-            stability=stability,
-            band_gap=band_gap,
-            dielectric=dielectric,
-            cross_check=cross,
-            literature=literature,
-            hazard=hazard,
-            is_fixture=is_fixture,
-        )
+    def _hazard(self, elements: list[str], formula: str, names: list[str], fetch: bool) -> HazardRecord:
+        """Element-table screen (always known) plus PubChem's compound record when available."""
+        if fetch:
+            pc_payload, pc_ts, pc_fetch = self.pubchem.hazards(formula, names)
+        else:
+            pc_payload, pc_ts, pc_fetch = self.pubchem.peek(f"formula:{formula}")
+        rec = hazard_record(elements, self.hazard_table, pc_payload, pc_ts, pc_fetch)
+        if pc_fetch == "not_fetched" and not self.warm_fetches_formula_sources and rec.provenance:
+            rec.provenance.note = self._on_demand_note("PubChem compound record")
+        return rec
 
     def _literature(self, formula: str, names: list[str], is_fixture: bool, fetch: bool) -> LiteratureRecord:
         """Literature record from the cache; ``fetch=True`` goes to OpenAlex when nothing is
         cached (warm mode, and the on-demand fill), ``fetch=False`` never leaves the cache."""
         src_note = "synthetic fixture record, NOT real data" if is_fixture else None
         if fetch:
-            lit_payload, lit_ts, _ = self.openalex.evidence(formula, names)
+            lit_payload, lit_ts, lit_fetch = self.openalex.evidence(formula, names)
         else:
-            lit_payload, lit_ts, _ = self.openalex.evidence_cached(formula)
+            lit_payload, lit_ts, lit_fetch = self.openalex.evidence_cached(formula)
         if lit_payload:
             return LiteratureRecord(
                 total_works=int(lit_payload.get("total_works", 0)),
@@ -469,52 +535,78 @@ class DataLayer:
                     ),
                 ),
             )
-        mode = self.config.literature.fetch
-        if fetch or mode == "warm":
-            note = "literature lookup unavailable"
-        elif mode == "on_demand":
-            note = (
-                "not fetched at warm; literature is fetched at query time for the top "
-                f"{self.config.literature.on_demand_pool} ranked candidates"
+        # A literature hole is almost never a fact about OpenAlex: an empty result still comes
+        # back as a payload with zero works. Reaching here means we did not get an answer.
+        status = status_for(lit_fetch, False)
+        if fetch or self.warm_fetches_formula_sources or lit_fetch != "not_fetched":
+            note = _why(
+                status,
+                "OpenAlex holds no work matching this formula or its names",
+                f"OpenAlex was never successfully queried for this formula here ({lit_fetch})",
             )
         else:
-            note = "literature fetching disabled (literature.fetch: never)"
+            note = self._on_demand_note("Literature counts")
         return LiteratureRecord(
-            status=DataStatus.UNKNOWN,
+            status=status,
             provenance=Provenance(source="openalex", retrieved_at=lit_ts, note=note),
         )
 
-    # ---- on-demand literature (query time) ------------------------------------------
+    # ---- on-demand fill (query time) --------------------------------------------------
 
-    def fill_literature(self, records: list[CandidateRecord]) -> tuple[list[CandidateRecord], dict[str, int]]:
-        """Fetch OpenAlex counts for a small set of already-ranked candidates and return them
-        with their literature record rebuilt. Cached formulas cost nothing; polymorphs share one
-        fetch; a formula whose string search returns no works falls through to the common-name
-        route when an alias is known. Offline, records come back unchanged."""
+    @staticmethod
+    def needs_formula_sources(record: CandidateRecord) -> bool:
+        """True when any formula-keyed source was never successfully queried for this record."""
+        return (
+            record.cross_check.status is DataStatus.NOT_RETRIEVED
+            or record.literature.status is DataStatus.NOT_RETRIEVED
+            or record.hazard.pubchem_status is DataStatus.NOT_RETRIEVED
+        )
+
+    def fill_formula_sources(
+        self, records: list[CandidateRecord]
+    ) -> tuple[list[CandidateRecord], dict[str, int]]:
+        """Fetch OQMD, OpenAlex and PubChem for a small set of already-ranked candidates and return
+        them with those records rebuilt. Cached formulas cost nothing; polymorphs share one fetch
+        per source; the alternative routes of the acquisition ladder are applied inline where the
+        first query answers with nothing (chemical-system match for OQMD, common-name search for
+        OpenAlex). Offline, records come back unchanged. The caller re-ranks and, because a
+        cross-check can lower a score, repeats until the top of the ranking is settled."""
         if self.offline:
             return records, {"skipped_offline": len(records)}
-        todo = [r for r in records if r.literature.status != DataStatus.KNOWN]
+        todo = [r for r in records if self.needs_formula_sources(r)]
         formulas = list(dict.fromkeys(r.formula for r in todo))
         counts = (
             self.prefetch_formula_sources(
-                formulas, workers=self.config.candidates.fetch_workers, sources={self.openalex.name}
+                formulas, workers=self.config.candidates.fetch_workers, sources=self.formula_sources
             )
             if formulas
             else {}
         )
         out: list[CandidateRecord] = []
         for r in records:
-            if r.literature.status == DataStatus.KNOWN:
+            if not self.needs_formula_sources(r):
                 out.append(r)
                 continue
             names = self.aliases.get(r.formula, [])
-            lit = self._literature(r.formula, names, r.is_fixture, fetch=True)
-            if lit.status == DataStatus.KNOWN and lit.total_works == 0 and names:
-                payload, _, _ = self.openalex.evidence_names_only(r.formula, names)
-                if payload:
-                    lit = self._literature(r.formula, names, r.is_fixture, fetch=False)
-            out.append(r.model_copy(update={"literature": lit}))
-        counts["resolved"] = sum(r.literature.status == DataStatus.KNOWN for r in out)
+            cross = r.cross_check
+            if cross.status is DataStatus.NOT_RETRIEVED:
+                cross = self._cross_check(r.formula, r.is_fixture, fetch=True)
+                if cross.status is DataStatus.ABSENT:
+                    payload, _, _ = self.oqmd.lookup_by_chemsys(r.formula)
+                    if payload and payload.get("found"):
+                        cross = self._cross_check(r.formula, r.is_fixture, fetch=False)
+            lit = r.literature
+            if lit.status is DataStatus.NOT_RETRIEVED:
+                lit = self._literature(r.formula, names, r.is_fixture, fetch=True)
+                if lit.status is DataStatus.KNOWN and lit.total_works == 0 and names:
+                    payload, _, _ = self.openalex.evidence_names_only(r.formula, names)
+                    if payload:
+                        lit = self._literature(r.formula, names, r.is_fixture, fetch=False)
+            hazard = r.hazard
+            if hazard.pubchem_status is DataStatus.NOT_RETRIEVED:
+                hazard = self._hazard(r.elements, r.formula, names, fetch=True)
+            out.append(r.model_copy(update={"cross_check": cross, "literature": lit, "hazard": hazard}))
+        counts["resolved"] = sum(1 for r in out if not self.needs_formula_sources(r))
         return out, counts
 
 

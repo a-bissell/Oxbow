@@ -1,0 +1,204 @@
+{
+ "params": {
+  "composition": "HfO2",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.78602768558584,
+    "entry_id": 22054,
+    "name": "HfO2",
+    "spacegroup": "P42/nmc",
+    "stability": 0.06099662999999644
+   },
+   {
+    "delta_e": -3.83914897558584,
+    "entry_id": 5299,
+    "name": "HfO2",
+    "spacegroup": "P21/c",
+    "stability": 0.007875339999996456
+   },
+   {
+    "delta_e": -3.70046824808584,
+    "entry_id": 15012,
+    "name": "HfO2",
+    "spacegroup": "Pnma",
+    "stability": 0.14655606749999617
+   },
+   {
+    "delta_e": -3.75387109558584,
+    "entry_id": 647078,
+    "name": "HfO2",
+    "spacegroup": "Fm-3m",
+    "stability": 0.09315321999999648
+   },
+   {
+    "delta_e": -3.81611981641917,
+    "entry_id": 12774,
+    "name": "HfO2",
+    "spacegroup": "Pbca",
+    "stability": 0.030904499166666266
+   },
+   {
+    "delta_e": -3.58739773558584,
+    "entry_id": 1238862,
+    "name": "HfO2",
+    "spacegroup": "Fd-3m",
+    "stability": 0.2596265799999964
+   },
+   {
+    "delta_e": -3.7371141397525,
+    "entry_id": 1343299,
+    "name": "HfO2",
+    "spacegroup": "I4/m",
+    "stability": 0.10991017583333651
+   },
+   {
+    "delta_e": -3.60365981558584,
+    "entry_id": 1343510,
+    "name": "HfO2",
+    "spacegroup": "P-3m1",
+    "stability": 0.2433644999999962
+   },
+   {
+    "delta_e": -3.81384722391917,
+    "entry_id": 1343988,
+    "name": "HfO2",
+    "spacegroup": "P42/mnm",
+    "stability": 0.03317709166666649
+   },
+   {
+    "delta_e": -3.84696013891917,
+    "entry_id": 1367153,
+    "name": "HfO2",
+    "spacegroup": "I41/amd",
+    "stability": 6.41766666662491e-05
+   },
+   {
+    "delta_e": -3.7476492822525,
+    "entry_id": 1440813,
+    "name": "HfO2",
+    "spacegroup": "C2/m",
+    "stability": 0.0993750333333363
+   },
+   {
+    "delta_e": -3.8169575380858363,
+    "entry_id": 1441199,
+    "name": "HfO2",
+    "spacegroup": "Pbcn",
+    "stability": 0.030066777500000086
+   },
+   {
+    "delta_e": -3.814338613919169,
+    "entry_id": 1443407,
+    "name": "HfO2",
+    "spacegroup": "Pca21",
+    "stability": 0.03268570166666729
+   },
+   {
+    "delta_e": -0.2216209655858362,
+    "entry_id": 1589784,
+    "name": "HfO2",
+    "spacegroup": "Fd-3m",
+    "stability": 3.62540335
+   },
+   {
+    "delta_e": -3.8119667189191695,
+    "entry_id": 1776270,
+    "name": "HfO2",
+    "spacegroup": "Pnnm",
+    "stability": 0.03505759666666686
+   },
+   {
+    "delta_e": -3.375245197808059,
+    "entry_id": 1776264,
+    "name": "HfO2",
+    "spacegroup": "P3121",
+    "stability": 0.4717791177777775
+   },
+   {
+    "delta_e": -3.782436108085836,
+    "entry_id": 1774812,
+    "name": "HfO2",
+    "spacegroup": "I41/a",
+    "stability": 0.06458820750000038
+   },
+   {
+    "delta_e": -3.7863604372525024,
+    "entry_id": 2035059,
+    "name": "HfO2",
+    "spacegroup": "P42/nmc",
+    "stability": 0.060663878333333976
+   },
+   {
+    "delta_e": -3.8367624530858357,
+    "entry_id": 2024053,
+    "name": "HfO2",
+    "spacegroup": "P21/c",
+    "stability": 0.010261862500000607
+   },
+   {
+    "delta_e": -3.8231676430858363,
+    "entry_id": 2024044,
+    "name": "HfO2",
+    "spacegroup": "P21/c",
+    "stability": 0.02385667250000001
+   },
+   {
+    "delta_e": -3.812110261419169,
+    "entry_id": 2034698,
+    "name": "HfO2",
+    "spacegroup": "Pca21",
+    "stability": 0.03491405416666726
+   },
+   {
+    "delta_e": -3.83085432016917,
+    "entry_id": 2045613,
+    "name": "HfO2",
+    "spacegroup": "Pbca",
+    "stability": 0.016169995416666527
+   },
+   {
+    "delta_e": -3.794165832252503,
+    "entry_id": 2065476,
+    "name": "HfO2",
+    "spacegroup": "Pc",
+    "stability": 0.05285848333333343
+   },
+   {
+    "delta_e": -3.8470243155858364,
+    "entry_id": 2169312,
+    "name": "HfO2",
+    "spacegroup": "I41/amd",
+    "stability": 0.0
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 24,
+   "data_returned": 24,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=HfO2&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:41"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

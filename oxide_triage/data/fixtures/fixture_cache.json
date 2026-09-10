@@ -298,7 +298,7 @@
    "band_gap": 2.62,
    "is_gap_direct": false,
    "is_metal": false,
-   "theoretical": true,
+   "theoretical": false,
    "deprecated": false,
    "origins": [
     {
@@ -2079,7 +2079,7 @@
    "band_gap": 4.02,
    "is_gap_direct": false,
    "is_metal": false,
-   "theoretical": true,
+   "theoretical": false,
    "deprecated": false,
    "origins": [
     {

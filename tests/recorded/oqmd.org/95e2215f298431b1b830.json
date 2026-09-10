@@ -1,0 +1,120 @@
+{
+ "params": {
+  "composition": "Ho2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.80601544686059,
+    "entry_id": 20295,
+    "name": "Ho2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.06812043424999015
+   },
+   {
+    "delta_e": -3.86167201611059,
+    "entry_id": 5433,
+    "name": "Ho2O3",
+    "spacegroup": "I213",
+    "stability": 0.012463864999989749
+   },
+   {
+    "delta_e": -2.92719330886058,
+    "entry_id": 351811,
+    "name": "Ho2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.9469425722499998
+   },
+   {
+    "delta_e": -3.82287998386058,
+    "entry_id": 427436,
+    "name": "Ho2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.051255897249999904
+   },
+   {
+    "delta_e": -3.82906410486058,
+    "entry_id": 26924,
+    "name": "Ho2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.04507177624999992
+   },
+   {
+    "delta_e": -3.87413588111058,
+    "entry_id": 5389,
+    "name": "Ho2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.82340513286058,
+    "entry_id": 1343365,
+    "name": "Ho2O3",
+    "spacegroup": "P21/m",
+    "stability": 0.0507307482499999
+   },
+   {
+    "delta_e": -3.66480240486058,
+    "entry_id": 1442712,
+    "name": "Ho2O3",
+    "spacegroup": "P321",
+    "stability": 0.20933347624999987
+   },
+   {
+    "delta_e": -3.66268793686058,
+    "entry_id": 1444199,
+    "name": "Ho2O3",
+    "spacegroup": "P321",
+    "stability": 0.21144794425000013
+   },
+   {
+    "delta_e": -3.82064745386059,
+    "entry_id": 1440969,
+    "name": "Ho2O3",
+    "spacegroup": "C2/c",
+    "stability": 0.05348842724998981
+   },
+   {
+    "delta_e": -3.7565717933605844,
+    "entry_id": 1762314,
+    "name": "Ho2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.1175640877499955
+   },
+   {
+    "delta_e": -3.8457398313605844,
+    "entry_id": 1775515,
+    "name": "Ho2O3",
+    "spacegroup": "R-3",
+    "stability": 0.028396049749995544
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 12,
+   "data_returned": 12,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Ho2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:51"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

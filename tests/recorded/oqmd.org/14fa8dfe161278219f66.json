@@ -1,0 +1,386 @@
+{
+ "params": {
+  "composition": "MgO",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -2.94594340252271,
+    "entry_id": 2577,
+    "name": "MgO",
+    "spacegroup": "Fm-3m",
+    "stability": 0.0003888750000022867
+   },
+   {
+    "delta_e": -2.91228378502271,
+    "entry_id": 22327,
+    "name": "MgO",
+    "spacegroup": "P63/mmc",
+    "stability": 0.034048492500002414
+   },
+   {
+    "delta_e": -2.90752877752271,
+    "entry_id": 20575,
+    "name": "MgO",
+    "spacegroup": "P63mc",
+    "stability": 0.03880350000000243
+   },
+   {
+    "delta_e": -2.90503508752271,
+    "entry_id": 67672,
+    "name": "MgO",
+    "spacegroup": "P63/mmc",
+    "stability": 0.04129719000000254
+   },
+   {
+    "delta_e": -2.94573588502271,
+    "entry_id": 67550,
+    "name": "MgO",
+    "spacegroup": "Pmmn",
+    "stability": 0.0005963925000020964
+   },
+   {
+    "delta_e": -2.70598083752271,
+    "entry_id": 67460,
+    "name": "MgO",
+    "spacegroup": "C2/m",
+    "stability": 0.2403514400000022
+   },
+   {
+    "delta_e": -2.77750995252271,
+    "entry_id": 67305,
+    "name": "MgO",
+    "spacegroup": "Amm2",
+    "stability": 0.1688223250000025
+   },
+   {
+    "delta_e": -2.69364298085605,
+    "entry_id": 67529,
+    "name": "MgO",
+    "spacegroup": "P3m1",
+    "stability": 0.2526892966666625
+   },
+   {
+    "delta_e": -2.56201329752271,
+    "entry_id": 67486,
+    "name": "MgO",
+    "spacegroup": "Amm2",
+    "stability": 0.3843189800000024
+   },
+   {
+    "delta_e": -2.94583204418938,
+    "entry_id": 67603,
+    "name": "MgO",
+    "spacegroup": "Immm",
+    "stability": 0.0005002333333323783
+   },
+   {
+    "delta_e": -2.51576210085605,
+    "entry_id": 67508,
+    "name": "MgO",
+    "spacegroup": "Amm2",
+    "stability": 0.43057017666666253
+   },
+   {
+    "delta_e": -2.76920559918938,
+    "entry_id": 67394,
+    "name": "MgO",
+    "spacegroup": "C2",
+    "stability": 0.1771266783333325
+   },
+   {
+    "delta_e": -2.44416094585605,
+    "entry_id": 67334,
+    "name": "MgO",
+    "spacegroup": "Amm2",
+    "stability": 0.5021713316666623
+   },
+   {
+    "delta_e": -2.11017747252271,
+    "entry_id": 67361,
+    "name": "MgO",
+    "spacegroup": "P-6m2",
+    "stability": 0.8361548050000023
+   },
+   {
+    "delta_e": -2.61900479918938,
+    "entry_id": 67427,
+    "name": "MgO",
+    "spacegroup": "Cm",
+    "stability": 0.3273274783333324
+   },
+   {
+    "delta_e": -2.82110248085605,
+    "entry_id": 67571,
+    "name": "MgO",
+    "spacegroup": "Cm",
+    "stability": 0.12522979666666245
+   },
+   {
+    "delta_e": -2.81679999918938,
+    "entry_id": 22333,
+    "name": "MgO",
+    "spacegroup": "Pm-3n",
+    "stability": 0.12953227833333214
+   },
+   {
+    "delta_e": -2.90506075502271,
+    "entry_id": 291105,
+    "name": "MgO",
+    "spacegroup": "P63/mmc",
+    "stability": 0.04127152250000243
+   },
+   {
+    "delta_e": -2.94572357252271,
+    "entry_id": 290880,
+    "name": "MgO",
+    "spacegroup": "Pmmn",
+    "stability": 0.0006087050000020966
+   },
+   {
+    "delta_e": -2.70598385502271,
+    "entry_id": 290700,
+    "name": "MgO",
+    "spacegroup": "C2/m",
+    "stability": 0.2403484225000021
+   },
+   {
+    "delta_e": -2.56205417752271,
+    "entry_id": 290745,
+    "name": "MgO",
+    "spacegroup": "Amm2",
+    "stability": 0.3842781000000022
+   },
+   {
+    "delta_e": -2.69355315252271,
+    "entry_id": 290835,
+    "name": "MgO",
+    "spacegroup": "P3m1",
+    "stability": 0.2527791250000022
+   },
+   {
+    "delta_e": -2.51574257752271,
+    "entry_id": 290790,
+    "name": "MgO",
+    "spacegroup": "Amm2",
+    "stability": 0.4305897000000023
+   },
+   {
+    "delta_e": -2.76913261752271,
+    "entry_id": 290610,
+    "name": "MgO",
+    "spacegroup": "C2",
+    "stability": 0.17719966000000253
+   },
+   {
+    "delta_e": -2.77748826585605,
+    "entry_id": 290475,
+    "name": "MgO",
+    "spacegroup": "Amm2",
+    "stability": 0.1688440116666623
+   },
+   {
+    "delta_e": -2.44691032585605,
+    "entry_id": 290520,
+    "name": "MgO",
+    "spacegroup": "Cmmm",
+    "stability": 0.49942195166666226
+   },
+   {
+    "delta_e": -2.94583187585605,
+    "entry_id": 290970,
+    "name": "MgO",
+    "spacegroup": "Immm",
+    "stability": 0.0005004016666623201
+   },
+   {
+    "delta_e": -2.10520608085605,
+    "entry_id": 290565,
+    "name": "MgO",
+    "spacegroup": "P-6m2",
+    "stability": 0.8411261966666621
+   },
+   {
+    "delta_e": -2.60521538085605,
+    "entry_id": 290655,
+    "name": "MgO",
+    "spacegroup": "Cm",
+    "stability": 0.34111689666666223
+   },
+   {
+    "delta_e": -2.82263756252271,
+    "entry_id": 290925,
+    "name": "MgO",
+    "spacegroup": "Cm",
+    "stability": 0.12369471500000229
+   },
+   {
+    "delta_e": -2.94499925252271,
+    "entry_id": 327078,
+    "name": "MgO",
+    "spacegroup": "R-3m",
+    "stability": 0.0013330250000023192
+   },
+   {
+    "delta_e": -2.02672341252271,
+    "entry_id": 337536,
+    "name": "MgO",
+    "spacegroup": "Pm-3m",
+    "stability": 0.9196088650000025
+   },
+   {
+    "delta_e": -2.18525109252271,
+    "entry_id": 305994,
+    "name": "MgO",
+    "spacegroup": "Pm-3m",
+    "stability": 0.7610811850000023
+   },
+   {
+    "delta_e": -2.87377379252271,
+    "entry_id": 22330,
+    "name": "MgO",
+    "spacegroup": "Ibam",
+    "stability": 0.07255848500000228
+   },
+   {
+    "delta_e": -2.90627868877271,
+    "entry_id": 22326,
+    "name": "MgO",
+    "spacegroup": "P63/mmc",
+    "stability": 0.04005358875000242
+   },
+   {
+    "delta_e": -2.83644922210605,
+    "entry_id": 22331,
+    "name": "MgO",
+    "spacegroup": "P6/mcc",
+    "stability": 0.10988305541666232
+   },
+   {
+    "delta_e": -2.79716491960605,
+    "entry_id": 22332,
+    "name": "MgO",
+    "spacegroup": "Cm",
+    "stability": 0.14916735791666236
+   },
+   {
+    "delta_e": -2.88606059377271,
+    "entry_id": 22329,
+    "name": "MgO",
+    "spacegroup": "Ibam",
+    "stability": 0.060271683750002136
+   },
+   {
+    "delta_e": -2.78671420585605,
+    "entry_id": 22334,
+    "name": "MgO",
+    "spacegroup": "C2/c",
+    "stability": 0.15961807166666242
+   },
+   {
+    "delta_e": -1.87931401210605,
+    "entry_id": 22328,
+    "name": "MgO",
+    "spacegroup": "P1",
+    "stability": 1.0670182654166622
+   },
+   {
+    "delta_e": -2.87386045252271,
+    "entry_id": 104183,
+    "name": "MgO",
+    "spacegroup": "P63mc",
+    "stability": 0.07247182500000227
+   },
+   {
+    "delta_e": -2.94628955752271,
+    "entry_id": 1105179,
+    "name": "MgO",
+    "spacegroup": "Fm-3m",
+    "stability": 4.2720000002383074e-05
+   },
+   {
+    "delta_e": -2.50869391002271,
+    "entry_id": 1221095,
+    "name": "MgO",
+    "spacegroup": "Pmma",
+    "stability": 0.4376383675000022
+   },
+   {
+    "delta_e": -2.84503672752271,
+    "entry_id": 1223289,
+    "name": "MgO",
+    "spacegroup": "F-43m",
+    "stability": 0.10129555000000234
+   },
+   {
+    "delta_e": -2.87854946252271,
+    "entry_id": 1226774,
+    "name": "MgO",
+    "spacegroup": "P63mc",
+    "stability": 0.06778281500000238
+   },
+   {
+    "delta_e": -2.60459940752271,
+    "entry_id": 1236218,
+    "name": "MgO",
+    "spacegroup": "P-6m2",
+    "stability": 0.3417328700000022
+   },
+   {
+    "delta_e": -2.60460160252271,
+    "entry_id": 1236228,
+    "name": "MgO",
+    "spacegroup": "P-6m2",
+    "stability": 0.3417306750000022
+   },
+   {
+    "delta_e": -2.50680213002271,
+    "entry_id": 1236254,
+    "name": "MgO",
+    "spacegroup": "Pmma",
+    "stability": 0.4395301475000024
+   },
+   {
+    "delta_e": -2.50680296002271,
+    "entry_id": 1236264,
+    "name": "MgO",
+    "spacegroup": "Pmma",
+    "stability": 0.4395293175000021
+   },
+   {
+    "delta_e": -2.60128441252271,
+    "entry_id": 1236325,
+    "name": "MgO",
+    "spacegroup": "P-6m2",
+    "stability": 0.3450478650000024
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": "http://oqmd.org/oqmdapi/formationenergy?composition=MgO&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50&offset=50",
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 65,
+   "data_returned": 50,
+   "more_data_available": true,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=MgO&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:20:48"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

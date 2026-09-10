@@ -1,0 +1,163 @@
+{
+ "params": {
+  "_fields": "material_id,e_total,e_electronic,e_ionic,n",
+  "_limit": 100,
+  "material_ids": "mp-aaaaaxbq,mp-aaaaaxhn,mp-aaaaaxhv,mp-aaaaayib,mp-aaaaayjd,mp-aaaaaysn,mp-aaaaaywn,mp-aaaaazcm,mp-aaaaazcr,mp-aaaaazdp,mp-aaaaazgg,mp-aaaaazgj,mp-aaaaazht,mp-aaaaazjj,mp-aaaaazkr,mp-aaaaazmx,mp-aaaaazol,mp-aaaaazop,mp-aaaaazps,mp-aaaaazrv,mp-aaaaaztk,mp-aaaaazts,mp-aaaaazvs,mp-aaaaazwj,mp-aaaaazzc,mp-aaaaazzj,mp-aaaababk,mp-aaaabaeo,mp-aaaabaey,mp-aaaabafj,mp-aaaabafq,mp-aaaabahd,mp-aaaabahh,mp-aaaabaiy,mp-aaaabajp,mp-aaaabakf,mp-aaaabakr,mp-aaaabamq,mp-aaaabamv,mp-aaaabamx,mp-aaaabana,mp-aaaabaon,mp-aaaabaou,mp-aaaabary,mp-aaaabash,mp-aaaabavi,mp-aaaabaxv,mp-aaaabazd,mp-aaaabbab,mp-aaaabbag,mp-aaaabbbc,mp-aaaabbcj,mp-aaaabbco,mp-aaaabbfd,mp-aaaabbfj,mp-aaaabbgz,mp-aaaabbjy,mp-aaaabbml,mp-aaaabbox,mp-aaaabbpo,mp-aaaabdws,mp-aaaabecf,mp-aaaabegx,mp-aaaabehi,mp-aaaabeii,mp-aaaabexa,mp-aaaabfwe,mp-aaaabgdn,mp-aaaabgff,mp-aaaabggg,mp-aaaabgjg,mp-aaaabgka,mp-aaaabgwq,mp-aaaabheq,mp-aaaabhit,mp-aaaabhqk,mp-aaaabiks,mp-aaaabinj,mp-aaaabioe,mp-aaaabioj,mp-aaaabiqn,mp-aaaabira,mp-aaaabirb,mp-aaaabiru,mp-aaaabito,mp-aaaabitq,mp-aaaabiup,mp-aaaabivx,mp-aaaabiwe,mp-aaaabogz,mp-aaaabojv,mp-aaaabood,mp-aaaabouq,mp-aaaabpcw,mp-aaaabpcx,mp-aaaabpex,mp-aaaabpgq,mp-aaaabpht,mp-aaaabpid,mp-aaaabpns"
+ },
+ "response": {
+  "data": [
+   {
+    "e_electronic": 3.93277922,
+    "e_ionic": 11.521002746666667,
+    "e_total": 15.453781966666668,
+    "material_id": "mp-aaaaayib",
+    "n": 1.9831236017959142
+   },
+   {
+    "e_electronic": 2.030958446666665,
+    "e_ionic": 1.5044869466648771,
+    "e_total": 3.5354453933315426,
+    "material_id": "mp-aaaaazcm",
+    "n": 1.4251169940277413
+   },
+   {
+    "e_electronic": 3.080006173333324,
+    "e_ionic": 7.624932803336528,
+    "e_total": 10.704938976669853,
+    "material_id": "mp-aaaabaeo",
+    "n": 1.7549946362691038
+   },
+   {
+    "e_electronic": 4.242482849999999,
+    "e_ionic": 9.156848273317543,
+    "e_total": 13.399331123317543,
+    "material_id": "mp-aaaabakr",
+    "n": 2.059728829239422
+   },
+   {
+    "e_electronic": 1.7780743066666667,
+    "e_ionic": 1.1118124233309747,
+    "e_total": 2.8898867299976416,
+    "material_id": "mp-aaaabamv",
+    "n": 1.3334445270301523
+   },
+   {
+    "e_electronic": 3.391784433333333,
+    "e_ionic": 6.766645543333333,
+    "e_total": 10.158429976666666,
+    "material_id": "mp-aaaabbfd",
+    "n": 1.841679785775294
+   },
+   {
+    "e_electronic": 7.96461853,
+    "e_ionic": 18.934994600149903,
+    "e_total": 26.899613130149906,
+    "material_id": "mp-aaaabdws",
+    "n": 2.822165574518972
+   },
+   {
+    "e_electronic": 6.128442706666665,
+    "e_ionic": 8.30220606,
+    "e_total": 14.430648766666664,
+    "material_id": "mp-aaaabecf",
+    "n": 2.4755691682250904
+   },
+   {
+    "e_electronic": 6.439158063333333,
+    "e_ionic": 35.93321149333333,
+    "e_total": 42.37236955666666,
+    "material_id": "mp-aaaabegx",
+    "n": 2.537549617905694
+   },
+   {
+    "e_electronic": 4.100317126666668,
+    "e_ionic": 17.538787826666667,
+    "e_total": 21.639104953333334,
+    "material_id": "mp-aaaabeii",
+    "n": 2.0249239804660983
+   },
+   {
+    "e_electronic": 3.656604273333334,
+    "e_ionic": 14.85630572,
+    "e_total": 18.512909993333334,
+    "material_id": "mp-aaaabgka",
+    "n": 1.9122249536425713
+   },
+   {
+    "e_electronic": 6.629157140000001,
+    "e_ionic": 27.310473620000007,
+    "e_total": 33.93963076000001,
+    "material_id": "mp-aaaabiks",
+    "n": 2.574714962864822
+   },
+   {
+    "e_electronic": 6.238670313333324,
+    "e_ionic": 31.10753375909806,
+    "e_total": 37.346204072431384,
+    "material_id": "mp-aaaabioe",
+    "n": 2.497733034840458
+   },
+   {
+    "e_electronic": 6.844762749999991,
+    "e_ionic": 62.599785306676495,
+    "e_total": 69.44454805667648,
+    "material_id": "mp-aaaabirb",
+    "n": 2.616249749163866
+   },
+   {
+    "e_electronic": 5.234940846666643,
+    "e_ionic": 24.611972316723595,
+    "e_total": 29.84691316339024,
+    "material_id": "mp-aaaabiru",
+    "n": 2.287999310897327
+   },
+   {
+    "e_electronic": 6.21383702,
+    "e_ionic": 33.98976578334186,
+    "e_total": 40.20360280334186,
+    "material_id": "mp-aaaabito",
+    "n": 2.4927569115338946
+   },
+   {
+    "e_electronic": 6.269229859999999,
+    "e_ionic": 34.471878046707566,
+    "e_total": 40.74110790670756,
+    "material_id": "mp-aaaabitq",
+    "n": 2.503843018242158
+   },
+   {
+    "e_electronic": 3.145378696666667,
+    "e_ionic": 5.829053126666667,
+    "e_total": 8.974431823333333,
+    "material_id": "mp-aaaabpcx",
+    "n": 1.7735215523547119
+   },
+   {
+    "e_electronic": 4.044038510000003,
+    "e_ionic": 6.611249263333332,
+    "e_total": 10.655287773333336,
+    "material_id": "mp-aaaabpex",
+    "n": 2.0109794901987446
+   },
+   {
+    "e_electronic": 5.310264946666668,
+    "e_ionic": 20.10964808666667,
+    "e_total": 25.41991303333334,
+    "material_id": "mp-aaaabpgq",
+    "n": 2.304401212173494
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "material_id",
+    "last_updated"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-10T03:19:59.196655+00:00",
+   "total_doc": 20
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/dielectric/"
+}

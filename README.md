@@ -212,17 +212,27 @@ Keys are read from the environment. A `.env` file in the current directory or th
 is loaded automatically by the CLI, the app and the MCP server (existing environment variables win).
 `.env` is git-ignored; `.env.example` documents every variable.
 
-### Literature counts are fetched per query, not at warm time
+### The candidate universe, and what is fetched when
 
-OpenAlex meters API use against a small daily budget, and each formula needs two full-text
-searches, so warming literature for every candidate would take days. By default
-(`literature.fetch: on_demand`) the warm does not touch OpenAlex at all. At query time, after
-ranking, the top `literature.on_demand_pool` candidates (25, never fewer than the shortlist) get
-their counts fetched and cached, and the ranking is recomputed. Literature credit is never
-negative, so this can only move pool members up relative to the rest; candidates below the pool
-carry no literature credit and the output says so. A second query on the same profile costs
-nothing, since the counts are cached. `literature.fetch: warm` restores fetching for every formula
-during `warm-cache` (budget it: about 2 × formulas × $0.001); `never` leaves literature unknown.
+The warm pulls the candidate universe from Materials Project: oxides of the cations in
+`oxide_triage/data/cation_allowlist.yaml`, up to three elements, within the hull and gap bounds
+in `candidates`, and by default only entries MP matches to an **experimentally observed**
+structure (`candidates.observed_only: true`). The allowlist is the dielectric-minded one, with
+the rationale per family inside the file; the original wide list is kept as
+`cation_allowlist_wide.yaml` for a profile that wants alkali or late-transition-metal oxides.
+`add-material` bypasses both filters, since someone asked for that compound by name.
+
+Materials Project warms in minutes. The formula-keyed sources do not: OQMD answers a composition
+it has not cached in tens of seconds, and OpenAlex meters a daily budget with two full-text
+searches needed per formula. So by default (`candidates.formula_sources: on_demand`) the warm does
+not touch OQMD, PubChem or OpenAlex at all. At query time, after ranking, the top
+`candidates.on_demand_pool` candidates (25, never fewer than the shortlist) get their cross-check,
+compound-hazard and literature records fetched and cached, the ranking is recomputed, and any
+candidate that rose into the pool is fetched too, until the pool is settled. The shortlist is
+drawn from that fully retrieved pool; rows below it say they were not retrieved, and the
+retrieval-completeness measure is reported over the pool. A repeat query on the same candidates
+costs nothing. `candidates.formula_sources: warm` restores fetching for every formula during
+`warm-cache`; budget it against the per-source limits under `candidates.fetch`.
 
 ### Recording the first live run
 
@@ -238,8 +248,8 @@ Every raw response is saved as `tests/recorded/<host>/<key>.json` (URL, paramete
 headers and keys are never written). While that directory holds only its README the replay test
 is skipped; once recordings exist it fails loudly if a field the code depends on is missing from
 the real API shape, checks that the workhorses are in the live universe, that dielectric coverage
-is partial as expected, and that the self-check passes. With the default on-demand literature
-setting the warm, and therefore the recording, covers Materials Project, OQMD and PubChem only. Commit the recordings if their size is
+is partial as expected, and that the self-check passes. With the default on-demand formula-source
+setting the warm, and therefore the recording, covers Materials Project only. Commit the recordings if their size is
 acceptable, or keep them out of git and run the test locally.
 
 ### Self-check before serving
@@ -252,6 +262,28 @@ cache and read on every run. By default a failed check **blocks**: no shortlist 
 output says why. `selfcheck.on_failure: warn` downgrades that to a banner. `oxide-triage
 selfcheck` runs it on demand; `oxide-triage cache-status` shows the last outcome.
 
+A check can also come back **INCONCLUSIVE** (exit code 5), which is not the same as a failure.
+Missing criteria lower a candidate's score, so on a cache that was never fully warmed the
+workhorses sink for reasons that say nothing about the ranking. Below
+`selfcheck.min_retrieval_completeness` the check reports that it could not validate ranks and
+names the gap, instead of raising a false alarm about the ranker. The fix is to finish the warm.
+
+### Retrieval completeness: why a ranking can refuse to be a ranking
+
+The system distinguishes **data the source does not have** from **data this cache never
+downloaded**. Materials Project genuinely has no DFPT dielectric tensor for most materials — that
+is a permanent fact and warming the cache will not change it. A cross-check that was rate-limited
+away is a temporary hole in *your* cache. Both mean "we don't know", and both lower a score, but
+only one is fixable, and confusing them corrupts the order: candidates whose downloads finished
+outrank equally good candidates whose downloads did not.
+
+So every result reports what fraction of the data it needed was actually retrieved. Below
+`retrieval.min_completeness_warn` (default 95%) each output carries a banner saying the order
+partly reflects which downloads finished, individual candidates are marked non-comparable with a
+critical caveat, and the audit view lists exactly which criteria were never fetched and for how
+many candidates. Set `retrieval.min_completeness_serve` above 0 to refuse to rank at all below a
+given completeness. To fix it, re-run `oxide-triage warm-cache`.
+
 ### Adaptive acquisition (gap filling)
 
 The first pass over the sources is a fixed set of queries, and it leaves gaps: OQMD may have no
@@ -262,8 +294,8 @@ acquisition pass turns each gap into a small plan from an **allowlist of read-on
 
 | Gap | Routes tried, in order |
 |---|---|
-| no OQMD match by composition | chemical-system query, keep entries with the same stoichiometry |
-| no literature counts | retry the formula query; then search on common names only (query path and `add-material` only, since literature is fetched on demand) |
+| no OQMD match by composition | chemical-system query, keep entries with the same stoichiometry (applied inline by the query path under on-demand sources) |
+| no literature counts | retry the formula query; then search on common names only (applied inline by the query path under on-demand sources) |
 | band-gap functional unresolved | re-fetch the summary and the producing task's `run_type` |
 | no DFPT dielectric record | **none** — reported as unfillable with the reason; never estimated |
 
@@ -394,7 +426,7 @@ from it carries the fixture banner.
 
 ```bash
 pip install -e ".[all]"
-pytest                       # 195 tests: scoring core, guard, config + site overrides, refutation, pipeline, injection, session, self-check, MCP, chat agent, admin page, acquisition, HTML report, record/replay
+pytest                       # 215 tests: scoring core, guard, config + site overrides, refutation, pipeline, injection, session, self-check, MCP, chat agent, admin page, acquisition, HTML report, record/replay
 ruff check . && ruff format .
 python -m eval.run_eval      # evaluation report -> eval/output/report.md
 jupyter lab eval/evaluation.ipynb
@@ -440,12 +472,20 @@ tests/
 |---|---|
 | Normal query | ranked shortlist, caveats on every entry, gaps named |
 | Adversarial: Bin 1 / 2 / 3 | declined as missing capability / proceeds with visible deviation / refused as fabrication |
-| Known-answer | HfO2, ZrO2, Al2O3 in the default top 5; Ta2O5 excluded by the gap gate with a stated reason, passes under `exploratory` |
+| Known-answer | workhorses above the median, HfO2 in the default top 10, at least two workhorses in the exploratory top 25; on live data the default top five are SrHfO3, LaAlO3, LaScO3, CaZrO3, ScTaO4 with HfO2 6th and Al2O3 16th |
 | Determinism | identical result objects across runs |
-| Missing data | no candidate without a dielectric value is scored as if it had one |
+| Missing data | no candidate without a dielectric value is scored as if it had one, and a value the cache never downloaded is distinguished from one the source does not hold |
 
-The known-answer check found a real bug during development (missing data could *help* a candidate
-under the first scoring policy). Details in `docs/design-note.md`.
+The known-answer check has found two real bugs. Missing data could once *help* a candidate under
+the first scoring policy. And replayed against the partial live recording it failed for a reason
+that turned out not to be about ranking at all — the workhorses had sunk because their cross-check
+and literature lookups were never retrieved, which is why an under-warmed cache now reports
+`INCONCLUSIVE` rather than `FAIL`. Details in `docs/design-note.md`.
+
+**On live data the current cache is incomplete** (78.9% retrieved: OQMD rate-limited and OpenAlex
+hit its daily budget partway through the warm). Runs against it are served with the
+incomplete-retrieval banner and the self-check reports inconclusive, by design. The fixture path
+above is complete and passes every check.
 
 ## Licence
 

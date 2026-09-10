@@ -2,7 +2,9 @@
 
 No model, no network, no clock. Given the same records and the same settings this module
 returns byte-identical output. Missing data never defaults to a neutral value: a component
-with no data contributes ``None``, lowers ``data_coverage`` and is listed by name.
+with no data contributes ``None``, lowers ``data_coverage`` and is listed by name — together
+with *why* it is missing, since a value the source does not hold (ABSENT) and a value this
+cache never fetched (NOT_RETRIEVED) are different problems with different remedies.
 
     raw_score      = sum(w_i * s_i, known i) / sum(w_i, known i)      # "how good on the data we have"
     data_coverage  = sum(w_i, known i) / sum(w_i, all i)
@@ -18,6 +20,7 @@ Ties are broken by material_id so ordering is total and reproducible.
 from __future__ import annotations
 
 import math
+from typing import NamedTuple
 
 from oxide_triage.config import Config
 from oxide_triage.schemas import (
@@ -26,6 +29,7 @@ from oxide_triage.schemas import (
     ComponentScore,
     DataStatus,
     GateResult,
+    RetrievalCompleteness,
     ScoredCandidate,
     ScoringExplanation,
 )
@@ -193,8 +197,15 @@ def evaluate_gates(
 
 
 def _component(
-    criterion: str, weight: float, raw_label: str, normalized: float | None, notes: list[str] | None = None
+    criterion: str,
+    weight: float,
+    raw_label: str,
+    normalized: float | None,
+    notes: list[str] | None = None,
+    status: DataStatus = DataStatus.NOT_RETRIEVED,
 ) -> ComponentScore:
+    """One score component. When ``normalized`` is None the caller passes the record's own
+    status, so the component carries *why* it has no value and not merely that it has none."""
     known = normalized is not None
     return ComponentScore(
         criterion=criterion,
@@ -202,14 +213,31 @@ def _component(
         raw_label=raw_label,
         normalized=_r(normalized),
         contribution=_r(weight * normalized) if known else None,
-        status=DataStatus.KNOWN if known else DataStatus.UNKNOWN,
+        status=DataStatus.KNOWN if known else status,
         notes=notes or [],
     )
 
 
+def _missing_note(status: DataStatus, absent_note: str) -> str:
+    """Say why a component has no value, in the terms the reader needs to act on."""
+    if status is DataStatus.NOT_RETRIEVED:
+        return "NOT RETRIEVED into this cache — unknown because nothing was fetched, not because the source is empty"
+    if status is DataStatus.NOT_APPLICABLE:
+        return "not sought: the criterion does not apply, or the source is disabled by config"
+    return absent_note
+
+
 def cross_source_agreement(record: CandidateRecord, tolerance: float) -> str:
+    """agree | disagree | unavailable | untested.
+
+    ``unavailable`` means the second source was asked and holds no entry, so this candidate's
+    stability genuinely rests on one source. ``untested`` means the cross-check never ran here,
+    so agreement is unknown rather than absent — a different caveat, and a fixable one.
+    """
     mp = record.stability.energy_above_hull_ev_atom
     oq = record.cross_check.stability_ev_atom
+    if record.cross_check.status == DataStatus.NOT_RETRIEVED:
+        return "untested"
     if record.stability.status != DataStatus.KNOWN or record.cross_check.status != DataStatus.KNOWN:
         return "unavailable"
     if mp is None or oq is None:
@@ -242,7 +270,11 @@ def score_components(
                 f"-{config.stability.disagreement_penalty:g} penalty"
             )
         else:
-            notes.append("no independent cross-check available; stability rests on one source")
+            notes.append(
+                "cross-check never ran on this cache; agreement untested"
+                if agreement == "untested"
+                else "no independent cross-check available; stability rests on one source"
+            )
         comps.append(
             _component(
                 "stability",
@@ -253,7 +285,16 @@ def score_components(
             )
         )
     else:
-        comps.append(_component("stability", w["stability"], "E_hull unknown", None, ["no stability data"]))
+        comps.append(
+            _component(
+                "stability",
+                w["stability"],
+                "E_hull unknown",
+                None,
+                [_missing_note(record.stability.status, "no stability value in the source")],
+                status=record.stability.status,
+            )
+        )
 
     # Band gap ------------------------------------------------------------------------
     if gap.effective_ev is not None:
@@ -270,7 +311,16 @@ def score_components(
             )
         )
     else:
-        comps.append(_component("band_gap", w["band_gap"], "band gap unknown", None, [gap.correction_note]))
+        comps.append(
+            _component(
+                "band_gap",
+                w["band_gap"],
+                "band gap unknown",
+                None,
+                [gap.correction_note, _missing_note(record.band_gap.status, "no band gap in the source")],
+                status=record.band_gap.status,
+            )
+        )
 
     # Dielectric ----------------------------------------------------------------------
     d = record.dielectric
@@ -293,7 +343,11 @@ def score_components(
                 w["dielectric"],
                 "dielectric constant UNKNOWN",
                 None,
-                ["no DFPT dielectric record; not scored, coverage reduced"],
+                [
+                    _missing_note(d.status, "no DFPT dielectric record in MP"),
+                    "not scored; coverage reduced",
+                ],
+                status=d.status,
             )
         )
 
@@ -316,7 +370,16 @@ def score_components(
             )
         )
     else:
-        comps.append(_component("toxicity", w["toxicity"], "hazard screen unavailable", None))
+        comps.append(
+            _component(
+                "toxicity",
+                w["toxicity"],
+                "hazard screen unavailable",
+                None,
+                [_missing_note(h.status, "no hazard entry for these elements")],
+                status=h.status,
+            )
+        )
 
     # Simplicity ----------------------------------------------------------------------
     simp = config.simplicity.scores.get(record.n_elements, 0.0)
@@ -352,7 +415,16 @@ def score_components(
             )
         )
     else:
-        comps.append(_component("literature", w["literature"], "literature evidence unavailable", None))
+        comps.append(
+            _component(
+                "literature",
+                w["literature"],
+                "literature evidence unavailable",
+                None,
+                [_missing_note(lit.status, "OpenAlex returned no works")],
+                status=lit.status,
+            )
+        )
 
     return comps, agreement
 
@@ -362,16 +434,39 @@ def score_components(
 # --------------------------------------------------------------------------------------
 
 
-def aggregate(
-    components: list[ComponentScore], config: Config
-) -> tuple[float | None, float, float | None, list[str], str]:
+class Aggregate(NamedTuple):
+    raw: float | None
+    coverage: float
+    adjusted: float | None
+    missing: list[str]
+    absent: list[str]
+    not_retrieved: list[str]
+    retrieval_gap: float
+    confidence: str
+
+
+def aggregate(components: list[ComponentScore], config: Config) -> Aggregate:
+    """Combine components into a score, and report what was missing and why.
+
+    The arithmetic deliberately treats ABSENT and NOT_RETRIEVED alike: in both cases we do not
+    know the value, and pretending otherwise would let an unfetched candidate score as though
+    its data were good. What changes is that ``retrieval_gap`` is reported separately, so a
+    reader (and the self-check) can tell a materially data-poor candidate from one this cache
+    simply failed to fetch — the second is fixable by warming the cache, the first is not.
+    """
     total_w = sum(c.weight for c in components)
     known = [c for c in components if c.status == DataStatus.KNOWN and c.normalized is not None]
     known_w = sum(c.weight for c in known)
     missing = [c.criterion for c in components if c.status != DataStatus.KNOWN]
+    absent = [c.criterion for c in components if c.status == DataStatus.ABSENT]
+    not_retrieved = [c.criterion for c in components if c.status == DataStatus.NOT_RETRIEVED]
+    nr_w = sum(c.weight for c in components if c.status == DataStatus.NOT_RETRIEVED)
     coverage = known_w / total_w if total_w > 0 else 0.0
+    retrieval_gap = round(nr_w / total_w, ROUND) if total_w > 0 else 0.0
     if known_w <= 0:
-        return None, round(coverage, ROUND), None, missing, "low"
+        return Aggregate(
+            None, round(coverage, ROUND), None, missing, absent, not_retrieved, retrieval_gap, "low"
+        )
     raw = sum(c.weight * (c.normalized or 0.0) for c in known) / known_w
     credit = raw if config.missing_data.policy == "renormalize" else raw * coverage
     adjusted = max(0.0, credit - config.missing_data.penalty * (1.0 - coverage))
@@ -379,14 +474,25 @@ def aggregate(
     confidence = "high" if coverage >= th["high"] else "medium" if coverage >= th["medium"] else "low"
     if missing and confidence == "high":
         confidence = "medium"  # any criterion without data caps confidence, whatever its weight
-    return round(raw, ROUND), round(coverage, ROUND), round(adjusted, ROUND), missing, confidence
+    if not_retrieved and confidence != "low":
+        confidence = "low"  # a score built on unfetched data is not a confident score
+    return Aggregate(
+        round(raw, ROUND),
+        round(coverage, ROUND),
+        round(adjusted, ROUND),
+        missing,
+        absent,
+        not_retrieved,
+        retrieval_gap,
+        confidence,
+    )
 
 
 def score_candidate(record: CandidateRecord, config: Config, eff: Effective) -> ScoredCandidate:
     gap = assess_band_gap(record.band_gap, config.band_gap)
     gates, reasons = evaluate_gates(record, gap, eff)
     components, agreement = score_components(record, gap, eff, config)
-    raw, coverage, adjusted, missing, confidence = aggregate(components, config)
+    agg = aggregate(components, config)
     return ScoredCandidate(
         record=record,
         band_gap_assessment=gap,
@@ -394,11 +500,15 @@ def score_candidate(record: CandidateRecord, config: Config, eff: Effective) -> 
         excluded=bool(reasons),
         exclusion_reasons=reasons,
         components=components,
-        raw_score=raw,
-        data_coverage=coverage,
-        missing_criteria=missing,
-        adjusted_score=adjusted,
-        confidence=confidence,  # type: ignore[arg-type]
+        raw_score=agg.raw,
+        data_coverage=agg.coverage,
+        missing_criteria=agg.missing,
+        absent_criteria=agg.absent,
+        not_retrieved_criteria=agg.not_retrieved,
+        retrieval_gap=agg.retrieval_gap,
+        comparable=not agg.not_retrieved,
+        adjusted_score=agg.adjusted,
+        confidence=agg.confidence,  # type: ignore[arg-type]
         cross_source_agreement=agreement,  # type: ignore[arg-type]
     )
 
@@ -414,6 +524,90 @@ def rank(
         s.rank = i
     excluded.sort(key=lambda s: s.record.material_id)
     return passing, excluded
+
+
+def retrieval_completeness(
+    ranked: list[ScoredCandidate], config: Config, scope_n: int | None = None
+) -> RetrievalCompleteness:
+    """Measure how much of the data the ranking wanted was actually fetched into this cache.
+
+    Reported per result rather than per candidate because the damage is comparative: one
+    unfetched candidate is a caveat on that row, but a cache that is broadly unretrieved makes
+    the *ordering* a partial artefact of which fetches happened to finish.
+
+    ``scope_n`` restricts the measure to the top ``scope_n`` ranked candidates: under on-demand
+    formula sources that is the settled pool the shortlist is drawn from, and everything below
+    it is unretrieved by design and labelled as such on each row.
+    """
+    floor = config.retrieval.min_completeness_warn
+    scoped = scope_n is not None and scope_n < len(ranked)
+    if scoped:
+        ranked = ranked[:scope_n]
+    if not ranked:
+        return RetrievalCompleteness(
+            completeness=1.0,
+            n_ranked=0,
+            n_fully_retrieved=0,
+            comparable=True,
+            note="No candidates ranked; nothing to retrieve.",
+        )
+    # The cross-check is not a weighted criterion of its own: it moves the score as a bonus or
+    # penalty inside the stability component. It is nonetheless retrieved data that can go
+    # missing, and on a partly-warmed cache it is usually the *largest* hole, so it is accounted
+    # here at the weight of the component it modifies. Leaving it out was how a cache with 84%
+    # of its cross-checks unfetched still measured 90% complete.
+    stability_w = next((c.weight for c in ranked[0].components if c.criterion == "stability"), 0.0)
+    per_candidate_w = sum(c.weight for c in ranked[0].components) + stability_w
+    total_w = per_candidate_w * len(ranked)
+    nr_w = sum(c.weight for s in ranked for c in s.components if c.status == DataStatus.NOT_RETRIEVED)
+    nr_by: dict[str, int] = {}
+    ab_by: dict[str, int] = {}
+    for s in ranked:
+        for name in s.not_retrieved_criteria:
+            nr_by[name] = nr_by.get(name, 0) + 1
+        for name in s.absent_criteria:
+            ab_by[name] = ab_by.get(name, 0) + 1
+        if s.record.cross_check.status == DataStatus.NOT_RETRIEVED:
+            nr_w += stability_w
+            nr_by["cross_check"] = nr_by.get("cross_check", 0) + 1
+        elif s.record.cross_check.status == DataStatus.ABSENT:
+            ab_by["cross_check"] = ab_by.get("cross_check", 0) + 1
+    completeness = round(1.0 - (nr_w / total_w if total_w else 0.0), ROUND)
+    n_full = sum(
+        1
+        for s in ranked
+        if not s.not_retrieved_criteria and s.record.cross_check.status != DataStatus.NOT_RETRIEVED
+    )
+    comparable = completeness >= floor
+    where = (
+        f"the top {len(ranked)} ranked candidates (the on-demand pool)"
+        if scoped
+        else f"{len(ranked)} ranked candidates"
+    )
+    if comparable:
+        note = (
+            f"{completeness:.1%} of the scoring weight across {where} was "
+            f"retrieved into this cache; ranks are comparable."
+        )
+    else:
+        worst = ", ".join(f"{k} ({v} candidates)" for k, v in sorted(nr_by.items(), key=lambda kv: -kv[1]))
+        note = (
+            f"INCOMPLETE RETRIEVAL: only {completeness:.1%} of the scoring weight across "
+            f"{where} was retrieved (floor {floor:.0%}); "
+            f"{n_full} candidates have complete data. Never retrieved: {worst}. "
+            "Because unretrieved criteria lower a score, this ordering partly reflects which "
+            "fetches finished rather than which materials are better. Warm the cache to completion "
+            "before comparing ranks across candidates."
+        )
+    return RetrievalCompleteness(
+        completeness=completeness,
+        n_ranked=len(ranked),
+        n_fully_retrieved=n_full,
+        not_retrieved_by_criterion=nr_by,
+        absent_by_criterion=ab_by,
+        comparable=comparable,
+        note=note,
+    )
 
 
 def explanation(config: Config, eff: Effective) -> ScoringExplanation:

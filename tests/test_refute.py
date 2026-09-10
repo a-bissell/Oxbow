@@ -8,7 +8,7 @@ from oxide_triage.refute import (
     primary_caveat,
     rule_caveats,
 )
-from oxide_triage.schemas import Criteria
+from oxide_triage.schemas import Criteria, DataStatus
 from oxide_triage.scoring.core import score_candidate
 from oxide_triage.scoring.settings import resolve
 from tests.test_scoring import make_record
@@ -75,3 +75,43 @@ def test_numeric_guard():
     assert not numeric_guard("dielectric constant is 27.5", facts)
     assert not numeric_guard("cite Smith 2019", facts)
     assert numeric_guard("no numbers here", facts)
+
+
+def test_incomplete_retrieval_is_the_loudest_caveat():
+    """A candidate the cache failed to fetch is pushed down the ranking for a reason that has
+    nothing to do with the material. The refutation pass has to say so, and say it first."""
+    r = make_record(e_total=None, thin_film=None, total=None)
+    r.dielectric.status = DataStatus.NOT_RETRIEVED
+    r.literature.status = DataStatus.NOT_RETRIEVED
+    sc = score_candidate(r, CFG, EFF)
+    sc.caveats = rule_caveats(sc, EFF, CFG)
+    codes = [c.code for c in sc.caveats]
+
+    assert "incomplete_retrieval" in codes
+    top = primary_caveat(sc)
+    assert top is not None and top.code == "incomplete_retrieval", codes
+    assert top.severity == "critical"
+    assert "not comparable" in top.text
+    # and it must not be mistaken for a measured absence
+    assert "dielectric_unknown" not in codes
+    assert "literature_not_retrieved" in codes and "literature_unavailable" not in codes
+
+
+def test_absent_data_keeps_its_own_measured_caveats():
+    """The mirror case: MP genuinely holds no DFPT record. That is a fact about the material's
+    coverage and keeps the ordinary caveat, with no comparability warning."""
+    r = make_record(e_total=None)
+    r.dielectric.status = DataStatus.ABSENT
+    sc = score_candidate(r, CFG, EFF)
+    sc.caveats = rule_caveats(sc, EFF, CFG)
+    codes = [c.code for c in sc.caveats]
+    assert "dielectric_unknown" in codes and "incomplete_retrieval" not in codes
+
+
+def test_untested_cross_check_does_not_claim_single_source_evidence():
+    r = make_record(oqmd=None)
+    r.cross_check.status = DataStatus.NOT_RETRIEVED
+    sc = score_candidate(r, CFG, EFF)
+    sc.caveats = rule_caveats(sc, EFF, CFG)
+    codes = [c.code for c in sc.caveats]
+    assert "cross_check_untested" in codes and "single_source_stability" not in codes

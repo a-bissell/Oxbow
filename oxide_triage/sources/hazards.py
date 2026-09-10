@@ -6,6 +6,7 @@ from typing import Any
 
 from oxide_triage.config import HazardTable
 from oxide_triage.schemas import DataStatus, HazardRecord, Provenance
+from oxide_triage.sources.base import status_for
 
 
 def hazard_record(
@@ -13,6 +14,7 @@ def hazard_record(
     table: HazardTable,
     pubchem_payload: dict[str, Any] | None = None,
     pubchem_retrieved_at: str | None = None,
+    pubchem_fetch: str = "not_fetched",
 ) -> HazardRecord:
     cations = [el for el in elements if el != "O"]
     tiers: dict[str, int] = {}
@@ -33,14 +35,14 @@ def hazard_record(
         status=DataStatus.KNOWN,
         provenance=Provenance(source="element_table", source_id=f"element_hazards.yaml@{table.version}"),
     )
-    if pubchem_payload is None:
-        rec.pubchem_status = DataStatus.UNKNOWN
-    elif pubchem_payload.get("found"):
+    # The element screen above always yields a value, so ``status`` stays KNOWN; the PubChem
+    # compound-level record is the part that can be missing, and it distinguishes its reasons.
+    if pubchem_payload is not None and pubchem_payload.get("found"):
         rec.pubchem_cid = pubchem_payload.get("cid")
         rec.ghs_hazard_codes = list(pubchem_payload.get("ghs_codes") or [])
         rec.pubchem_status = DataStatus.KNOWN
     else:
-        rec.pubchem_status = DataStatus.NOT_APPLICABLE  # sought; PubChem has no record
+        rec.pubchem_status = status_for(pubchem_fetch, False)
     if pubchem_retrieved_at and rec.provenance:
         rec.provenance.note = f"PubChem lookup {pubchem_retrieved_at}"
     return rec

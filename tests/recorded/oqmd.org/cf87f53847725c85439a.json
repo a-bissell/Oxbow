@@ -1,0 +1,246 @@
+{
+ "params": {
+  "composition": "SrHfO3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.61735319052725,
+    "entry_id": 5696,
+    "name": "SrHfO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.03563250699999987
+   },
+   {
+    "delta_e": -3.61721992252725,
+    "entry_id": 20449,
+    "name": "SrHfO3",
+    "spacegroup": "P4mm",
+    "stability": 0.03576577499999978
+   },
+   {
+    "delta_e": -3.64007151402725,
+    "entry_id": 20833,
+    "name": "SrHfO3",
+    "spacegroup": "Cmcm",
+    "stability": 0.012914183499999954
+   },
+   {
+    "delta_e": -3.63707088452725,
+    "entry_id": 20450,
+    "name": "SrHfO3",
+    "spacegroup": "P4/mbm",
+    "stability": 0.01591481299999975
+   },
+   {
+    "delta_e": -3.64599578652725,
+    "entry_id": 20451,
+    "name": "SrHfO3",
+    "spacegroup": "Imma",
+    "stability": 0.006989910999999793
+   },
+   {
+    "delta_e": -3.64686008852725,
+    "entry_id": 20832,
+    "name": "SrHfO3",
+    "spacegroup": "I4/mcm",
+    "stability": 0.006125608999999699
+   },
+   {
+    "delta_e": -0.823190402527253,
+    "entry_id": 353268,
+    "name": "SrHfO3",
+    "spacegroup": "Pm-3m",
+    "stability": 2.8297952949999967
+   },
+   {
+    "delta_e": -3.62039865052725,
+    "entry_id": 354185,
+    "name": "SrHfO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.032587046999999814
+   },
+   {
+    "delta_e": -3.65298569752725,
+    "entry_id": 20834,
+    "name": "SrHfO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.65145943202725,
+    "entry_id": 105103,
+    "name": "SrHfO3",
+    "spacegroup": "Pnma",
+    "stability": 0.0015262654999999015
+   },
+   {
+    "delta_e": -3.61779065052725,
+    "entry_id": 680610,
+    "name": "SrHfO3",
+    "spacegroup": "P4mm",
+    "stability": 0.03519504699999976
+   },
+   {
+    "delta_e": -2.81158762252725,
+    "entry_id": 680611,
+    "name": "SrHfO3",
+    "spacegroup": "P4mm",
+    "stability": 0.8413980749999999
+   },
+   {
+    "delta_e": -3.58656069152725,
+    "entry_id": 678993,
+    "name": "SrHfO3",
+    "spacegroup": "R-3",
+    "stability": 0.06642500599999979
+   },
+   {
+    "delta_e": -3.58647596852725,
+    "entry_id": 678994,
+    "name": "SrHfO3",
+    "spacegroup": "R-3",
+    "stability": 0.06650972899999985
+   },
+   {
+    "delta_e": -3.65294399902725,
+    "entry_id": 682230,
+    "name": "SrHfO3",
+    "spacegroup": "Pnma",
+    "stability": 4.169850000002029e-05
+   },
+   {
+    "delta_e": -3.32496654202725,
+    "entry_id": 682231,
+    "name": "SrHfO3",
+    "spacegroup": "Pnma",
+    "stability": 0.3280191554999998
+   },
+   {
+    "delta_e": -3.02310255552725,
+    "entry_id": 826055,
+    "name": "SrHfO3",
+    "spacegroup": "R-3c",
+    "stability": 0.6298831419999997
+   },
+   {
+    "delta_e": -3.64900244852725,
+    "entry_id": 827017,
+    "name": "SrHfO3",
+    "spacegroup": "R-3c",
+    "stability": 0.003983249000000022
+   },
+   {
+    "delta_e": -3.35923131586059,
+    "entry_id": 1289821,
+    "name": "SrHfO3",
+    "spacegroup": "P63cm",
+    "stability": 0.2937543816666599
+   },
+   {
+    "delta_e": -3.34937563902725,
+    "entry_id": 1322878,
+    "name": "SrHfO3",
+    "spacegroup": "Fd-3m",
+    "stability": 0.3036100584999999
+   },
+   {
+    "delta_e": -3.0276773295272528,
+    "entry_id": 1523852,
+    "name": "SrHfO3",
+    "spacegroup": "R-3c",
+    "stability": 0.6253083679999971
+   },
+   {
+    "delta_e": -3.6181365865272532,
+    "entry_id": 1712329,
+    "name": "SrHfO3",
+    "spacegroup": "P4/mmm",
+    "stability": 0.03484911099999666
+   },
+   {
+    "delta_e": -3.6445108415272522,
+    "entry_id": 1713069,
+    "name": "SrHfO3",
+    "spacegroup": "Ima2",
+    "stability": 0.008474855999997644
+   },
+   {
+    "delta_e": -3.2837657025272526,
+    "entry_id": 1716003,
+    "name": "SrHfO3",
+    "spacegroup": "C2/m",
+    "stability": 0.36921999499999725
+   },
+   {
+    "delta_e": -3.6466711985272533,
+    "entry_id": 1721275,
+    "name": "SrHfO3",
+    "spacegroup": "C2/m",
+    "stability": 0.006314498999996587
+   },
+   {
+    "delta_e": -3.507619681027253,
+    "entry_id": 1753059,
+    "name": "SrHfO3",
+    "spacegroup": "C2221",
+    "stability": 0.14536601649999703
+   },
+   {
+    "delta_e": -3.4498197635272527,
+    "entry_id": 1758117,
+    "name": "SrHfO3",
+    "spacegroup": "P21/c",
+    "stability": 0.20316593399999716
+   },
+   {
+    "delta_e": -3.6206244352772523,
+    "entry_id": 1762717,
+    "name": "SrHfO3",
+    "spacegroup": "P213",
+    "stability": 0.03236126224999758
+   },
+   {
+    "delta_e": -3.644211795527253,
+    "entry_id": 1873404,
+    "name": "SrHfO3",
+    "spacegroup": "R3",
+    "stability": 0.008773901999997058
+   },
+   {
+    "delta_e": -3.6199428645272524,
+    "entry_id": 2014381,
+    "name": "SrHfO3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.03304283299999744
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 30,
+   "data_returned": 30,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=SrHfO3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-09 22:22:07"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

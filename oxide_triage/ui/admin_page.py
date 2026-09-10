@@ -52,6 +52,7 @@ RANKING_SECTIONS = [
 RUNTIME_SECTIONS = [
     "description",
     "candidates",
+    "retrieval",
     "output",
     "terminology",
     "cache",
@@ -67,6 +68,7 @@ SECTION_NOTES = {
     "missing_data": "no_credit: an unknown criterion earns nothing and can never help a candidate.",
     "literature": "on_demand fetches OpenAlex counts at query time for the top-ranked pool only.",
     "candidates": "What the warm pulls from Materials Project, and the per-source fetch limits.",
+    "retrieval": "When a partly retrieved cache warns on every result, and when it refuses to rank.",
     "cache": "cache.path is fixed by the environment; offline may be forced by OXIDE_TRIAGE_OFFLINE.",
     "llm": "Provider, model and base URL are overridden by LLM_* variables when set (always in Docker).",
     "agent": "Limits of the chat agent on the Agent page; nothing here affects ranking.",

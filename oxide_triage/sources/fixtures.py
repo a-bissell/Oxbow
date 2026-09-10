@@ -91,11 +91,16 @@ def load_fixture(cache: Cache, config: Config, path: Path = FIXTURE_PATH) -> int
             and summary["nelements"] <= c.max_elements_query
             and (summary["energy_above_hull"] or 0.0) <= c.energy_above_hull_ceiling_ev_atom
             and (summary["band_gap"] or 0.0) >= c.min_reported_gap_ev
+            and not (c.observed_only and summary.get("theoretical") is True)
         ):
             universe.append(mid)
 
     key = MaterialsProject.universe_key(
-        cations, c.max_elements_query, c.energy_above_hull_ceiling_ev_atom, c.min_reported_gap_ev
+        cations,
+        c.max_elements_query,
+        c.energy_above_hull_ceiling_ev_atom,
+        c.min_reported_gap_ev,
+        c.observed_only,
     )
     cache.put(mp, key, {"material_ids": sorted(universe), "n_returned": len(materials)}, FIXTURE_TS)
     cache.set_meta(FIXTURE_FLAG, "1")

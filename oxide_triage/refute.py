@@ -71,8 +71,27 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
                 f"Binary {cation} oxide: hygroscopic class; handling risk not modeled.",
             )
 
+    # Retrieval completeness --------------------------------------------------------------
+    # The strongest thing this pass can say about a candidate is that its rank should not be
+    # compared with the others at all. Missing data lowers the score, so a candidate the cache
+    # failed to fetch is pushed down for a reason that is about the cache, not the material.
+    if sc.not_retrieved_criteria:
+        add(
+            "incomplete_retrieval",
+            "critical",
+            f"Ranked on incomplete retrieval: {', '.join(sc.not_retrieved_criteria)} "
+            f"{'was' if len(sc.not_retrieved_criteria) == 1 else 'were'} never successfully "
+            f"fetched into this cache, leaving {sc.retrieval_gap:.0%} of the scoring weight "
+            "unretrieved. The score is lowered by data the system failed to collect, not by "
+            "anything known about the material, so this rank is not comparable with candidates "
+            "whose retrieval completed. Warm the cache and re-run before drawing a comparison.",
+            not_retrieved=sc.not_retrieved_criteria,
+            retrieval_gap=sc.retrieval_gap,
+            data_coverage=sc.data_coverage,
+        )
+
     # Dielectric data ---------------------------------------------------------------------
-    if r.dielectric.status != DataStatus.KNOWN:
+    if r.dielectric.status == DataStatus.ABSENT:
         add(
             "dielectric_unknown",
             "warning",
@@ -88,6 +107,14 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
             "warning",
             "Stability rests on Materials Project alone; no OQMD entry matched the formula for an "
             "independent check.",
+        )
+    elif sc.cross_source_agreement == "untested":
+        add(
+            "cross_check_untested",
+            "warning",
+            "The independent stability cross-check never ran for this candidate on this cache, so "
+            "agreement is untested rather than absent. OQMD may well hold an entry; nothing here "
+            "says it does not.",
         )
     elif sc.cross_source_agreement == "disagree":
         add(
@@ -186,7 +213,14 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
 
     # Literature --------------------------------------------------------------------------
     lit = r.literature
-    if lit.status != DataStatus.KNOWN:
+    if lit.status == DataStatus.NOT_RETRIEVED:
+        add(
+            "literature_not_retrieved",
+            "warning",
+            "Literature counts were never fetched for this candidate on this cache; evidence "
+            "strength is unmeasured, which is not the same as weak.",
+        )
+    elif lit.status != DataStatus.KNOWN:
         add(
             "literature_unavailable",
             "warning",

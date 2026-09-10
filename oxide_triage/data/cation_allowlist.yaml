@@ -1,22 +1,27 @@
 # Elements permitted as cations when pulling the oxide candidate universe from
 # Materials Project. Oxygen must be the *only* anion: compounds containing F, Cl, Br,
 # I, S, Se (as anion), N, H or C are not oxides in the sense this tool means and are
-# excluded by construction. Hazardous elements are included here on purpose: the
-# hazard screen (element_hazards.yaml) decides whether they pass, and a profile may
-# legitimately allow them. Keeping them in the universe means "include lead" is a
-# configuration change, not a re-fetch.
-version: "2026-09-09.1"
+# excluded by construction.
+#
+# This is the dielectric-minded list (v2). The first live warm at the wide list (v1, kept as
+# cation_allowlist_wide.yaml) showed the universe dominated by phosphates, borates, silicates
+# and alkali oxides: the commonest cations among experimentally observed candidates were P, Si,
+# B, Na, Al, V, Te, Ca, Li, K. Most of those families are glass formers, ionic conductors or
+# mobile-ion contaminants that no gate stack would use, so they cost fetch time and rank noise
+# without ever reaching a shortlist. Each family below says why it is in. Hazardous elements a
+# profile may opt into (Be, Pb, Bi, Th) stay in on purpose: the hazard screen decides whether
+# they pass, so "include lead" is a configuration change rather than a re-fetch. Dropped:
+# alkalis (Li, Na, K, Rb, Cs), late transition metals (V, Cr, Mn, Fe, Co, Ni, Cu), Cd, In, Tl,
+# Sn, Sb, B, P, Te, Mo, W, U. This is a domain judgment to confirm with the PI's group.
+version: "2026-09-10.2"
 cations:
-  - Li
-  - Na
-  - K
-  - Rb
-  - Cs
+  # alkaline earths: MgO, CaO, SrO, BaO; A-site of perovskites and aluminates (SrTiO3, BaZrO3)
   - Be
   - Mg
   - Ca
   - Sr
   - Ba
+  # group 3 and rare earths: Sc2O3, Y2O3, La2O3, Gd2O3, Lu2O3, LaLuO3; the high-k rare-earth family
   - Sc
   - Y
   - La
@@ -33,34 +38,21 @@ cations:
   - Tm
   - Yb
   - Lu
+  # early transition metals: the workhorses HfO2, ZrO2, Ta2O5, plus TiO2, Nb2O5 and their ternaries
   - Ti
   - Zr
   - Hf
-  - V
   - Nb
   - Ta
-  - Cr
-  - Mo
-  - W
-  - Mn
-  - Fe
-  - Co
-  - Ni
-  - Cu
+  # Zn: ZnAl2O4 / ZnGa2O4 spinels are wide-gap insulators (ZnO itself is a semiconductor)
   - Zn
-  - Cd
-  - B
+  # group 13: Al2O3 (workhorse), Ga2O3 (4.8 eV), aluminates and gallates
   - Al
   - Ga
-  - In
-  - Tl
+  # group 14: SiO2, GeO2, silicates such as HfSiO4 and ZrSiO4
   - Si
   - Ge
-  - Sn
+  # hazardous cations kept for profile opt-in: PbTiO3 / PbZrO3 and Bi2O3 (ferroelectric-research), ThO2
   - Pb
-  - P
-  - Sb
   - Bi
-  - Te
   - Th
-  - U
