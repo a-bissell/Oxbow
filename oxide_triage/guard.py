@@ -133,6 +133,13 @@ ALLOW_RE = re.compile(
     r"with|containing|based)\b[^.]{0,50}",
     re.I,
 )
+# Mirrors the exclude-phrase regex in edges/parse.py: an element named here is being
+# excluded, not allowed, even though it may also fall inside an ALLOW_RE match (e.g.
+# "with no cadmium").
+EXCLUDE_RE = re.compile(
+    r"\b(?:no|without|exclude|excluding|avoid|avoiding|not?\s+containing|free of)\s+([^.;]{1,50})",
+    re.I,
+)
 TRIAGE_INTENT_RE = re.compile(
     r"\b(find|candidates?|shortlist|rank\w*|oxides?|dielectrics?|materials?|screen\w*|triage|"
     r"suggest\w*|recommend\w*|promising|band ?gap|stable|compositions?)\b",
@@ -145,8 +152,13 @@ def _hazard_allowances(
 ) -> list[GuardFinding]:
     findings: list[GuardFinding] = []
     seen: set[str] = set()
+    negated: set[str] = set()
+    for m in EXCLUDE_RE.finditer(text):
+        negated.update(find_elements(m.group(1)))
     for m in ALLOW_RE.finditer(text):
         for sym in find_elements(m.group(0)):
+            if sym in negated:
+                continue
             tier, basis, _ = table.lookup(sym)
             is_blocked = (sym in blocked) if blocked is not None else tier >= 2
             if is_blocked and sym not in seen:

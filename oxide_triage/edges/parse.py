@@ -282,7 +282,7 @@ def merge(rules: Criteria, model: Criteria | None) -> Criteria:
         out.include_elements = [e for e in model.include_elements if e not in out.exclude_elements]
         filled.append("include_elements")
     if not out.exclude_elements and model.exclude_elements:
-        out.exclude_elements = list(model.exclude_elements)
+        out.exclude_elements = [e for e in model.exclude_elements if e not in out.include_elements]
         filled.append("exclude_elements")
     if not out.weight_overrides and model.weight_overrides:
         out.weight_overrides = {k: v for k, v in model.weight_overrides.items() if k in CRITERIA}
