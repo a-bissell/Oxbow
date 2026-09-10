@@ -62,6 +62,7 @@ class DataLayer:
     aliases: dict[str, list[str]]
     cations: list[str]
     warnings: list[str] = field(default_factory=list)
+    on_progress: Callable[[int, int, str], None] | None = None  # (done, total, formula) per fetch
 
     @classmethod
     def from_config(
@@ -255,6 +256,8 @@ class DataLayer:
                     self.cache.put(source, f"formula:{formula}", payload)
                     self.cache.log(source, f"formula:{formula}", "fetched")
                     counts["fetched"] += 1
+                if self.on_progress is not None:
+                    self.on_progress(done, len(futures), formula)
                 if done % 100 == 0 or done == len(futures):
                     elapsed = time.monotonic() - started
                     eta = elapsed / done * (len(futures) - done)

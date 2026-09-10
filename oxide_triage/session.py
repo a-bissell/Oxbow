@@ -32,6 +32,7 @@ CHANGEABLE = {
     "allow_elements",
     "weight_overrides",
     "output_template",
+    "families",
 }
 
 

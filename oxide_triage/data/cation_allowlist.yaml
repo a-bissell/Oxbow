@@ -13,7 +13,39 @@
 # they pass, so "include lead" is a configuration change rather than a re-fetch. Dropped:
 # alkalis (Li, Na, K, Rb, Cs), late transition metals (V, Cr, Mn, Fe, Co, Ni, Cu), Cd, In, Tl,
 # Sn, Sb, B, P, Te, Mo, W, U. This is a domain judgment to confirm with the PI's group.
-version: "2026-09-10.2"
+version: "2026-09-10.3"
+# Families group the same cations for the assistant's scope control: a user can narrow a query to
+# some families, and a material is in scope when every cation in it belongs to a selected family.
+# The `cations` list below stays the fetch allowlist; the families must cover it exactly (tested).
+families:
+  - id: early_transition
+    name: Early transition metals
+    cations: [Ti, Zr, Hf, Nb, Ta]
+    rationale: The workhorses HfO2, ZrO2 and Ta2O5, plus TiO2, Nb2O5 and their ternaries.
+  - id: rare_earths
+    name: Rare earths and group 3
+    cations: [Sc, Y, La, Ce, Pr, Nd, Sm, Eu, Gd, Tb, Dy, Ho, Er, Tm, Yb, Lu]
+    rationale: The high-k rare-earth family. Sc2O3, Y2O3, La2O3, Gd2O3, Lu2O3, LaLuO3.
+  - id: alkaline_earths
+    name: Alkaline earths
+    cations: [Be, Mg, Ca, Sr, Ba]
+    rationale: MgO, CaO, SrO, BaO, and the A-site of perovskites and aluminates such as SrTiO3 and BaZrO3.
+  - id: group_13
+    name: Group 13
+    cations: [Al, Ga]
+    rationale: Al2O3 (a workhorse), Ga2O3 at 4.8 eV, aluminates and gallates.
+  - id: group_14
+    name: Group 14
+    cations: [Si, Ge]
+    rationale: SiO2, GeO2 and silicates such as HfSiO4 and ZrSiO4.
+  - id: zinc
+    name: Zinc
+    cations: [Zn]
+    rationale: ZnAl2O4 and ZnGa2O4 spinels are wide-gap insulators; ZnO itself is a semiconductor.
+  - id: hazardous_opt_in
+    name: Hazardous opt-ins
+    cations: [Pb, Bi, Th]
+    rationale: Kept in the cache so "include lead" is a configuration change, not a re-fetch. The hazard gate still decides whether they pass.
 cations:
   # alkaline earths: MgO, CaO, SrO, BaO; A-site of perovskites and aluminates (SrTiO3, BaZrO3)
   - Be

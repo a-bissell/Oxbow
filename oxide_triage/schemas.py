@@ -172,6 +172,7 @@ class Criteria(BaseModel):
     allow_elements: list[str] = Field(default_factory=list)  # lift blocklist entries
     weight_overrides: dict[str, float] = Field(default_factory=dict)
     output_template: TemplateName | None = None
+    families: list[str] = Field(default_factory=list)  # cation families in scope; empty = all
     interpretation_notes: list[str] = Field(default_factory=list)
 
 
@@ -295,6 +296,15 @@ class ScoringExplanation(BaseModel):
     gates: dict[str, Any]
 
 
+class ScopeInfo(BaseModel):
+    """Which part of the cached universe a run considered. Scope is not a gate: materials outside
+    it are not excluded candidates, they were never candidates for this run."""
+
+    families: list[str] = Field(default_factory=list)  # empty = every family
+    n_universe: int = 0  # materials in the cache
+    n_in_scope: int = 0  # materials whose cations all belong to a selected family
+
+
 class TriageResult(BaseModel):
     request_text: str
     criteria: Criteria
@@ -312,6 +322,7 @@ class TriageResult(BaseModel):
     ranked_beyond_shortlist: list[ScoredCandidate] = Field(default_factory=list)
     excluded: list[ScoredCandidate] = Field(default_factory=list)
     n_candidates_considered: int = 0
+    scope: ScopeInfo | None = None
     retrieval: RetrievalCompleteness | None = None  # how much of the ranked set was actually fetched
     warnings: list[str] = Field(default_factory=list)
     llm_usage: dict[str, str] = Field(default_factory=dict)  # edge -> provider/model or "none"

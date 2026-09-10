@@ -24,6 +24,7 @@ PACKAGE_DIR = Path(__file__).resolve().parent
 DATA_DIR = PACKAGE_DIR / "data"
 REPO_ROOT = PACKAGE_DIR.parent
 DEFAULT_CONFIG_DIR = REPO_ROOT / "config"
+SITE_OVERLAY_NAME = "site.yaml"  # admin edits land here; the shipped YAML is never rewritten
 
 CRITERIA = ("stability", "band_gap", "dielectric", "toxicity", "simplicity", "literature")
 
@@ -128,6 +129,8 @@ class SourceFetchConfig(BaseModel):
 
 class CandidatesConfig(BaseModel):
     cation_allowlist_file: str
+    # Families (from the allowlist file) a query is limited to by default; empty = the whole universe.
+    default_families: list[str] = Field(default_factory=list)
     max_elements_query: int = Field(ge=2, le=6)
     energy_above_hull_ceiling_ev_atom: float = Field(ge=0)
     min_reported_gap_ev: float = Field(ge=0)
@@ -329,26 +332,82 @@ def _env_overrides() -> dict[str, Any]:
     return out
 
 
-def load_config(
-    profile: str | None = None,
-    config_dir: Path = DEFAULT_CONFIG_DIR,
+def site_overlay_path(config_dir: Path = DEFAULT_CONFIG_DIR) -> Path:
+    """Where site-level edits (the admin panel) are stored. ``OXIDE_TRIAGE_SITE_CONFIG`` overrides."""
+    if env := os.environ.get("OXIDE_TRIAGE_SITE_CONFIG"):
+        return Path(env)
+    return config_dir / SITE_OVERLAY_NAME
+
+
+def read_site_overlay(config_dir: Path = DEFAULT_CONFIG_DIR) -> dict[str, Any]:
+    """The site overlay: ``{"base": {...}, "profiles": {name: {...}}}``. Missing file = empty."""
+    path = site_overlay_path(config_dir)
+    if not path.is_file():
+        return {}
+    data = _read_yaml(path)
+    out: dict[str, Any] = {}
+    if isinstance(data.get("base"), dict):
+        out["base"] = data["base"]
+    if isinstance(data.get("profiles"), dict):
+        out["profiles"] = {k: v for k, v in data["profiles"].items() if isinstance(v, dict)}
+    return out
+
+
+def write_site_overlay(overlay: dict[str, Any], config_dir: Path = DEFAULT_CONFIG_DIR) -> Path:
+    """Persist the overlay after checking that every profile still validates with it applied."""
+    clean = {
+        "base": overlay.get("base") or {},
+        "profiles": {k: v for k, v in (overlay.get("profiles") or {}).items() if v},
+    }
+    for name in ["default", *list_profiles(config_dir)]:
+        _compose(name, config_dir, clean, use_env=False)  # raises on an invalid value
+    path = site_overlay_path(config_dir)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    header = (
+        "# Site-level configuration written by the admin panel. Merged on top of config/default.yaml\n"
+        "# (base) and on top of each profile (profiles.<name>). The shipped files are never edited.\n"
+    )
+    path.write_text(header + yaml.safe_dump(clean, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    return path
+
+
+def _compose(
+    profile: str | None,
+    config_dir: Path,
+    overlay: dict[str, Any] | None,
+    use_env: bool,
     overrides: dict[str, Any] | None = None,
-    use_env: bool = True,
 ) -> Config:
-    if use_env:
-        load_dotenv()
+    """default.yaml -> site base -> profiles/<name>.yaml -> site profile -> env -> overrides."""
+    overlay = read_site_overlay(config_dir) if overlay is None else overlay
     data = _read_yaml(config_dir / "default.yaml")
+    data = deep_merge(data, overlay.get("base") or {})
     if profile and profile != "default":
         profile_path = config_dir / "profiles" / f"{profile}.yaml"
         if not profile_path.exists():
             available = ", ".join(list_profiles(config_dir)) or "(none)"
             raise FileNotFoundError(f"Unknown profile '{profile}'. Available: {available}")
         data = deep_merge(data, _read_yaml(profile_path))
+    data = deep_merge(data, (overlay.get("profiles") or {}).get(profile or "default") or {})
     if use_env:
         data = deep_merge(data, _env_overrides())
     if overrides:
         data = deep_merge(data, overrides)
     return Config.model_validate(data)
+
+
+def load_config(
+    profile: str | None = None,
+    config_dir: Path = DEFAULT_CONFIG_DIR,
+    overrides: dict[str, Any] | None = None,
+    use_env: bool = True,
+    site_overlay: bool = True,
+) -> Config:
+    """``site_overlay=False`` ignores config/site.yaml (tests and the shipped-policy view)."""
+    if use_env:
+        load_dotenv()
+    overlay = None if site_overlay else {}
+    return _compose(profile, config_dir, overlay, use_env, overrides)
 
 
 # --------------------------------------------------------------------------------------
@@ -383,6 +442,29 @@ def load_hazard_table(filename: str = "element_hazards.yaml") -> HazardTable:
 def load_cation_allowlist(filename: str = "cation_allowlist.yaml") -> list[str]:
     raw = _read_yaml(DATA_DIR / filename)
     return list(raw.get("cations", []))
+
+
+class CationFamily(BaseModel):
+    id: str
+    name: str
+    cations: list[str]
+    rationale: str = ""
+
+
+def load_cation_families(filename: str = "cation_allowlist.yaml") -> list[CationFamily]:
+    """Families group the allowlist's cations for the assistant's scope control. A file without
+    a ``families`` key yields one family holding every cation, so scoping degrades to 'all'."""
+    raw = _read_yaml(DATA_DIR / filename)
+    fams = [CationFamily.model_validate(f) for f in raw.get("families", []) or []]
+    if not fams:
+        fams = [CationFamily(id="all", name="All cations", cations=list(raw.get("cations", [])))]
+    return fams
+
+
+def cations_for_families(families: list[CationFamily], selected: list[str]) -> frozenset[str]:
+    """Cations covered by the selected family ids; an empty selection means every family."""
+    chosen = {f.id for f in families} if not selected else set(selected)
+    return frozenset(c for f in families if f.id in chosen for c in f.cations)
 
 
 def load_compound_aliases(filename: str = "compound_aliases.yaml") -> dict[str, list[str]]:
