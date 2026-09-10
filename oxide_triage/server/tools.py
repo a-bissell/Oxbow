@@ -163,11 +163,10 @@ def t_triage(ctx: ToolContext, args: dict[str, Any]) -> ToolOutput:
     finally:
         cache.close()
     n_pass = len(result.shortlist) + len(result.ranked_beyond_shortlist)
-    label = (
-        f"Ranked {result.n_candidates_considered} candidates, {n_pass} passed the gates"
-        f" · {time.monotonic() - started:.0f} s"
-    )
-    return _finish(ctx, result, label)
+    label = f"Ranked {result.n_candidates_considered} candidates, {n_pass} passed the gates"
+    out = _finish(ctx, result, label)
+    out.data["seconds"] = round(time.monotonic() - started, 1)
+    return out
 
 
 def t_rerun(ctx: ToolContext, args: dict[str, Any]) -> ToolOutput:
@@ -198,11 +197,10 @@ def t_rerun(ctx: ToolContext, args: dict[str, Any]) -> ToolOutput:
         cache.close()
     n_pass = len(result.shortlist) + len(result.ranked_beyond_shortlist)
     out = _finish(
-        ctx,
-        result,
-        f"Reran with {', '.join(f'{k}={v!r}' for k, v in changes.items())} · {n_pass} passed · {time.monotonic() - started:.0f} s",
+        ctx, result, f"Reran with {', '.join(f'{k}={v!r}' for k, v in changes.items())} · {n_pass} passed"
     )
     out.data["previous_result_id"] = rid
+    out.data["seconds"] = round(time.monotonic() - started, 1)
     return out
 
 
