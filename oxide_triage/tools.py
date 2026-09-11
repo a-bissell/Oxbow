@@ -29,10 +29,10 @@ from oxide_triage.config import Config, list_profiles, load_config, load_hazard_
 from oxide_triage.edges.render import render
 from oxide_triage.guard import guard_request
 from oxide_triage.pipeline import add_material as _add_material
-from oxide_triage.pipeline import run_triage
+from oxide_triage.pipeline import not_acted_on_lines, run_triage
 from oxide_triage.progress import ProgressFn
 from oxide_triage.schemas import GuardDecision, TriageResult
-from oxide_triage.scoring.settings import blocked_by_policy, resolve
+from oxide_triage.scoring.settings import blocked_by_policy, never_liftable, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 from oxide_triage.session import (
     ResultStore,
@@ -76,7 +76,7 @@ AGENT_RULES = (
 
 AGENT_INSTRUCTIONS = INSTRUCTIONS + "\n\n" + AGENT_RULES
 
-GuardFn = Callable[[str], GuardDecision]
+GuardFn = Callable[[str, bool], GuardDecision]  # (text, follow_up)
 
 
 def make_guard(config: Config) -> GuardFn:
@@ -85,7 +85,8 @@ def make_guard(config: Config) -> GuardFn:
     another. Used on raw chat messages before any model sees them."""
     table = load_hazard_table(config.toxicity.table_file)
     blocked = blocked_by_policy(config, table)
-    return lambda text: guard_request(text, table, blocked)
+    never = never_liftable(config)
+    return lambda text, follow_up=False: guard_request(text, table, blocked, never, follow_up=follow_up)
 
 
 def agent_system_prompt(profile: str, extra: str | None = None) -> str:
@@ -381,12 +382,14 @@ class ToolBox:
 
         cfg = self._config(profile)
         table = load_hazard_table(cfg.toxicity.table_file)
-        guard = guard_request(request, table)
-        criteria, parser = _parse(request, cfg, table, make_llm(cfg.llm))
+        blocked = blocked_by_policy(cfg, table)
+        guard = guard_request(request, table, blocked, never_liftable(cfg))
+        criteria, parser = _parse(request, cfg, table, make_llm(cfg.llm), blocked)
         eff, deviations = resolve(cfg, criteria, table)
         return {
             "guard": guard.model_dump(),
             "criteria": criteria.model_dump(exclude_defaults=True),
+            "not_acted_on": not_acted_on_lines(guard, criteria),
             "parsed_by": parser,
             "deviations": [d.model_dump() for d in deviations],
             "clarifications": clarifications(criteria, deviations, guard, cfg),

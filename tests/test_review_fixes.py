@@ -255,3 +255,52 @@ def test_server_side_exclusions_fit_the_api_limit_and_prioritise_non_oxide_chemi
     assert parts[:4] == ["H", "C", "N", "F"]
     assert not (set(parts) & allowed)
     assert len(parts) == len(set(parts))
+
+
+# ---- the parser reports what it did not read ---------------------------------------------------
+
+
+def test_unread_clauses_come_back_as_not_acted_on():
+    from oxide_triage.edges.parse import rule_parse
+
+    c = rule_parse("Find oxide dielectrics, top 5, and order more targets for Friday.", TABLE)
+    assert c.top_k == 5
+    assert c.unhandled == ['"order more targets for Friday"']
+
+
+def test_the_pi_request_has_nothing_unread():
+    from oxide_triage.edges.parse import rule_parse
+    from tests.test_guard import PI_REQUEST
+
+    assert rule_parse(PI_REQUEST, TABLE).unhandled == []
+
+
+def test_a_reason_clause_is_not_reported_as_unread():
+    from oxide_triage.edges.parse import rule_parse
+
+    c = rule_parse("Find oxide dielectrics without lead, because the lab has no lead licence.", TABLE)
+    assert c.exclude_elements == ["Pb"] and c.unhandled == []
+
+
+def test_a_substrate_named_in_the_request_is_reported_not_applied():
+    from oxide_triage.edges.parse import rule_parse
+
+    c = rule_parse("Find oxide dielectrics on germanium.", TABLE, substrate="Si")
+    assert len(c.unhandled) == 1 and "germanium" in c.unhandled[0] and "Si" in c.unhandled[0]
+    assert rule_parse("Find oxide dielectrics on silicon.", TABLE, substrate="Si").unhandled == []
+
+
+def test_not_acted_on_reaches_the_result_and_is_empty_on_a_decline(tmp_path):
+    from oxide_triage.config import load_config
+    from oxide_triage.pipeline import run_triage
+
+    cfg = load_config("default", overrides={"cache": {"path": str(tmp_path / "c.sqlite")}}, use_env=False)
+    from oxide_triage.pipeline import load_fixtures
+
+    load_fixtures(cfg)
+    r = run_triage(
+        "Find oxide dielectrics and email the report to the group.", cfg, offline=True, confirmed=True
+    )
+    assert r.guard.proceed and any("email the report" in line for line in r.not_acted_on)
+    r = run_triage("What's the weather in Boston?", cfg, offline=True, confirmed=True)
+    assert not r.guard.proceed and r.not_acted_on == []

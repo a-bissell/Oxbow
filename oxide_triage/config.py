@@ -141,6 +141,9 @@ class ToxicityConfig(BaseModel):
     blocklist_tiers: list[int]
     element_blocklist: list[str] = Field(default_factory=list)
     element_allowlist: list[str] = Field(default_factory=list)
+    # Elements no request can unblock, whatever it says or who says it. A site changes this
+    # list in its overrides file; a profile allowlist cannot reach past it either.
+    never_lift: list[str] = Field(default_factory=list)
 
 
 class SimplicityConfig(BaseModel):

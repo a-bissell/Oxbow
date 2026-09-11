@@ -306,6 +306,8 @@ def narrate_result(result: TriageResult, rerun_of: str | None, store: SessionSto
     devs = [d.description for d in result.deviations]
     if devs:
         parts.append("Deviations from the shipped policy: " + " ".join(devs))
+    if result.not_acted_on:
+        parts.append("Parts of your request I did not act on: " + " ".join(result.not_acted_on))
     partial = [s.record.formula for s in result.shortlist if s.missing_criteria]
     if partial:
         parts.append("Ranked on partial data: " + ", ".join(partial) + ".")

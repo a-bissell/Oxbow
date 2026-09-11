@@ -353,6 +353,30 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         report = validate_interface(cfg, cache, offline=True)
         return report.passed, render_markdown(report)
 
+    # ---- 8. held-out request phrasings ------------------------------------------------
+    def held_out_requests() -> tuple[bool, str]:
+        """Check 2 is the tuned set: the guard's rules were written against those phrasings.
+        This is the set written afterwards. Both rates are printed; the entries no rule was
+        widened for after they were seen are the generalisation number."""
+        from oxide_triage.heldout import load_set, report_lines, score
+
+        data = load_set()
+        verdicts, rate = score(cfg)
+        rows = report_lines(verdicts, rate, data["floor"])
+        rows += ["", "| Phrasing | Expected | Observed | OK |", "|---|---|---|---|"]
+        for v in verdicts:
+            exp = ("runs" if v.expected["runs"] else "declines") + (
+                ", says what it did not do" if v.expected["acknowledged"] else ""
+            )
+            obs = ("ran" if v.observed.runs else "declined") + (
+                f"; {', '.join(sorted(v.observed.reasons))}" if v.observed.reasons else ""
+            )
+            mark = "yes" if v.passed else "**no**"
+            if v.tuned_after:
+                mark += " (rule widened after seen)"
+            rows.append(f"| {v.text} | {exp} | {obs} | {mark} |")
+        return rate >= data["floor"], "\n".join(rows)
+
     checks = [
         Check("1. Normal query (PI request)", normal),
         Check("2. Adversarial queries (three bins)", adversarial),
@@ -361,6 +385,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         Check("5. Missing-data handling", missing_data),
         Check("6. Sensitivity to the settings", sensitivity),
         Check("7. Held-out validation of the interface criterion (Hubbard & Schlom 1996)", held_out),
+        Check("8. Held-out request phrasings (written after the rules)", held_out_requests),
     ]
     summary: dict[str, bool] = {}
     for c in checks:

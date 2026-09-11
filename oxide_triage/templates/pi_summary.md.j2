@@ -46,6 +46,12 @@ _No ranking was run. Nothing below this line is a result._
 {% if result.criteria.interpretation_notes %}
 **How the request was read:** {{ result.criteria.interpretation_notes | join("; ") }}
 {% endif %}
+{% if result.not_acted_on %}
+**Parts of the request not acted on:**
+{% for line in result.not_acted_on %}
+- {{ line }}
+{% endfor %}
+{% endif %}
 
 ## Shortlist
 

@@ -14,6 +14,18 @@ Bin 0  override attempt            "ignore your previous instructions", "develop
         because numbers, ranks and citations come from a deterministic core the request text
         never reaches. The run proceeds; the attempt is named in the output and logged, so
         that the resistance is visible rather than silent.
+Out of scope                        "what's the weather", "rank sulfides for solar cells",
+        "write our paper's introduction". Nothing in the request is an oxide-dielectric
+        triage ask, so running the default shortlist would answer a different question in
+        silence. Decline and say what the tool does.
+Hazard policy                       "include plutonium". The site's never-lift list holds
+        elements no request can unblock, whoever is said to have approved it. Decline; the
+        admin changes the list in the site file, not in a request.
+
+One rule for a request the deployment cannot do: if the whole request is impossible or out
+of scope, decline and say why; if only part of it is, run the rest and print the part that
+was not acted on. What decides between the two is whether the request contains an in-scope
+ask (``SCOPE_RE``), not the phrasing of the impossible part.
 
 The guard is rule-based on purpose. Refusal behaviour must not depend on a model. It runs on
 the scientist's own words: inside every tool on the request a tool receives, and (through
@@ -81,6 +93,8 @@ IMPOSSIBLE_RULES: list[Rule] = [
         r"\b(our|the|my|internal|private|in-house|unpublished|confidential|proprietary)\b[^.]{0,30}?"
         r"\b(lims|eln|lab notebooks?|internal (database|data|results|runs)|private (data|database)|"
         r"unpublished (data|results)|shared drive|sharepoint|group data|"
+        r"(?:box|dropbox|onedrive|google drive|network|shared|group|lab)\s+(?:folder|drive|share)|"
+        r"(?:spreadsheet|excel|csv|xlsx)s?\b[^.]{0,20}?\b(?:of|from|with)\b[^.]{0,20}?\b(?:our|the group|the lab)|"
         r"(?:previous|prior|past|last)\s+(?:deposition|growth|experimental|lab|synthesis|film|sputter\w*|ald)\s+runs|"
         r"run logs?)\b",
         "This deployment is not connected to any private or internal data store (LIMS, ELN, "
@@ -128,9 +142,9 @@ INTEGRITY_RULES: list[Rule] = [
     ),
     _r(
         "assume_data_valid",
-        r"\b(assume|pretend|take it|suppose|treat|regard|consider)\b[^.]{0,40}?\b(stability|data|values?|numbers?|results?|"
-        r"band ?gaps?|dielectric)\b[^.]{0,40}?\b(check(s|ed)? out|(?:are|is|as) (fine|correct|ok|valid|right|"
-        r"verified|confirmed|reliable|trustworthy|accurate)|verified|confirmed|reliable)\b",
+        rf"\b(assume|pretend|take it|suppose|treat|regard|consider)\b[^.]{{0,40}}?\b(data|results?|{_PROPERTY})\b[^.]{{0,40}}?\b(check(s|ed)? out|(?:are|is|as) (fine|correct|ok|valid|right|"
+        r"verified|confirmed|reliable|trustworthy|accurate|experimental|measured|exact)|verified|confirmed|reliable|"
+        r"experimental(?: values?| numbers?| data)?|measured(?: values?)?)\b",
         "Whether data checks out is a fact about the sources, not an instruction the tool can "
         "accept. Cross-source agreement and missing values are always reported as found.",
     ),
@@ -142,8 +156,8 @@ INTEGRITY_RULES: list[Rule] = [
     ),
     _r(
         "number_without_data",
-        r"\b(estimate|guess|fill in|make up|infer|extrapolate|approximate|interpolate|predict)\b[^.]{0,30}?\b(the |any |all )?"
-        r"(missing|unknown|absent)\b[^.]{0,20}?\b(values?|data|numbers?|dielectric|constants?|permittivit\w*)\b",
+        rf"\b(estimate|guess|fill in|make up|infer|extrapolate|approximate|interpolate|predict)\b[^.]{{0,30}}?\b(the |any |all )?"
+        rf"(missing|unknown|absent)\b[^.]{{0,20}}?\b(data|{_PROPERTY})\b",
         "Missing values stay missing. The tool does not estimate or infer data it did not retrieve.",
     ),
     # "best guess / ballpark / approximate the dielectric constant of X": a value the tool does
@@ -165,8 +179,9 @@ INTEGRITY_RULES: list[Rule] = [
     # "gaps" alone is the domain's word for band gaps; only uncertainty vocabulary counts here.
     _r(
         "hide_uncertainty",
-        r"\b(drop|remove|hide|suppress|omit|leave out|skip|strip|don'?t (show|include|mention|list)|"
-        r"do not (show|include|mention|list)|without (any |the |all )?|no)\s*"
+        r"\b(drop|remove|hide|suppress|omit|leave out|skip|strip|spare me|lose|forget(?: about)?|"
+        r"don'?t (show|include|mention|list|bother (?:with|about))|"
+        r"do not (show|include|mention|list|bother (?:with|about))|without (any |the |all )?|no)\s*"
         r"(the )?(caveats?|uncertaint\w*|missing[- ]data|data gaps|warnings?|limitations?|disclaimers?|"
         r"hedging|confidence labels?)\b",
         "Caveats and data gaps are part of the result, not decoration. The PI summary already "
@@ -187,6 +202,27 @@ _RULE_NOUN = (
     r"(?:previous|prior|earlier|above|system|all|any|your)\s+(?:policy|policies|filters?|limits?|limitations?))"
 )
 OVERRIDE_RULES: list[Rule] = [
+    # "[SYSTEM] ...", "Administrator: ...": a label at the head of the request or a line of it
+    # claiming to be from the system or an operator. The words after it are still the request.
+    _r(
+        "role_tag",
+        r"(?:^|\n)\s*[\[<(#]*\s*(?:system|assistant|admin|administrator|developer|operator|root|sudo)"
+        r"\s*[\]>)#:]+",
+        "A message labelled as coming from the system or an administrator is still part of the "
+        "request. Nothing in a request can change how the system operates; the constraints are "
+        "not settings a message can flip.",
+    ),
+    # "skip the toxicity filter", "turn off the hazard screen": the block is lifted per element,
+    # by name, as a printed deviation. There is no switch that lifts it wholesale.
+    _r(
+        "blanket_hazard_lift",
+        r"\b(skip|turn off|switch off|disable|bypass|drop|remove|ignore|suspend|without|no)\b[^.]{0,20}?"
+        r"\b(toxicity|hazard|safety|element|blocklist|hazard-?tier)\s+(filters?|gates?|screens?|blocks?|checks?|"
+        r"restrictions?|limits?)\b",
+        "There is no switch that lifts the hazard screen. An element can be permitted by name "
+        '("include lead"), which is a configuration change printed on the result and logged; '
+        "elements on the site's never-lift list cannot be permitted by a request at all.",
+    ),
     _r(
         "ignore_instructions",
         rf"\b(ignore|disregard|forget|override|bypass|circumvent|suspend|waive|drop|lift|disable|"
@@ -235,7 +271,8 @@ OVERRIDE_RULES: list[Rule] = [
 
 # Mirrors the allow-phrase regex in edges/parse.py.
 ALLOW_RE = re.compile(
-    r"\b(include|allow|permit|consider|keep|accept|add|unblock|don'?t (exclude|block|filter)|do not (exclude|block|filter)|"
+    r"\b(includ(?:e|ing)|allow(?:ing)?|permit(?:ting)?|consider(?:ing)?|keep(?:ing)?|accept(?:ing)?|add(?:ing)?|"
+    r"unblock(?:ing)?|don'?t (exclude|block|filter)|do not (exclude|block|filter)|"
     r"(?:lift|remove|drop|relax)\s+the\s+(?:block|restrictions?|ban|filter|blocklist)\s+(?:on|for|against)|"
     r"with|containing|based)\b[^.]{0,50}",
     re.I,
@@ -244,15 +281,100 @@ ALLOW_RE = re.compile(
 # excluded, not allowed, even though it may also fall inside an ALLOW_RE match (e.g.
 # "with no cadmium").
 EXCLUDE_RE = re.compile(
-    r"\b(?:no|without|exclude|excluding|avoid|avoiding|not?\s+containing|free of)\s+([^.;]{1,50})",
+    r"\b(?:no|without|exclude|excluding|avoid|avoiding|not?\s+containing|free of|skip|omit|leave out|"
+    r"steer clear of|stay away from)\s+([^.;]{1,50})",
     re.I,
 )
-TRIAGE_INTENT_RE = re.compile(
-    r"\b(find|candidates?|shortlist|rank\w*|oxides?|dielectrics?|materials?|screen\w*|triage|"
-    r"suggest\w*|recommend\w*|promising|band ?gap|stable|compositions?|profiles?|re-?run|compare|"
-    r"explain|why|excluded?|score\w*|top \d+)\b",
+# An in-scope ask: the tool's own subject (oxide dielectrics and what is ranked about them),
+# a thing it does (rank, compare, explain, rerun) or a reference to a result it already gave.
+# "materials" and "find" alone are not enough: "find me a restaurant" is not a triage ask.
+SCOPE_RE = re.compile(
+    r"\b(oxides?|dielectrics?|permittivit\w*|high[- ]?k|k[- ]values?|gate[- ]?(?:oxides?|stacks?|dielectrics?)|"
+    r"(?:band ?)?gaps?|hull|thermodynamic\w*|stabilit\w*|candidates?|shortlist\w*|triage|"
+    r"elements?|thresholds?|limits?|weights?|gates?|"
+    r"rank(?:ed|ing|s)?|re-?run|compare|explain|why|excluded?|score\w*|caveats?|"
+    r"profiles?|thin[- ]films?|ald|sputter\w*|substrates?|silicon|"
+    r"(?:the|this|that|your|last|previous)\s+(?:list|result|ranking|shortlist|run|top\s+\w+)|"
+    r"top\s+(?:\d+|three|five|ten)|these|those)\b",
     re.I,
 )
+# Another class of material, with no oxide in sight: the tool's universe is oxides.
+OTHER_CLASS_RE = re.compile(
+    r"\b(sulfides?|sulphides?|nitrides?|carbides?|halides?|chalcogenides?|phosphides?|selenides?|"
+    r"tellurides?|fluorides?|chlorides?|bromides?|iodides?|borides?|silicides?|hydrides?|"
+    r"polymers?|alloys?|mofs?|zeolites?|graphene|organic semiconductors?)\b",
+    re.I,
+)
+# An application the scoring profiles do not model. A request for oxides "for solar cells"
+# would be ranked by dielectric merit and read as if it were ranked for solar cells.
+APPLICATION_RE = re.compile(
+    r"\b(solar|photovoltaic\w*|batter(?:y|ies)|cathodes?|anodes?|electrolytes?|catalys\w*|"
+    r"thermoelectric\w*|magnet\w*|superconduct\w*|fuel cells?|scintillat\w*|phosphors?|lasers?)\b",
+    re.I,
+)
+DIELECTRIC_RE = re.compile(
+    r"\b(dielectrics?|permittivit\w*|high[- ]?k|k[- ]values?|gate|capacitors?|insulat\w*)\b", re.I
+)
+# Writing tasks: the tool renders results, it does not write prose on request.
+OFF_TASK_RE = re.compile(
+    r"\b(write|draft|compose|translate|proofread|summari[sz]e)\b[^.]{0,30}?"
+    r"\b(introduction|section|paper|abstract|manuscript|email|essay|proposal|grant|letter|poem|blog|slides?)\b",
+    re.I,
+)
+
+TOOL_DOES = (
+    "What this tool does: triage candidate oxides for thin-film dielectrics from cached public "
+    "data (Materials Project, OQMD, OpenAlex, PubChem) and return a ranked shortlist with the "
+    "evidence and caveats behind each entry. It can also explain a candidate, compare "
+    "candidates, and rerun with changed thresholds, elements or weights."
+)
+
+
+def scope_findings(text: str) -> list[GuardFinding]:
+    """Why a request is not an oxide-dielectric triage ask, if it is not."""
+    out: list[GuardFinding] = []
+    if m := OFF_TASK_RE.search(text):
+        out.append(
+            GuardFinding(
+                bin=RequestBin.OUT_OF_SCOPE,
+                code="writing_task",
+                matched_text=m.group(0).strip()[:120],
+                explanation="This tool ranks and explains candidates; it does not write text on request.",
+            )
+        )
+    has_oxide = re.search(r"\boxides?\b", text, re.I) is not None
+    if not has_oxide and (m := OTHER_CLASS_RE.search(text)):
+        out.append(
+            GuardFinding(
+                bin=RequestBin.OUT_OF_SCOPE,
+                code="other_material_class",
+                matched_text=m.group(0).strip()[:120],
+                explanation=f"The candidate universe is oxides only; it holds no {m.group(0).lower()}.",
+            )
+        )
+    if (m := APPLICATION_RE.search(text)) and not DIELECTRIC_RE.search(text):
+        out.append(
+            GuardFinding(
+                bin=RequestBin.OUT_OF_SCOPE,
+                code="other_application",
+                matched_text=m.group(0).strip()[:120],
+                explanation=(
+                    "The scoring profiles rank for a gate dielectric (stability, band gap, permittivity, "
+                    f"interface with the substrate). A ranking for {m.group(0).lower()} would be the "
+                    "same list under a different name."
+                ),
+            )
+        )
+    if not out and not SCOPE_RE.search(text):
+        out.append(
+            GuardFinding(
+                bin=RequestBin.OUT_OF_SCOPE,
+                code="no_triage_ask",
+                matched_text=text.strip()[:120],
+                explanation="Nothing in the request asks for an oxide-dielectric triage.",
+            )
+        )
+    return out
 
 
 def _hazard_allowances(
@@ -286,9 +408,18 @@ def _hazard_allowances(
     return findings
 
 
-def guard_request(text: str, table: HazardTable, blocked: frozenset[str] | None = None) -> GuardDecision:
+def guard_request(
+    text: str,
+    table: HazardTable,
+    blocked: frozenset[str] | None = None,
+    never_lift: frozenset[str] = frozenset(),
+    follow_up: bool = False,
+) -> GuardDecision:
     """``blocked`` is the set of elements the active profile blocks; when omitted, tier-2
-    elements are assumed blocked (the shipped default)."""
+    elements are assumed blocked (the shipped default). ``never_lift`` holds the elements a
+    request cannot unblock; naming one of them declines the request. ``follow_up`` marks a
+    later turn of a conversation: "yes, go ahead" has no triage ask in it and is still about
+    the triage, so only the first turn is declined for having none."""
     findings: list[GuardFinding] = []
 
     for rule in INTEGRITY_RULES:
@@ -319,8 +450,9 @@ def guard_request(text: str, table: HazardTable, blocked: frozenset[str] | None 
         if not m:
             continue
         # "lift the restrictions on lead" is a configuration change, not an override attempt:
-        # an element named right after the match hands the finding to bin 2.
-        if allowances and find_elements(text[m.start() : m.end() + 40]):
+        # an element named right after the match hands the finding to bin 2. The window is
+        # short on purpose; "skip the toxicity filter, ... including thallium" is both.
+        if allowances and find_elements(text[m.start() : m.end() + 12]):
             continue
         findings.append(
             GuardFinding(
@@ -331,10 +463,29 @@ def guard_request(text: str, table: HazardTable, blocked: frozenset[str] | None 
             )
         )
     findings.extend(allowances)
+    for f in allowances:
+        named = [sym for sym in find_elements(f.matched_text) if sym in never_lift]
+        if named:
+            findings.append(
+                GuardFinding(
+                    bin=RequestBin.HAZARD_POLICY,
+                    code="hazard_never_lift",
+                    matched_text=f.matched_text,
+                    explanation=(
+                        f"{', '.join(named)} cannot be permitted by a request under this site's policy; "
+                        "the never-lift list is changed by the site administrator in the site file, "
+                        "and that change is logged as a site override."
+                    ),
+                )
+            )
+    # An element allowance is an in-scope ask on its own ("include lead").
+    scope = [] if allowances else scope_findings(text)
+    if follow_up:
+        scope = [f for f in scope if f.code != "no_triage_ask"]
+    findings.extend(scope)
 
     integrity = [f for f in findings if f.bin == RequestBin.INTEGRITY]
-    impossible = [f for f in findings if f.bin == RequestBin.IMPOSSIBLE]
-    has_triage_intent = bool(TRIAGE_INTENT_RE.search(text))
+    policy = [f for f in findings if f.bin == RequestBin.HAZARD_POLICY]
 
     if integrity:
         lines = [
@@ -346,13 +497,32 @@ def guard_request(text: str, table: HazardTable, blocked: frozenset[str] | None 
         ]
         return GuardDecision(proceed=False, findings=findings, refusal_message="\n".join(lines))
 
-    if impossible and not has_triage_intent:
+    if policy:
         lines = [
-            "This deployment does not have the capability the request needs:",
-            *[f'  - "{f.matched_text}": {f.explanation}' for f in impossible],
+            "This request cannot be run as asked:",
+            *[f'  - "{f.matched_text}": {f.explanation}' for f in policy],
             "",
-            "It can triage candidate oxides from cached public data (Materials Project, OQMD, "
-            "OpenAlex, PubChem) and return a ranked shortlist with caveats.",
+            "Rephrase without that element and the triage runs; other hazard-tier elements can be "
+            "permitted by name, with confirmation, as a logged configuration change.",
+        ]
+        return GuardDecision(proceed=False, findings=findings, refusal_message="\n".join(lines))
+
+    # Nothing in scope to run: decline, and say what the tool does rather than answering a
+    # different question. An impossible ask with no triage beside it lands here too.
+    if scope:
+        reasons = [
+            f
+            for f in findings
+            if f.bin in (RequestBin.OUT_OF_SCOPE, RequestBin.IMPOSSIBLE, RequestBin.OVERRIDE)
+        ]
+        impossible = any(f.bin == RequestBin.IMPOSSIBLE for f in reasons)
+        lines = [
+            "This deployment does not have the capability the request needs:"
+            if impossible
+            else "This request was not run, because it is not something this tool does:",
+            *[f'  - "{f.matched_text}": {f.explanation}' for f in reasons],
+            "",
+            TOOL_DOES,
         ]
         return GuardDecision(proceed=False, findings=findings, refusal_message="\n".join(lines))
 

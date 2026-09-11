@@ -115,6 +115,9 @@ comparing candidates against each other.</div>
 {% if result.criteria.interpretation_notes %}
 <p class="sub">How the request was read: {{ result.criteria.interpretation_notes | join("; ") }}</p>
 {% endif %}
+{% if result.not_acted_on %}
+<div class="banner warn"><strong>Parts of the request not acted on</strong><ul style="margin:6px 0 0 18px;padding:0">{% for line in result.not_acted_on %}<li>{{ line }}</li>{% endfor %}</ul></div>
+{% endif %}
 
 {% if result.shortlist %}
 <h2>Shortlist</h2>

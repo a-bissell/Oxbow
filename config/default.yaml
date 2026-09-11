@@ -72,6 +72,11 @@ toxicity:
   blocklist_tiers: [2]          # elements in these tiers fail the hazard gate
   element_blocklist: []         # extra elements to block regardless of tier
   element_allowlist: []         # elements to permit despite tier (surfaced as a deviation)
+  # Elements a request can never unblock, whoever asks. Lead can be lifted by a request with
+  # confirmation because a ferroelectrics group has a real reason; nothing on this list can.
+  # A site changes it in site.yaml (an admin decision, logged as a site override), not in a
+  # request. Shipped: every radioactive element in the hazard table.
+  never_lift: [U, Th, Ra, Ac, Pa, Np, Pu, Am, Cm, Po]
 
 simplicity:
   scores: {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}   # by number of distinct elements

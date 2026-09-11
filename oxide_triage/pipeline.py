@@ -36,12 +36,13 @@ from oxide_triage.schemas import (
     CandidateRecord,
     Criteria,
     GuardDecision,
+    RequestBin,
     ScopeInfo,
     ScoredCandidate,
     TriageResult,
 )
 from oxide_triage.scoring.core import explanation, rank, retrieval_completeness
-from oxide_triage.scoring.settings import blocked_by_policy, resolve
+from oxide_triage.scoring.settings import blocked_by_policy, never_liftable, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 from oxide_triage.session import apply_changes, clarifications
 from oxide_triage.sources.assemble import DataLayer
@@ -72,6 +73,21 @@ def _pool_rows(ranked: list[ScoredCandidate], pool_size: int, by_compound: bool)
 
 def _now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
+
+
+def not_acted_on_lines(guard: GuardDecision, criteria: Criteria) -> list[str]:
+    """Everything the request asked for that this run does not do, one line each: a mode that
+    does not exist, a capability the deployment lacks, a clause no rule read. Printed on every
+    output so a partly honoured request never reads as fully honoured."""
+    lines: list[str] = []
+    for f in guard.findings:
+        if f.bin == RequestBin.OVERRIDE:
+            lines.append(f'"{f.matched_text}": {f.explanation.split(". ")[0]}.')
+        elif f.bin == RequestBin.IMPOSSIBLE:
+            lines.append(f'"{f.matched_text}": {f.explanation.split(". ")[0]}.')
+    for clause in criteria.unhandled:
+        lines.append(clause if ":" in clause else f"{clause}: no rule read this, so it changed nothing.")
+    return lines
 
 
 def _log_deviations(config: Config, result: TriageResult) -> None:
@@ -175,7 +191,7 @@ def run_triage(
     table = load_hazard_table(config.toxicity.table_file)
     llm = llm or make_llm(config.llm)
     blocked = blocked_by_policy(config, table)
-    guard: GuardDecision = guard_request(request_text, table, blocked)
+    guard: GuardDecision = guard_request(request_text, table, blocked, never_liftable(config))
     emit(progress, "parse", "Reading the request")
     if criteria is None:
         criteria, parser_label = parse_request(request_text, config, table, llm, blocked)
@@ -197,6 +213,8 @@ def run_triage(
     else:
         questions = clarifications(criteria, deviations, guard, config)
     llm_usage = {"parse": parser_label, "refute": "not run", "render": "templates only"}
+    # A declined request is explained by its refusal; the list is for runs that went ahead.
+    not_acted_on = not_acted_on_lines(guard, criteria) if guard.proceed else []
 
     own_cache = cache is None
     cache = cache or Cache(config.cache.path)
@@ -213,6 +231,7 @@ def run_triage(
             deviations=deviations,
             scoring=explanation(config, eff),
             llm_usage=llm_usage,
+            not_acted_on=not_acted_on,
             clarifications=questions,
             selfcheck_status="not_evaluated",
         )

@@ -78,6 +78,16 @@ function Header({ result, rid, view, setView }: { result: TriageResult; rid: str
       </div>
       {result.fixture_data && <div className="banner banner--crit small">Synthetic fixture data. Every number here is illustrative.</div>}
       {result.retrieval && !result.retrieval.comparable && <div className="banner banner--warn small">{result.retrieval.note}</div>}
+      {(result.not_acted_on ?? []).length > 0 && (
+        <div className="banner banner--warn small">
+          <strong>Parts of the request not acted on.</strong>
+          <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
+            {(result.not_acted_on ?? []).map((line, i) => (
+              <li key={i}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       {(result.deviations.length > 0 || notices.length > 0) && (
         <div className="wrap">
           {result.deviations.map((d, i) => (
