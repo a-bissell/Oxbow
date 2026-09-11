@@ -1,0 +1,21 @@
+# Oxides sold as single-crystal substrates. A literature count for one of these includes
+# every work that grew something else on it, so the count overstates the evidence that the
+# oxide itself has been deposited and measured as a film. The refutation pass attaches a
+# caveat; nothing here touches a score. Curated, with a stated basis per entry; absence
+# means "not flagged", never "not a substrate".
+version: "2026-09-11.1"
+formulas:
+  LaAlO3:   "the standard perovskite substrate for oxide epitaxy (a = 3.79 Å); most works name it as the substrate"
+  SrTiO3:   "the most used perovskite substrate; also the archetypal oxide-interface host"
+  MgO:      "common cubic substrate for rock-salt and spinel films"
+  Al2O3:    "sapphire; the most common oxide substrate for nitride and oxide growth"
+  TiO2:     "rutile single crystals are a standard substrate for oxide films"
+  ZrO2:     "yttria-stabilised zirconia (YSZ) substrates are common for fluorite and perovskite films"
+  Y2O3:     "yttria-stabilised zirconia (YSZ) and Y2O3-buffered substrates appear in many film papers"
+  MgAl2O4:  "spinel substrate for spinel and rock-salt films"
+  DyScO3:   "rare-earth scandate substrate used for strained ferroelectric films"
+  GdScO3:   "rare-earth scandate substrate used for strained ferroelectric films"
+  NdGaO3:   "orthorhombic perovskite substrate for oxide epitaxy"
+  LaSrAlO4: "layered perovskite substrate (LSAO) for cuprate and nickelate films"
+  YAlO3:    "orthorhombic perovskite substrate"
+  Gd3Ga5O12: "gadolinium gallium garnet (GGG), the standard substrate for garnet films"

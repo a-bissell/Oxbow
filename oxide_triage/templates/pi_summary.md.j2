@@ -58,9 +58,17 @@ _No ranking was run. Nothing below this line is a result._
 {% if not result.shortlist %}
 _No candidate passed every gate under this configuration. See the audit view for the reasons._
 {% endif %}
+{% set shared = result.run_notes | map(attribute="code") | list %}
+{% if result.run_notes %}
+**Applies to every shortlisted candidate:**
+{% for c in result.run_notes %}
+- ({{ c.severity }}) {{ c.text }}
+{% endfor %}
+
+{% endif %}
 {% set ns = namespace(tier=None) %}
 {% for sc in result.shortlist %}
-{% set cav = sc | primary_caveat %}
+{% set cav = sc | primary_caveat(shared) %}
 {% if sc.tier is not none and sc.tier != ns.tier %}
 {% set ns.tier = sc.tier %}
 {% set members = result.shortlist | selectattr("tier", "equalto", sc.tier) | list %}

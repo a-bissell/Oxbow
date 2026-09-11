@@ -55,9 +55,11 @@ export function findCandidate(r: TriageResult, key: string): ScoredCandidate | u
   return ranked[0] ?? matches[0];
 }
 
-export function primaryCaveat(sc: ScoredCandidate) {
-  const substantive = sc.caveats.filter((c) => c.code !== "fixture_data");
-  return (substantive.length ? substantive : sc.caveats)[0];
+/** The caveat a row leads with. `exclude` holds the codes already said once for the whole run
+ *  (result.run_notes), so each row's headline is the one specific to that candidate. */
+export function primaryCaveat(sc: ScoredCandidate, exclude: string[] = []) {
+  const skip = new Set([...exclude, "fixture_data"]);
+  return sc.caveats.find((c) => !skip.has(c.code));
 }
 
 export function timeAgo(iso: string): string {

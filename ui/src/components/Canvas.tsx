@@ -78,6 +78,18 @@ function Header({ result, rid, view, setView }: { result: TriageResult; rid: str
       </div>
       {result.fixture_data && <div className="banner banner--crit small">Synthetic fixture data. Every number here is illustrative.</div>}
       {result.retrieval && !result.retrieval.comparable && <div className="banner banner--warn small">{result.retrieval.note}</div>}
+      {(result.run_notes ?? []).length > 0 && (
+        <div className="banner banner--info small">
+          <strong>Applies to every shortlisted candidate.</strong>
+          <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
+            {(result.run_notes ?? []).map((c, i) => (
+              <li key={i}>
+                <span className={`sev sev--${c.severity}`}>{c.severity}</span> {c.text}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {(result.not_acted_on ?? []).length > 0 && (
         <div className="banner banner--warn small">
           <strong>Parts of the request not acted on.</strong>
@@ -159,9 +171,9 @@ function DiffCard({ prev, next, onShowPrev }: { prev: TriageResult; next: Triage
   );
 }
 
-function CandidateCard({ sc, onOpen, focused }: { sc: ScoredCandidate; onOpen: () => void; focused: boolean }) {
+function CandidateCard({ sc, onOpen, focused, shared }: { sc: ScoredCandidate; onOpen: () => void; focused: boolean; shared: string[] }) {
   const r = sc.record;
-  const cav = primaryCaveat(sc);
+  const cav = primaryCaveat(sc, shared);
   return (
     <button className={`card ccard ${focused ? "ccard--focus" : ""}`} onClick={onOpen}>
       <div className="ccard__rank">{sc.rank}</div>
@@ -753,7 +765,7 @@ export default function Canvas() {
             <>
               {prev && prevId && <DiffCard prev={prev} next={result} onShowPrev={() => void app.showResult(prevId)} />}
               {result.shortlist.map((sc) => (
-                <CandidateCard key={sc.record.material_id} sc={sc} onOpen={() => open(sc)} focused={sc.record.material_id === focusedId} />
+                <CandidateCard key={sc.record.material_id} sc={sc} onOpen={() => open(sc)} focused={sc.record.material_id === focusedId} shared={(result.run_notes ?? []).map((c) => c.code)} />
               ))}
               {result.ranked_beyond_shortlist.length > 0 && (
                 <div className="row small muted" style={{ justifyContent: "space-between", padding: "4px 4px" }}>

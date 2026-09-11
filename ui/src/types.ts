@@ -121,6 +121,7 @@ export interface TriageResult {
   criteria: Record<string, unknown> & { families?: string[]; interpretation_notes?: string[] };
   guard: { proceed: boolean; findings: { bin: string; code: string; matched_text: string; explanation: string }[]; refusal_message?: string | null };
   not_acted_on?: string[];
+  run_notes?: Caveat[];
   profile_name: string;
   config_hash: string;
   cache_fingerprint: string;

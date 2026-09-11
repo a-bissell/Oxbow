@@ -32,7 +32,7 @@ from oxide_triage.edges.render import rationale_line
 from oxide_triage.grouping import assign_tiers, group_polymorphs, polymorph_caveat
 from oxide_triage.guard import guard_request
 from oxide_triage.progress import ProgressFn, emit
-from oxide_triage.refute import refute, rule_caveats
+from oxide_triage.refute import refute, rule_caveats, shared_caveats
 from oxide_triage.schemas import (
     CandidateRecord,
     Criteria,
@@ -358,6 +358,7 @@ def run_triage(
                 sc.caveats.insert(0, pc) if pc.severity != "info" else sc.caveats.append(pc)
         for sc in ranked + collapsed:
             sc.rationale = rationale_line(sc)
+        run_notes = shared_caveats(shortlist, config)
 
         if config.candidates.formula_sources == "on_demand" and ranked and retrieval_scope is None:
             # Offline under on-demand sources the fill does not run, but the semantics are the
@@ -413,6 +414,7 @@ def run_triage(
             retrieval=retrieval,
             shortlist=shortlist,
             ranked_beyond_shortlist=beyond,
+            run_notes=run_notes,
             excluded=excluded,
             collapsed_polymorphs=collapsed,
             tie_band=config.output.tie_band,

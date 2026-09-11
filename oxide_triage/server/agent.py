@@ -303,9 +303,12 @@ def narrate_result(result: TriageResult, rerun_of: str | None, store: SessionSto
     )
     parts.append("Shortlist: " + describe_tiers(result.shortlist) + ".")
     first = result.shortlist[0]
-    cav = primary_caveat(first)
+    shared = [c.code for c in result.run_notes]
+    cav = primary_caveat(first, shared)
     if cav is not None:
         parts.append(f"Main caveat on {first.record.formula}: {cav.text}")
+    if result.run_notes:
+        parts.append("Shared by every shortlisted candidate: " + " ".join(c.text for c in result.run_notes))
     devs = [d.description for d in result.deviations]
     if devs:
         parts.append("Deviations from the shipped policy: " + " ".join(devs))
@@ -411,7 +414,7 @@ def narrate_explain(result: TriageResult, key: str) -> tuple[str, list[str]]:
         parts.append(
             "No data for " + ", ".join(sc.missing_criteria) + ", which earns no credit and lowers confidence."
         )
-    cav = primary_caveat(sc)
+    cav = primary_caveat(sc, [c.code for c in result.run_notes])
     if cav is not None:
         parts.append(f"Main caveat: {cav.text}")
     sugg = []
