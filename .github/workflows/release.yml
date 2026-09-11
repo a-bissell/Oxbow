@@ -2,7 +2,8 @@
 #
 #   image    the container image, saved to a zstd tarball
 #   wheels   the Python package and every dependency as wheels, installable with --no-index
-#   bundle   a cache warmed from the public sources with the release's own key, self-checked,
+#   bundle   a cache seeded from the last good bundle, warmed from the public sources with the
+#            release's own key, self-checked,
 #            packaged with a manifest (sources, timestamps, self-check, SHA-256, commit)
 #   smoke    the image loaded and run with --network none against the bundle: install, self-check,
 #            the PI's request; then the documented compose steps end to end
@@ -125,6 +126,9 @@ jobs:
     needs: [version, test]
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: read  # to download the bundle artifact of an earlier run
     env:
       OXIDE_TRIAGE_CACHE: ${{ github.workspace }}/data/cache.sqlite
       OXIDE_TRIAGE_SITE_CONFIG: "off"
@@ -138,6 +142,36 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
       - run: pip install -e ".[web]"
+      # OQMD is down often enough that a cold warm is a coin flip, so a live release starts
+      # from the cache of the newest earlier run whose bundle passed the self-check on live
+      # data. Records inside the source TTL (90 days) are reused as-is and only the gaps are
+      # fetched, which is also faster. No usable earlier bundle means a cold warm, as before.
+      - name: Seed the cache from the last good bundle
+        if: env.DATA == 'live'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for id in $(gh run list --workflow "$GITHUB_WORKFLOW" --limit 30 --json databaseId -q '.[].databaseId'); do
+            [ "$id" = "$GITHUB_RUN_ID" ] && continue
+            rm -rf seed
+            gh run download "$id" -n bundle -D seed 2>/dev/null || continue
+            if python - <<'PY'
+          import json, sys
+          m = json.load(open("seed/manifest.json"))
+          ok = not m["fixture_data"] and m["selfcheck"]["passed"] and not m["selfcheck"]["inconclusive"]
+          print(f"run bundle: built {m['built_at']} from {m['commit'][:9]}, sources {m['sources']}")
+          sys.exit(0 if ok else 1)
+          PY
+            then
+              mkdir -p "$(dirname "$OXIDE_TRIAGE_CACHE")"
+              cp seed/cache.sqlite "$OXIDE_TRIAGE_CACHE"
+              echo "seeded the cache from run ${id}"
+              rm -rf seed
+              exit 0
+            fi
+          done
+          rm -rf seed
+          echo "no earlier live bundle passed the self-check; warming from cold"
       - name: Warm from the public sources
         if: env.DATA == 'live'
         run: |
