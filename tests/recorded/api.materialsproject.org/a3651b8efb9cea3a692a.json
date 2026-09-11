@@ -1,0 +1,47 @@
+{
+ "params": {
+  "_fields": "formula_pretty,chemsys,formation_energy_per_atom",
+  "_limit": 1000,
+  "_skip": 0,
+  "chemsys": "O-Si,O-Sn,Si-Sn,O-Si-Sn",
+  "energy_above_hull_max": 0.0,
+  "thermo_types": "GGA_GGA+U_R2SCAN"
+ },
+ "response": {
+  "data": [
+   {
+    "chemsys": "O-Si",
+    "formation_energy_per_atom": -3.2728313438888907,
+    "formula_pretty": "SiO2"
+   },
+   {
+    "chemsys": "O-Sn",
+    "formation_energy_per_atom": -1.7621987818181877,
+    "formula_pretty": "Sn5O6"
+   },
+   {
+    "chemsys": "O-Sn",
+    "formation_energy_per_atom": -2.107482005,
+    "formula_pretty": "SnO2"
+   },
+   {
+    "chemsys": "O-Sn",
+    "formation_energy_per_atom": -1.6297024024999995,
+    "formula_pretty": "SnO"
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "thermo_id",
+    "material_id",
+    "last_updated"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-11T02:15:37.371589+00:00",
+   "total_doc": 4
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/thermo/"
+}

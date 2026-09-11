@@ -98,6 +98,61 @@ two runs identical (excluding timestamp): True; cache fingerprint 9a2500bb24be0c
 Over the 22 counted perturbations: the base tier 1 (LaAlO3, HfO2, SrHfO3) is reproduced exactly in 7; its members never fall below rank 7; worst rank per compound: LaAlO3 2, HfO2 5, SrHfO3 7, ZrO2 9, Al2O3 12. The contrast row is not counted.
 Reading: the tier boundary moves with the settings (which candidates join the leaders), but the leaders themselves stay in the top ten under every weight moved by half in either direction and every parameter set after seeing live data moved past its original value.
 
+## 7. Held-out validation of the interface criterion (Hubbard & Schlom 1996) — PASS
+
+Held-out set: Hubbard & Schlom, J. Mater. Res. 11, 2757 (1996), DOI 10.1557/JMR.1996.0350; substrate Si; the tool's tolerance 0.05 eV/atom (a reaction inside it counts as none).
+
+| Oxide | Paper says | Group | Tool: E_rxn (eV/atom) | Tool says | Products | Agrees |
+|---|---|---|---|---|---|---|
+| BeO | stable | proven_stable | +0.000 | stable | — | yes |
+| MgO | stable | proven_stable | +0.000 | stable | — | yes |
+| ZrO2 | stable | proven_stable | -0.069 | marginal | SiO2, ZrSi | yes |
+| CaO | stable (unsure) | proven_stable | -0.034 | stable | Ca2SiO4, CaSi2 | yes |
+| TiO2 | unstable | unstable | -0.173 | reacts | SiO2, TiSi | yes |
+| Ta2O5 | unstable | unstable | -0.300 | reacts | SiO2, Ta5Si3, TaSi2 | yes |
+| Nb2O5 | unstable | unstable | -0.524 | reacts | SiO2, Nb5Si3, NbSi2 | yes |
+| WO3 | unstable | unstable | -1.061 | reacts | SiO2, W, Si2W | yes |
+| Ga2O3 | unstable | unstable | -0.507 | reacts | SiO2, Ga | yes |
+| Bi2O3 | unstable | unstable | -0.978 | reacts | SiO2, Bi | yes |
+| GeO2 | unstable | unstable | -0.837 | reacts | SiO2, Ge | yes |
+| SnO2 | unstable | unstable | -0.874 | reacts | SiO2, Sn | yes |
+| ZnO | unstable | unstable | -0.531 | reacts | SiO2, Zn | yes |
+| Cr2O3 | unstable | unstable | -0.457 | reacts | SiO2, Cr3Si, Cr | yes |
+| V2O5 | unstable | unstable | -0.975 | reacts | SiO2, V5Si3, VSi2 | yes |
+| MoO3 | unstable | unstable | -1.278 | reacts | SiO2, SiMo3, Mo | yes |
+| In2O3 | unstable | unstable | -0.714 | reacts | SiO2, In | yes |
+| Fe2O3 | unstable | unstable | -0.976 | reacts | SiO2, Fe3Si, Fe | yes |
+| NiO | unstable | unstable | -1.078 | reacts | SiO2, SiNi3, SiNi2 | yes |
+| CuO | unstable | unstable | -1.209 | reacts | SiO2, Cu | yes |
+| PbO | unstable | unstable | -0.788 | reacts | SiO2, Pb | yes |
+| Li2O | stable | not_shown_unstable | -0.049 | stable | Li4SiO4, Li7Si3 | yes |
+| SrO | stable | not_shown_unstable | -0.136 | reacts | Sr2SiO4, SrSi2, SrSi | **no** |
+| Sc2O3 | stable | not_shown_unstable | +0.000 | stable | — | yes |
+| Y2O3 | stable | not_shown_unstable | +0.000 | stable | — | yes |
+| La2O3 | stable | not_shown_unstable | -0.062 | marginal | La2SiO5, LaSi2 | yes |
+| Gd2O3 | stable | not_shown_unstable | +0.000 | stable | — | yes |
+| Lu2O3 | stable | not_shown_unstable | +0.000 | stable | — | yes |
+| ThO2 | stable | not_shown_unstable | +0.000 | stable | — | yes |
+| UO2 | stable | not_shown_unstable | +0.000 | stable | — | yes |
+| HfO2 | stable | not_shown_unstable | +0.000 | stable | — | yes |
+| Al2O3 | stable | not_shown_unstable | +0.000 | stable | — | yes |
+| BaO | — (unsure) | borderline | -0.227 | reacts | Ba2SiO4, Ba3Si4, BaSi | — |
+| LaAlO3 | stable (reported) | secondary | +0.000 | stable | — | yes |
+| NdAlO3 | stable (reported) | secondary | +0.000 | stable | — | yes |
+| CaZrO3 | stable (reported) | secondary | -0.120 | reacts | CaSiO3, ZrSi, ZrSi2 | **no** |
+| SrZrO3 | stable (reported) | secondary | -0.121 | reacts | SrSiO3, ZrSi, ZrSi2 | **no** |
+| GdScO3 | stable (reported) | secondary | +0.000 | stable | — | yes |
+| LaYO3 | stable (reported) | secondary | -0.038 | stable | Y2SiO5, LaSi2, La2SiO5, Y2O3 | yes |
+| SrTiO3 | unstable (reported) | secondary | -0.143 | reacts | SrSiO3, TiSi, TiSi2 | yes |
+| BaTiO3 | unstable (reported) | secondary | -0.159 | reacts | BaSiO3, TiSi, TiSi2 | yes |
+
+Hard assertions (proven stable, unstable): 21 of 21 agree. Soft assertions (not shown unstable): 10 of 11 agree.
+
+Disagreements, named:
+- SrO: the paper says stable; the hull says -0.136 eV/atom forming Sr2SiO4, SrSi2, SrSi.
+- CaZrO3: the paper says stable; the hull says -0.120 eV/atom forming CaSiO3, ZrSi, ZrSi2. Coh et al. 2010
+- SrZrO3: the paper says stable; the hull says -0.121 eV/atom forming SrSiO3, ZrSi, ZrSi2. Coh et al. 2010
+
 ## Profiles change the output
 
 | Profile | Top 5 |

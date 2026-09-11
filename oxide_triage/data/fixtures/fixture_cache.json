@@ -2982,6 +2982,244 @@
     "ZrSiO4": -3.5588
    },
    "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Nd-O-Si": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Al2SiO5": -3.3769,
+    "Nd2O3": -3.7815,
+    "Nd2Si2O7": -3.609,
+    "Nd2SiO5": -3.7105,
+    "Nd3Al": -0.229,
+    "Nd4Al2O9": -3.7161,
+    "Nd5Si3": -0.6678,
+    "Nd5Si4": -0.7667,
+    "NdAl": -0.4554,
+    "NdAl2": -0.5582,
+    "NdAl3": -0.4927,
+    "NdAlO3": -3.6725,
+    "NdAlSi": -0.7375,
+    "NdO2": -3.1597,
+    "NdSi": -0.8287,
+    "NdSi2": -0.6373,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Ca-O-Si-Zr": {
+   "phases": {
+    "Ca2Si": -0.5343,
+    "Ca2SiO4": -3.4766,
+    "Ca3SiO": -1.6129,
+    "Ca3ZrSi2O9": -3.5388,
+    "Ca5Si3": -0.5542,
+    "CaO": -3.306,
+    "CaO2": -2.2066,
+    "CaSi": -0.6011,
+    "CaSi2": -0.4269,
+    "CaSiO3": -3.448,
+    "CaZrO3": -3.6702,
+    "SiO2": -3.2728,
+    "Zr2Si": -0.8331,
+    "Zr3O": -1.5462,
+    "Zr3Si2": -0.9323,
+    "Zr4O": -1.2407,
+    "ZrO2": -3.8136,
+    "ZrSi": -0.984,
+    "ZrSi2": -0.6572,
+    "ZrSiO4": -3.5588
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Cu-O-Si": {
+   "phases": {
+    "Cu15Si4": -0.0769,
+    "Cu2O": -0.6445,
+    "Cu2O3": -0.8519,
+    "CuO": -0.9428,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Fe-O-Si": {
+   "phases": {
+    "Fe2O3": -1.7071,
+    "Fe2SiO4": -2.3014,
+    "Fe3Si": -0.3041,
+    "FeO": -1.4815,
+    "FeSi": -0.476,
+    "FeSi2": -0.3956,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Gd-O-Sc-Si": {
+   "phases": {
+    "Gd2O3": -3.8954,
+    "Gd2Sc3Si4": -0.7737,
+    "Gd2Si2O7": -3.6297,
+    "Gd2SiO5": -3.733,
+    "Gd5Si4": -0.7024,
+    "GdScSi": -0.6401,
+    "GdSi": -0.7705,
+    "GdSi2": -0.5446,
+    "Sc2O3": -3.9687,
+    "Sc2Si2O7": -3.6074,
+    "Sc5Si3": -0.7978,
+    "ScSi": -0.8584,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Ge-O-Si": {
+   "phases": {
+    "GeO2": -2.1567,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "In-O-Si": {
+   "phases": {
+    "In2O3": -1.9941,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "La-O-Si-Y": {
+   "phases": {
+    "La2O3": -3.8759,
+    "La2Si2O7": -3.674,
+    "La2SiO5": -3.7785,
+    "La5Si3": -0.679,
+    "La5Si4": -0.7718,
+    "LaSi": -0.8145,
+    "LaSi2": -0.7082,
+    "SiO2": -3.2728,
+    "Y2O3": -3.9539,
+    "Y2Si2O7": -3.671,
+    "Y2SiO5": -3.7812,
+    "Y5Si3": -0.7842,
+    "YSi": -0.8982
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Li-O-Si": {
+   "phases": {
+    "Li13Si4": -0.2341,
+    "Li15Si4": -0.2196,
+    "Li21Si5": -0.208,
+    "Li2O": -2.0616,
+    "Li2O2": -1.6502,
+    "Li2Si2O5": -3.0159,
+    "Li2SiO3": -2.8829,
+    "Li4SiO4": -2.6749,
+    "Li7Si3": -0.244,
+    "Li8SiO6": -2.435,
+    "LiO8": -0.4271,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Mo-O-Si": {
+   "phases": {
+    "Mo8O23": -1.9352,
+    "Mo9O26": -1.934,
+    "MoO2": -2.0216,
+    "MoO3": -1.9246,
+    "Si2Mo": -0.4661,
+    "Si3Mo5": -0.399,
+    "SiMo3": -0.3223,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Nb-O-Si": {
+   "phases": {
+    "Nb12O29": -3.0391,
+    "Nb2O5": -3.0342,
+    "Nb5Si3": -0.7232,
+    "NbO": -2.2877,
+    "NbO2": -2.8976,
+    "NbSi2": -0.5187,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Ni-O-Si": {
+   "phases": {
+    "Ni3O4": -1.0468,
+    "NiO": -1.2181,
+    "Si(NiO2)2": -2.1141,
+    "Si2Ni": -0.3444,
+    "SiNi": -0.4707,
+    "SiNi2": -0.524,
+    "SiNi3": -0.4337,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "O-Pb-Si": {
+   "phases": {
+    "Pb3O4": -1.447,
+    "PbO": -1.47,
+    "PbO2": -1.2996,
+    "Si2Pb3O7": -2.4153,
+    "SiO2": -3.2728,
+    "SiPbO3": -2.5959
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "O-Si-Sn": {
+   "phases": {
+    "SiO2": -3.2728,
+    "Sn5O6": -1.7622,
+    "SnO": -1.6297,
+    "SnO2": -2.1075
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "O-Si-U": {
+   "phases": {
+    "SiO2": -3.2728,
+    "U17O31": -3.6424,
+    "U3O8": -3.7097,
+    "U3Si": -0.2704,
+    "UO2": -3.7504,
+    "UO3": -3.6122,
+    "USi2": -0.3881,
+    "USi3": -0.2976
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "O-Si-V": {
+   "phases": {
+    "SiO2": -3.2728,
+    "V2O3": -2.5345,
+    "V2O5": -2.289,
+    "V2SiO4": -2.6391,
+    "V3Si": -0.4973,
+    "V5Si3": -0.6106,
+    "VO2": -2.5225,
+    "VSi2": -0.4545
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "O-Si-W": {
+   "phases": {
+    "Si2W": -0.2999,
+    "SiO2": -3.2728,
+    "WO2": -2.0367,
+    "WO3": -2.1909
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "O-Si-Zn": {
+   "phases": {
+    "SiO2": -3.2728,
+    "Zn2SiO4": -2.4471,
+    "ZnO": -1.7909
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
   }
  }
 }
