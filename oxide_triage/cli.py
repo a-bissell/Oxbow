@@ -30,6 +30,7 @@ from pathlib import Path
 import typer
 
 from oxide_triage.bundle import (
+    RELEASE_MIN_COMPLETENESS,
     BundleError,
     build_bundle,
     describe,
@@ -546,12 +547,26 @@ def bundle_build_cmd(
     allow_fixture: bool = typer.Option(
         False, "--allow-fixture", help="Permit a demo bundle from synthetic fixture data."
     ),
+    min_completeness: float = typer.Option(
+        RELEASE_MIN_COMPLETENESS,
+        "--min-completeness",
+        min=0.0,
+        max=1.0,
+        help="Refuse a cache whose retrieval completeness is below this (a site offline cannot fill gaps).",
+    ),
 ) -> None:
     """Copy the current cache into a bundle directory with a manifest (checksum, sources, self-check).
     Refuses a cache whose self-check is missing, failed or inconclusive."""
     config = load_config(profile)
     try:
-        manifest = build_bundle(config, out, version=version, commit=commit, allow_fixture=allow_fixture)
+        manifest = build_bundle(
+            config,
+            out,
+            version=version,
+            commit=commit,
+            allow_fixture=allow_fixture,
+            min_completeness=min_completeness,
+        )
     except BundleError as exc:
         typer.echo(f"not built: {exc}", err=True)
         raise typer.Exit(code=4) from None

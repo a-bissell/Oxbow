@@ -38,6 +38,9 @@ MANIFEST_NAME = "manifest.json"
 CACHE_NAME = "cache.sqlite"
 MANIFEST_SCHEMA = 1
 RELEASE_META_KEY = "release"
+# A release is a one-shot artifact for a site that cannot retry a fetch, so it is held to a
+# stricter retrieval floor than the self-check's "is the ranker testable" 90%.
+RELEASE_MIN_COMPLETENESS = 0.98
 
 
 class BundleError(RuntimeError):
@@ -118,9 +121,12 @@ def build_bundle(
     version: str | None = None,
     commit: str | None = None,
     allow_fixture: bool = False,
+    min_completeness: float = RELEASE_MIN_COMPLETENESS,
     config_dir: Path = DEFAULT_CONFIG_DIR,
 ) -> dict[str, Any]:
-    """Package the configured cache into ``out_dir``. Returns the manifest."""
+    """Package the configured cache into ``out_dir``. Returns the manifest. Refuses a cache whose
+    self-check is missing, failed or inconclusive, or whose retrieval completeness is below
+    ``min_completeness``."""
     cache_path = Path(config.cache.path)
     if str(cache_path) == ":memory:" or not cache_path.is_file():
         raise BundleError(f"no cache file at {cache_path}; warm it first (oxide-triage warm-cache)")
@@ -144,6 +150,18 @@ def build_bundle(
             raise BundleError("self-check is INCONCLUSIVE (cache too sparsely retrieved); not releasable")
         if not sc.passed:
             raise BundleError("self-check FAILED; not releasable")
+        fetch_log = cache.fetch_log_summary()
+        completeness = sc.retrieval_completeness
+        if completeness is not None and completeness < min_completeness:
+            failures = ", ".join(
+                f"{src} {n}" for src, outcomes in fetch_log.items() if (n := outcomes.get("fetch_failed"))
+            )
+            raise BundleError(
+                f"retrieval completeness {completeness:.1%} is below the release floor "
+                f"{min_completeness:.0%}; a site with no network cannot fill the gaps. "
+                + (f"Fetch failures at build: {failures}. " if failures else "")
+                + "Re-run the queries or fill-gaps once the source is back, or lower --min-completeness."
+            )
         sources = cache.sources_summary()
         release = {
             "name": "oxide-triage",
@@ -170,6 +188,7 @@ def build_bundle(
         "site_overrides_in_effect": config.site_config_path is not None
         and Path(config.site_config_path).is_file(),
         "sources": sources,
+        "fetch_log": fetch_log,
         "selfcheck": selfcheck,
         "cache": {"file": CACHE_NAME, "sha256": digest, "bytes": cache_out.stat().st_size},
     }
@@ -261,8 +280,20 @@ def describe(manifest: dict[str, Any]) -> str:
     sc = manifest.get("selfcheck") or {}
     commit = (manifest.get("commit") or "unknown")[:12]
     fixture = " SYNTHETIC FIXTURE DATA" if manifest.get("fixture_data") else ""
+    comp = sc.get("retrieval_completeness")
+    comp_s = f", retrieval {comp:.1%}" if isinstance(comp, int | float) else ""
+    failed = {
+        src: n
+        for src, outcomes in (manifest.get("fetch_log") or {}).items()
+        if (n := outcomes.get("fetch_failed"))
+    }
+    failed_s = (
+        "; fetch failures at build: " + ", ".join(f"{k} {v}" for k, v in sorted(failed.items()))
+        if failed
+        else ""
+    )
     return (
         f"oxide-triage {manifest.get('version')} ({commit}) built {manifest.get('built_at')}; "
         f"{sc.get('n_candidates', '?')} candidates, self-check "
-        f"{'passed' if sc.get('passed') else 'FAILED'}{fixture}"
+        f"{'passed' if sc.get('passed') else 'FAILED'}{comp_s}{failed_s}{fixture}"
     )

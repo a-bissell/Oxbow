@@ -381,6 +381,14 @@ docker compose -f docker/compose.yml -f docker/compose.offline.yml run --rm app 
 docker compose -f docker/compose.yml -f docker/compose.offline.yml up -d
 ```
 
+A public source can be down for a stretch (OQMD answered 502 to everything during one release
+warm). The client pauses a source after five consecutive server failures instead of retrying
+every formula against it (`candidates.fetch.<source>.pause_after` / `pause_s`), the workflow
+retries the fill a few times with a pause between rounds, and `bundle build` refuses a cache
+whose retrieval completeness is below 98 % (`--min-completeness`), a stricter floor than the
+self-check's 90 % because the receiving site cannot fetch what the warm missed. The manifest
+records fetch outcomes per source, so a bundle built through an outage says so.
+
 `bundle install` verifies the checksum, the recorded self-check and the release stamp inside the
 cache before copying anything, and refuses to replace a populated cache without `--force`.
 `oxide-triage doctor` and the web app's status then name the release, its commit and its build

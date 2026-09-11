@@ -152,8 +152,12 @@ candidates:
   # cap bounds the pressure, the pool keeps throughput near the cap despite the latency.
   # PubChem documents 5 req/s; OpenAlex allows 10 req/s but is metered by budget, not rate;
   # Materials Project is batched (100 ids per call) and needs no cap.
+  # pause_after / pause_s: after that many consecutive server failures (5xx, transport errors)
+  # the source is paused for pause_s and its requests fail at once; default 5 and 60. OQMD
+  # answered 502 to everything for a stretch of one release warm, and without the pause every
+  # formula spent three retries on it.
   fetch:
-    oqmd:     {workers: 8, max_rps: 1.0}
+    oqmd:     {workers: 8, max_rps: 1.0, pause_after: 5, pause_s: 60}
     pubchem:  {workers: 4, max_rps: 4.0}
     openalex: {workers: 4, max_rps: 5.0}
 

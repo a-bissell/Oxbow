@@ -92,3 +92,60 @@ def test_rate_limiter_rejects_nonpositive_rate():
 
     with pytest.raises(ValueError):
         RateLimiter(0)
+
+
+# ---- circuit breaker ---------------------------------------------------------------------------
+
+
+def _breaker_client(handler, sleeps, threshold=3, cooldown=60.0):
+    from oxide_triage.sources.base import CircuitBreaker
+
+    http = _client(handler, sleeps)
+    http.breaker = CircuitBreaker(threshold=threshold, cooldown_s=cooldown, name="oqmd")
+    return http
+
+
+def test_breaker_opens_after_consecutive_server_failures_and_fails_fast(monkeypatch):
+    """One formula's retries (3 attempts at max_retries=2) trip a threshold of 3; the next
+    formula never reaches the transport and the error names the pause."""
+    calls, sleeps = [], []
+
+    def handler(request):
+        calls.append(request.url)
+        return httpx.Response(502)
+
+    http = _breaker_client(handler, sleeps, threshold=3)
+    with pytest.raises(SourceError, match="Giving up"):
+        http.get_json("https://oqmd.org/a")
+    assert len(calls) == 3 and http.breaker.opened == 1
+    with pytest.raises(SourceError, match="oqmd paused for .*after 3 consecutive server failures"):
+        http.get_json("https://oqmd.org/b")
+    assert len(calls) == 3  # not even one attempt while paused
+
+    # After the cooldown one request is let through; a success closes the breaker.
+    now = [1000.0]
+    monkeypatch.setattr("oxide_triage.sources.base.time.monotonic", lambda: now[0])
+    http.breaker._open_until = now[0] + 60.0
+    now[0] += 61.0
+    ok = {"ok": True}
+    http._client = httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(200, json=ok)))
+    assert http.get_json("https://oqmd.org/c") == ok
+    assert http.breaker._failures == 0 and http.breaker._open_until == 0.0
+
+
+def test_breaker_ignores_rate_limit_responses_and_resets_on_any_answer():
+    n, sleeps = [0], []
+
+    def handler(request):
+        n[0] += 1
+        if n[0] <= 2:
+            return httpx.Response(429)  # the rate cap's business, not the breaker's
+        if n[0] == 3:
+            return httpx.Response(200, json={"n": 3})
+        return httpx.Response(404)  # a served "no record" still means the server is up
+
+    http = _breaker_client(handler, sleeps, threshold=2)
+    assert http.get_json("https://oqmd.org/a") == {"n": 3}
+    assert http.breaker.opened == 0 and http.breaker._failures == 0
+    assert http.get_json("https://oqmd.org/b") is None
+    assert http.breaker.opened == 0

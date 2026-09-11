@@ -155,3 +155,24 @@ def test_cli_build_verify_install_round_trip(warmed, tmp_path, monkeypatch):
     assert r.exit_code == 0 and "release: 0.0.1" in r.output
     r = runner.invoke(app, ["bundle", "install", str(out)])
     assert r.exit_code == 4 and "--force" in r.output
+
+
+def test_build_refuses_a_cache_below_the_release_completeness_floor(warmed, tmp_path):
+    """The self-check floor (90%) says whether the ranker is testable; a release is held higher
+    because the receiving site cannot fetch what is missing. The manifest names the failures."""
+    cache = Cache(warmed.cache.path)
+    sc = read_selfcheck(cache)
+    assert sc.retrieval_completeness == 1.0
+    cache.set_meta("selfcheck", sc.model_copy(update={"retrieval_completeness": 0.912}).model_dump_json())
+    cache.log("oqmd", "formula:SrHfO3", "fetch_failed", "HTTP 502")
+    cache.log("oqmd", "formula:LaAlO3", "fetch_failed", "HTTP 502")
+    cache.log("oqmd", "formula:HfO2", "fetched")
+    cache.close()
+    with pytest.raises(BundleError, match=r"91\.2%.*below the release floor 98%.*oqmd 2"):
+        build_bundle(warmed, tmp_path / "bundle", allow_fixture=True)
+    manifest = build_bundle(warmed, tmp_path / "bundle", allow_fixture=True, min_completeness=0.9)
+    assert manifest["fetch_log"]["oqmd"] == {"fetch_failed": 2, "fetched": 1}
+    from oxide_triage.bundle import describe
+
+    line = describe(manifest)
+    assert "retrieval 91.2%" in line and "fetch failures at build: oqmd 2" in line
