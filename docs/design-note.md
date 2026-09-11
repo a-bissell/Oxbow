@@ -207,7 +207,7 @@ the cache, and `doctor` names the release and its build date, since a cache has 
 
 ## 10. Evaluation
 
-Six checks, as pytest tests and as a report (`eval/run_eval.py`, `eval/evaluation.ipynb`), all
+Seven checks, as pytest tests and as a report (`eval/run_eval.py`, `eval/evaluation.ipynb`), all
 passing on the fixture and on the live cache: the PI's request yields a ranked shortlist with caveats and named gaps;
 adversarial requests in every bin behave as specified and two legitimate phrasings run as plain
 requests; the workhorse dielectrics surface near the top or are excluded by a stated gate; two
@@ -218,7 +218,10 @@ failure on the partial live cache that was about retrieval, not ranking, which i
 reports `INCONCLUSIVE` on a sparse cache and reserves `FAIL` for a wrong known answer. Three
 ranking parameters were set after seeing live data; `docs/ranking-decisions.md` records each
 with its trigger and effect, and the sixth check moves every weight and every one of those
-parameters past its original value and reports whether the first tier survives.
+parameters past its original value and reports whether the first tier survives. The seventh is
+a held-out validation: the interface criterion against Hubbard and Schlom's 1996 classification,
+never used to set anything, with 21 of 21 hard assertions agreeing and the three disagreements
+named.
 
 ## 11. Limitations and next steps
 

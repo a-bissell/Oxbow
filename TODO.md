@@ -167,6 +167,10 @@ Ideas / planned work for this project.
       universe, fetched in a minute). Reproduces Hubbard & Schlom 1996: HfO2, Al2O3, Y2O3, LaAlO3,
       SrHfO3 at 0 against Si; ZrO2 inside the 0.05 eV/atom DFT tolerance; Ta2O5, TiO2, the
       titanates react and the caveat names the products. Follow-ups:
+      - [x] Held-out validation against Hubbard & Schlom 1996 — done 2026-09-10
+            (`oxide-triage validate`, evaluation check 7): 21/21 hard, 10/11 soft; SrO, CaZrO3,
+            SrZrO3 named as disagreements.
+      - [ ] Chase the three disagreements: are the MP alkaline-earth silicate energies the cause?
       - [ ] Let a request name the substrate ("on germanium", "on SrTiO3").
       - [ ] Multi-substrate view: the same shortlist against Si, Ge and a perovskite side by side.
 

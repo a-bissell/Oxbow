@@ -124,9 +124,42 @@ perturbations. The result on the live cache:
 The honest reading: the settings decide the order among the top seven and not who is in it, and
 the tiers exist because the order among them is not something the inputs can support.
 
-## What would settle it
+## The held-out validation
 
-A validation set the tool was never tuned against: an independently published list of oxides
-judged stable or unstable in contact with silicon. Agreement with such a list is evidence;
-agreement with the four workhorses used to set the windows is not. That comparison is the next
-entry here.
+Hubbard and Schlom, J. Mater. Res. 11, 2757 (1996), classified the binary oxides by whether
+they are thermodynamically stable in contact with silicon at 1000 K, by the hull argument this
+tool implements, thirty years before the code. The list was never used to set a parameter; the
+self-check's workhorses were. `oxide-triage validate` computes the criterion for every oxide on
+it (`oxide_triage/data/validation/hubbard_schlom_1996.yaml`, with the citation, the abstract's
+exact wording and a confidence tag per entry), and check 7 of the evaluation reports it.
+
+Scored the way the abstract asserts things. "Sufficient data exist to conclude ... stable"
+(BeO, MgO, ZrO2, CaO) and "all binary oxides except the following are unstable" (seventeen
+named examples) are hard: the tool must agree. "Not shown unstable" (eleven survivors) is soft:
+counted, not failed, because the paper does not claim to have shown them stable. Later
+Schlom-group statements about perovskites are reported only.
+
+Result on the live hulls: **21 of 21 hard assertions agree; 10 of 11 soft**. Disagreements,
+named in the report:
+
+- **SrO.** The paper could not show it unstable; the hull says −0.136 eV/atom, forming Sr2SiO4
+  and strontium silicides.
+- **CaZrO3 and SrZrO3.** Coh, Schlom, Vanderbilt et al. (Phys. Rev. B 82, 064101, 2010) say they
+  are "believed to be stable on silicon"; the hull says −0.12 eV/atom for both, forming
+  CaSiO3 or SrSiO3 plus zirconium silicides. LaAlO3, NdAlO3, GdScO3 and LaYO3 from the same
+  paper agree.
+
+All three disagreements involve an alkaline-earth silicate on the products side, so they may
+share a cause in the Materials Project energies for those silicates, or the paper's 1000 K
+data may differ from the 0 K hull there. Either way the tool ranks CaZrO3 tenth and SrZrO3
+nineteenth on the strength of it, and a reader deciding whether to trust that placement now
+has both sources and the number in front of them.
+
+**One decision inside the validation itself.** The first draft called a reaction "marginal"
+anywhere on the scoring ramp, down to −0.25 eV/atom, and so called TiO2 (−0.17) marginal and
+scored it as a disagreement with "unstable". The band was redrawn at twice the tolerance,
+−0.10, which is what marginal means (the band the ZrO2 literature argues inside). This turned
+TiO2 into an agreement and SrO, CaZrO3 and SrZrO3 from agreements into the three
+disagreements above. The redraw made the result look worse, not better, and it is the right
+boundary; where the *score* reaches zero is a preference, where a reaction is distinguishable
+from noise is not.

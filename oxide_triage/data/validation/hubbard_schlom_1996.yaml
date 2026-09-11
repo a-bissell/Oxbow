@@ -1,0 +1,83 @@
+# Held-out validation set for the interface criterion.
+#
+# K. J. Hubbard and D. G. Schlom, "Thermodynamic stability of binary oxides in contact with
+# silicon", J. Mater. Res. 11(11), 2757-2776 (1996), DOI 10.1557/JMR.1996.0350. Earlier versions:
+# MRS Proc. 357, 331 (1995), DOI 10.1557/PROC-357-331; MRS Proc. 401, 33 (1996), DOI
+# 10.1557/PROC-401-33. The classification is at 1000 K from tabulated thermodynamic data, and it
+# is the same question this tool asks of the Materials Project hull at 0 K. The full text is
+# paywalled; the lists below are the abstract's, which is quoted verbatim at
+#   https://www.osti.gov/biblio/399779
+#   https://www.cambridge.org/core/journals/journal-of-materials-research/article/abs/thermodynamic-stability-of-binary-oxides-in-contact-with-silicon/3E01E4C834A07AB655D0E915335EDAE2
+# and confirmed 2026-09-10. This list was published thirty years before the code and was never
+# used to set a parameter in it; the self-check's workhorses were. That is the point of it.
+#
+# What the abstract asserts, and how each assertion is scored:
+#   proven_stable      "sufficient data exist to conclude ... are thermodynamically stable":
+#                      the tool must predict stable (E_rxn >= -tolerance). Hard.
+#   not_shown_unstable "all binary oxides except the following are ... unstable": the paper
+#                      could not show these unstable, which is weaker than showing them stable.
+#                      Reported, counted, not a failure. Soft.
+#   unstable           everything else, by the abstract's own statement; the named examples
+#                      are the ones the secondary literature calls out (Robertson & Wallace).
+#                      The tool must predict a reaction (E_rxn < -tolerance). Hard.
+#   borderline         the paper's own versions disagree, or later work moved it. Reported only.
+#   secondary          ternaries "believed stable on silicon" in later Schlom-group work, not a
+#                      thermodynamic calculation. Reported only.
+version: 1
+substrate: Si
+temperature_k: 1000
+citation: "Hubbard & Schlom, J. Mater. Res. 11, 2757 (1996), DOI 10.1557/JMR.1996.0350"
+
+proven_stable:
+  - {formula: BeO, confidence: confirmed}
+  - {formula: MgO, confidence: confirmed}
+  - {formula: ZrO2, confidence: confirmed, note: "later work (Gutowski 2002, Stemmer 2004, Shin & Liu 2007) puts ZrO2 on the boundary; the tool's marginal value is the literature's"}
+  - {formula: CaO, confidence: unsure, note: "in the OSTI and MRS 401 abstracts; one rendering of the JMR abstract omits it"}
+
+not_shown_unstable:
+  - {formula: Li2O, confidence: confirmed}
+  - {formula: SrO, confidence: confirmed}
+  - {formula: Sc2O3, confidence: confirmed}
+  - {formula: Y2O3, confidence: confirmed}
+  - {formula: La2O3, confidence: confirmed, note: "rare-earth sesquioxides as a class"}
+  - {formula: Gd2O3, confidence: confirmed, note: "rare-earth sesquioxides as a class"}
+  - {formula: Lu2O3, confidence: confirmed, note: "rare-earth sesquioxides as a class"}
+  - {formula: ThO2, confidence: confirmed}
+  - {formula: UO2, confidence: confirmed, note: "in the JMR abstract, not in MRS 401"}
+  - {formula: HfO2, confidence: confirmed}
+  - {formula: Al2O3, confidence: confirmed}
+
+unstable:
+  - {formula: TiO2, confidence: confirmed, note: "named by Robertson & Wallace as excluded by the criterion"}
+  - {formula: Ta2O5, confidence: confirmed, note: "named by Robertson & Wallace"}
+  - {formula: Nb2O5, confidence: confirmed}
+  - {formula: WO3, confidence: confirmed}
+  - {formula: Ga2O3, confidence: confirmed}
+  - {formula: Bi2O3, confidence: confirmed}
+  - {formula: GeO2, confidence: confirmed}
+  - {formula: SnO2, confidence: confirmed}
+  - {formula: ZnO, confidence: confirmed}
+  - {formula: Cr2O3, confidence: confirmed}
+  - {formula: V2O5, confidence: confirmed}
+  - {formula: MoO3, confidence: confirmed}
+  - {formula: In2O3, confidence: confirmed}
+  - {formula: Fe2O3, confidence: confirmed}
+  - {formula: NiO, confidence: confirmed}
+  - {formula: CuO, confidence: confirmed}
+  - {formula: PbO, confidence: confirmed}
+
+borderline:
+  - {formula: BaO, confidence: unsure, note: "in the 1995/1996 proceedings' survivor list, dropped from the JMR abstract"}
+
+secondary:
+  # Coh, Heeg, Haeni, ..., Schlom, Vanderbilt, Phys. Rev. B 82, 064101 (2010): Pbnm perovskites
+  # "believed to be stable on silicon"; and SrTiO3/BaTiO3 named by Robertson & Wallace as
+  # excluded by the Hubbard-Schlom criterion.
+  - {formula: LaAlO3, expected: stable, confidence: reported, source: "Coh et al. 2010"}
+  - {formula: NdAlO3, expected: stable, confidence: reported, source: "Coh et al. 2010"}
+  - {formula: CaZrO3, expected: stable, confidence: reported, source: "Coh et al. 2010"}
+  - {formula: SrZrO3, expected: stable, confidence: reported, source: "Coh et al. 2010"}
+  - {formula: GdScO3, expected: stable, confidence: reported, source: "Coh et al. 2010"}
+  - {formula: LaYO3, expected: stable, confidence: reported, source: "Coh et al. 2010"}
+  - {formula: SrTiO3, expected: unstable, confidence: reported, source: "Robertson & Wallace, paraphrasing Hubbard-Schlom / Schlom-Haeni"}
+  - {formula: BaTiO3, expected: unstable, confidence: reported, source: "Robertson & Wallace"}

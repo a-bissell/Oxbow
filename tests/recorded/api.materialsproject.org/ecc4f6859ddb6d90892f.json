@@ -1,0 +1,87 @@
+{
+ "params": {
+  "_fields": "formula_pretty,chemsys,formation_energy_per_atom",
+  "_limit": 1000,
+  "_skip": 0,
+  "chemsys": "Li-O,Li-Si,O-Si,Li-O-Si",
+  "energy_above_hull_max": 0.0,
+  "thermo_types": "GGA_GGA+U_R2SCAN"
+ },
+ "response": {
+  "data": [
+   {
+    "chemsys": "Li-O",
+    "formation_energy_per_atom": -0.4270690881481482,
+    "formula_pretty": "LiO8"
+   },
+   {
+    "chemsys": "Li-O",
+    "formation_energy_per_atom": -1.6501702366666664,
+    "formula_pretty": "Li2O2"
+   },
+   {
+    "chemsys": "Li-O",
+    "formation_energy_per_atom": -2.0615979138888885,
+    "formula_pretty": "Li2O"
+   },
+   {
+    "chemsys": "Li-O-Si",
+    "formation_energy_per_atom": -3.015912327407407,
+    "formula_pretty": "Li2Si2O5"
+   },
+   {
+    "chemsys": "Li-O-Si",
+    "formation_energy_per_atom": -2.4350391874444446,
+    "formula_pretty": "Li8SiO6"
+   },
+   {
+    "chemsys": "Li-O-Si",
+    "formation_energy_per_atom": -2.882894919444446,
+    "formula_pretty": "Li2SiO3"
+   },
+   {
+    "chemsys": "Li-O-Si",
+    "formation_energy_per_atom": -2.674883012592591,
+    "formula_pretty": "Li4SiO4"
+   },
+   {
+    "chemsys": "Li-Si",
+    "formation_energy_per_atom": -0.2080317589423079,
+    "formula_pretty": "Li21Si5"
+   },
+   {
+    "chemsys": "Li-Si",
+    "formation_energy_per_atom": -0.2440456685000001,
+    "formula_pretty": "Li7Si3"
+   },
+   {
+    "chemsys": "Li-Si",
+    "formation_energy_per_atom": -0.23409448784313724,
+    "formula_pretty": "Li13Si4"
+   },
+   {
+    "chemsys": "Li-Si",
+    "formation_energy_per_atom": -0.21964062342105295,
+    "formula_pretty": "Li15Si4"
+   },
+   {
+    "chemsys": "O-Si",
+    "formation_energy_per_atom": -3.2728313438888907,
+    "formula_pretty": "SiO2"
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "thermo_id",
+    "material_id",
+    "last_updated"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-11T02:15:37.961372+00:00",
+   "total_doc": 12
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/thermo/"
+}

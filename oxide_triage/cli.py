@@ -220,6 +220,26 @@ def fill_gaps_cmd(
 
 
 @app.command()
+def validate(
+    profile: str = typer.Option("default", "--profile", "-p"),
+    online: bool = typer.Option(False, "--online", help="Fetch hulls not yet cached (needs MP_API_KEY)."),
+) -> None:
+    """Compare the interface criterion with Hubbard & Schlom (1996), a published classification the
+    tool was never tuned against. Exit 6 when a hard assertion disagrees."""
+    from oxide_triage.validation import render_markdown, validate_interface
+
+    config = load_config(profile)
+    cache = Cache(config.cache.path)
+    try:
+        report = validate_interface(config, cache, offline=not online)
+    finally:
+        cache.close()
+    typer.echo(render_markdown(report))
+    if not report.passed:
+        raise typer.Exit(code=6)
+
+
+@app.command()
 def selfcheck(profile: str = typer.Option("default", "--profile", "-p")) -> None:
     """Run the known-answer self-check on the current cache and store the outcome."""
     config = load_config(profile)

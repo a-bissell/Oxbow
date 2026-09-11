@@ -1,0 +1,67 @@
+{
+ "params": {
+  "_fields": "formula_pretty,chemsys,formation_energy_per_atom",
+  "_limit": 1000,
+  "_skip": 0,
+  "chemsys": "Mo-O,Mo-Si,O-Si,Mo-O-Si",
+  "energy_above_hull_max": 0.0,
+  "thermo_types": "GGA_GGA+U_R2SCAN"
+ },
+ "response": {
+  "data": [
+   {
+    "chemsys": "Mo-O",
+    "formation_energy_per_atom": -1.9352195988709673,
+    "formula_pretty": "Mo8O23"
+   },
+   {
+    "chemsys": "Mo-O",
+    "formation_energy_per_atom": -2.0215551883333327,
+    "formula_pretty": "MoO2"
+   },
+   {
+    "chemsys": "Mo-O",
+    "formation_energy_per_atom": -1.9340294184285718,
+    "formula_pretty": "Mo9O26"
+   },
+   {
+    "chemsys": "Mo-O",
+    "formation_energy_per_atom": -1.9246418721875003,
+    "formula_pretty": "MoO3"
+   },
+   {
+    "chemsys": "Mo-Si",
+    "formation_energy_per_atom": -0.32226063999999965,
+    "formula_pretty": "SiMo3"
+   },
+   {
+    "chemsys": "Mo-Si",
+    "formation_energy_per_atom": -0.39896058062500117,
+    "formula_pretty": "Si3Mo5"
+   },
+   {
+    "chemsys": "Mo-Si",
+    "formation_energy_per_atom": -0.46614492000000024,
+    "formula_pretty": "Si2Mo"
+   },
+   {
+    "chemsys": "O-Si",
+    "formation_energy_per_atom": -3.2728313438888907,
+    "formula_pretty": "SiO2"
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "thermo_id",
+    "material_id",
+    "last_updated"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-11T02:15:37.587163+00:00",
+   "total_doc": 8
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/thermo/"
+}
