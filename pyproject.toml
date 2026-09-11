@@ -35,7 +35,7 @@ oxide-triage-mcp = "oxide_triage.mcp_server:main"
 include = ["oxide_triage*"]
 
 [tool.setuptools.package-data]
-oxide_triage = ["templates/*.j2", "data/*.yaml", "data/fixtures/*.json", "prompts/*.md", "ui/dist/*", "ui/dist/assets/*"]
+oxide_triage = ["templates/*.j2", "data/*.yaml", "data/validation/*.yaml", "data/fixtures/*.json", "prompts/*.md", "ui/dist/*", "ui/dist/assets/*"]
 
 [tool.ruff]
 line-length = 110
