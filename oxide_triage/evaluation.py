@@ -250,7 +250,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
     # ---- 6. sensitivity ---------------------------------------------------------------
     def sensitivity() -> tuple[bool, str]:
         """Three ranking parameters were set after seeing live data (the literature saturation,
-        the interface tolerance, the interface weight; see docs/ranking-decisions.md). The
+        the interface tolerance, the interface weight; see autodocs/ranking-decisions.md). The
         answer to "is that overfitting" is how the ranking behaves when each parameter, and
         every weight, is moved by a lot. Reported, not tuned: the check passes when every
         member of the base run's first tier stays in the top ten under every perturbation."""
