@@ -80,7 +80,21 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
         )
 
     # ---- profile-level deviations from the shipped default policy ------------------
-    profile_allow = set(tox.element_allowlist)
+    # The never-lift list outranks a profile or site allowlist too: an element on both stays
+    # blocked, and the deviation says so rather than listing it as permitted.
+    never = set(tox.never_lift)
+    profile_allow = set(tox.element_allowlist) - never
+    if overreach := sorted(set(tox.element_allowlist) & never):
+        deviations.append(
+            Deviation(
+                code="allowlist_never_lift",
+                description=(
+                    f"Profile '{config.profile_name}' lists {', '.join(overreach)} in both element_allowlist "
+                    "and never_lift; never_lift wins and they stay blocked."
+                ),
+                origin="profile",
+            )
+        )
     if profile_allow:
         deviations.append(
             Deviation(
@@ -97,7 +111,7 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
     policy_blocked = blocked_by_policy(config, table)
     # The guard declines a request that names one of these; if criteria arrive another way
     # (a rerun, a client), the allowance is dropped here so the gate still holds.
-    request_allow = {e for e in criteria.allow_elements if e in policy_blocked and e not in tox.never_lift}
+    request_allow = {e for e in criteria.allow_elements if e in policy_blocked and e not in never}
     if request_allow:
         deviations.append(
             Deviation(
@@ -171,7 +185,7 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
             )
 
     blocked = set(policy_blocked) | set(criteria.exclude_elements)
-    allowed = profile_allow | request_allow
+    allowed = (profile_allow | request_allow) - never  # the invariant, stated once where it matters
     blocked -= allowed
 
     effective = Effective(

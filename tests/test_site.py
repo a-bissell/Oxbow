@@ -141,3 +141,23 @@ def test_web_actor_comes_from_the_proxy_header_only():
     assert a.who == "jsmith" and a.via == "web"
     b = web_actor({}, "X-Forwarded-User")
     assert b.who == "unattributed" and "no authenticating proxy" in b.how
+
+
+def test_never_lift_outranks_a_profile_allowlist():
+    """A profile or site file that allowlists an element on never_lift does not admit it."""
+    from oxide_triage.config import load_config, load_hazard_table
+    from oxide_triage.schemas import Criteria
+    from oxide_triage.scoring.settings import resolve
+
+    cfg = load_config(
+        "default",
+        overrides={"toxicity": {"element_allowlist": ["Pb", "U"], "never_lift": ["U", "Pu"]}},
+        use_env=False,
+    )
+    eff, devs = resolve(cfg, Criteria(allow_elements=["Pu"]), load_hazard_table())
+    assert "U" in eff.blocked_elements and "Pu" in eff.blocked_elements
+    assert "Pb" not in eff.blocked_elements  # the ordinary allowance still works
+    assert "U" not in eff.allowed_despite_tier and "Pu" not in eff.allowed_despite_tier
+    codes = {d.code for d in devs}
+    assert "allowlist_never_lift" in codes
+    assert not any("U" in d.description for d in devs if d.code == "profile_element_allowlist")
