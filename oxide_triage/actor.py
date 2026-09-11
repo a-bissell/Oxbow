@@ -38,15 +38,17 @@ def local_actor(via: Via) -> Actor:
     return Actor(who=who, via=via, how="operating-system user of the process")
 
 
-def web_actor(headers: Mapping[str, str], header: str) -> Actor:
-    """The user named by the reverse proxy's header, or an explicit 'unattributed'."""
+def web_actor(headers: Mapping[str, str], header: str, via: Via = "web") -> Actor:
+    """The user named by the reverse proxy's header, or an explicit 'unattributed'. Used by the
+    web app and by the MCP server over HTTP, which is the same situation: a network caller
+    the process itself cannot name."""
     # Header names are case-insensitive; a plain dict of them is not.
     value = next((v for k, v in headers.items() if k.lower() == header.lower()), "").strip()
     if value:
-        return Actor(who=value[:120], via="web", how=f"{header} header set by the reverse proxy")
+        return Actor(who=value[:120], via=via, how=f"{header} header set by the reverse proxy")
     return Actor(
         who="unattributed",
-        via="web",
+        via=via,
         how=f"no {header} header: no authenticating proxy in front of the server",
     )
 

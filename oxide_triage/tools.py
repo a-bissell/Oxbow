@@ -310,7 +310,7 @@ class ToolBox:
         tool_result_max_chars: int | None = None,
         request_overrides: dict[str, Any] | None = None,
         progress: ProgressFn | None = None,
-        actor: Actor | None = None,
+        actor: Actor | Callable[[], Actor | None] | None = None,
     ):
         """``request_overrides`` are criteria fields a front end's controls set (shortlist length,
         gates, families); they apply to every triage without a clarification question and show
@@ -320,10 +320,16 @@ class ToolBox:
         self.tool_result_max_chars = tool_result_max_chars
         self.request_overrides = request_overrides
         self.progress = progress
-        self.actor = actor  # who is behind the calls; written with every logged deviation
+        # Who is behind the calls; written with every logged deviation. A callable is resolved
+        # per call, for a toolbox shared by many network callers (the MCP server over HTTP).
+        self._actor = actor
         self._last_result_id: str | None = None
         self._n_results = 0  # bumped by _finish; lets call() see that a tool produced a result
         self._asked: set[str] = set()  # calls that returned clarification questions
+
+    @property
+    def actor(self) -> Actor | None:
+        return self._actor() if callable(self._actor) else self._actor
 
     # ---- plumbing ------------------------------------------------------------------------
 
