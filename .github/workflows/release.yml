@@ -1,0 +1,275 @@
+# Offline release: everything a site with no network needs, built and proven on every tag.
+#
+#   image    the container image, saved to a zstd tarball
+#   wheels   the Python package and every dependency as wheels, installable with --no-index
+#   bundle   a cache warmed from the public sources with the release's own key, self-checked,
+#            packaged with a manifest (sources, timestamps, self-check, SHA-256, commit)
+#   smoke    the image loaded and run with --network none against the bundle: install, self-check,
+#            the PI's request; then the documented compose steps end to end
+#   release  the assets, SHA256SUMS and a build-provenance attestation, attached to the tag
+#
+# A tag `vX.Y.Z` builds a live-data release and needs the MP_API_KEY repository secret (and
+# optionally OPENALEX_API_KEY for the literature pools). `workflow_dispatch` builds the same
+# assets for a dry run; `data: fixture` uses the synthetic fixture (no key) and every output of
+# that bundle carries the fixture banner.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      data:
+        description: "Cache data: live (needs MP_API_KEY) or fixture (demo, no key)"
+        type: choice
+        options: [live, fixture]
+        default: live
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - id: v
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=0.0.0.dev${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+          fi
+
+  test:
+    name: Lint and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -e ".[all]"
+      - run: ruff check . && ruff format --check .
+      - run: pytest -q
+        env:
+          OXIDE_TRIAGE_SITE_CONFIG: "off"
+
+  wheels:
+    name: Wheels
+    needs: [version]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Build the package and every dependency as wheels
+        run: |
+          pip install --upgrade pip wheel
+          pip wheel ".[web,llm,mcp]" -w wheels
+      - name: Prove an index-free install works
+        run: |
+          python -m venv /tmp/offline && . /tmp/offline/bin/activate
+          pip install --no-index --find-links wheels "oxide-triage[web,llm,mcp]"
+          oxide-triage --help > /dev/null
+          pip freeze --exclude-editable > wheels/requirements.lock
+      - name: Archive
+        run: |
+          PLATFORM="linux-x86_64-py${PYTHON_VERSION/./}"
+          NAME="oxide-triage-${{ needs.version.outputs.version }}-wheels-${PLATFORM}"
+          mkdir -p out && mv wheels "$NAME" && tar czf "out/${NAME}.tar.gz" "$NAME"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: out/*.tar.gz
+          if-no-files-found: error
+
+  image:
+    name: Image
+    needs: [version]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          V="${{ needs.version.outputs.version }}"
+          docker build -f docker/Dockerfile -t "oxide-triage:${V}" -t oxide-triage:latest \
+            --label "org.opencontainers.image.version=${V}" \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" .
+      - name: Save
+        run: |
+          V="${{ needs.version.outputs.version }}"
+          mkdir -p out
+          docker save "oxide-triage:${V}" oxide-triage:latest | zstd -T0 -19 - -o "out/oxide-triage-${V}-image.tar.zst"
+          ls -lh out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image
+          path: out/*.tar.zst
+          if-no-files-found: error
+          compression-level: 0
+
+  bundle:
+    name: Warm and bundle the cache
+    needs: [version, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      OXIDE_TRIAGE_CACHE: ${{ github.workspace }}/data/cache.sqlite
+      OXIDE_TRIAGE_SITE_CONFIG: "off"
+      MP_API_KEY: ${{ secrets.MP_API_KEY }}
+      OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+      DATA: ${{ github.event.inputs.data || 'live' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -e ".[web]"
+      - name: Warm from the public sources
+        if: env.DATA == 'live'
+        run: |
+          if [ -z "$MP_API_KEY" ]; then
+            echo "::error::MP_API_KEY is not set; a live release needs the repository secret (or dispatch with data=fixture)"
+            exit 1
+          fi
+          oxide-triage warm-cache
+          # The warm is Materials Project only; a query fills the on-demand pools (OQMD, PubChem,
+          # OpenAlex) for the ranked candidates of each profile, so the shipped cache answers the
+          # PI's request under every profile without a network.
+          for p in default $(ls config/profiles | sed 's/\.yaml$//'); do
+            oxide-triage query --profile "$p" --yes --template json --out "/tmp/${p}.json"
+          done
+          oxide-triage selfcheck
+      - name: Load the synthetic fixture
+        if: env.DATA == 'fixture'
+        run: oxide-triage load-fixtures
+      - name: Build the bundle
+        run: |
+          EXTRA=""; [ "$DATA" = "fixture" ] && EXTRA="--allow-fixture"
+          oxide-triage bundle build --out bundle --version "${{ needs.version.outputs.version }}" --commit "${GITHUB_SHA}" $EXTRA
+          oxide-triage bundle verify bundle
+          cat bundle/manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bundle
+          path: bundle/
+          if-no-files-found: error
+
+  smoke:
+    name: Prove it runs with no network
+    needs: [version, image, bundle]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      V: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: image
+          path: image
+      - uses: actions/download-artifact@v4
+        with:
+          name: bundle
+          path: bundle
+      - name: Load the image
+        run: zstd -dc "image/oxide-triage-${V}-image.tar.zst" | docker load
+      - name: Install, self-check and query with the network disabled
+        # `--network none`: the container has no interface but loopback. Everything below has
+        # to come from the bundle, or fail.
+        run: |
+          docker run --rm --network none -v "$PWD/bundle:/bundle:ro" -e OXIDE_TRIAGE_OFFLINE=1 \
+            "oxide-triage:${V}" sh -c '
+              set -e
+              oxide-triage bundle install /bundle
+              oxide-triage selfcheck
+              oxide-triage doctor | grep "^release: "
+              oxide-triage query --offline --yes --template json --out /tmp/r.json
+              python -c "import json; r=json.load(open(\"/tmp/r.json\")); assert r[\"shortlist\"], \"empty shortlist\"; print(\"shortlist:\", [s[\"record\"][\"formula\"] for s in r[\"shortlist\"]]); print(\"fixture data:\", r[\"fixture_data\"])"
+            '
+      - name: The documented compose steps, end to end
+        run: |
+          # Lay the release directory out exactly as OFFLINE.md describes it.
+          R="oxide-triage-${V}-offline"
+          mkdir -p "$R"
+          cp -r docker config "$R/" && cp -r bundle "$R/bundle" && cp docker/offline.env "$R/.env"
+          cp bundle/manifest.json "$R/manifest.json"
+          cd "$R"
+          export OXIDE_TRIAGE_VERSION="$V"
+          COMPOSE="docker compose -f docker/compose.yml -f docker/compose.offline.yml"
+          $COMPOSE run --rm app oxide-triage bundle install /bundle
+          $COMPOSE up -d app
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/api/status > status.json 2>/dev/null; then break; fi
+            sleep 2
+          done
+          jq . status.json
+          test "$(jq -r .cache.release.version status.json)" = "$V"
+          test "$(jq -r .selfcheck.passed status.json)" = "true"
+          test "$(jq -r .cache.offline status.json)" = "true"
+          $COMPOSE down -v
+
+  release:
+    name: Assemble and publish
+    needs: [version, wheels, image, bundle, smoke]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    env:
+      V: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Assemble the offline directory
+        run: |
+          R="oxide-triage-${V}-offline"
+          mkdir -p "$R/docker" out
+          cp docker/compose.yml docker/compose.offline.yml docker/OFFLINE.md "$R/docker/"
+          cp docker/OFFLINE.md "$R/OFFLINE.md"
+          cp docker/offline.env "$R/.env"
+          cp -r config "$R/config"
+          cp -r artifacts/bundle "$R/bundle"
+          cp artifacts/bundle/manifest.json "$R/manifest.json"
+          tar czf "out/${R}.tar.gz" "$R"
+          cp artifacts/image/*.tar.zst artifacts/wheels/*.tar.gz out/
+          cp artifacts/bundle/manifest.json "out/oxide-triage-${V}-manifest.json"
+          (cd out && sha256sum * > SHA256SUMS)
+          ls -lh out && cat out/SHA256SUMS
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: out/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ env.V }}
+          path: out/
+          if-no-files-found: error
+          compression-level: 0
+      - name: Publish the GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+          generate_release_notes: true
+          body: |
+            Offline release. `oxide-triage-${{ env.V }}-offline.tar.gz` holds the warmed cache with
+            its manifest, the compose files and the install note; the image and the wheels are
+            separate so the cache can be refreshed without re-downloading them. Verify with
+            `sha256sum -c SHA256SUMS`; see `OFFLINE.md` inside the archive for the install steps.

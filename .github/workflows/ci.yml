@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: pip install -e ".[all]"
+      - name: Ruff (lint and format)
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Tests
+        env:
+          OXIDE_TRIAGE_SITE_CONFIG: "off"
+        run: pytest -q
+
+  image:
+    name: Build image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: docker build -f docker/Dockerfile -t oxide-triage:ci .
+      - name: Smoke (fixture data, no network)
+        # The image must serve a result from a cache alone. The fixture is the only data
+        # available without a key, so this proves the offline path, not the ranking.
+        run: |
+          docker run --rm --network none oxide-triage:ci sh -c '
+            set -e
+            oxide-triage load-fixtures
+            oxide-triage query --offline --yes --template json --out /tmp/r.json
+            python -c "import json; r=json.load(open(\"/tmp/r.json\")); assert r[\"shortlist\"], \"empty shortlist\"; assert r[\"fixture_data\"]"
+          '

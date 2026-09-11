@@ -1,0 +1,31 @@
+# Overlay: run from a release bundle on a machine with no network.
+#
+# The bundle directory (cache.sqlite + manifest.json, from a release or `oxide-triage bundle
+# build`) is mounted read-only at /bundle. Install it into the cache volume once, then serve:
+#
+#   docker load < oxide-triage-<version>-image.tar.zst        (zstd -d first if docker is old)
+#   docker compose -f docker/compose.yml -f docker/compose.offline.yml \
+#       run --rm app oxide-triage bundle install /bundle
+#   docker compose -f docker/compose.yml -f docker/compose.offline.yml up -d
+#
+# OXIDE_TRIAGE_OFFLINE=1 forces cache-only operation inside the app: no source is contacted,
+# a request for a compound outside the shipped universe says so, and `add-material`,
+# `fill-gaps` and `warm-cache` report that they need the network. That is the tool's own
+# guarantee; the air gap itself is the site's. `pull_policy: never` keeps compose from trying
+# to fetch or build the image: it must already be loaded.
+services:
+  app:
+    image: oxide-triage:${OXIDE_TRIAGE_VERSION:-latest}
+    pull_policy: never
+    environment:
+      OXIDE_TRIAGE_OFFLINE: "1"
+    volumes:
+      - ${OXIDE_TRIAGE_BUNDLE:-../bundle}:/bundle:ro
+
+  mcp:
+    image: oxide-triage:${OXIDE_TRIAGE_VERSION:-latest}
+    pull_policy: never
+    environment:
+      OXIDE_TRIAGE_OFFLINE: "1"
+    volumes:
+      - ${OXIDE_TRIAGE_BUNDLE:-../bundle}:/bundle:ro

@@ -50,6 +50,30 @@ Ideas / planned work for this project.
 
 - [ ] **Add JARVIS-DFT bulk dataset as a second dielectric route** (OptB88vdW dielectric
       tensors); flagged as a candidate route in `oxide_triage/acquire.py`.
+- [ ] **Literature evidence graph** — under consideration, not committed. The weakest input
+      today is literature: two OpenAlex counts from a formula-string search, flagged as noisy
+      for short formulae. The question a PI actually asks is not "how many papers mention
+      HfO2" but "has anyone deposited HfO2 by ALD on silicon and measured its dielectric
+      constant", which is a path, not a count: material → deposition method → substrate →
+      measured property → work → DOI. Proposed scope:
+      - Extract (method, substrate, property measured) from the sample-work abstracts already
+        fetched, through the existing validated model edge: delimited data in, a fixed schema
+        out, every term from a closed vocabulary, anything else discarded. Rules-only fallback
+        keyword-matches the same vocabulary (the thin-film term list is a start).
+      - Store as typed edges in the existing SQLite cache (an `edges` table: subject,
+        predicate, object, provenance), one mechanism that also subsumes the alias table, the
+        OQMD formula match and polymorph grouping (`same_composition`, `reported_as`). No
+        graph server; deployment stays three commands and one file.
+      - Consume it in the refutation pass only: a caveat can cite the specific work that
+        contradicts or supports a candidate ("no deposition report found; the two thin-film
+        works are on sputtered films, not ALD"). The graph never touches a score, a rank or a
+        gate; it is retrieved evidence like everything else under the numeric guard.
+      - Later, family and hazard facts (`cation_allowlist.yaml`, `element_hazards.yaml`,
+        `hygroscopic_oxides.yaml`) could live in the same edge table, so "avoid anything in
+        lead's hazard tier" resolves by traversal instead of a new parser rule.
+      Why not now: the current counts are enough to flag thin evidence, which is what the
+      shortlist needs; extraction quality on abstracts is unmeasured; and it is a week of work
+      that should follow, not precede, the profile retune with the PI's group.
 
 ## UI
 
@@ -73,6 +97,26 @@ Ideas / planned work for this project.
       - [ ] Stop a running turn: the client can close the stream, but the pipeline keeps
             running; thread a cancellation token through the on-demand fill.
       - [ ] Clickable HTML report export that seeds the same follow-ups as the canvas.
+
+## Deployment
+
+- [x] **Offline release pipeline** — done 2026-09-10 (`.github/workflows/release.yml`,
+      `oxide_triage/bundle.py`, `docker/compose.offline.yml`, `docker/OFFLINE.md`): a tag warms
+      the cache with the repository's key, fills every profile's on-demand pool, self-checks,
+      packages `cache.sqlite` with a manifest (sources, timestamps, self-check, commit, SHA-256),
+      saves the image and an index-free wheel set, then proves the lot with `--network none`
+      (install, self-check, the PI's request, the documented compose steps) before publishing
+      with a provenance attestation. `oxide-triage bundle build|verify|install`; `doctor` and
+      the web status name the installed release. CI (`ci.yml`) lints, tests and smokes the
+      image on every push. Follow-ups:
+      - [ ] Multi-arch image (arm64) and a wheel set per platform; the wheels are built for the
+            runner (linux x86_64, CPython 3.11) and say so in their name.
+      - [ ] Optional local-model asset: a companion archive with weights and the vLLM or Ollama
+            image for sites that want the model driver offline. Multi-gigabyte, per-site choice.
+      - [ ] Refresh bundle: a scheduled run that re-warms and publishes a cache-only release so
+            a site can update the data without a new image.
+      - [ ] Bundle install from the admin panel (upload a bundle, verify, install) for sites
+            where nobody wants to type a compose command.
 
 ## With the PI's group
 

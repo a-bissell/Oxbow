@@ -198,6 +198,13 @@ with a persistent cache volume; once warmed the containers run fully offline. A 
 runs vLLM serving Qwen3-8B beside the app: the model's job is small enough that an 8B local model
 loses nothing, so a centre that forbids sending request text off-site keeps every capability.
 
+The offline claim is made good by CI rather than asserted: every tag warms a cache from the public
+sources, self-checks it, packages it with a manifest (sources, timestamps, self-check, commit,
+SHA-256) beside the image and an index-free wheel set, then loads the image with the network
+disabled and runs the install, the self-check and the PI's request against the bundle before
+anything is published. `bundle install` at the site verifies the checksum and the stamp inside
+the cache, and `doctor` names the release and its build date, since a cache has a shelf life.
+
 ## 10. Evaluation
 
 Five checks, as pytest tests and as a report (`eval/run_eval.py`, `eval/evaluation.ipynb`), all
@@ -220,3 +227,15 @@ no interlayer thickness, no epitaxy, and the substrate is one phase at a time (S
 any hull phase can be configured). Next: confirm the cation list, the dielectric curve and the
 interface tolerance with the PI's group, retune profiles with them against the live data, add
 the JARVIS-DFT bulk dataset as a second dielectric route, and let a request name the substrate.
+
+One candidate beyond that is worth naming because it targets the weakest input. The provenance
+model is already a small property graph: a material node with typed, timestamped edges to its
+Materials Project entry, OQMD cross-check, PubChem record, OpenAlex works, elements and
+polymorphs. Literature is the one edge that carries a count where a scientist wants a path:
+material, deposition method, substrate, property measured, work. Extracting those relations from
+the sample abstracts through the existing validated edge, storing them as typed edges in the same
+SQLite file, and letting the refutation pass cite the specific work that supports or contradicts
+a candidate would turn "two thin-film works" into "both are sputtered; no ALD report found".
+It would feed caveats and citations only; nothing in it may touch a score, a rank or a gate, and
+no graph server enters the deployment. It is scoped in the TODO and deliberately sequenced after
+the retune with the group.

@@ -18,6 +18,7 @@ from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Str
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from oxide_triage.bundle import read_release
 from oxide_triage.cache import Cache
 from oxide_triage.config import (
     DEFAULT_CONFIG_DIR,
@@ -168,6 +169,7 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
             summary = cache.sources_summary()
             fixture = cache.has_fixture_data
             sc = read_selfcheck(cache)
+            release = read_release(cache)
         finally:
             cache.close()
         profiles = []
@@ -191,6 +193,7 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
                 "fixture_data": fixture,
                 "empty": not summary,
                 "offline": bool(cfg.cache.offline if state.offline is None else state.offline),
+                "release": release,
             },
             "selfcheck": None
             if sc is None
