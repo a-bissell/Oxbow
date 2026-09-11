@@ -247,12 +247,110 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         )
         return ok and n > 0, "\n".join(rows)
 
+    # ---- 6. sensitivity ---------------------------------------------------------------
+    def sensitivity() -> tuple[bool, str]:
+        """Three ranking parameters were set after seeing live data (the literature saturation,
+        the interface tolerance, the interface weight; see docs/ranking-decisions.md). The
+        answer to "is that overfitting" is how the ranking behaves when each parameter, and
+        every weight, is moved by a lot. Reported, not tuned: the check passes when every
+        member of the base run's first tier stays in the top ten under every perturbation."""
+        base = run(PI)
+        base_ranked = base.shortlist + base.ranked_beyond_shortlist
+        tier1 = [s.record.formula for s in base_ranked if s.tier == 1]
+        watch = list(dict.fromkeys(tier1 + ["HfO2", "ZrO2", "Al2O3"]))
+        cfg0 = load_config("default")
+        perturbations: list[tuple[str, dict]] = []
+        for crit, w in cfg0.weights.model_dump().items():
+            if w > 0:
+                perturbations.append((f"weights.{crit} x0.5", {"weights": {crit: w * 0.5}}))
+                perturbations.append((f"weights.{crit} x1.5", {"weights": {crit: w * 1.5}}))
+        perturbations += [
+            (
+                "literature saturation 50 (the first setting)",
+                {"literature": {"thin_film_saturation": 50, "total_saturation": 500}},
+            ),
+            (
+                "literature saturation 5000",
+                {"literature": {"thin_film_saturation": 5000, "total_saturation": 50000}},
+            ),
+            ("interface tolerance 0", {"interface": {"tolerance_ev_atom": 0.0}}),
+            ("interface tolerance 0.10", {"interface": {"tolerance_ev_atom": 0.10}}),
+            ("dielectric saturates at 20", {"dielectric": {"high": 20.0}}),
+            ("dielectric saturates at 40", {"dielectric": {"high": 40.0}}),
+            ("tie band 0.02", {"output": {"tie_band": 0.02}}),
+            ("tie band 0.08", {"output": {"tie_band": 0.08}}),
+        ]
+        # Shown for contrast, not counted: the policy the design note rejects because an unknown
+        # criterion can then help a candidate. It is expected to wreck the order.
+        contrast = [
+            (
+                "missing-data policy renormalize (rejected policy, for contrast)",
+                {"missing_data": {"policy": "renormalize"}},
+            )
+        ]
+        rows = [
+            "| Perturbation | Tier 1 | " + " | ".join(watch) + " |",
+            "|---|---|" + "---|" * len(watch),
+        ]
+        rows.append(
+            "| base | "
+            + ", ".join(tier1)
+            + " | "
+            + " | ".join(
+                str(next((s.rank for s in base_ranked if s.record.formula == f), "—")) for f in watch
+            )
+            + " |"
+        )
+        ok = True
+        worst: dict[str, int] = {f: 0 for f in watch}
+        same_tier1 = 0
+        for label, ov in perturbations + contrast:
+            counted = (label, ov) in perturbations
+            r = run_triage(PI, load_config("default", overrides=ov), cache=cache, offline=offline)
+            rk = r.shortlist + r.ranked_beyond_shortlist
+            t1 = [s.record.formula for s in rk if s.tier == 1]
+            ranks = {f: next((s.rank for s in rk if s.record.formula == f), None) for f in watch}
+            if counted:
+                same_tier1 += set(t1) == set(tier1)
+                for f in tier1:
+                    if ranks[f] is None or ranks[f] > 10:
+                        ok = False
+                for f, rnk in ranks.items():
+                    worst[f] = max(worst[f], rnk or 999)
+            rows.append(
+                f"| {label} | "
+                + ", ".join(t1)
+                + " | "
+                + " | ".join(str(ranks[f] or "—") for f in watch)
+                + " |"
+            )
+        rows.append("")
+        worst_t1 = max(worst[f] for f in tier1) if tier1 else 0
+        rows.append(
+            f"Over the {len(perturbations)} counted perturbations: the base tier 1 ({', '.join(tier1)}) is reproduced "
+            f"exactly in {same_tier1}; its members never fall below rank {worst_t1}; worst rank per compound: "
+            + ", ".join(f"{f} {worst[f]}" for f in watch)
+            + ". The contrast row is not counted."
+        )
+        rows.append(
+            "Reading: the tier boundary moves with the settings (which candidates join the leaders), "
+            + (
+                "but the leaders themselves stay in the top ten under every weight moved by half in either "
+                "direction and every parameter set after seeing live data moved past its original value."
+                if ok
+                else "and at least one leader leaves the top ten under a counted perturbation: the shortlist "
+                "depends on a setting, and the row above says which."
+            )
+        )
+        return ok, "\n".join(rows)
+
     checks = [
         Check("1. Normal query (PI request)", normal),
         Check("2. Adversarial queries (three bins)", adversarial),
         Check("3. Known-answer check (workhorse dielectrics)", known_answer),
         Check("4. Determinism", determinism),
         Check("5. Missing-data handling", missing_data),
+        Check("6. Sensitivity to the settings", sensitivity),
     ]
     summary: dict[str, bool] = {}
     for c in checks:

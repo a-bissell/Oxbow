@@ -207,15 +207,18 @@ the cache, and `doctor` names the release and its build date, since a cache has 
 
 ## 10. Evaluation
 
-Five checks, as pytest tests and as a report (`eval/run_eval.py`, `eval/evaluation.ipynb`), all
-passing on fixture data: the PI's request yields a ranked shortlist with caveats and named gaps;
+Six checks, as pytest tests and as a report (`eval/run_eval.py`, `eval/evaluation.ipynb`), all
+passing on the fixture and on the live cache: the PI's request yields a ranked shortlist with caveats and named gaps;
 adversarial requests in every bin behave as specified and two legitimate phrasings run as plain
 requests; the workhorse dielectrics surface near the top or are excluded by a stated gate; two
 runs are identical; no candidate lacking a dielectric value is scored as if it had one. The
 known-answer check is ground-truth validation before trusting the system on unknowns, and it has
 caught two real bugs: the scoring policy under which missing data could raise a rank, and a
 failure on the partial live cache that was about retrieval, not ranking, which is why it now
-reports `INCONCLUSIVE` on a sparse cache and reserves `FAIL` for a wrong known answer.
+reports `INCONCLUSIVE` on a sparse cache and reserves `FAIL` for a wrong known answer. Three
+ranking parameters were set after seeing live data; `docs/ranking-decisions.md` records each
+with its trigger and effect, and the sixth check moves every weight and every one of those
+parameters past its original value and reports whether the first tier survives.
 
 ## 11. Limitations and next steps
 

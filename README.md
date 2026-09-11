@@ -736,7 +736,13 @@ docs/                 design-note.md
 tests/
 ```
 
-### Evaluation summary (fixture data)
+### Evaluation summary
+
+Six checks; the fixture and the live cache both pass all of them. Three of the ranking
+parameters were set after seeing live data. `docs/ranking-decisions.md` lists every such
+decision in order with its trigger, effect and reason (and the four relaxations of the
+self-check), and check 6 below is the sensitivity table that shows the shortlist does not
+depend on them.
 
 | Check | Result |
 |---|---|
@@ -745,6 +751,7 @@ tests/
 | Known-answer | the configured self-check: workhorses above the median, HfO2 in the default top 10, at least two workhorses in the exploratory top 25. On live data (September 2026, 708 candidates, retrieval complete) the default top five are LaAlO3, SrHfO3, LaScO3, CaZrO3, HfO2 with ZrO2 6th and Al2O3 12th of 497 |
 | Determinism | identical result objects across runs |
 | Missing data | no candidate without a dielectric value is scored as if it had one, and a value the cache never downloaded is distinguished from one the source does not hold |
+| Sensitivity | every weight halved and multiplied by 1.5, and every parameter set after seeing live data moved past its original value (literature saturation 50 and 5,000, interface tolerance 0 and 0.10, dielectric saturation 20 and 40, tie band, missing-data policy): the first tier's members must stay in the top ten under all of it. The table is in `docs/live-evaluation.md`; the settings themselves, with what triggered each and what it moved, are in `docs/ranking-decisions.md` |
 
 The known-answer check has found two real bugs. Missing data could once *help* a candidate under
 the first scoring policy. And replayed against the partial live recording it failed for a reason
