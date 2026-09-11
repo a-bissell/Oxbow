@@ -145,7 +145,14 @@ jobs:
             echo "::error::MP_API_KEY is not set; a live release needs the repository secret (or dispatch with data=fixture)"
             exit 1
           fi
-          oxide-triage warm-cache
+          # The warm ends with a self-check that exits 5 when a source is down and the cache is
+          # too sparse to validate; the fill rounds below are the retry for that, so let it
+          # through. Any other failure (bad key, a self-check that ran and failed) still stops here.
+          oxide-triage warm-cache || {
+            rc=$?
+            [ "$rc" = 5 ] || exit "$rc"
+            echo "warm self-check inconclusive (a source is down); retrying through the fill rounds"
+          }
           # The warm is Materials Project only; a query fills the on-demand pools (OQMD, PubChem,
           # OpenAlex) for the ranked candidates of each profile, so the shipped cache answers the
           # PI's request under every profile without a network. A public source can be down for
