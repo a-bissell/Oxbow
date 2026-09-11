@@ -147,18 +147,35 @@ jobs:
           oxide-triage warm-cache
           # The warm is Materials Project only; a query fills the on-demand pools (OQMD, PubChem,
           # OpenAlex) for the ranked candidates of each profile, so the shipped cache answers the
-          # PI's request under every profile without a network.
-          for p in default $(ls config/profiles | sed 's/\.yaml$//'); do
-            oxide-triage query --profile "$p" --yes --template json --out "/tmp/${p}.json"
+          # PI's request under every profile without a network. A public source can be down for
+          # a stretch (OQMD answered 502 to everything during one release warm), and a site with
+          # no network cannot fill what the warm missed, so the bundle is held to a retrieval
+          # floor above the self-check's and the fill is retried a few times with a pause between.
+          for round in 1 2 3 4; do
+            echo "::group::fill round ${round}"
+            for p in default $(ls config/profiles | sed 's/\.yaml$//'); do
+              oxide-triage query --profile "$p" --yes --template json --out "/tmp/${p}.json"
+            done
+            oxide-triage fill-gaps || true
+            echo "::endgroup::"
+            if oxide-triage selfcheck && oxide-triage bundle build --out bundle \
+                 --version "${{ needs.version.outputs.version }}" --commit "${GITHUB_SHA}"; then
+              break
+            fi
+            if [ "$round" = 4 ]; then
+              echo "::error::the cache is still below the release floor after 4 fill rounds; see the fetch failures above"
+              exit 1
+            fi
+            echo "source gaps remain; pausing before the next round"
+            sleep 120
           done
-          oxide-triage selfcheck
-      - name: Load the synthetic fixture
+      - name: Load the synthetic fixture and build a demo bundle
         if: env.DATA == 'fixture'
-        run: oxide-triage load-fixtures
-      - name: Build the bundle
         run: |
-          EXTRA=""; [ "$DATA" = "fixture" ] && EXTRA="--allow-fixture"
-          oxide-triage bundle build --out bundle --version "${{ needs.version.outputs.version }}" --commit "${GITHUB_SHA}" $EXTRA
+          oxide-triage load-fixtures
+          oxide-triage bundle build --out bundle --version "${{ needs.version.outputs.version }}" --commit "${GITHUB_SHA}" --allow-fixture
+      - name: Verify the bundle
+        run: |
           oxide-triage bundle verify bundle
           cat bundle/manifest.json
       - uses: actions/upload-artifact@v4

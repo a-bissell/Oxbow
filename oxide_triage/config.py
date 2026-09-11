@@ -188,6 +188,10 @@ class SourceFetchConfig(BaseModel):
 
     workers: int | None = Field(default=None, ge=0, le=16)
     max_rps: float | None = Field(default=None, gt=0, le=100)
+    # Circuit breaker: after this many consecutive server failures (5xx, transport errors) the
+    # source is paused for pause_s and every request in that window fails at once.
+    pause_after: int | None = Field(default=None, ge=1, le=1000)
+    pause_s: float | None = Field(default=None, ge=0, le=3600)
 
 
 class CandidatesConfig(BaseModel):
@@ -218,6 +222,13 @@ class CandidatesConfig(BaseModel):
     def max_rps_for(self, source: str) -> float | None:
         override = self.fetch.get(source)
         return None if override is None else override.max_rps
+
+    def breaker_for(self, source: str) -> tuple[int, float]:
+        """(consecutive failures before pausing, pause seconds); shipped default 5 and 60."""
+        override = self.fetch.get(source)
+        after = 5 if override is None or override.pause_after is None else override.pause_after
+        pause = 60.0 if override is None or override.pause_s is None else override.pause_s
+        return after, pause
 
 
 class OutputConfig(BaseModel):

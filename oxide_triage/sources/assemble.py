@@ -36,7 +36,7 @@ from oxide_triage.schemas import (
     WorkRef,
 )
 from oxide_triage.scoring.hull import interface_reaction, parse_formula
-from oxide_triage.sources.base import Http, SourceError, status_for
+from oxide_triage.sources.base import CircuitBreaker, Http, SourceError, status_for
 from oxide_triage.sources.hazards import hazard_record
 from oxide_triage.sources.materials_project import THERMO_FUNCTIONAL_LABEL, MaterialsProject
 from oxide_triage.sources.openalex import OpenAlex
@@ -82,8 +82,15 @@ class DataLayer:
         c = config.candidates
 
         def live(name: str, **kw: Any) -> Any:
-            """One rate-capped Http per source unless a shared transport was supplied."""
-            return http if http is not None else Http(max_rps=c.max_rps_for(name), **kw)
+            """One rate-capped, breaker-guarded Http per source unless a shared transport was supplied."""
+            if http is not None:
+                return http
+            after, pause = c.breaker_for(name)
+            return Http(
+                max_rps=c.max_rps_for(name),
+                breaker=CircuitBreaker(threshold=after, cooldown_s=pause, name=name),
+                **kw,
+            )
 
         return cls(
             config=config,

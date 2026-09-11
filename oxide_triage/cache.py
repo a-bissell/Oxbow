@@ -125,6 +125,18 @@ class Cache:
         )
         self._conn.commit()
 
+    def fetch_log_summary(self) -> dict[str, dict[str, int]]:
+        """Outcome counts per source over the whole fetch log, e.g. ``{"oqmd": {"fetched": 120,
+        "fetch_failed": 23}}``. A release manifest carries this so a bundle built through a
+        source outage says so on its face."""
+        rows = self._conn.execute(
+            "SELECT source, outcome, COUNT(*) AS n FROM fetch_log GROUP BY source, outcome ORDER BY source, outcome"
+        ).fetchall()
+        out: dict[str, dict[str, int]] = {}
+        for r in rows:
+            out.setdefault(r["source"], {})[r["outcome"]] = r["n"]
+        return out
+
     def set_meta(self, k: str, v: str) -> None:
         self._conn.execute("INSERT OR REPLACE INTO meta (k, v) VALUES (?,?)", (k, v))
         self._conn.commit()

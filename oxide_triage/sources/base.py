@@ -143,9 +143,57 @@ class RateLimiter:
         return delay
 
 
+class CircuitBreaker:
+    """Pause a source that is down instead of retrying every formula against it.
+
+    Counts consecutive server-side failures (5xx and transport errors; a 429 is the rate cap's
+    business and is not counted). At ``threshold`` the breaker opens for ``cooldown_s``: every
+    request in that window fails at once with a message saying the source is paused, so a warm
+    over thousands of formulas spends seconds, not hours, on an outage, and the fetch log reads
+    "paused" rather than one stack of retries per formula. After the cooldown one request is
+    let through; a success closes the breaker, a failure reopens it."""
+
+    def __init__(self, threshold: int = 5, cooldown_s: float = 60.0, name: str = ""):
+        self.threshold = max(1, threshold)
+        self.cooldown_s = cooldown_s
+        self.name = name
+        self._lock = threading.Lock()
+        self._failures = 0
+        self._open_until = 0.0
+        self.opened = 0  # times the breaker tripped; reported by the warm summary
+
+    def check(self) -> None:
+        with self._lock:
+            remaining = self._open_until - time.monotonic()
+            if remaining > 0:
+                raise SourceError(
+                    f"{self.name or 'source'} paused for {int(remaining) + 1}s after "
+                    f"{self._failures} consecutive server failures"
+                )
+
+    def record_failure(self) -> None:
+        with self._lock:
+            self._failures += 1
+            if self._failures >= self.threshold:
+                self._open_until = time.monotonic() + self.cooldown_s
+                self.opened += 1
+                log.warning(
+                    "%s: %d consecutive server failures; pausing this source for %.0f s",
+                    self.name or "source",
+                    self._failures,
+                    self.cooldown_s,
+                )
+
+    def record_success(self) -> None:
+        with self._lock:
+            self._failures = 0
+            self._open_until = 0.0
+
+
 class Http:
     """Thin httpx wrapper: timeouts, retries with backoff, 429 handling, an optional per-client
-    request-rate cap, proxy-aware, optional recording of every response for replay in tests."""
+    request-rate cap, a circuit breaker for a source that is down, proxy-aware, optional
+    recording of every response for replay in tests."""
 
     def __init__(
         self,
@@ -154,6 +202,7 @@ class Http:
         user_agent: str = "",
         recorder: Recorder | None = None,
         max_rps: float | None = None,
+        breaker: CircuitBreaker | None = None,
     ):
         headers = {"Accept": "application/json"}
         if user_agent:
@@ -162,6 +211,7 @@ class Http:
         self.max_retries = max_retries
         self.recorder = recorder if recorder is not None else Recorder.from_env()
         self.limiter = RateLimiter(max_rps) if max_rps else None
+        self.breaker = breaker
 
     def get_json(
         self, url: str, params: dict[str, Any] | None = None, headers: dict[str, str] | None = None
@@ -176,14 +226,22 @@ class Http:
     ) -> Any:
         last_exc: Exception | None = None
         for attempt in range(self.max_retries + 1):
+            if self.breaker is not None:
+                self.breaker.check()  # raises at once while the source is paused
             if self.limiter is not None:
                 self.limiter.wait()
             try:
                 resp = self._client.get(url, params=params, headers=headers)
             except httpx.HTTPError as exc:  # network-level failure
                 last_exc = exc
+                if self.breaker is not None:
+                    self.breaker.record_failure()
                 self._sleep(attempt)
                 continue
+            if resp.status_code >= 500 and self.breaker is not None:
+                self.breaker.record_failure()
+            elif resp.status_code < 500 and self.breaker is not None:
+                self.breaker.record_success()  # any answer, even a 4xx, means the server is up
             if resp.status_code == 429 or resp.status_code >= 500:
                 retry_after = resp.headers.get("Retry-After")
                 delay = float(retry_after) if retry_after and retry_after.isdigit() else None
