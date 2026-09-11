@@ -6,7 +6,8 @@
 #            packaged with a manifest (sources, timestamps, self-check, SHA-256, commit)
 #   smoke    the image loaded and run with --network none against the bundle: install, self-check,
 #            the PI's request; then the documented compose steps end to end
-#   release  the assets, SHA256SUMS and a build-provenance attestation, attached to the tag
+#   release  the assets, SHA256SUMS and (public repos only) a build-provenance attestation,
+#            attached to the tag
 #
 # A tag `vX.Y.Z` builds a live-data release and needs the MP_API_KEY repository secret (and
 # optionally OPENALEX_API_KEY for the literature pools). `workflow_dispatch` builds the same
@@ -269,7 +270,11 @@ jobs:
           cp artifacts/bundle/manifest.json "out/oxide-triage-${V}-manifest.json"
           (cd out && sha256sum * > SHA256SUMS)
           ls -lh out && cat out/SHA256SUMS
+      # GitHub only stores attestations for public repositories (or org-owned ones on
+      # Enterprise Cloud); on a private user-owned repository the API refuses and the job
+      # would fail. SHA256SUMS still ships either way.
       - name: Attest build provenance
+        if: ${{ !github.event.repository.private }}
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: out/*
