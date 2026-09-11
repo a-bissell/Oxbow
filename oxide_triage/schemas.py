@@ -191,6 +191,9 @@ class Criteria(BaseModel):
     output_template: TemplateName | None = None
     families: list[str] = Field(default_factory=list)  # cation families in scope; empty = all
     interpretation_notes: list[str] = Field(default_factory=list)
+    # Clauses of the request no rule consumed: printed back as "not acted on" so a scientist
+    # never has to guess whether an ask was honoured.
+    unhandled: list[str] = Field(default_factory=list)
 
 
 class RequestBin(StrEnum):
@@ -199,6 +202,10 @@ class RequestBin(StrEnum):
     CONFIG_DEVIATION = "configuration_deviation"  # Bin 2 (proceed, surface loudly)
     INTEGRITY = "evidence_integrity_attack"  # Bin 3 (refuse)
     OVERRIDE = "override_attempt"  # Bin 0 (proceed; the request asks for a mode that does not exist)
+    OUT_OF_SCOPE = (
+        "out_of_scope"  # not an oxide-dielectric triage ask at all (decline, say what the tool does)
+    )
+    HAZARD_POLICY = "hazard_policy"  # asks to lift an element the site never lifts by request (decline)
 
 
 class GuardFinding(BaseModel):
@@ -365,6 +372,13 @@ class TriageResult(BaseModel):
     scope: ScopeInfo | None = None
     retrieval: RetrievalCompleteness | None = None  # how much of the ranked set was actually fetched
     warnings: list[str] = Field(default_factory=list)
+    # Parts of the request the run did not act on: unparsed clauses, capabilities the
+    # deployment lacks, modes that do not exist. Shown on every output, so a request that was
+    # only partly honoured never reads as if it were honoured in full.
+    not_acted_on: list[str] = Field(default_factory=list)
+    # Caveats every shortlisted candidate carries, said once for the run so each row's main
+    # caveat can be the one specific to it. The per-candidate copies stay on the candidates.
+    run_notes: list[Caveat] = Field(default_factory=list)
     llm_usage: dict[str, str] = Field(default_factory=dict)  # edge -> provider/model or "none"
     clarifications: list[str] = Field(default_factory=list)  # questions worth asking before running
     needs_confirmation: bool = False  # True when clarifications exist and the run was not confirmed

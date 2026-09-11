@@ -39,6 +39,100 @@ def _load_hygroscopic() -> dict[str, Any]:
 HYGROSCOPIC = _load_hygroscopic()
 
 
+def _load_substrates() -> dict[str, Any]:
+    with (DATA_DIR / "common_substrates.yaml").open(encoding="utf-8") as fh:
+        return yaml.safe_load(fh) or {}
+
+
+COMMON_SUBSTRATES = _load_substrates()
+
+# Within one severity, what a thin-film scientist wants to hear first. Severity still comes
+# first; this replaces the alphabetical tie-break that put "band_gap_corrected" ahead of
+# "hygroscopic_risk" on every row. Codes not listed sort after these, alphabetically.
+BENCH_ORDER: tuple[str, ...] = (
+    "incomplete_retrieval",
+    "cross_source_disagreement",
+    "substrate_reaction",
+    "hazard_allowed_by_config",
+    "theoretical_structure",
+    "polymorphs_collapsed",
+    "hygroscopic_risk",
+    "hazard_caution",
+    "ghs_hazard_statements",
+    "metastable",
+    "dielectric_unknown",
+    "band_gap_near_threshold",
+    "functional_unknown",
+    "no_thin_film_literature",
+    "thin_literature",
+    "substrate_literature_confound",
+    "single_source_stability",
+    "cross_check_untested",
+    "literature_not_retrieved",
+    "literature_unavailable",
+    "partial_data",
+    "complex_composition",
+    "literature_count_noisy",
+    "band_gap_corrected",
+    "fixture_data",
+)
+_BENCH_RANK = {code: i for i, code in enumerate(BENCH_ORDER)}
+
+
+def caveat_sort_key(c: Caveat) -> tuple[int, int, str]:
+    return (SEVERITY_RANK[c.severity], _BENCH_RANK.get(c.code, len(BENCH_ORDER)), c.code)
+
+
+# Caveats that can be said once for the whole run when every shortlisted candidate carries
+# them. Only codes with a run-level wording are hoisted; a caveat whose text is about one
+# candidate's numbers stays on that candidate.
+RUN_LEVEL_TEXT: dict[str, str] = {
+    "band_gap_corrected": (
+        "Every band gap on the shortlist is a {factor:g}x scalar correction of a semi-local DFT "
+        "value, not a measurement or a hybrid-functional result; the per-candidate numbers are in "
+        "the audit view."
+    ),
+    "single_source_stability": (
+        "Stability rests on Materials Project alone for every shortlisted candidate; no OQMD "
+        "entry matched any of their formulas for an independent check."
+    ),
+    "cross_check_untested": (
+        "The independent stability cross-check never ran for any shortlisted candidate on this "
+        "cache; agreement is untested, not absent."
+    ),
+    "literature_not_retrieved": (
+        "Literature counts were never fetched for any shortlisted candidate on this cache; "
+        "evidence strength is unmeasured across the board."
+    ),
+    "incomplete_retrieval": (
+        "Every shortlisted candidate was ranked on incomplete retrieval; ranks are not "
+        "comparable until the cache is warmed."
+    ),
+}
+
+
+def shared_caveats(shortlist: list[ScoredCandidate], config: Config) -> list[Caveat]:
+    """One caveat per code that every shortlisted candidate carries and that has a run-level
+    wording. The per-candidate copies stay where they are; the summary just stops repeating
+    them as each row's main caveat."""
+    if len(shortlist) < 2:
+        return []
+    common = set.intersection(*({c.code for c in sc.caveats} for sc in shortlist))
+    out: list[Caveat] = []
+    for code in sorted(common & RUN_LEVEL_TEXT.keys(), key=lambda k: _BENCH_RANK.get(k, 99)):
+        first = next(c for c in shortlist[0].caveats if c.code == code)
+        out.append(
+            Caveat(
+                code=code,
+                severity=first.severity,
+                text=RUN_LEVEL_TEXT[code].format(factor=config.band_gap.correction.scalar_factor),
+                origin="rule",
+                evidence={"candidates": len(shortlist)},
+            )
+        )
+    return out
+
+
 # --------------------------------------------------------------------------------------
 # Rule-derived caveats
 # --------------------------------------------------------------------------------------
@@ -270,6 +364,17 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
             "info",
             f"'{r.formula}' is a short formula string; OpenAlex counts may include unrelated matches.",
         )
+    basis = COMMON_SUBSTRATES.get("formulas", {}).get(r.formula)
+    if basis and lit.status == DataStatus.KNOWN:
+        add(
+            "substrate_literature_confound",
+            "info",
+            f"{r.formula} is sold as a single-crystal substrate ({basis}). Its literature count includes "
+            "works that grew something else on it, so the evidence that it has itself been deposited "
+            "and measured as a film is overstated by the count.",
+            table_version=COMMON_SUBSTRATES.get("version"),
+            thin_film_works=lit.thin_film_works,
+        )
 
     # Composition & coverage --------------------------------------------------------------
     if r.n_elements >= 4:
@@ -295,16 +400,18 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
             "Synthetic fixture record: every value above is illustrative, not real.",
         )
 
-    out.sort(key=lambda c: (SEVERITY_RANK[c.severity], c.code))
+    out.sort(key=caveat_sort_key)
     return out
 
 
-def primary_caveat(sc: ScoredCandidate) -> Caveat | None:
+def primary_caveat(sc: ScoredCandidate, exclude: Iterable[str] = ()) -> Caveat | None:
+    """The one caveat a row leads with. ``exclude`` holds the codes already said once for the
+    whole run, so each row's headline is specific to that candidate."""
     if not sc.caveats:
         return None
-    # Fixture banner is shown globally; prefer a substantive caveat as the headline.
-    substantive = [c for c in sc.caveats if c.code != "fixture_data"]
-    return (substantive or sc.caveats)[0]
+    skip = set(exclude) | {"fixture_data"}  # the fixture banner is shown globally
+    substantive = [c for c in sc.caveats if c.code not in skip]
+    return substantive[0] if substantive else None
 
 
 # --------------------------------------------------------------------------------------

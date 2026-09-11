@@ -215,3 +215,23 @@ def test_mcp_offline_blocks_acquisition_and_status_reports_selfcheck(mcp_env):
     status = json.loads(call(s, "cache_status"))
     assert status["fixture_data"] and status["selfcheck"]["passed"]
     assert json.loads(call(s, "selfcheck"))["passed"]
+
+
+def test_mcp_actor_depends_on_the_transport(monkeypatch):
+    """Over stdio the caller is the process's OS user. Over HTTP the process user is the
+    service account, so the name comes from the proxy header or the call is unattributed."""
+    import oxide_triage.mcp_server as m
+
+    class Ctx:
+        def __init__(self, headers):
+            self.headers = headers
+
+    monkeypatch.setattr(m, "_transport", "stdio")
+    assert m._actor_for(None).how.startswith("operating-system user")
+    monkeypatch.setattr(m, "_transport", "http")
+    named = m._actor_for(Ctx({"x-forwarded-user": "jsmith"}))
+    assert (named.who, named.via) == ("jsmith", "mcp")
+    anon = m._actor_for(Ctx({}))
+    assert anon.who == "unattributed" and "proxy" in anon.how
+    # the shared toolbox resolves the actor per call, never from a value captured at import
+    assert m._toolbox.actor is None  # outside a tool call nothing is set

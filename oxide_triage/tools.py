@@ -23,16 +23,17 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from oxide_triage.actor import Actor
 from oxide_triage.bundle import read_release
 from oxide_triage.cache import Cache
 from oxide_triage.config import Config, list_profiles, load_config, load_hazard_table
 from oxide_triage.edges.render import render
 from oxide_triage.guard import guard_request
 from oxide_triage.pipeline import add_material as _add_material
-from oxide_triage.pipeline import run_triage
+from oxide_triage.pipeline import not_acted_on_lines, run_triage
 from oxide_triage.progress import ProgressFn
 from oxide_triage.schemas import GuardDecision, TriageResult
-from oxide_triage.scoring.settings import blocked_by_policy, resolve
+from oxide_triage.scoring.settings import blocked_by_policy, never_liftable, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 from oxide_triage.session import (
     ResultStore,
@@ -76,7 +77,7 @@ AGENT_RULES = (
 
 AGENT_INSTRUCTIONS = INSTRUCTIONS + "\n\n" + AGENT_RULES
 
-GuardFn = Callable[[str], GuardDecision]
+GuardFn = Callable[[str, bool], GuardDecision]  # (text, follow_up)
 
 
 def make_guard(config: Config) -> GuardFn:
@@ -85,7 +86,8 @@ def make_guard(config: Config) -> GuardFn:
     another. Used on raw chat messages before any model sees them."""
     table = load_hazard_table(config.toxicity.table_file)
     blocked = blocked_by_policy(config, table)
-    return lambda text: guard_request(text, table, blocked)
+    never = never_liftable(config)
+    return lambda text, follow_up=False: guard_request(text, table, blocked, never, follow_up=follow_up)
 
 
 def agent_system_prompt(profile: str, extra: str | None = None) -> str:
@@ -308,6 +310,7 @@ class ToolBox:
         tool_result_max_chars: int | None = None,
         request_overrides: dict[str, Any] | None = None,
         progress: ProgressFn | None = None,
+        actor: Actor | Callable[[], Actor | None] | None = None,
     ):
         """``request_overrides`` are criteria fields a front end's controls set (shortlist length,
         gates, families); they apply to every triage without a clarification question and show
@@ -317,9 +320,16 @@ class ToolBox:
         self.tool_result_max_chars = tool_result_max_chars
         self.request_overrides = request_overrides
         self.progress = progress
+        # Who is behind the calls; written with every logged deviation. A callable is resolved
+        # per call, for a toolbox shared by many network callers (the MCP server over HTTP).
+        self._actor = actor
         self._last_result_id: str | None = None
         self._n_results = 0  # bumped by _finish; lets call() see that a tool produced a result
         self._asked: set[str] = set()  # calls that returned clarification questions
+
+    @property
+    def actor(self) -> Actor | None:
+        return self._actor() if callable(self._actor) else self._actor
 
     # ---- plumbing ------------------------------------------------------------------------
 
@@ -381,12 +391,14 @@ class ToolBox:
 
         cfg = self._config(profile)
         table = load_hazard_table(cfg.toxicity.table_file)
-        guard = guard_request(request, table)
-        criteria, parser = _parse(request, cfg, table, make_llm(cfg.llm))
+        blocked = blocked_by_policy(cfg, table)
+        guard = guard_request(request, table, blocked, never_liftable(cfg))
+        criteria, parser = _parse(request, cfg, table, make_llm(cfg.llm), blocked)
         eff, deviations = resolve(cfg, criteria, table)
         return {
             "guard": guard.model_dump(),
             "criteria": criteria.model_dump(exclude_defaults=True),
+            "not_acted_on": not_acted_on_lines(guard, criteria),
             "parsed_by": parser,
             "deviations": [d.model_dump() for d in deviations],
             "clarifications": clarifications(criteria, deviations, guard, cfg),
@@ -413,6 +425,7 @@ class ToolBox:
                 confirmed=confirmed,
                 progress=self.progress,
                 overrides=self.request_overrides,
+                actor=self.actor,
             )
         finally:
             cache.close()
@@ -457,6 +470,7 @@ class ToolBox:
                 criteria=criteria,
                 confirmed=confirmed,
                 progress=self.progress,
+                actor=self.actor,
             )
         finally:
             cache.close()

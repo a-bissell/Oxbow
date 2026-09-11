@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from oxide_triage.acquire import GAP_KINDS, AcquisitionReport, fill_gaps, make_planner, read_report
+from oxide_triage.actor import UNATTRIBUTED, Actor
 from oxide_triage.cache import Cache
 from oxide_triage.config import (
     Config,
@@ -31,17 +32,18 @@ from oxide_triage.edges.render import rationale_line
 from oxide_triage.grouping import assign_tiers, group_polymorphs, polymorph_caveat
 from oxide_triage.guard import guard_request
 from oxide_triage.progress import ProgressFn, emit
-from oxide_triage.refute import refute, rule_caveats
+from oxide_triage.refute import refute, rule_caveats, shared_caveats
 from oxide_triage.schemas import (
     CandidateRecord,
     Criteria,
     GuardDecision,
+    RequestBin,
     ScopeInfo,
     ScoredCandidate,
     TriageResult,
 )
 from oxide_triage.scoring.core import explanation, rank, retrieval_completeness
-from oxide_triage.scoring.settings import blocked_by_policy, resolve
+from oxide_triage.scoring.settings import blocked_by_policy, never_liftable, resolve
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 from oxide_triage.session import apply_changes, clarifications
 from oxide_triage.sources.assemble import DataLayer
@@ -74,9 +76,25 @@ def _now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
-def _log_deviations(config: Config, result: TriageResult) -> None:
+def not_acted_on_lines(guard: GuardDecision, criteria: Criteria) -> list[str]:
+    """Everything the request asked for that this run does not do, one line each: a mode that
+    does not exist, a capability the deployment lacks, a clause no rule read. Printed on every
+    output so a partly honoured request never reads as fully honoured."""
+    lines: list[str] = []
+    for f in guard.findings:
+        if f.bin == RequestBin.OVERRIDE:
+            lines.append(f'"{f.matched_text}": {f.explanation.split(". ")[0]}.')
+        elif f.bin == RequestBin.IMPOSSIBLE:
+            lines.append(f'"{f.matched_text}": {f.explanation.split(". ")[0]}.')
+    for clause in criteria.unhandled:
+        lines.append(clause if ":" in clause else f"{clause}: no rule read this, so it changed nothing.")
+    return lines
+
+
+def _log_deviations(config: Config, result: TriageResult, actor: Actor | None) -> None:
     if not result.deviations:
         return
+    who = actor or UNATTRIBUTED
     path = Path(config.cache.path).with_name("deviations.jsonl")
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -85,6 +103,7 @@ def _log_deviations(config: Config, result: TriageResult) -> None:
                 json.dumps(
                     {
                         "ts": result.generated_at,
+                        "actor": who.model_dump(),
                         "profile": result.profile_name,
                         "request": result.request_text,
                         "deviations": [d.model_dump() for d in result.deviations],
@@ -95,7 +114,7 @@ def _log_deviations(config: Config, result: TriageResult) -> None:
     except OSError as exc:  # logging must never break a run
         log.warning("could not write deviation log: %s", exc)
     for d in result.deviations:
-        log.warning("configuration deviation [%s/%s]: %s", d.origin, d.code, d.description)
+        log.warning("configuration deviation [%s/%s] by %s: %s", d.origin, d.code, who, d.description)
 
 
 def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
@@ -160,6 +179,7 @@ def run_triage(
     http: Any | None = None,
     progress: ProgressFn | None = None,
     overrides: dict[str, Any] | None = None,
+    actor: Actor | None = None,
 ) -> TriageResult:
     """Run one triage request.
 
@@ -170,12 +190,13 @@ def run_triage(
     run (see ``oxide_triage.progress``) and cannot affect the result. ``overrides`` are
     criteria fields set by a front end's controls (shortlist length, gates, families) and are
     applied after parsing through the same validated path as a rerun, so they surface as
-    deviations like anything else the request changes.
+    deviations like anything else the request changes. ``actor`` is who made the request, as
+    the front end knows them; it is written with every deviation the run logs.
     """
     table = load_hazard_table(config.toxicity.table_file)
     llm = llm or make_llm(config.llm)
     blocked = blocked_by_policy(config, table)
-    guard: GuardDecision = guard_request(request_text, table, blocked)
+    guard: GuardDecision = guard_request(request_text, table, blocked, never_liftable(config))
     emit(progress, "parse", "Reading the request")
     if criteria is None:
         criteria, parser_label = parse_request(request_text, config, table, llm, blocked)
@@ -197,6 +218,8 @@ def run_triage(
     else:
         questions = clarifications(criteria, deviations, guard, config)
     llm_usage = {"parse": parser_label, "refute": "not run", "render": "templates only"}
+    # A declined request is explained by its refusal; the list is for runs that went ahead.
+    not_acted_on = not_acted_on_lines(guard, criteria) if guard.proceed else []
 
     own_cache = cache is None
     cache = cache or Cache(config.cache.path)
@@ -213,6 +236,7 @@ def run_triage(
             deviations=deviations,
             scoring=explanation(config, eff),
             llm_usage=llm_usage,
+            not_acted_on=not_acted_on,
             clarifications=questions,
             selfcheck_status="not_evaluated",
         )
@@ -334,6 +358,7 @@ def run_triage(
                 sc.caveats.insert(0, pc) if pc.severity != "info" else sc.caveats.append(pc)
         for sc in ranked + collapsed:
             sc.rationale = rationale_line(sc)
+        run_notes = shared_caveats(shortlist, config)
 
         if config.candidates.formula_sources == "on_demand" and ranked and retrieval_scope is None:
             # Offline under on-demand sources the fill does not run, but the semantics are the
@@ -389,6 +414,7 @@ def run_triage(
             retrieval=retrieval,
             shortlist=shortlist,
             ranked_beyond_shortlist=beyond,
+            run_notes=run_notes,
             excluded=excluded,
             collapsed_polymorphs=collapsed,
             tie_band=config.output.tie_band,
@@ -396,7 +422,7 @@ def run_triage(
             scope=scope_info,
             warnings=warnings,
         )
-        _log_deviations(config, result)
+        _log_deviations(config, result, actor)
         emit(progress, "done", "Done")
         return result
     finally:

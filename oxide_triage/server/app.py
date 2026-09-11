@@ -18,6 +18,7 @@ from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Str
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from oxide_triage.actor import web_actor
 from oxide_triage.bundle import read_release
 from oxide_triage.cache import Cache
 from oxide_triage.config import (
@@ -269,10 +270,11 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
         return {"deleted": state.store.delete_conversation(cid)}
 
     @app.post("/api/conversations/{cid}/turns")
-    async def post_turn(cid: str, req: TurnRequest) -> StreamingResponse:
+    async def post_turn(cid: str, req: TurnRequest, request: Request) -> StreamingResponse:
         conv = state.store.get_conversation(cid)
         if conv is None:
             raise HTTPException(404, "no such conversation")
+        actor = web_actor(request.headers, state.load_config("default").server.actor_header)
         lock = state.turn_lock(cid)
         if not lock.acquire(blocking=False):
             raise HTTPException(409, "a turn is already running for this conversation")
@@ -284,7 +286,15 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
 
         def work() -> None:
             try:
-                run_turn(state.store, conv, req, emit, config_dir=state.config_dir, offline=state.offline)
+                run_turn(
+                    state.store,
+                    conv,
+                    req,
+                    emit,
+                    config_dir=state.config_dir,
+                    offline=state.offline,
+                    actor=actor,
+                )
             except Exception as exc:  # last resort; run_turn handles its own failures
                 log.exception("turn failed")
                 emit({"type": "error", "message": f"{type(exc).__name__}: {exc}"})

@@ -28,6 +28,7 @@ from typing import Any
 from pydantic import BaseModel
 from pydantic import Field as PField
 
+from oxide_triage.actor import Actor
 from oxide_triage.agent import GUARD_REFUSAL, Agent
 from oxide_triage.config import DEFAULT_CONFIG_DIR, Config, load_config
 from oxide_triage.edges.llm import (
@@ -133,6 +134,7 @@ class TurnState:
     confirmed_tool: str | None = None  # a pending tool the user just approved
     config_dir: Path = DEFAULT_CONFIG_DIR
     outcomes: list[tuple[str, ToolOutcome]] = field(default_factory=list)
+    actor: Actor | None = None  # the person behind this turn, as the proxy named them
 
 
 def _new_id(prefix: str) -> str:
@@ -160,6 +162,7 @@ class WebToolBox(ToolBox):
             tool_result_max_chars=config.agent.tool_result_max_chars,
             request_overrides=_scope_overrides(state.scope),
             progress=_progress_emitter(state.emit),
+            actor=state.actor,
         )
         self.state = state
         self.profile = state.profile
@@ -300,12 +303,17 @@ def narrate_result(result: TriageResult, rerun_of: str | None, store: SessionSto
     )
     parts.append("Shortlist: " + describe_tiers(result.shortlist) + ".")
     first = result.shortlist[0]
-    cav = primary_caveat(first)
+    shared = [c.code for c in result.run_notes]
+    cav = primary_caveat(first, shared)
     if cav is not None:
         parts.append(f"Main caveat on {first.record.formula}: {cav.text}")
+    if result.run_notes:
+        parts.append("Shared by every shortlisted candidate: " + " ".join(c.text for c in result.run_notes))
     devs = [d.description for d in result.deviations]
     if devs:
         parts.append("Deviations from the shipped policy: " + " ".join(devs))
+    if result.not_acted_on:
+        parts.append("Parts of your request I did not act on: " + " ".join(result.not_acted_on))
     partial = [s.record.formula for s in result.shortlist if s.missing_criteria]
     if partial:
         parts.append("Ranked on partial data: " + ", ".join(partial) + ".")
@@ -406,7 +414,7 @@ def narrate_explain(result: TriageResult, key: str) -> tuple[str, list[str]]:
         parts.append(
             "No data for " + ", ".join(sc.missing_criteria) + ", which earns no credit and lowers confidence."
         )
-    cav = primary_caveat(sc)
+    cav = primary_caveat(sc, [c.code for c in result.run_notes])
     if cav is not None:
         parts.append(f"Main caveat: {cav.text}")
     sugg = []
@@ -700,8 +708,10 @@ def run_turn(
     emit: Emit,
     config_dir: Path = DEFAULT_CONFIG_DIR,
     offline: bool | None = None,
+    actor: Actor | None = None,
 ) -> Turn:
-    """Execute one user turn and return the assistant turn; both are appended to ``conv``."""
+    """Execute one user turn and return the assistant turn; both are appended to ``conv``.
+    ``actor`` is who the proxy says is asking; it goes into the deviation log, nowhere else."""
     profile = (req.scope.profile if req.scope and req.scope.profile else None) or conv.profile
     config = load_config(profile, config_dir=config_dir)
     conv.profile = profile
@@ -719,6 +729,7 @@ def run_turn(
         scope=req.scope,
         offline=offline,
         config_dir=config_dir,
+        actor=actor,
     )
 
     pending = _find_pending(conv, req.confirm or req.dismiss)

@@ -30,6 +30,36 @@ jobs:
           OXIDE_TRIAGE_SITE_CONFIG: "off"
         run: pytest -q
 
+  wheel:
+    name: Wheel install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build the wheel
+        run: |
+          pip install build
+          python -m build --wheel --outdir dist/
+      - name: Install into a clean environment and run what needs package data
+        # An editable install (the dev setup) sees every file in the checkout; a wheel sees
+        # only what package-data names. The validation set was missing from that list once,
+        # so the held-out check ran in development and crashed in the image.
+        env:
+          OXIDE_TRIAGE_SITE_CONFIG: "off"
+          # The wheel carries the package data; the profiles ship beside it, as in the image.
+          OXIDE_TRIAGE_CONFIG_DIR: ${{ github.workspace }}/config
+        run: |
+          python -m venv /tmp/clean
+          /tmp/clean/bin/pip install --quiet dist/*.whl
+          cd /tmp
+          /tmp/clean/bin/oxide-triage load-fixtures
+          /tmp/clean/bin/oxide-triage validate
+          /tmp/clean/bin/oxide-triage query --offline --yes --template json --out /tmp/r.json
+          /tmp/clean/bin/oxide-triage report --out /tmp/report.html
+
   image:
     name: Build image
     runs-on: ubuntu-latest

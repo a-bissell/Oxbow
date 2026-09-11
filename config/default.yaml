@@ -72,6 +72,11 @@ toxicity:
   blocklist_tiers: [2]          # elements in these tiers fail the hazard gate
   element_blocklist: []         # extra elements to block regardless of tier
   element_allowlist: []         # elements to permit despite tier (surfaced as a deviation)
+  # Elements a request can never unblock, whoever asks. Lead can be lifted by a request with
+  # confirmation because a ferroelectrics group has a real reason; nothing on this list can.
+  # A site changes it in site.yaml (an admin decision, logged as a site override), not in a
+  # request. Shipped: every radioactive element in the hazard table.
+  never_lift: [U, Th, Ra, Ac, Pa, Np, Pu, Am, Cm, Po]
 
 simplicity:
   scores: {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}   # by number of distinct elements
@@ -216,6 +221,11 @@ llm:
 # tools the MCP server exposes; every number, rank and citation comes out of a tool. Needs
 # llm.provider to be anthropic or openai_compatible. Nothing here affects ranking.
 # ---------------------------------------------------------------------------
+server:
+  # The web app records who caused each deviation from the name the authenticating reverse
+  # proxy puts in this header. Without a proxy the actor is logged as "unattributed".
+  actor_header: X-Forwarded-User
+
 agent:
   model: null               # assistant model; null = claude-sonnet-5 for anthropic (AGENT_MODEL overrides)
   max_tool_rounds: 8        # tool-call rounds allowed per user message

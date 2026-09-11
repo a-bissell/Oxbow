@@ -11,7 +11,11 @@ Two parsers, always the rule-based one first:
                     allow/exclude lists) is never overridden by the model.
 
 Whatever is parsed is echoed back to the scientist in the output header, so an
-interpretation error is visible rather than silent.
+interpretation error is visible rather than silent. The converse is printed too: every
+clause of the request that no rule consumed and that is not the triage ask itself comes
+back as "not acted on", so a request that was only partly honoured never reads as if it had
+been honoured in full. That list is the general answer to phrasings the rules do not know;
+adding a rule per phrasing is not.
 """
 
 from __future__ import annotations
@@ -36,6 +40,69 @@ CRITERION_WORDS = {
 }
 
 
+# A clause is understood if a rule consumed part of it or it is the triage ask itself: the
+# subject, a thing the tool does, or one of the criteria it ranks on. Element names are not
+# on this list on purpose: "skip anything with lead" names an element and is still not acted
+# on if no rule read the "skip".
+_UNDERSTOOD = re.compile(
+    r"\b(find|search|look for|identify|screen\w*|triage|rank\w*|shortlist\w*|suggest\w*|recommend\w*|"
+    r"candidates?|materials?|oxides?|dielectrics?|permittivit\w*|high[- ]?k|k[- ]values?|"
+    r"gate[- ]?(?:oxides?|stacks?|dielectrics?)|thin[- ]films?|films?|ald|sputter\w*|deposit\w*|"
+    r"(?:band ?)?gaps?|hull|thermodynamic\w*|stab(?:le|ility)|toxic\w*|non-?toxic|hazard\w*|safe\w*|"
+    r"simple|simplicity|compositions?|elements?|literature|evidence|published|papers?|public|"
+    r"promising|prefer\w*|priorit\w*|weight\w*|thresholds?|limits?|gates?|"
+    r"explain|why|compare|compar\w*|versus|vs\.?|differ\w*|favou?r\w*|better|best|"
+    r"re-?run|again|instead|profiles?|conservative|exploratory|default|"
+    r"caveats?|uncertain\w*|confidence|missing|data|sources?|scores?|excluded?|"
+    r"json|audit|summary|brief|html|shortlist|top|list|show|give|return|tell)\b",
+    re.I,
+)
+# Clauses that read as reasons or courtesies rather than asks.
+_ASIDE = re.compile(
+    r"^\s*(?:because|since|as|so that|they'?re|they are|it'?s|it is|we'?re|we are|that'?s|"
+    r"thanks|thank you|please|cheers)\b",
+    re.I,
+)
+_CLAUSE_SPLIT = re.compile(
+    r"[.;!?\n]+|,\s+(?:and|then|also|but|plus)\s+|\s+(?:and|and then|and also|but also|then)\s+", re.I
+)
+# A substrate named in the request. The interface criterion is computed against the
+# configured substrate; a request cannot change it yet, so the ask is reported, not applied.
+_SUBSTRATE = re.compile(
+    r"\bon\s+(?:a\s+|an\s+|the\s+)?(germanium|ge|gaas|gallium arsenide|gan|gallium nitride|sic|"
+    r"silicon carbide|srtio3|strontium titanate|sapphire|glass|quartz|graphene|mos2|inp|diamond|"
+    r"silicon|si)\b(?:\s+(?:substrates?|wafers?))?",
+    re.I,
+)
+_SUBSTRATE_ALIASES = {
+    "si": "Si",
+    "silicon": "Si",
+    "ge": "Ge",
+    "germanium": "Ge",
+    "srtio3": "SrTiO3",
+    "strontium titanate": "SrTiO3",
+}
+
+
+def unhandled_clauses(text: str, consumed: list[tuple[int, int]]) -> list[str]:
+    """Clauses of ``text`` that no rule consumed and that are not the triage ask itself."""
+    out: list[str] = []
+    pos = 0
+    for part in _CLAUSE_SPLIT.split(text):
+        start = text.find(part, pos)
+        end = start + len(part)
+        pos = end
+        clause = part.strip(" ,\t")
+        if len(clause.split()) < 3 or _ASIDE.match(clause):
+            continue
+        if any(a < end and b > start for a, b in consumed):
+            continue
+        if _UNDERSTOOD.search(clause):
+            continue
+        out.append(clause)
+    return out
+
+
 def apply_terminology(text: str, mapping: dict[str, str]) -> str:
     """Replace site-local vocabulary with canonical terms (longest keys first)."""
     for key in sorted(mapping, key=len, reverse=True):
@@ -43,10 +110,18 @@ def apply_terminology(text: str, mapping: dict[str, str]) -> str:
     return text
 
 
-def rule_parse(text: str, table: HazardTable, blocked: frozenset[str] | None = None) -> Criteria:
+def rule_parse(
+    text: str, table: HazardTable, blocked: frozenset[str] | None = None, substrate: str = "Si"
+) -> Criteria:
     t = text
     notes: list[str] = []
     kw: dict[str, Any] = {}
+    consumed: list[tuple[int, int]] = []  # spans a rule read and acted on
+
+    def hit(m: re.Match[str] | None) -> re.Match[str] | None:
+        if m is not None:
+            consumed.append(m.span())
+        return m
 
     # ---- top_k ------------------------------------------------------------------------
     if m := re.search(r"\btop[- ](\d{1,2})\b", t, re.I) or re.search(
@@ -56,6 +131,7 @@ def rule_parse(text: str, table: HazardTable, blocked: frozenset[str] | None = N
         if 1 <= k <= 50:
             kw["top_k"] = k
             notes.append(f"shortlist length {k}")
+            hit(m)
 
     # ---- band gap threshold -----------------------------------------------------------
     if m := re.search(
@@ -67,7 +143,8 @@ def rule_parse(text: str, table: HazardTable, blocked: frozenset[str] | None = N
     ):
         kw["min_band_gap_ev"] = float(m.group(1))
         notes.append(f"minimum effective band gap {m.group(1)} eV")
-    elif re.search(r"\bwide(?:r)?\s+(?:band ?)?gaps?\b", t, re.I):
+        hit(m)
+    elif hit(re.search(r"\bwide(?:r)?\s+(?:band ?)?gaps?\b", t, re.I)):
         notes.append("'wide band gap' -> profile band-gap threshold and preference curve unchanged")
 
     # ---- hull threshold ---------------------------------------------------------------
@@ -80,26 +157,30 @@ def rule_parse(text: str, table: HazardTable, blocked: frozenset[str] | None = N
         val = float(m.group(1)) / (1000.0 if m.group(2).lower() == "mev" else 1.0)
         kw["max_energy_above_hull_ev_atom"] = val
         notes.append(f"energy-above-hull threshold {val:g} eV/atom")
-    elif re.search(
-        r"\b(?:only|strictly)\s+(?:on[- ]hull|ground[- ]state|(?:thermodynamically\s+)?stable)\b", t, re.I
+        hit(m)
+    elif hit(
+        re.search(
+            r"\b(?:only|strictly)\s+(?:on[- ]hull|ground[- ]state|(?:thermodynamically\s+)?stable)\b", t, re.I
+        )
     ):
         kw["max_energy_above_hull_ev_atom"] = 0.0
         notes.append("'only on-hull/ground-state' -> energy above hull must be 0")
 
     # ---- composition size -------------------------------------------------------------
-    if re.search(r"\bbinar(?:y|ies)\s+(?:oxides?\s+)?only\b|\bonly\s+binar(?:y|ies)\b", t, re.I):
+    if hit(re.search(r"\bbinar(?:y|ies)\s+(?:oxides?\s+)?only\b|\bonly\s+binar(?:y|ies)\b", t, re.I)):
         kw["max_elements"] = 2
         notes.append("binaries only -> at most 2 distinct elements")
     elif m := re.search(
         r"\b(?:up to|at most|max(?:imum)?(?: of)?|no more than)\s+(\d)\s+(?:distinct\s+)?elements?\b", t, re.I
     ):
         n = int(m.group(1))
+        hit(m)
         if 2 <= n <= 6:
             kw["max_elements"] = n
             notes.append(f"at most {n} distinct elements")
         else:
             notes.append(f"ignored 'at most {n} elements': supported range is 2-6")
-    elif re.search(r"\b(?:include|allow|consider)\s+(?:quaternar(?:y|ies)|four[- ]element)\b", t, re.I):
+    elif hit(re.search(r"\b(?:include|allow|consider)\s+(?:quaternar(?:y|ies)|four[- ]element)\b", t, re.I)):
         kw["max_elements"] = 4
         notes.append("quaternaries allowed -> at most 4 distinct elements")
 
@@ -108,31 +189,39 @@ def rule_parse(text: str, table: HazardTable, blocked: frozenset[str] | None = N
     exclude: list[str] = []
     allow: list[str] = []
 
+    def found(m: re.Match[str], group: int = 1) -> list[str]:
+        syms = find_elements(m.group(group))
+        if syms:
+            hit(m)
+        return syms
+
     for m in re.finditer(r"\b([A-Za-z]+)[- ]based\b", t):
-        include.extend(find_elements(m.group(1)))
+        include.extend(found(m))
     for m in re.finditer(
         r"\b(?:only|restrict(?:ed)? to|containing|must (?:contain|include))\s+([^.;]{1,40}?)\s+(?:oxides?|compounds?|materials?)\b",
         t,
         re.I,
     ):
-        include.extend(find_elements(m.group(1)))
+        include.extend(found(m))
 
     for m in re.finditer(r"\b([A-Za-z]+)-free\b", t):
-        exclude.extend(find_elements(m.group(1)))
+        exclude.extend(found(m))
     for m in re.finditer(
-        r"\b(?:no|without|exclude|excluding|avoid|avoiding|not?\s+containing|free of)\s+([^.;]{1,50})",
+        r"\b(?:no|without|exclude|excluding|avoid|avoiding|not?\s+containing|free of|skip|omit|leave out|"
+        r"steer clear of|stay away from)\s+([^.;]{1,50})",
         t,
         re.I,
     ):
-        exclude.extend(find_elements(m.group(1)))
+        exclude.extend(found(m))
 
     for m in re.finditer(
-        r"\b(?:include|allow|permit|consider|keep|accept|add|unblock|don'?t (?:exclude|block|filter)|do not (?:exclude|block|filter)|"
+        r"\b(?:includ(?:e|ing)|allow(?:ing)?|permit(?:ting)?|consider(?:ing)?|keep(?:ing)?|accept(?:ing)?|add(?:ing)?|"
+        r"unblock(?:ing)?|don'?t (?:exclude|block|filter)|do not (?:exclude|block|filter)|"
         r"(?:lift|remove|drop|relax)\s+the\s+(?:block|restrictions?|ban|filter|blocklist)\s+(?:on|for|against))\s+([^.;]{1,60})",
         t,
         re.I,
     ):
-        for sym in find_elements(m.group(1)):
+        for sym in found(m):
             is_blocked = (sym in blocked) if blocked is not None else table.lookup(sym)[0] >= 2
             if is_blocked:
                 allow.append(sym)
@@ -153,16 +242,20 @@ def rule_parse(text: str, table: HazardTable, blocked: frozenset[str] | None = N
     # ---- weights ----------------------------------------------------------------------
     overrides: dict[str, float] = {}
     for crit, words in CRITERION_WORDS.items():
-        if re.search(
-            rf"\b(?:prioriti[sz]e|emphasi[sz]e|weight\w*\s+(?:up|heavily|more)|focus on|most important(?:ly)?)\b[^.;]{{0,30}}?\b(?:{words})\b",
-            t,
-            re.I,
+        if hit(
+            re.search(
+                rf"\b(?:prioriti[sz]e|emphasi[sz]e|weight\w*\s+(?:up|heavily|more)|focus on|most important(?:ly)?)\b[^.;]{{0,30}}?\b(?:{words})\b",
+                t,
+                re.I,
+            )
         ):
             overrides[crit] = 0.4
-        if re.search(
-            rf"\b(?:ignore|de-?emphasi[sz]e|don'?t care about|do not care about|downweight)\b[^.;]{{0,30}}?\b(?:{words})\b",
-            t,
-            re.I,
+        if hit(
+            re.search(
+                rf"\b(?:ignore|de-?emphasi[sz]e|don'?t care about|do not care about|downweight)\b[^.;]{{0,30}}?\b(?:{words})\b",
+                t,
+                re.I,
+            )
         ):
             overrides[crit] = 0.0
     if overrides:
@@ -170,16 +263,34 @@ def rule_parse(text: str, table: HazardTable, blocked: frozenset[str] | None = N
         notes.append("weight overrides: " + ", ".join(f"{k}={v:g}" for k, v in sorted(overrides.items())))
 
     # ---- output template --------------------------------------------------------------
-    if re.search(
-        r"\b(audit|technical view|full breakdown|score breakdown|every component|all thresholds)\b", t, re.I
+    if hit(
+        re.search(
+            r"\b(audit|technical view|full breakdown|score breakdown|every component|all thresholds)\b",
+            t,
+            re.I,
+        )
     ):
         kw["output_template"] = "audit"
-    elif re.search(r"\b(json|machine[- ]readable|structured output)\b", t, re.I):
+    elif hit(re.search(r"\b(json|machine[- ]readable|structured output)\b", t, re.I)):
         kw["output_template"] = "json"
-    elif re.search(r"\bhtml\b|\bweb report\b|\bprintable report\b", t, re.I):
+    elif hit(re.search(r"\bhtml\b|\bweb report\b|\bprintable report\b", t, re.I)):
         kw["output_template"] = "html"
-    elif re.search(r"\b(summary|brief|one screen|plain language|for the PI|non-technical)\b", t, re.I):
+    elif hit(re.search(r"\b(summary|brief|one screen|plain language|for the PI|non-technical)\b", t, re.I)):
         kw["output_template"] = "pi_summary"
+
+    # ---- what was asked for and not done ------------------------------------------------
+    unhandled: list[str] = []
+    for m in _SUBSTRATE.finditer(t):
+        name = m.group(1).lower()
+        canonical = _SUBSTRATE_ALIASES.get(name, m.group(1))
+        if canonical.lower() != substrate.lower():
+            hit(m)
+            unhandled.append(
+                f'"{m.group(0).strip()}": the interface criterion is computed against {substrate} in this '
+                "configuration; a request cannot change the substrate yet"
+            )
+    unhandled.extend(f'"{c}"' for c in unhandled_clauses(t, consumed))
+    kw["unhandled"] = unhandled
 
     kw["interpretation_notes"] = notes
     try:
@@ -307,7 +418,7 @@ def parse_request(
 ) -> tuple[Criteria, str]:
     """``blocked``: elements the active profile blocks; only allowances for those are recorded."""
     canonical = apply_terminology(text, config.terminology)
-    rules = rule_parse(canonical, table, blocked)
+    rules = rule_parse(canonical, table, blocked, substrate=config.interface.substrate)
     if llm.name != "none" and config.llm.use_for.parse:
         model = llm_parse(canonical, llm)
         return merge(rules, model), f"rules+{llm.name}" if model else "rules (model parse failed)"

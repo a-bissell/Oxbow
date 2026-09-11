@@ -115,3 +115,50 @@ def test_untested_cross_check_does_not_claim_single_source_evidence():
     sc.caveats = rule_caveats(sc, EFF, CFG)
     codes = [c.code for c in sc.caveats]
     assert "cross_check_untested" in codes and "single_source_stability" not in codes
+
+
+# ---- a main caveat that is specific to its row ---------------------------------------------------
+
+
+def test_within_a_severity_bench_relevance_beats_the_alphabet():
+    # MgO: hygroscopic (info) and band-gap-corrected (info). Alphabetically "band_gap_corrected"
+    # came first on every such row; a thin-film scientist wants the moisture note.
+    _, sc = caveats_for(formula="MgO", elements=["Mg", "O"])
+    codes = [c.code for c in sc.caveats]
+    assert codes.index("hygroscopic_risk") < codes.index("band_gap_corrected")
+    assert primary_caveat(sc).code == "hygroscopic_risk"
+
+
+def test_a_caveat_every_candidate_shares_is_said_once_and_leaves_the_rows():
+    from oxide_triage.refute import shared_caveats
+
+    _, a = caveats_for(mid="a", formula="HfO2")
+    _, b = caveats_for(mid="b", formula="MgO", elements=["Mg", "O"])
+    notes = shared_caveats([a, b], CFG)
+    assert [n.code for n in notes] == ["band_gap_corrected"]
+    assert "Every band gap on the shortlist" in notes[0].text and "1.4x" in notes[0].text
+    shared = [n.code for n in notes]
+    assert primary_caveat(a, shared) is None  # nothing specific to HfO2 remains
+    assert primary_caveat(b, shared).code == "hygroscopic_risk"
+    # the per-candidate copies are untouched: the audit view still lists them
+    assert "band_gap_corrected" in {c.code for c in a.caveats}
+    # a single-row shortlist hoists nothing
+    assert shared_caveats([a], CFG) == []
+
+
+def test_only_codes_with_a_run_level_wording_are_hoisted():
+    from oxide_triage.refute import shared_caveats
+
+    _, a = caveats_for(mid="a", formula="La2O3", elements=["La", "O"])
+    _, b = caveats_for(mid="b", formula="CaO", elements=["Ca", "O"])
+    assert "hygroscopic_risk" in {c.code for c in a.caveats} & {c.code for c in b.caveats}
+    assert "hygroscopic_risk" not in {n.code for n in shared_caveats([a, b], CFG)}
+
+
+def test_common_substrates_get_a_literature_confound_note_without_touching_the_score():
+    codes, sc = caveats_for(formula="LaAlO3", elements=["La", "Al", "O"])
+    assert codes["substrate_literature_confound"].severity == "info"
+    assert "substrate" in codes["substrate_literature_confound"].text
+    plain_score = score_candidate(make_record(formula="LaAlO3", elements=["La", "Al", "O"]), CFG, EFF)
+    assert plain_score.adjusted_score == sc.adjusted_score
+    assert "substrate_literature_confound" not in caveats_for(formula="HfO2")[0]

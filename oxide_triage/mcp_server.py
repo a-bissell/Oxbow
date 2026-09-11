@@ -27,10 +27,12 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from contextvars import ContextVar
 from typing import Any
 
-from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver import Context, MCPServer
 
+from oxide_triage.actor import Actor, local_actor, web_actor
 from oxide_triage.session import ResultStore
 from oxide_triage.tools import INSTRUCTIONS, SPECS_BY_NAME, ToolBox
 
@@ -40,7 +42,24 @@ server = MCPServer(
     instructions=INSTRUCTIONS,
     version="0.1.0",
 )
-_toolbox = ToolBox(ResultStore(capacity=100))
+# Who the deviation log names for a call depends on the transport. Over stdio the client is
+# a process of the same OS user, so that user is the actor. Over HTTP the process user is the
+# service account and says nothing about the caller, so the name comes from the header an
+# authenticating proxy sets (server.actor_header), or the call is logged as unattributed.
+_transport = "stdio"
+_current_actor: ContextVar[Actor | None] = ContextVar("actor", default=None)
+
+
+def _actor_for(ctx: Context | None) -> Actor:
+    if _transport != "http":
+        return local_actor("mcp")
+    headers = getattr(ctx, "headers", None) or {}
+    from oxide_triage.config import load_config
+
+    return web_actor(headers, load_config("default").server.actor_header, via="mcp")
+
+
+_toolbox = ToolBox(ResultStore(capacity=100), actor=_current_actor.get)
 
 
 def _describe(name: str) -> str:
@@ -59,9 +78,17 @@ def parse_request(request: str, profile: str = "default") -> dict[str, Any]:
 
 @server.tool(description=_describe("triage"))
 def triage(
-    request: str, profile: str = "default", template: str | None = None, confirmed: bool = False
+    request: str,
+    profile: str = "default",
+    template: str | None = None,
+    confirmed: bool = False,
+    ctx: Context | None = None,
 ) -> str:
-    return _toolbox.triage(request, profile, template, confirmed)
+    token = _current_actor.set(_actor_for(ctx))
+    try:
+        return _toolbox.triage(request, profile, template, confirmed)
+    finally:
+        _current_actor.reset(token)
 
 
 @server.tool(description=_describe("explain"))
@@ -81,9 +108,17 @@ def list_candidates(result_id: str, section: str = "shortlist", limit: int = 25)
 
 @server.tool(description=_describe("rerun"))
 def rerun(
-    result_id: str, changes: dict[str, Any], template: str | None = None, confirmed: bool = False
+    result_id: str,
+    changes: dict[str, Any],
+    template: str | None = None,
+    confirmed: bool = False,
+    ctx: Context | None = None,
 ) -> str:
-    return _toolbox.rerun(result_id, changes, template, confirmed)
+    token = _current_actor.set(_actor_for(ctx))
+    try:
+        return _toolbox.rerun(result_id, changes, template, confirmed)
+    finally:
+        _current_actor.reset(token)
 
 
 @server.tool(description=_describe("add_material"))
@@ -126,6 +161,8 @@ def main() -> None:
     ap.add_argument("--host", default=os.environ.get("MCP_HOST", "127.0.0.1"))
     ap.add_argument("--port", type=int, default=int(os.environ.get("MCP_PORT", "8765")))
     args = ap.parse_args()
+    global _transport
+    _transport = args.transport
     if args.transport == "http":
         server.run(transport="streamable-http", host=args.host, port=args.port)
     else:

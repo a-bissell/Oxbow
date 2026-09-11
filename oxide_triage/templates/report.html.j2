@@ -115,12 +115,19 @@ comparing candidates against each other.</div>
 {% if result.criteria.interpretation_notes %}
 <p class="sub">How the request was read: {{ result.criteria.interpretation_notes | join("; ") }}</p>
 {% endif %}
+{% if result.not_acted_on %}
+<div class="banner warn"><strong>Parts of the request not acted on</strong><ul style="margin:6px 0 0 18px;padding:0">{% for line in result.not_acted_on %}<li>{{ line }}</li>{% endfor %}</ul></div>
+{% endif %}
 
+{% set shared = result.run_notes | map(attribute="code") | list %}
+{% if result.run_notes %}
+<div class="banner info"><strong>Applies to every shortlisted candidate</strong><ul style="margin:6px 0 0 18px;padding:0">{% for c in result.run_notes %}<li>({{ c.severity }}) {{ c.text }}</li>{% endfor %}</ul></div>
+{% endif %}
 {% if result.shortlist %}
 <h2>Shortlist</h2>
 {% for sc in result.shortlist %}
 {% set r = sc.record %}
-{% set cav = sc | primary_caveat %}
+{% set cav = sc | primary_caveat(shared) %}
 <section class="card">
   <div class="card-head">
     <span class="rank">{{ sc.rank }}</span>
@@ -197,7 +204,7 @@ comparing candidates against each other.</div>
 <h2>Passed the gates, beyond the shortlist ({{ result.ranked_beyond_shortlist | length }} compounds{% if result.collapsed_polymorphs %}; {{ result.collapsed_polymorphs | length }} further phases collapsed under their compound's row{% endif %})</h2>
 <div class="wrap"><table>
   <tr><th>#</th><th>Formula</th><th>Score</th><th>Coverage</th><th>Confidence</th><th>Missing</th><th>Main caveat</th></tr>
-  {% for sc in result.ranked_beyond_shortlist %}{% set cav = sc | primary_caveat %}
+  {% for sc in result.ranked_beyond_shortlist %}{% set cav = sc | primary_caveat(shared) %}
   <tr><td class="mono">{{ sc.rank }}</td><td>{{ sc.record.formula }} <span class="tag">{{ sc.record.material_id }}</span>{% if sc.polymorphs %} <span class="tag">+{{ sc.polymorphs | length }} phase{{ "s" if sc.polymorphs | length > 1 }}</span>{% endif %}</td><td class="mono">{{ sc.adjusted_score | fmt(3) }}</td><td class="mono">{{ sc.data_coverage | pct }}</td><td>{{ sc.confidence }}</td><td>{{ sc.absent_criteria | join(", ") or "—" }}{% if sc.not_retrieved_criteria %} <b>(not downloaded: {{ sc.not_retrieved_criteria | join(", ") }})</b>{% endif %}</td><td>{{ cav.code if cav else "—" }}</td></tr>
   {% endfor %}
 </table></div>

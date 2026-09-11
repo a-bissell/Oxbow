@@ -35,6 +35,22 @@
 ```json
 {{ result.criteria.model_dump_json(indent=2, exclude_defaults=True) }}
 ```
+{% if result.run_notes %}
+
+### Caveats shared by every shortlisted candidate
+
+{% for c in result.run_notes %}
+- [{{ c.severity }}] `{{ c.code }}`: {{ c.text }}
+{% endfor %}
+{% endif %}
+{% if result.not_acted_on %}
+
+### Parts of the request not acted on
+
+{% for line in result.not_acted_on %}
+- {{ line }}
+{% endfor %}
+{% endif %}
 {% if result.guard.findings %}
 
 ### Guard findings

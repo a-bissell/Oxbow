@@ -146,7 +146,7 @@ class Agent:
         reply = AgentReply()
         shown = user_text
         if self.guard is not None:
-            reply.guard = decision = self.guard(user_text)
+            reply.guard = decision = self.guard(user_text, bool(self.transcript))
             if not decision.proceed:
                 refusal = decision.refusal_message or "This request was declined by the request guard."
                 turn = AssistantTurn(text=refusal, stop_reason=GUARD_REFUSAL)
