@@ -28,6 +28,7 @@ from typing import Any
 from pydantic import BaseModel
 from pydantic import Field as PField
 
+from oxide_triage.actor import Actor
 from oxide_triage.agent import GUARD_REFUSAL, Agent
 from oxide_triage.config import DEFAULT_CONFIG_DIR, Config, load_config
 from oxide_triage.edges.llm import (
@@ -133,6 +134,7 @@ class TurnState:
     confirmed_tool: str | None = None  # a pending tool the user just approved
     config_dir: Path = DEFAULT_CONFIG_DIR
     outcomes: list[tuple[str, ToolOutcome]] = field(default_factory=list)
+    actor: Actor | None = None  # the person behind this turn, as the proxy named them
 
 
 def _new_id(prefix: str) -> str:
@@ -160,6 +162,7 @@ class WebToolBox(ToolBox):
             tool_result_max_chars=config.agent.tool_result_max_chars,
             request_overrides=_scope_overrides(state.scope),
             progress=_progress_emitter(state.emit),
+            actor=state.actor,
         )
         self.state = state
         self.profile = state.profile
@@ -702,8 +705,10 @@ def run_turn(
     emit: Emit,
     config_dir: Path = DEFAULT_CONFIG_DIR,
     offline: bool | None = None,
+    actor: Actor | None = None,
 ) -> Turn:
-    """Execute one user turn and return the assistant turn; both are appended to ``conv``."""
+    """Execute one user turn and return the assistant turn; both are appended to ``conv``.
+    ``actor`` is who the proxy says is asking; it goes into the deviation log, nowhere else."""
     profile = (req.scope.profile if req.scope and req.scope.profile else None) or conv.profile
     config = load_config(profile, config_dir=config_dir)
     conv.profile = profile
@@ -721,6 +726,7 @@ def run_turn(
         scope=req.scope,
         offline=offline,
         config_dir=config_dir,
+        actor=actor,
     )
 
     pending = _find_pending(conv, req.confirm or req.dismiss)

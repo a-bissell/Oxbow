@@ -765,7 +765,7 @@ function DeviationsPage() {
       <div className="admin__title">
         <div className="col" style={{ gap: 2 }}>
           <h2>Deviations log</h2>
-          <span className="muted small">Every run that departed from the shipped policy: a lifted hazard block, a moved gate, changed weights. Appended next to the cache, newest first.</span>
+          <span className="muted small">Every run that departed from the shipped policy: a lifted hazard block, a moved gate, changed weights, and who asked for it. Appended next to the cache, newest first. Web requests are attributed from the proxy's user header; without an authenticating proxy they show as unattributed.</span>
         </div>
       </div>
       <div className="card panel">
@@ -775,6 +775,7 @@ function DeviationsPage() {
             <thead>
               <tr>
                 <th>When</th>
+                <th>Who</th>
                 <th>Profile</th>
                 <th>Deviations</th>
                 <th>Request</th>
@@ -785,6 +786,10 @@ function DeviationsPage() {
                 <tr key={i}>
                   <td className="small mono" style={{ whiteSpace: "nowrap" }}>
                     {String(r.ts).replace("T", " ").slice(0, 16)}
+                  </td>
+                  <td className="small" title={r.actor ? `${r.actor.via}: ${r.actor.how}` : "recorded before actors were logged"}>
+                    {r.actor ? r.actor.who : "—"}
+                    {r.actor && <span className="muted"> · {r.actor.via}</span>}
                   </td>
                   <td className="small">{r.profile}</td>
                   <td className="small">

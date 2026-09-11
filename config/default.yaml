@@ -221,6 +221,11 @@ llm:
 # tools the MCP server exposes; every number, rank and citation comes out of a tool. Needs
 # llm.provider to be anthropic or openai_compatible. Nothing here affects ranking.
 # ---------------------------------------------------------------------------
+server:
+  # The web app records who caused each deviation from the name the authenticating reverse
+  # proxy puts in this header. Without a proxy the actor is logged as "unattributed".
+  actor_header: X-Forwarded-User
+
 agent:
   model: null               # assistant model; null = claude-sonnet-5 for anthropic (AGENT_MODEL overrides)
   max_tool_rounds: 8        # tool-call rounds allowed per user message

@@ -29,6 +29,7 @@ from pathlib import Path
 
 import typer
 
+from oxide_triage.actor import local_actor
 from oxide_triage.bundle import (
     RELEASE_MIN_COMPLETENESS,
     BundleError,
@@ -82,7 +83,9 @@ def query(
     _setup_logging(verbose)
     overrides = {"llm": {"provider": llm}} if llm else None
     config = load_config(profile, overrides=overrides)
-    result = run_triage(request, config, offline=offline, template=template, confirmed=yes)
+    result = run_triage(
+        request, config, offline=offline, template=template, confirmed=yes, actor=local_actor("cli")
+    )
     if result.needs_confirmation:
         typer.echo("Before running, please confirm:", err=True)
         for q in result.clarifications:
@@ -90,7 +93,9 @@ def query(
         if not sys.stdin.isatty() or not typer.confirm("Proceed?", default=False):
             typer.echo("Not run. Re-run with --yes to skip the questions.", err=True)
             raise typer.Exit(code=3)
-        result = run_triage(request, config, offline=offline, template=template, confirmed=True)
+        result = run_triage(
+            request, config, offline=offline, template=template, confirmed=True, actor=local_actor("cli")
+        )
     text = render(result, template or result.criteria.output_template or config.output.default_template)
     if out:
         out.write_text(text, encoding="utf-8")
@@ -113,7 +118,9 @@ def report(
     """Write a self-contained HTML report for a request: shortlist, breakdowns, data-gap map,
     scoring rules, scope statement and (optionally) the evaluation checks."""
     config = load_config(profile)
-    result = run_triage(request, config, offline=offline, template="html", confirmed=yes)
+    result = run_triage(
+        request, config, offline=offline, template="html", confirmed=yes, actor=local_actor("cli")
+    )
     extras: dict[str, object] = {}
     if with_eval and result.guard.proceed and not result.needs_confirmation:
         from oxide_triage.evaluation import run_all
@@ -397,7 +404,9 @@ def chat(
         typer.echo(f"chat unavailable: {exc}", err=True)
         raise typer.Exit(code=2) from None
     toolbox = ToolBox(
-        config_overrides=overrides or None, tool_result_max_chars=config.agent.tool_result_max_chars
+        config_overrides=overrides or None,
+        tool_result_max_chars=config.agent.tool_result_max_chars,
+        actor=local_actor("chat"),
     )
     agent = Agent(
         model,

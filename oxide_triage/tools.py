@@ -23,6 +23,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from oxide_triage.actor import Actor
 from oxide_triage.bundle import read_release
 from oxide_triage.cache import Cache
 from oxide_triage.config import Config, list_profiles, load_config, load_hazard_table
@@ -309,6 +310,7 @@ class ToolBox:
         tool_result_max_chars: int | None = None,
         request_overrides: dict[str, Any] | None = None,
         progress: ProgressFn | None = None,
+        actor: Actor | None = None,
     ):
         """``request_overrides`` are criteria fields a front end's controls set (shortlist length,
         gates, families); they apply to every triage without a clarification question and show
@@ -318,6 +320,7 @@ class ToolBox:
         self.tool_result_max_chars = tool_result_max_chars
         self.request_overrides = request_overrides
         self.progress = progress
+        self.actor = actor  # who is behind the calls; written with every logged deviation
         self._last_result_id: str | None = None
         self._n_results = 0  # bumped by _finish; lets call() see that a tool produced a result
         self._asked: set[str] = set()  # calls that returned clarification questions
@@ -416,6 +419,7 @@ class ToolBox:
                 confirmed=confirmed,
                 progress=self.progress,
                 overrides=self.request_overrides,
+                actor=self.actor,
             )
         finally:
             cache.close()
@@ -460,6 +464,7 @@ class ToolBox:
                 criteria=criteria,
                 confirmed=confirmed,
                 progress=self.progress,
+                actor=self.actor,
             )
         finally:
             cache.close()

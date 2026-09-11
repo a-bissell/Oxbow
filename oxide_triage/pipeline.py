@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from oxide_triage.acquire import GAP_KINDS, AcquisitionReport, fill_gaps, make_planner, read_report
+from oxide_triage.actor import UNATTRIBUTED, Actor
 from oxide_triage.cache import Cache
 from oxide_triage.config import (
     Config,
@@ -90,9 +91,10 @@ def not_acted_on_lines(guard: GuardDecision, criteria: Criteria) -> list[str]:
     return lines
 
 
-def _log_deviations(config: Config, result: TriageResult) -> None:
+def _log_deviations(config: Config, result: TriageResult, actor: Actor | None) -> None:
     if not result.deviations:
         return
+    who = actor or UNATTRIBUTED
     path = Path(config.cache.path).with_name("deviations.jsonl")
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -101,6 +103,7 @@ def _log_deviations(config: Config, result: TriageResult) -> None:
                 json.dumps(
                     {
                         "ts": result.generated_at,
+                        "actor": who.model_dump(),
                         "profile": result.profile_name,
                         "request": result.request_text,
                         "deviations": [d.model_dump() for d in result.deviations],
@@ -111,7 +114,7 @@ def _log_deviations(config: Config, result: TriageResult) -> None:
     except OSError as exc:  # logging must never break a run
         log.warning("could not write deviation log: %s", exc)
     for d in result.deviations:
-        log.warning("configuration deviation [%s/%s]: %s", d.origin, d.code, d.description)
+        log.warning("configuration deviation [%s/%s] by %s: %s", d.origin, d.code, who, d.description)
 
 
 def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
@@ -176,6 +179,7 @@ def run_triage(
     http: Any | None = None,
     progress: ProgressFn | None = None,
     overrides: dict[str, Any] | None = None,
+    actor: Actor | None = None,
 ) -> TriageResult:
     """Run one triage request.
 
@@ -186,7 +190,8 @@ def run_triage(
     run (see ``oxide_triage.progress``) and cannot affect the result. ``overrides`` are
     criteria fields set by a front end's controls (shortlist length, gates, families) and are
     applied after parsing through the same validated path as a rerun, so they surface as
-    deviations like anything else the request changes.
+    deviations like anything else the request changes. ``actor`` is who made the request, as
+    the front end knows them; it is written with every deviation the run logs.
     """
     table = load_hazard_table(config.toxicity.table_file)
     llm = llm or make_llm(config.llm)
@@ -415,7 +420,7 @@ def run_triage(
             scope=scope_info,
             warnings=warnings,
         )
-        _log_deviations(config, result)
+        _log_deviations(config, result, actor)
         emit(progress, "done", "Done")
         return result
     finally:

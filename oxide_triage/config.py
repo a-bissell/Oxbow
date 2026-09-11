@@ -298,6 +298,15 @@ class AcquisitionConfig(BaseModel):
     planner: Literal["ladder", "llm"] = "ladder"
 
 
+class ServerConfig(BaseModel):
+    """The web server. Nothing here affects ranking; excluded from the config hash."""
+
+    # Header the authenticating reverse proxy sets with the signed-in user's name. Recorded
+    # as the actor of every deviation a web request causes. With no proxy, the actor is
+    # logged as unattributed; the server never trusts a name the browser itself sends.
+    actor_header: str = "X-Forwarded-User"
+
+
 class AgentConfig(BaseModel):
     """The in-app chat agent (the web assistant, `oxide-triage chat`). It drives the same tools
     the MCP server exposes; nothing here affects ranking, so it is excluded from the config
@@ -341,6 +350,7 @@ class Config(BaseModel):
     selfcheck: SelfCheckConfig = Field(default_factory=SelfCheckConfig)
     acquisition: AcquisitionConfig = Field(default_factory=AcquisitionConfig)
     agent: AgentConfig = Field(default_factory=AgentConfig)
+    server: ServerConfig = Field(default_factory=ServerConfig)
     # Provenance, filled by the loader; excluded from dumps and therefore from the hash.
     site_overrides: list[SiteOverride] = Field(default_factory=list, exclude=True)
     site_config_path: str | None = Field(default=None, exclude=True)
@@ -348,7 +358,7 @@ class Config(BaseModel):
     def config_hash(self) -> str:
         """Stable hash of everything that affects ranking (excludes cache path / LLM / agent)."""
         relevant = self.model_dump(
-            exclude={"cache", "llm", "description", "output", "selfcheck", "acquisition", "agent"}
+            exclude={"cache", "llm", "description", "output", "selfcheck", "acquisition", "agent", "server"}
         )
         blob = json.dumps(relevant, sort_keys=True, default=str)
         return hashlib.sha256(blob.encode()).hexdigest()[:16]

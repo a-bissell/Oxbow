@@ -31,6 +31,7 @@ from typing import Any
 
 from mcp.server.mcpserver import MCPServer
 
+from oxide_triage.actor import local_actor
 from oxide_triage.session import ResultStore
 from oxide_triage.tools import INSTRUCTIONS, SPECS_BY_NAME, ToolBox
 
@@ -40,7 +41,8 @@ server = MCPServer(
     instructions=INSTRUCTIONS,
     version="0.1.0",
 )
-_toolbox = ToolBox(ResultStore(capacity=100))
+# The MCP client runs as some OS user; that is who the deviation log names for its calls.
+_toolbox = ToolBox(ResultStore(capacity=100), actor=local_actor("mcp"))
 
 
 def _describe(name: str) -> str:

@@ -110,3 +110,34 @@ def test_run_logs_site_deviation(tmp_path, cache_path):
     )
     pristine = load_config("default", use_env=False, overrides={"cache": {"path": str(cache_path)}})
     assert pristine.config_hash() != cfg.config_hash() and res.config_hash == cfg.config_hash()
+
+
+# ---- the deviation log names who asked ---------------------------------------------------------
+
+
+def test_deviation_log_records_the_actor(tmp_path):
+    import json
+
+    from oxide_triage.actor import Actor
+    from oxide_triage.config import load_config
+    from oxide_triage.pipeline import load_fixtures, run_triage
+
+    cfg = load_config("default", overrides={"cache": {"path": str(tmp_path / "c.sqlite")}}, use_env=False)
+    load_fixtures(cfg)
+    who = Actor(who="jsmith", via="web", how="X-Forwarded-User header set by the reverse proxy")
+    run_triage(
+        "Find oxide dielectrics. Include lead compounds.", cfg, offline=True, confirmed=True, actor=who
+    )
+    run_triage("Find oxide dielectrics. Include lead compounds.", cfg, offline=True, confirmed=True)
+    rows = [json.loads(line) for line in (tmp_path / "deviations.jsonl").read_text().splitlines()]
+    assert rows[0]["actor"] == who.model_dump()
+    assert rows[1]["actor"]["who"] == "unattributed"  # a caller that passes nothing is still recorded
+
+
+def test_web_actor_comes_from_the_proxy_header_only():
+    from oxide_triage.actor import web_actor
+
+    a = web_actor({"x-forwarded-user": "jsmith"}, "X-Forwarded-User")
+    assert a.who == "jsmith" and a.via == "web"
+    b = web_actor({}, "X-Forwarded-User")
+    assert b.who == "unattributed" and "no authenticating proxy" in b.how
