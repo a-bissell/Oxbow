@@ -13,7 +13,7 @@ export default function App() {
   const inWorkspace = !!app.conv && (app.conv.turns.length > 0 || !!app.live);
 
   useEffect(() => {
-    document.title = inAdmin ? "Admin · Oxide Triage" : app.conv?.title ? `${app.conv.title.slice(0, 40)} · Oxide Triage` : "Oxide Triage";
+    document.title = inAdmin ? "Admin · Oxbow" : app.conv?.title ? `${app.conv.title.slice(0, 40)} · Oxbow` : "Oxbow";
   }, [inAdmin, app.conv?.title]);
 
   return (

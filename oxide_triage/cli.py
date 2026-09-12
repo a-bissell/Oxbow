@@ -1,4 +1,4 @@
-"""Command line interface.
+"""Oxbow command line interface (installed as both `oxide-triage` and `oxbow`).
 
 oxide-triage query "Find promising oxide dielectric candidates ..." --profile conservative
 oxide-triage warm-cache            # needs MP_API_KEY; fetches the candidate universe, runs self-check

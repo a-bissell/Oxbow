@@ -199,7 +199,7 @@ def test_requested_output_template_reaches_the_renderer(monkeypatch):
     from oxide_triage.edges.render import render
 
     text = render(res, None or res.criteria.output_template or cfg.output.default_template)
-    assert text.startswith("# Oxide dielectric triage — technical audit")
+    assert text.startswith("# Oxbow: oxide dielectric triage — technical audit")
 
 
 def test_mcp_triage_uses_requested_template(tmp_path, monkeypatch):

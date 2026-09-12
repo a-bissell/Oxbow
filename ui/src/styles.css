@@ -1,4 +1,4 @@
-/* Oxide Triage front end. Warm neutral ground, one teal accent, amber for anything the reader
+/* Oxbow front end. Warm neutral ground, one teal accent, amber for anything the reader
    must notice before trusting a number. System fonts so an offline deployment looks the same. */
 
 :root {
@@ -13,6 +13,7 @@
   --accent: #1f6f78;
   --accent-ink: #155158;
   --accent-soft: #e6f1f2;
+  --brand-lake: #8fc3cc;
   --warn: #b8791f;
   --warn-soft: #fbf3e4;
   --warn-ink: #7f5410;
@@ -79,7 +80,8 @@ tr:last-child td { border-bottom: 0; }
 .app--workspace { height: 100vh; overflow: hidden; }
 .topbar { height: 52px; flex: 0 0 52px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--line); background: var(--bg-elev); gap: 16px; }
 .topbar__left { display: flex; align-items: center; gap: 14px; min-width: 0; }
-.brand { font-weight: 650; font-size: 15px; letter-spacing: 0.01em; background: none; border: 0; padding: 0; cursor: pointer; color: var(--text); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 15px; letter-spacing: 0.01em; background: none; border: 0; padding: 0; cursor: pointer; color: var(--text); }
+.brand__mark { width: 24px; height: 24px; flex: 0 0 24px; }
 .topbar__right { display: flex; align-items: center; gap: 6px; }
 .navlink { background: none; border: 0; padding: 6px 10px; border-radius: var(--radius-sm); color: var(--muted); cursor: pointer; font-size: 13px; }
 .navlink:hover { background: var(--accent-soft); color: var(--accent-ink); }

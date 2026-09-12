@@ -6,7 +6,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Oxide dielectric triage — {{ result.profile_name }}</title>
+<title>Oxbow: oxide dielectric triage — {{ result.profile_name }}</title>
 <style>
   :root {
     --bg: #fbfaf7; --fg: #1d1d1b; --muted: #5f5e58; --line: #e3e0d8; --card: #ffffff;
@@ -29,6 +29,7 @@
   h3 { font-size: 16px; margin: 18px 0 8px; }
   p { margin: 8px 0; }
   .sub { color: var(--muted); }
+  h1 .sub { font-size: 0.55em; font-weight: 400; margin-left: 10px; }
   .banner { border-radius: 8px; padding: 12px 14px; margin: 12px 0; border: 1px solid; }
   .banner.crit { background: var(--crit-soft); border-color: var(--crit); }
   .banner.warn { background: var(--warn-soft); border-color: var(--warn); }
@@ -76,7 +77,7 @@
 <main>
 {% set passing = result.shortlist + result.ranked_beyond_shortlist %}
 <header>
-  <h1>Oxide dielectric triage</h1>
+  <h1>Oxbow <span class="sub">oxide dielectric triage</span></h1>
   <p class="sub">{{ result.request_text }}</p>
   <div class="meta">
     <div>Profile <b>{{ result.profile_name }}</b></div>
