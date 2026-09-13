@@ -15,9 +15,9 @@
 
 # Oxbow
 
-**Deterministic triage for oxide dielectric candidates. The language model lives only at the edges.**
+**Deterministic triage for oxide dielectric candidates.**
 
-<!-- One paragraph, in your voice: who this is for, what it answers, and the one-sentence
+<!-- One paragraph: who this is for, what it answers, and the one-sentence
      guarantee (nothing the model says can change a number, a rank or a citation). -->
 
 <!-- Why "Oxbow": the river story in one or two sentences. The brand note in docs/brand/README.md
@@ -25,11 +25,11 @@
 
 ## Quick start
 
-Three commands, no keys, demo data:
+Offline with (demo data):
 
 ```bash
 pip install -e ".[app]"
-oxbow load-fixtures          # synthetic demo data; every output says so
+oxbow load-fixtures          # synthetic demo data
 oxbow serve --open           # the web app; or: oxbow query --offline
 ```
 
@@ -93,12 +93,11 @@ oxbow warm-cache
 oxbow serve
 ```
 
-### Offline, from a USB stick
+### Airgapped (offline) install
 
-Every tagged release ships the whole deployment for a machine that will never see the
-network: a warmed, self-checked cache with its manifest, the container image, and the package
+Every tagged release ships the whole deployment for a off-network machines: self-checked data cache w/ manifest, the container image, and the package
 with every dependency as wheels. The release workflow loads the image with the network disabled
-and runs the install, the self-check and the PI's request before anything is published.
+and runs the install, the self-check and the PI's example request before anything is published.
 Install steps are in [`docker/OFFLINE.md`](docker/OFFLINE.md).
 
 <!-- A sentence on why this exists: the two ends of the deployment spectrum. -->
