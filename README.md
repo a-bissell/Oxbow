@@ -15,17 +15,15 @@
 
 # Oxbow
 
-**Deterministic triage for oxide dielectric candidates.**
+**An agentic research assistant with a fully deterministic core**
 
 <!-- One paragraph: who this is for, what it answers, and the one-sentence
      guarantee (nothing the model says can change a number, a rank or a citation). -->
 
-<!-- Why "Oxbow": the river story in one or two sentences. The brand note in docs/brand/README.md
-     has the mark's meaning if you want to lift from it. -->
 
 ## Quick start
 
-Offline with (demo data):
+Offline with demo data:
 
 ```bash
 pip install -e ".[app]"
