@@ -153,6 +153,15 @@ A `.env` in the working directory or the repository root is loaded automatically
 
 A profile for another class replaces the `figure_of_merit:` block (property, provider, label, units, curve, weight, missing-data handling, request vocabulary), the substrate, the cation allowlist and the self-check's workhorse list. See section 6 of the design note.
 
+### What sites feed back to the platform team
+
+Two Admin panels report on the two append-only logs written next to the cache. They are read-only: nothing in them changes a default, and a person who reads them edits a profile or the overlay.
+
+- **Deviations log** (`deviations.jsonl`): every run that departed from shipped policy, and a summary by gate and by who decided. `request` means a scientist worked around the defaults in the request itself; if it repeats, retune the profile for that group. `site` means an admin already decided the shipped default is wrong here. `profile` and `cli` are expected.
+- **Data gaps** (`retrieval.jsonl`): per criterion, how often the ranked candidates lacked the value, split by why. *Absent* means no permitted public source holds it, so the fix is a new source or a measurement. *Not retrieved* means this cache never fetched it, so the fix is ops: check Sources & limits, then warm the cache.
+
+Both files grow without bound; rotate them with the site's usual tooling, since nothing reads them back into a run.
+
 ### Data sources
 
 | Source | Used for | Access |
