@@ -155,9 +155,7 @@ def _sse(event: dict[str, Any]) -> str:
 
 def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = None) -> FastAPI:
     state = AppState(config_dir=config_dir, offline=offline)
-    app = FastAPI(
-        title="Oxide Triage", version="0.2.0", docs_url="/api/docs", openapi_url="/api/openapi.json"
-    )
+    app = FastAPI(title="Oxbow", version="0.2.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
     app.state.triage = state
 
     # ---- status and reference data --------------------------------------------------
@@ -486,7 +484,7 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
                 return FileResponse(str(candidate))
             return FileResponse(str(index))
         return HTMLResponse(
-            "<h1>Oxide Triage</h1><p>The front end has not been built. Run <code>npm install &amp;&amp; npm run build</code> "
+            "<h1>Oxbow</h1><p>The front end has not been built. Run <code>npm install &amp;&amp; npm run build</code> "
             "in <code>ui/</code>, or use the API at <a href='/api/docs'>/api/docs</a>.</p>",
             status_code=200,
         )

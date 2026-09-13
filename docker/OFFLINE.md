@@ -1,6 +1,6 @@
-# Oxide Triage: offline install
+# Oxbow: offline install
 
-This directory is a release of the Oxide Dielectric Triage Assistant packaged for a machine
+This directory is a release of Oxbow, the oxide dielectric triage assistant, packaged for a machine
 that will never see the network. Everything the tool needs is here; nothing is fetched.
 
 ```

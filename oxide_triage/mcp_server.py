@@ -38,7 +38,7 @@ from oxide_triage.tools import INSTRUCTIONS, SPECS_BY_NAME, ToolBox
 
 server = MCPServer(
     name="oxide-triage",
-    title="Oxide Dielectric Triage",
+    title="Oxbow: oxide dielectric triage",
     instructions=INSTRUCTIONS,
     version="0.1.0",
 )

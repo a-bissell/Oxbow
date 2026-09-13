@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "oxide-triage"
 version = "0.1.0"
-description = "Deterministic triage assistant for oxide dielectric thin-film candidates. LLM only at the edges."
+description = "Oxbow: deterministic triage assistant for oxide dielectric thin-film candidates. LLM only at the edges."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -29,6 +29,7 @@ all = ["oxide-triage[web,llm,mcp,dev]"]
 
 [project.scripts]
 oxide-triage = "oxide_triage.cli:app"
+oxbow = "oxide_triage.cli:app"  # the product name; same CLI, kept for the day oxide-triage is one of several
 oxide-triage-mcp = "oxide_triage.mcp_server:main"
 
 [tool.setuptools.packages.find]

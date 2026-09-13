@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" width="520" height="160" role="img" aria-label="Oxbow logo">
+  <rect width="520" height="160" fill="#ffffff"/>
+  <g transform="translate(20,20)">
+  <path d="M 8 98 C 40 98 40 84 60 84 C 80 84 80 98 112 98" fill="none" stroke="#2a6f97" stroke-width="9" stroke-linecap="round"/>
+  <path d="M 44 70 A 24 24 0 1 1 76 70" fill="none" stroke="#8ecae6" stroke-width="9" stroke-linecap="round"/>
+</g>
+  <text x="160" y="84" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="56" font-weight="700" letter-spacing="-1.5" fill="#14213d">Oxbow</text>
+  <text x="163" y="114" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" letter-spacing="0.4" fill="#64748b">Deterministic triage for oxide dielectrics</text>
+</svg>
