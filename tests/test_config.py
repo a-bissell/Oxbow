@@ -319,3 +319,19 @@ def test_config_dir_resolves_from_env_then_cwd_then_checkout(tmp_path, monkeypat
     assert resolve_config_dir() == DEFAULT_CONFIG_DIR
     with pytest.raises(FileNotFoundError, match="OXIDE_TRIAGE_CONFIG_DIR"):
         load_config("default", config_dir=tmp_path / "nowhere", use_env=False)
+
+
+def test_shipped_yaml_has_no_unknown_keys():
+    """``Config`` ignores unknown keys, so a misspelt or renamed key in a shipped file would be
+    dropped silently and the value would fall back to the default. Every leaf of every shipped
+    file must be a known configuration path."""
+    import yaml
+
+    from oxide_triage.config import DEFAULT_CONFIG_DIR, LEAF_PATHS, flatten_leaves
+
+    files = [DEFAULT_CONFIG_DIR / "default.yaml", *sorted((DEFAULT_CONFIG_DIR / "profiles").glob("*.yaml"))]
+    assert files
+    for path in files:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        unknown = sorted(p for p in flatten_leaves(data) if p not in LEAF_PATHS)
+        assert not unknown, f"{path.name}: unknown configuration keys {unknown}"
