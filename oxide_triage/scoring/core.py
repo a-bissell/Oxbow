@@ -703,6 +703,7 @@ def explanation(config: Config, eff: Effective) -> ScoringExplanation:
             "on_missing_stability": eff.on_missing_stability,
             "on_missing_band_gap": eff.on_missing_band_gap,
             f"on_missing_{config.figure_of_merit.criterion}": eff.on_missing_fom,
+            "substrate": eff.substrate,
         },
         figure_of_merit=FigureOfMeritInfo(
             criterion=config.figure_of_merit.criterion,

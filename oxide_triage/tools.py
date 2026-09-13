@@ -146,9 +146,10 @@ class RerunArgs(_Args):
     changes: dict[str, Any] = Field(
         description=(
             'Changed criteria, e.g. {"min_band_gap_ev": 3.5}, {"allow_elements": ["Pb"]}, '
-            '{"top_k": 10}, {"weight_overrides": {"stability": 0.4}}. Changeable: top_k, '
-            "min_band_gap_ev, max_energy_above_hull_ev_atom, max_elements, include_elements, "
-            "exclude_elements, allow_elements, weight_overrides, output_template, families."
+            '{"top_k": 10}, {"weight_overrides": {"stability": 0.4}}, {"substrate": "Ge"}. Changeable: '
+            "top_k, min_band_gap_ev, max_energy_above_hull_ev_atom, max_elements, include_elements, "
+            "exclude_elements, allow_elements, weight_overrides, output_template, families, substrate "
+            "(the element or hull-phase formula the interface criterion is computed against)."
         )
     )
     template: AgentTemplate | None = Field(default=None, description="pi_summary (default) or audit.")
@@ -237,9 +238,10 @@ TOOL_SPECS: list[ToolSpec] = [
         "rerun",
         (
             'Re-run a previous result with changed criteria, e.g. {"min_band_gap_ev": 3.5} or '
-            '{"allow_elements": ["Pb"]} or {"top_k": 10} or {"weight_overrides": {"stability": 0.4}}. '
+            '{"allow_elements": ["Pb"]} or {"top_k": 10} or {"weight_overrides": {"stability": 0.4}} or '
+            '{"substrate": "Ge"}. '
             "Changeable: top_k, min_band_gap_ev, max_energy_above_hull_ev_atom, max_elements, include_elements, "
-            "exclude_elements, allow_elements, weight_overrides, output_template. Changes are surfaced as "
+            "exclude_elements, allow_elements, weight_overrides, output_template, substrate. Changes are surfaced as "
             "configuration deviations on the new result. Returns clarification questions first when the change "
             "is material and confirmed is false."
         ),

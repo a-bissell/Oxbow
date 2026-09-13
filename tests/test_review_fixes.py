@@ -282,12 +282,14 @@ def test_a_reason_clause_is_not_reported_as_unread():
     assert c.exclude_elements == ["Pb"] and c.unhandled == []
 
 
-def test_a_substrate_named_in_the_request_is_reported_not_applied():
+def test_a_substrate_named_in_the_request_is_applied_and_said():
     from oxide_triage.edges.parse import rule_parse
 
     c = rule_parse("Find oxide dielectrics on germanium.", TABLE, substrate="Si")
-    assert len(c.unhandled) == 1 and "germanium" in c.unhandled[0] and "Si" in c.unhandled[0]
-    assert rule_parse("Find oxide dielectrics on silicon.", TABLE, substrate="Si").unhandled == []
+    assert c.substrate == "Ge" and c.unhandled == []
+    assert any("Ge" in n and "Si" in n for n in c.interpretation_notes)
+    same = rule_parse("Find oxide dielectrics on silicon.", TABLE, substrate="Si")
+    assert same.substrate is None and same.unhandled == []
 
 
 def test_not_acted_on_reaches_the_result_and_is_empty_on_a_decline(tmp_path):

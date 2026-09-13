@@ -200,7 +200,12 @@ Ideas / planned work for this project.
             (`oxide-triage validate`, evaluation check 7): 21/21 hard, 10/11 soft; SrO, CaZrO3,
             SrZrO3 named as disagreements.
       - [ ] Chase the three disagreements: are the MP alkaline-earth silicate energies the cause?
-      - [ ] Let a request name the substrate ("on germanium", "on SrTiO3").
+      - [x] Let a request name the substrate — done 2026-09-13: "on germanium", "on a sapphire
+            substrate", "on SrTiO3" set `Criteria.substrate` (validated as a formula of real
+            elements); the interface criterion is computed against it, a `request_substrate`
+            deviation says so, and `rerun` accepts `{"substrate": "Ge"}`. A name with no hull
+            phase (glass, graphene) is reported as not acted on. Offline, a system whose hull
+            is not cached is named on the candidate; a live run fetches it.
       - [ ] Multi-substrate view: the same shortlist against Si, Ge and a perovskite side by side.
 
 ## Known limitations (by design, not planned work)

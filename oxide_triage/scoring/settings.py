@@ -30,6 +30,9 @@ class Effective:
     fom_criterion: str = "figure_of_merit"
     fom_label: str = "figure of merit"
     on_missing_fom: str = "flag"
+    # The substrate the interface criterion is computed against: the profile's unless the
+    # request named one.
+    substrate: str = "Si"
 
 
 def _fmt(value: object) -> str:
@@ -170,6 +173,21 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
         )
         max_el = criteria.max_elements
 
+    substrate = config.interface.substrate
+    if criteria.substrate and criteria.substrate.lower() != substrate.lower():
+        deviations.append(
+            Deviation(
+                code="request_substrate",
+                description=(
+                    f"Interface stability computed against {criteria.substrate} instead of the profile's "
+                    f"{substrate}, as the request asks. Bulk hull thermodynamics only, as for the profile's "
+                    "substrate; a system whose hull is not cached says so on the candidate."
+                ),
+                origin="request",
+            )
+        )
+        substrate = criteria.substrate
+
     weights = config.normalized_weights()
     if criteria.weight_overrides:
         merged = config.criterion_weights()
@@ -207,5 +225,6 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
         on_missing_fom=config.figure_of_merit.on_missing,
         on_missing_stability=config.gates.on_missing_stability,
         on_missing_band_gap=config.gates.on_missing_band_gap,
+        substrate=substrate,
     )
     return effective, deviations

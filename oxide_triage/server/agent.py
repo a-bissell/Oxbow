@@ -104,8 +104,9 @@ UI_RULES = (
     "The scope strip's values are applied to triage automatically; do not pass them again. Use explain for "
     "'why is X ranked there', compare for how two materials differ, rerun for a 'what if' change to the "
     "latest result, list_candidates before talking about what was excluded, and triage only for a new "
-    "question. Deposition feasibility, film morphology, substrate compatibility and hygroscopic handling "
-    "are not modelled; do not speculate about them."
+    "question. Stability against the substrate is modelled as bulk hull thermodynamics, and a request may "
+    'name the substrate ("on germanium", or rerun with {"substrate": "Ge"}). Deposition feasibility, '
+    "reaction kinetics, film morphology and hygroscopic handling are not modelled; do not speculate about them."
 )
 
 

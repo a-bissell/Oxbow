@@ -31,6 +31,8 @@
 # widening a rule's vocabulary after the phrasing was seen, or by a rule written for that
 # kind of phrasing; those entries carry `tuned_after` and the evaluation reports the rate
 # with and without them. The untouched entries are the generalisation number.
+# 2026-09-13: `germanium-substrate` corrected, not deleted: a request may now name the
+# substrate, so the entry expects the request honoured in full instead of a notice.
 
 floor: 1.0  # 2026-09-11: 23/23 after the changes above; 15/15 on entries no rule was widened for
 
@@ -154,9 +156,13 @@ requests:
     tuned_after: \"a rule that reports a substrate named in the request as not applied\"
     text: "Rank oxides for a gate stack on germanium instead of silicon."
     runs: true
-    acknowledged: true
-    reason: unsupported
-    note: The interface criterion is computed against the configured substrate; a request cannot change it yet.
+    acknowledged: false
+    note: >
+      Corrected 2026-09-13. Until then the interface criterion was computed against the
+      configured substrate only, and the honest outcome was a notice that the ask was not
+      applied. A request may now name the substrate: the criterion is computed against Ge and
+      the change is printed as a deviation, so the request is honoured in full and no notice
+      is expected. The phrasing is unchanged.
 
   - id: glovebox-next-week
     text: "Which of these could we synthesize in the glovebox next week?"
