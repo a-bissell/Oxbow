@@ -10,6 +10,7 @@ import logging
 import os
 import threading
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -38,7 +39,7 @@ from oxide_triage.config import (
     save_site_overrides,
     site_config_path,
 )
-from oxide_triage.doctor import mask
+from oxide_triage.doctor import aggregate_deviations, aggregate_retrieval_gaps, mask
 from oxide_triage.edges.render import render
 from oxide_triage.pipeline import add_material, load_fixtures, run_acquisition, warm_cache
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
@@ -436,6 +437,23 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
             except ValueError:
                 continue
         return out
+
+    def _since(days: int | None) -> datetime | None:
+        if days is None or days <= 0:
+            return None
+        return datetime.now(UTC) - timedelta(days=days)
+
+    @app.get("/api/admin/deviations/summary")
+    def admin_deviations_summary(days: int | None = None) -> dict[str, Any]:
+        """Deviation counts by code, origin and profile over the last ``days`` (all time when
+        unset). Read-only reporting for the platform team; nothing here changes a default."""
+        return aggregate_deviations(state.load_config("default"), since=_since(days))
+
+    @app.get("/api/admin/retrieval/summary")
+    def admin_retrieval_summary(days: int | None = None) -> dict[str, Any]:
+        """The data-gap ledger: per-criterion ``absent`` (no public source holds it) and
+        ``not_retrieved`` (this cache never fetched it) totals over the last ``days``. Read-only."""
+        return aggregate_retrieval_gaps(state.load_config("default"), since=_since(days))
 
     @app.post("/api/admin/jobs")
     def start_job(body: JobBody) -> dict[str, Any]:

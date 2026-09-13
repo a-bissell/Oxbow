@@ -309,3 +309,29 @@ export interface JobState {
   outcome?: unknown;
   error?: string | null;
 }
+
+// ---- platform-feedback aggregates (read-only reporting; nothing here changes a default) ----
+
+export interface DeviationSummary {
+  window: { since: string | null; until: string | null };
+  n_runs: number;
+  n_deviations: number;
+  by_code: Record<string, number>;
+  by_origin: Record<string, number>;
+  by_profile: Record<string, number>;
+  by_code_and_origin: { code: string; origin: string; count: number; profiles: string[]; last_ts: string | null; example: string | null }[];
+}
+
+export interface GapTally {
+  candidates: number; // candidate-runs: the same material missing in ten runs counts ten
+  runs: number; // runs in which at least one candidate was missing it
+}
+
+export interface RetrievalSummary {
+  window: { since: string | null; until: string | null };
+  n_runs: number;
+  n_incomparable: number;
+  mean_completeness: number | null;
+  absent_by_criterion: Record<string, GapTally>;
+  not_retrieved_by_criterion: Record<string, GapTally>;
+}

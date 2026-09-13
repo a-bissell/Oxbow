@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { api } from "../api";
 import { CRITERIA_LABELS, registerFigureOfMerit } from "../format";
 import { useApp } from "../store";
-import type { JobState } from "../types";
+import type { DeviationSummary, GapTally, JobState, RetrievalSummary } from "../types";
 
 type Json = Record<string, any>;
 
@@ -16,6 +16,7 @@ const PAGES: { key: string; label: string }[] = [
   { key: "data", label: "Data & cache" },
   { key: "sources", label: "Sources & limits" },
   { key: "deviations", label: "Deviations log" },
+  { key: "gaps", label: "Data gaps" },
 ];
 
 function get(obj: Json | null | undefined, path: string): any {
@@ -763,8 +764,184 @@ function SourcesPage() {
   );
 }
 
+// ---- platform-feedback aggregates ------------------------------------------------------------
+// Read-only reporting for the platform team. Nothing on these panels proposes or applies a
+// config change: rank stays a pure function of cached data plus explicit config, and a human
+// who reads these decides what to retune.
+
+const WINDOWS: { days: number | undefined; label: string }[] = [
+  { days: 7, label: "7 days" },
+  { days: 30, label: "30 days" },
+  { days: 90, label: "90 days" },
+  { days: undefined, label: "all time" },
+];
+
+// Who decided, and what the count means for the platform team. `request` and `site` are the
+// signal; `profile` and `cli` are expected.
+const ORIGINS: Record<string, { chip: string; who: string; remedy: string }> = {
+  request: { chip: "chip--crit", who: "a scientist, in the request", remedy: "the defaults are being worked around ad hoc; if it repeats, retune the profile for this group" },
+  site: { chip: "chip--warn", who: "the site admin, in the overlay", remedy: "an admin has already decided the shipped default is wrong here" },
+  profile: { chip: "chip--soft", who: "the shipped profile", remedy: "expected: the profile departs from the default by design" },
+  cli: { chip: "chip--soft", who: "a command-line flag", remedy: "expected: a one-off flag on a run" },
+};
+
+function WindowPicker({ days, onChange }: { days: number | undefined; onChange: (d: number | undefined) => void }) {
+  return (
+    <div className="row" style={{ gap: 6 }}>
+      {WINDOWS.map((w) => (
+        <button key={w.label} className={`chip chip--sm chip--btn${w.days === days ? " chip--ctx" : ""}`} onClick={() => onChange(w.days)}>
+          {w.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function DeviationSummaryCard({ days }: { days: number | undefined }) {
+  const [sum, setSum] = useState<DeviationSummary | null>(null);
+  useEffect(() => {
+    api.admin.deviationsSummary(days).then(setSum).catch(() => setSum(null));
+  }, [days]);
+  if (!sum) return null;
+  const origins = Object.entries(sum.by_origin);
+  return (
+    <div className="card panel col" style={{ gap: 12 }}>
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+        <strong>Which gates this site relaxes, and who decided</strong>
+        <span className="small muted">
+          {sum.n_deviations} deviations over {sum.n_runs} runs
+        </span>
+      </div>
+      {sum.n_deviations === 0 && <span className="small muted">No deviations in this window.</span>}
+      {origins.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              <th>Origin</th>
+              <th style={{ textAlign: "right" }}>Count</th>
+              <th>Decided by</th>
+              <th>What it means for the platform team</th>
+            </tr>
+          </thead>
+          <tbody>
+            {origins.map(([o, n]) => (
+              <tr key={o}>
+                <td>
+                  <span className={`chip chip--sm ${ORIGINS[o]?.chip ?? "chip--soft"}`}>{o}</span>
+                </td>
+                <td className="mono" style={{ textAlign: "right" }}>{n}</td>
+                <td className="small">{ORIGINS[o]?.who ?? "unknown"}</td>
+                <td className="small muted">{ORIGINS[o]?.remedy ?? ""}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {sum.by_code_and_origin.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              <th>Gate or setting</th>
+              <th>Origin</th>
+              <th style={{ textAlign: "right" }}>Count</th>
+              <th>Profiles</th>
+              <th>Last seen</th>
+              <th>Most recent example</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sum.by_code_and_origin.map((r) => (
+              <tr key={`${r.code}/${r.origin}`}>
+                <td className="mono small">{r.code}</td>
+                <td>
+                  <span className={`chip chip--sm ${ORIGINS[r.origin]?.chip ?? "chip--soft"}`}>{r.origin}</span>
+                </td>
+                <td className="mono" style={{ textAlign: "right" }}>{r.count}</td>
+                <td className="small">{r.profiles.join(", ")}</td>
+                <td className="small mono" style={{ whiteSpace: "nowrap" }}>{r.last_ts ? String(r.last_ts).replace("T", " ").slice(0, 16) : "—"}</td>
+                <td className="small muted" style={{ maxWidth: 360 }}>{r.example ?? ""}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <span className="small muted">Read-only. This never changes a default; a person who reads it edits the profile or the overlay.</span>
+    </div>
+  );
+}
+
+function GapTable({ rows }: { rows: Record<string, GapTally> }) {
+  const entries = Object.entries(rows);
+  if (entries.length === 0) return <span className="small muted">None recorded in this window.</span>;
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Criterion</th>
+          <th style={{ textAlign: "right" }}>Candidate-runs</th>
+          <th style={{ textAlign: "right" }}>Runs affected</th>
+        </tr>
+      </thead>
+      <tbody>
+        {entries.map(([crit, t]) => (
+          <tr key={crit}>
+            <td className="small">{crit === "cross_check" ? "cross-check (OQMD hull distance)" : (CRITERIA_LABELS[crit] ?? crit)}</td>
+            <td className="mono" style={{ textAlign: "right" }}>{t.candidates}</td>
+            <td className="mono" style={{ textAlign: "right" }}>{t.runs}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function GapsPage() {
+  const [days, setDays] = useState<number | undefined>(30);
+  const [sum, setSum] = useState<RetrievalSummary | null>(null);
+  useEffect(() => {
+    api.admin.retrievalSummary(days).then(setSum).catch(() => setSum(null));
+  }, [days]);
+  return (
+    <>
+      <div className="admin__title">
+        <div className="col" style={{ gap: 2 }}>
+          <h2>Data gaps</h2>
+          <span className="muted small">
+            Every run records which criteria were missing for the candidates it ranked, split by why. The two look the same in a shortlist and need different people to fix them. Read-only: nothing here changes a default.
+          </span>
+        </div>
+        <WindowPicker days={days} onChange={setDays} />
+      </div>
+      {sum && (
+        <span className="small muted">
+          {sum.n_runs} runs in window
+          {sum.mean_completeness != null && <> · mean retrieval completeness {(sum.mean_completeness * 100).toFixed(1)}%</>}
+          {sum.n_incomparable > 0 && <> · {sum.n_incomparable} below the comparability floor</>}
+        </span>
+      )}
+      <div className="card panel col" style={{ gap: 8 }}>
+        <div className="row" style={{ gap: 8, alignItems: "baseline" }}>
+          <span className="chip chip--sm chip--crit">absent</span>
+          <strong>No permitted public source holds this value</strong>
+        </div>
+        <span className="small muted">A data-integration or measurement decision: integrate a source that has it, or put it on the lab's list to measure. Warming the cache again will not fill these.</span>
+        {sum && <GapTable rows={sum.absent_by_criterion} />}
+      </div>
+      <div className="card panel col" style={{ gap: 8 }}>
+        <div className="row" style={{ gap: 8, alignItems: "baseline" }}>
+          <span className="chip chip--sm chip--warn">not retrieved</span>
+          <strong>This cache never fetched it</strong>
+        </div>
+        <span className="small muted">An ops problem: a rate limit, a warm that died partway, a paused source, a missing key. Check Sources &amp; limits, then warm the cache; these fill without anyone deciding anything.</span>
+        {sum && <GapTable rows={sum.not_retrieved_by_criterion} />}
+      </div>
+    </>
+  );
+}
+
 function DeviationsPage() {
   const [rows, setRows] = useState<any[]>([]);
+  const [days, setDays] = useState<number | undefined>(30);
   useEffect(() => {
     api.admin.deviations().then(setRows).catch(() => setRows([]));
   }, []);
@@ -775,7 +952,9 @@ function DeviationsPage() {
           <h2>Deviations log</h2>
           <span className="muted small">Every run that departed from the shipped policy: a lifted hazard block, a moved gate, changed weights, and who asked for it. Appended next to the cache, newest first. Web requests are attributed from the proxy's user header; without an authenticating proxy they show as unattributed.</span>
         </div>
+        <WindowPicker days={days} onChange={setDays} />
       </div>
+      <DeviationSummaryCard days={days} />
       <div className="card panel">
         {rows.length === 0 && <span className="small muted">No deviations recorded yet.</span>}
         {rows.length > 0 && (
@@ -803,7 +982,7 @@ function DeviationsPage() {
                   <td className="small">
                     {(r.deviations ?? []).map((d: any, j: number) => (
                       <div key={j}>
-                        <span className="chip chip--sm chip--warn" style={{ marginRight: 6 }}>
+                        <span className={`chip chip--sm ${ORIGINS[d.origin]?.chip ?? "chip--soft"}`} style={{ marginRight: 6 }}>
                           {d.origin}
                         </span>
                         {d.description}
@@ -848,6 +1027,7 @@ export default function Admin({ page }: { page: string }) {
         {page === "data" && <DataPage />}
         {page === "sources" && <SourcesPage />}
         {page === "deviations" && <DeviationsPage />}
+        {page === "gaps" && <GapsPage />}
       </main>
     </div>
   );

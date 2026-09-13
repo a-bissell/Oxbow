@@ -39,6 +39,7 @@ from oxide_triage.schemas import (
     Criteria,
     GuardDecision,
     RequestBin,
+    RetrievalCompleteness,
     ScopeInfo,
     ScoredCandidate,
     TriageResult,
@@ -92,30 +93,64 @@ def not_acted_on_lines(guard: GuardDecision, criteria: Criteria) -> list[str]:
     return lines
 
 
+def _append_log(config: Config, name: str, entry: dict[str, Any]) -> None:
+    """Append one line to an append-only jsonl log next to the cache. Logging must never break a
+    run: a failed write is a warning and the result is still returned. Nothing reads these logs
+    back into a run; they are read-only reporting for a human (see ``oxide_triage.doctor``)."""
+    if config.cache.path == ":memory:":
+        return
+    path = Path(config.cache.path).with_name(name)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(entry) + "\n")
+    except OSError as exc:
+        log.warning("could not write %s: %s", name, exc)
+
+
 def _log_deviations(config: Config, result: TriageResult, actor: Actor | None) -> None:
     if not result.deviations:
         return
     who = actor or UNATTRIBUTED
-    path = Path(config.cache.path).with_name("deviations.jsonl")
-    try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("a", encoding="utf-8") as fh:
-            fh.write(
-                json.dumps(
-                    {
-                        "ts": result.generated_at,
-                        "actor": who.model_dump(),
-                        "profile": result.profile_name,
-                        "request": result.request_text,
-                        "deviations": [d.model_dump() for d in result.deviations],
-                    }
-                )
-                + "\n"
-            )
-    except OSError as exc:  # logging must never break a run
-        log.warning("could not write deviation log: %s", exc)
+    _append_log(
+        config,
+        "deviations.jsonl",
+        {
+            "ts": result.generated_at,
+            "actor": who.model_dump(),
+            "profile": result.profile_name,
+            "request": result.request_text,
+            "deviations": [d.model_dump() for d in result.deviations],
+        },
+    )
     for d in result.deviations:
         log.warning("configuration deviation [%s/%s] by %s: %s", d.origin, d.code, who, d.description)
+
+
+def _log_retrieval(config: Config, ts: str, request_text: str, retrieval: RetrievalCompleteness) -> None:
+    """Append this run's retrieval completeness to ``retrieval.jsonl``: the data-gap ledger.
+    Written for every run that measured completeness, including one refused for falling below
+    the serving floor, since that is the strongest gap signal there is. Carries no actor: the
+    gaps are a property of the cache and the sources, not of who asked."""
+    _append_log(
+        config,
+        "retrieval.jsonl",
+        {
+            "ts": ts,
+            "profile": config.profile_name,
+            "request": request_text,
+            **retrieval.model_dump(
+                include={
+                    "completeness",
+                    "n_ranked",
+                    "n_fully_retrieved",
+                    "not_retrieved_by_criterion",
+                    "absent_by_criterion",
+                    "comparable",
+                }
+            ),
+        },
+    )
 
 
 def _selfchecks(config: Config, cache: Cache) -> SelfCheck:
@@ -383,6 +418,10 @@ def run_triage(
             # read 100% online and 79% offline.
             retrieval_scope = max(config.candidates.on_demand_pool, eff.top_k)
         retrieval = retrieval_completeness(ranked, config, scope_n=retrieval_scope)
+        if not skip_selfcheck:
+            # The self-check's own runs (the only callers that skip the gate) are the system
+            # checking itself, not a query; they stay out of the data-gap ledger.
+            _log_retrieval(config, base["generated_at"], request_text, retrieval)
         warnings = list(layer.warnings)
         if not retrieval.comparable:
             warnings.append(retrieval.note)
