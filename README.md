@@ -16,7 +16,7 @@
 
 **An agentic research assistant with a fully deterministic core**
 
-Oxbow is a materials-triage system for a research centre: it ranks known candidate materials from public data against explicit criteria and returns a shortlist where every number traces to a source and every gap is named. It ships instantiated for two material classes, oxide dielectrics for thin-film gate stacks (the worked example from the brief) and thermal barrier coatings, and a third class is a configuration profile away.
+Oxbow is a materials-triage system for a research center: it ranks known candidate materials from public data against explicit criteria and returns a shortlist where every number traces to a source and every gap is named. It ships instantiated for two material classes, oxide dielectrics for thin-film gate stacks (the worked example from the brief) and thermal barrier coatings, and a third class is a configuration profile away.
 
 The ranking process is fully deterministic, and every number has a traceable provenance back to open-access, publicly available data. Each natural language request is parsed into a validated structure; filtering, scoring, and ranking are performed by code-based tools; a refutation pass argues against each shortlisted candidate; the result is rendered through editable templates. The same query against the same cache returns the same answer.
 
@@ -26,7 +26,7 @@ For airgapped installations, full support has been baked in for locally hosted l
 
 If needed, the whole system can be run offline with no language model at all. With no model attached, the rules-based heuristics engine kicks in and supports natural language based querying and simple followup workflows. 
 
-The Oxbow web app is the intended as the premiere interface. It features a dynamic and interactive reporting window, auditing tools, an admin panel, and allows users to complete entire workflows in one place. Optionally, we include an MCP server so scientists can fit it inside their existing workflows in Claude Cowork, Cursor, Hermes Agent etc. 
+The Oxbow web app is the premiere interface. It features a dynamic and interactive reporting window, auditing tools, an admin panel, and allows users to complete entire workflows in one place. Optionally, we include an MCP server so scientists can fit it inside their existing workflows in Claude Cowork, Cursor, Hermes Agent etc. 
 
 For the old school Linux types: yes there is also a CLI
 
@@ -125,11 +125,6 @@ Install steps are in [`docker/OFFLINE.md`](docker/OFFLINE.md).
 | `OXIDE_TRIAGE_CONFIG_DIR` | directory holding `default.yaml` and `profiles/` outside a checkout |
 
 A `.env` in the working directory or the repository root is loaded automatically.
-
-### A locally hosted model
-
-<!-- The local-model story: what the model is and is not used for, and why an 8B-12B local
-     model loses nothing. Point at docker/compose.local-llm.yml (and the Gemma 4 plan in TODO). -->
 
 ## For admins
 
