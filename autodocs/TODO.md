@@ -106,7 +106,23 @@ Ideas / planned work for this project.
 
 ## Local language model
 
-- [ ] Strip out local model integration (out of scope)
+- [ ] **Remove the locally hosted model path; it is out of scope.** The project ships two
+      drivers a reviewer can use, rules only (no key) and Anthropic, and the local path was a
+      third that nobody runs: a vLLM + NVIDIA compose overlay (`docker/compose.local-llm.yml`)
+      with Qwen-specific settings in the edge client. Keeping it means a serving story, a
+      per-model profile, recorded model responses and a weights asset for the offline release,
+      none of which the brief asks for. Remove rather than replace:
+      - `oxide_triage/edges/llm.py`: the `openai_compatible` provider and the Qwen defaults
+        (model name, thinking-mode switch, Hermes tool-call assumptions); the provider enum in
+        `config/default.yaml`, `oxide_triage/config.py`, `doctor.py` and the CLI `--llm` help.
+      - `docker/compose.local-llm.yml`, its reference in `docker/compose.yml` and
+        `docker/OFFLINE.md`; the `LLM_BASE_URL` block in `.env.example`.
+      - README "A locally hosted model" and the design note's deployment paragraph, rewritten
+        to say the model is Anthropic or nothing; the agent UI's driver label.
+      - The tests that exercise the provider (`tests/test_agent.py`, `test_config.py`,
+        `test_review_fixes.py`) and the deployment follow-up for a local-model asset.
+      The privacy argument the local path made ("nothing leaves the site") still holds for the
+      rules-only driver, which is the offline release's driver anyway.
 
 ## UI
 
@@ -144,8 +160,8 @@ Ideas / planned work for this project.
       image on every push. Follow-ups:
       - [ ] Multi-arch image (arm64) and a wheel set per platform; the wheels are built for the
             runner (linux x86_64, CPython 3.11) and say so in their name.
-      - [ ] Optional local-model asset: a companion archive with weights and the vLLM or Ollama
-            image for sites that want the model driver offline. Multi-gigabyte, per-site choice.
+      - ~~Optional local-model asset~~ — dropped 2026-09-13 with the local model path (see
+        "Local language model").
       - [ ] Refresh bundle: a scheduled run that re-warms and publishes a cache-only release so
             a site can update the data without a new image.
       - [ ] Bundle install from the admin panel (upload a bundle, verify, install) for sites
