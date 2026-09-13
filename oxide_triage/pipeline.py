@@ -24,6 +24,7 @@ from oxide_triage.config import (
     cations_for_families,
     load_cation_allowlist,
     load_cation_families,
+    load_config,
     load_hazard_table,
 )
 from oxide_triage.edges.llm import LLMClient, make_llm
@@ -44,7 +45,7 @@ from oxide_triage.schemas import (
 )
 from oxide_triage.scoring.core import explanation, rank, retrieval_completeness
 from oxide_triage.scoring.settings import blocked_by_policy, never_liftable, resolve
-from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
+from oxide_triage.selfcheck import SelfCheck, read_selfcheck, run_selfcheck
 from oxide_triage.session import apply_changes, clarifications
 from oxide_triage.sources.assemble import DataLayer
 from oxide_triage.sources.base import SourceError
@@ -117,6 +118,19 @@ def _log_deviations(config: Config, result: TriageResult, actor: Actor | None) -
         log.warning("configuration deviation [%s/%s] by %s: %s", d.origin, d.code, who, d.description)
 
 
+def _selfchecks(config: Config, cache: Cache) -> SelfCheck:
+    """Run the known-answer check for the active profile and, when that is not the default,
+    for the default too: the profiles that share the default's universe read its verdict."""
+    check = run_selfcheck(config, cache)
+    if config.profile_name != "default":
+        site = Path(config.site_config_path) if config.site_config_path else None
+        default_cfg = load_config(
+            "default", use_env=False, overrides={"cache": {"path": config.cache.path}}, site_config=site
+        )
+        run_selfcheck(default_cfg, cache)
+    return check
+
+
 def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
     """Return (status, blocking_message).
 
@@ -128,7 +142,7 @@ def _selfcheck_gate(config: Config, cache: Cache) -> tuple[str, str | None]:
     """
     if not config.selfcheck.enabled:
         return "skipped", None
-    sc = read_selfcheck(cache)
+    sc = read_selfcheck(cache, config.profile_name)
     if sc is None:
         return "not_run", None
     if sc.passed:
@@ -383,7 +397,7 @@ def run_triage(
                 "Self-check FAILED on this cache (selfcheck.on_failure=warn). Treat this shortlist with suspicion."
             )
         elif status == "inconclusive":
-            sc = read_selfcheck(cache)
+            sc = read_selfcheck(cache, config.profile_name)
             warnings.append(
                 "Self-check INCONCLUSIVE: the cache is too sparsely retrieved for the known-answer "
                 "test to validate ranks, so this shortlist has not been ground-truth checked. "
@@ -446,7 +460,7 @@ def warm_cache(config: Config, cache: Cache | None = None) -> dict[str, object]:
                 records = layer.build_candidates()
         finally:
             layer.close()
-        check = run_selfcheck(config, cache)
+        check = _selfchecks(config, cache)
         return {
             "candidates": len(records),
             "warnings": list(layer.warnings),
@@ -465,7 +479,7 @@ def load_fixtures(config: Config, cache: Cache | None = None) -> int:
     cache = cache or Cache(config.cache.path)
     try:
         n = load_fixture(cache, config)
-        run_selfcheck(config, cache)
+        _selfchecks(config, cache)
         return n
     finally:
         if own:
@@ -508,7 +522,7 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
         report = run_acquisition(config, cache, layer=layer, records=records, kinds=GAP_KINDS)
         if report is not None and report.n_filled:
             records = [r for r in layer.build_candidates() if r.material_id in set(ids)]
-        check = run_selfcheck(config, cache)
+        check = _selfchecks(config, cache)
         return {
             "formula": formula,
             "added": ids,

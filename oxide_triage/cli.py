@@ -311,7 +311,7 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
     typer.echo(f"chat: {'ready (' + chat_why + ')' if chat_ok else 'unavailable (' + chat_why + ')'}")
     cache = Cache(config.cache.path)
     try:
-        sc = read_selfcheck(cache)
+        sc = read_selfcheck(cache, config.profile_name)
         typer.echo(
             f"cache: {cache.count()} rows, fixture={cache.has_fixture_data}, "
             f"selfcheck={'not run' if sc is None else ('passed' if sc.passed else 'FAILED')}"
@@ -480,7 +480,7 @@ def cache_status(profile: str = typer.Option("default", "--profile", "-p")) -> N
     try:
         typer.echo(f"cache: {config.cache.path}")
         typer.echo(f"fixture data loaded: {cache.has_fixture_data}")
-        sc = read_selfcheck(cache)
+        sc = read_selfcheck(cache, config.profile_name)
         typer.echo(
             "self-check: "
             + ("not run" if sc is None else f"{'passed' if sc.passed else 'FAILED'} at {sc.checked_at}")

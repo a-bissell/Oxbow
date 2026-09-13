@@ -493,7 +493,7 @@ class ToolBox:
         cfg = self._config(profile)
         cache = self._cache(cfg)
         try:
-            sc = read_selfcheck(cache)
+            sc = read_selfcheck(cache, cfg.profile_name)
             return {
                 "path": cfg.cache.path,
                 "offline": cfg.cache.offline,

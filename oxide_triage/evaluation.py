@@ -16,7 +16,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from oxide_triage.cache import Cache
-from oxide_triage.config import load_config
+from oxide_triage.config import list_profiles, load_config
 from oxide_triage.edges.render import render
 from oxide_triage.pipeline import load_fixtures, run_triage
 from oxide_triage.schemas import DataStatus, RequestBin, TriageResult
@@ -185,7 +185,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         ranked = _ranked(default)
         wide_ranked = _ranked(run(PI, "exploratory"))
         rows = ["| Workhorse | Default rank (of passing) | Exploratory rank | Note |", "|---|---|---|---|"]
-        for w in WORKHORSES:
+        for w in load_config("default").selfcheck.workhorses:
             if w in ranked:
                 d = f"{ranked.index(w) + 1}/{len(ranked)}"
                 note = ""
@@ -206,7 +206,19 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
             "Reading: this is ground-truth validation, not discovery. If an exotic compound outranks the "
             "workhorses on complete data, the scoring is wrong, not the literature."
         )
-        return bool(check.passed and not check.inconclusive), "\n".join(rows)
+        # Every shipped profile with its own known answer must pass on this cache too. The
+        # reweightings of the default criteria share the default's workhorses and its verdict.
+        all_ok = bool(check.passed and not check.inconclusive)
+        base = load_config("default").selfcheck.workhorses
+        for name in list_profiles():
+            pcfg = load_config(name)
+            if pcfg.selfcheck.workhorses == base:
+                continue
+            pc = run_selfcheck(pcfg, cache, offline=True)
+            verdict = "INCONCLUSIVE" if pc.inconclusive else ("passed" if pc.passed else "FAILED")
+            rows.append(f"\nProfile `{name}` self-check {verdict}: " + "; ".join(pc.details))
+            all_ok &= bool(pc.passed and not pc.inconclusive)
+        return all_ok, "\n".join(rows)
 
     # ---- 4. determinism ---------------------------------------------------------------
     def determinism() -> tuple[bool, str]:
@@ -408,9 +420,20 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         lines += [f"## {c.name} — {'PASS' if ok else 'FAIL'}", "", detail, ""]
 
     # profile comparison table
-    lines += ["## Profiles change the output", "", "| Profile | Top 5 |", "|---|---|"]
-    for p in ("default", "conservative", "exploratory", "ferroelectric-research"):
-        lines.append(f"| {p} | {', '.join(_ranked(run(PI, p))[:5])} |")
+    lines += [
+        "## Profiles change the output",
+        "",
+        "Each profile is run on its own self-check request (the oxide-dielectric profiles share the PI's).",
+        "",
+        "| Profile | Figure of merit | Top 5 |",
+        "|---|---|---|",
+    ]
+    for p in ["default", *list_profiles()]:
+        pcfg = load_config(p)
+        top = ", ".join(_ranked(run(pcfg.selfcheck.request, p))[:5])
+        lines.append(
+            f"| {p} | {pcfg.figure_of_merit.label} ({pcfg.figure_of_merit.prefer} preferred) | {top} |"
+        )
     lines.append("")
 
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
