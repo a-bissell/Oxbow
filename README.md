@@ -7,7 +7,6 @@
 
 <p align="center">
   <a href="https://github.com/a-bissell/oxide-triage/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/a-bissell/oxide-triage/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://github.com/a-bissell/oxide-triage/actions/workflows/release.yml"><img alt="Release" src="https://github.com/a-bissell/oxide-triage/actions/workflows/release.yml/badge.svg"></a>
   <a href="https://github.com/a-bissell/oxide-triage/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/a-bissell/oxide-triage?include_prereleases&label=release"></a>
   <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-3776ab">
   <img alt="MIT" src="https://img.shields.io/badge/license-MIT-lightgrey">
@@ -17,8 +16,19 @@
 
 **An agentic research assistant with a fully deterministic core**
 
-<!-- One paragraph: who this is for, what it answers, and the one-sentence
-     guarantee (nothing the model says can change a number, a rank or a citation). -->
+Oxbow is designed to help researchers organize, triage, assess, and report on a massive variety of oxide dielectric candidates.
+
+The ranking process is fully deterministic, and every number has a traceable provenance back to open-access, publicly available data. Each natural language request is parsed into a validated structure; filtering, scoring, and ranking are performed by code-based tools; a refutation pass argues against each shortlisted candidate; the result is rendered through editable templates. The same query against the same cache returns the same answer.
+
+Oxbow was designed from the ground up with deep LLM integration in mind. The model acts as a research assistant; it interprets user requests with some flexibility and states caveats, it engages in followups conversationally and can help clarify or explain anything in the report. Nothing it says can change a number, a rank, or a citation (see docs/design-note.md for a deeper dive on this)
+
+For airgapped installations, full support has been baked in for locally hosted language models such as Gemma4 and Qwen 3.8. Because Oxbow is built upon a robust suite of deterministic tools and operates in a well defined problem space, even small models that run on consumer laptops offer impressive performance.
+
+If needed, the whole system can be run offline with no language model at all. With no model attached, the rules-based heuristics engine kicks in and supports natural language based querying and simple followup workflows. 
+
+The Oxbow web app is the intended as the premiere interface. It features a dynamic and interactive reporting window, auditing tools, an admin panel, and allows users to complete entire workflows in one place. Optionally, we include an MCP server so scientists can fit it inside their existing workflows in Claude Cowork, Cursor, Hermes Agent etc. 
+
+For the old school Linux types: yes there is also a CLI
 
 
 ## Quick start
