@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
+.DS_Store
 *.egg-info/
 build/
 dist/
@@ -15,6 +16,8 @@ eval/output/
 .streamlit/secrets.toml
 
 
-# the built front end is committed so a pip install needs no Node
+# The built front end is committed on purpose: pip, the Docker image and the offline release
+# all serve it and none of them runs Node. CI rebuilds it from ui/src and fails when the
+# committed bundle is stale (job `ui` in .github/workflows/ci.yml).
 !oxide_triage/ui/dist/
 !oxide_triage/ui/dist/**

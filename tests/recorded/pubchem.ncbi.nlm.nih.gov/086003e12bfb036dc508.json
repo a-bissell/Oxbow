@@ -1,0 +1,264 @@
+{
+ "params": {
+  "heading": "GHS Classification"
+ },
+ "response": {
+  "Record": {
+   "RecordNumber": 73963,
+   "RecordTitle": "Ceria",
+   "RecordType": "CID",
+   "Reference": [
+    {
+     "ANID": 1865413,
+     "Description": "The information provided here is aggregated from the \"Notified classification and labelling\" from ECHA's C&L Inventory. Read more: https://echa.europa.eu/information-on-chemicals/cl-inventory-database",
+     "LicenseNote": "Use of the information, documents and data from the ECHA website is subject to the terms and conditions of this Legal Notice, and subject to other binding limitations provided for under applicable law, the information, documents and data made available on the ECHA website may be reproduced, distributed and/or used, totally or in part, for non-commercial purposes provided that ECHA is acknowledged as the source: \"Source: European Chemicals Agency, http://echa.europa.eu/\". Such acknowledgement must be included in each copy of the material. ECHA permits and encourages organisations and individuals to create links to the ECHA website under the following cumulative conditions: Links can only be made to webpages that provide a link to the Legal Notice page.",
+     "LicenseURL": "https://echa.europa.eu/web/guest/legal-notice",
+     "Name": "Cerium dioxide (EC: 215-150-4)",
+     "ReferenceNumber": 16,
+     "SortOrder": 3651,
+     "SourceID": "48966",
+     "SourceName": "European Chemicals Agency (ECHA)",
+     "URL": "https://chem.echa.europa.eu/substance-search?searchText=215-150-4"
+    },
+    {
+     "ANID": 2264585,
+     "Description": "The chemical classification in this section was conducted by the Chemical Management Center (CMC) of Japan National Institute of Technology and Evaluation (NITE) in accordance with GHS Classification Guidance for the Japanese Government, and is intended to provide a reference for preparing GHS labelling and SDS for users.",
+     "Name": "Cerium(IV) oxide - FY2010 (New/original classication)",
+     "ReferenceNumber": 22,
+     "SortOrder": 2010,
+     "SourceID": "22A4064",
+     "SourceName": "NITE-CMC",
+     "URL": "https://www.chem-info.nite.go.jp/chem/english/ghs/10-mhlw-0060e.html"
+    }
+   ],
+   "Section": [
+    {
+     "Description": "Information on safety and hazards for this compound, including safety/hazards properties, reactivity, incompatibilities, management techniques, first aid treatments, and more.  For toxicity and related information, please see the Toxicity section.",
+     "Section": [
+      {
+       "Description": "This section identifies the hazards of the chemical presented on the safety data sheet (SDS) and the appropriate warning information associated with those hazards.  The information in this section includes, but are not limited to, the hazard classification of the chemical, signal word, pictograms, hazard statements and precautionary statements.",
+       "Section": [
+        {
+         "Description": "GHS (Globally Harmonized System of Classification and Labelling of Chemicals) is a United Nations system to identify hazardous chemicals and to inform users about these hazards. GHS has been adopted by many countries around the world and is now also used as the basis for international and national transport regulations for dangerous goods. The GHS hazard statements, class categories, pictograms, signal words, and the precautionary statements can be found on the PubChem GHS page.",
+         "DisplayControls": {
+          "CreateTable": {
+           "ColumnContents": [
+            "Name",
+            "Value"
+           ],
+           "FromInformationIn": "ThisSection",
+           "NumberOfColumns": 2
+          },
+          "ShowAtMost": 1
+         },
+         "Information": [
+          {
+           "Name": "GHS Hazard Statements",
+           "ReferenceNumber": 16,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "String": "Not Classified"
+             },
+             {
+              "String": "Reported as not meeting GHS hazard criteria by 565 of 651 companies"
+             }
+            ]
+           }
+          },
+          {
+           "Name": "ECHA C&L Notifications Summary",
+           "ReferenceNumber": 16,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Length": 117,
+                "Start": 0,
+                "Type": "Italics"
+               }
+              ],
+              "String": "Aggregated GHS information provided per 651 reports by companies from 11 notifications to the ECHA C&L Inventory."
+             },
+             {
+              "Markup": [
+               {
+                "Length": 80,
+                "Start": 0,
+                "Type": "Italics"
+               }
+              ],
+              "String": "Reported as not meeting GHS hazard criteria per 565 of 651 reports by companies."
+             },
+             {
+              "Markup": [
+               {
+                "Length": 99,
+                "Start": 0,
+                "Type": "Italics"
+               }
+              ],
+              "String": "There are 9 notifications provided by 86 of 651 reports by companies with hazard statement code(s)."
+             },
+             {
+              "Markup": [
+               {
+                "Length": 20,
+                "Start": 327,
+                "URL": "https://chem.echa.europa.eu/substance-search?searchText=215-150-4"
+               },
+               {
+                "Length": 348,
+                "Start": 0,
+                "Type": "Italics"
+               }
+              ],
+              "String": "Information may vary between notifications depending on impurities, additives, and other factors. The percentage value in parenthesis indicates the notified classification ratio from companies that provide hazard codes. Only hazard codes with percentage values above 10% are shown. For more detailed information, please visit  ECHA C&L website."
+             }
+            ]
+           }
+          },
+          {
+           "Name": "Pictogram(s)",
+           "ReferenceNumber": 22,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Extra": "Health Hazard",
+                "Length": 1,
+                "Start": 0,
+                "Type": "Icon",
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/images/ghs/GHS08.svg"
+               }
+              ],
+              "String": "          "
+             }
+            ]
+           }
+          },
+          {
+           "Name": "Signal",
+           "ReferenceNumber": 22,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Extra": "GHSDanger",
+                "Length": 6,
+                "Start": 0,
+                "Type": "Color"
+               }
+              ],
+              "String": "Danger"
+             }
+            ]
+           }
+          },
+          {
+           "Name": "GHS Hazard Statements",
+           "ReferenceNumber": 22,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Length": 4,
+                "Start": 0,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#H371"
+               },
+               {
+                "Extra": "GHSWarning",
+                "Length": 7,
+                "Start": 34,
+                "Type": "Color"
+               }
+              ],
+              "String": "H371: May cause damage to organs [Warning Specific target organ toxicity, single exposure]"
+             },
+             {
+              "Markup": [
+               {
+                "Length": 4,
+                "Start": 0,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#H372"
+               },
+               {
+                "Extra": "GHSDanger",
+                "Length": 6,
+                "Start": 70,
+                "Type": "Color"
+               }
+              ],
+              "String": "H372: Causes damage to organs through prolonged or repeated exposure [Danger Specific target organ toxicity, repeated exposure]"
+             }
+            ]
+           }
+          },
+          {
+           "Name": "Precautionary Statement Codes",
+           "ReferenceNumber": 22,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Length": 4,
+                "Start": 0,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P260"
+               },
+               {
+                "Length": 4,
+                "Start": 6,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P264"
+               },
+               {
+                "Length": 4,
+                "Start": 12,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P270"
+               },
+               {
+                "Length": 9,
+                "Start": 18,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P308+P316"
+               },
+               {
+                "Length": 4,
+                "Start": 29,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P319"
+               },
+               {
+                "Length": 4,
+                "Start": 35,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P405"
+               },
+               {
+                "Length": 4,
+                "Start": 45,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P501"
+               }
+              ],
+              "String": "P260, P264, P270, P308+P316, P319, P405, and P501 (click each P-code to see the statement)"
+             }
+            ]
+           }
+          }
+         ],
+         "TOCHeading": "GHS Classification",
+         "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/"
+        }
+       ],
+       "TOCHeading": "Hazards Identification",
+       "URL": "https://www.osha.gov/sites/default/files/publications/OSHA3514.pdf"
+      }
+     ],
+     "TOCHeading": "Safety and Hazards"
+    }
+   ]
+  }
+ },
+ "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/73963/JSON"
+}

@@ -18,8 +18,8 @@ from typing import Any
 import yaml
 
 from oxide_triage.config import DATA_DIR, Config, load_hazard_table
-from oxide_triage.edges.parse import apply_terminology, rule_parse
-from oxide_triage.guard import guard_request
+from oxide_triage.edges.parse import apply_terminology, criterion_words, rule_parse
+from oxide_triage.guard import guard_request, scope_vocabulary
 from oxide_triage.schemas import RequestBin
 from oxide_triage.scoring.settings import blocked_by_policy, never_liftable
 
@@ -50,13 +50,18 @@ def assess_request(text: str, config: Config) -> Assessment:
     """The request path up to, but not including, the run: guard, then the rule parser."""
     table = load_hazard_table(config.toxicity.table_file)
     blocked = blocked_by_policy(config, table)
-    guard = guard_request(text, table, blocked, never_liftable(config))
+    guard = guard_request(text, table, blocked, never_liftable(config), scope=scope_vocabulary(config))
     reasons = {_REASON_OF_BIN[f.bin] for f in guard.findings if f.bin in _REASON_OF_BIN}
     lifted: list[str] = []
     unhandled: list[str] = []
     if guard.proceed:
         criteria = rule_parse(
-            apply_terminology(text, config.terminology), table, blocked, substrate=config.interface.substrate
+            apply_terminology(text, config.terminology),
+            table,
+            blocked,
+            substrate=config.interface.substrate,
+            words=criterion_words(config.figure_of_merit),
+            vocabulary=config.figure_of_merit.vocabulary,
         )
         lifted = list(criteria.allow_elements)
         unhandled = list(criteria.unhandled)

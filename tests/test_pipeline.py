@@ -39,7 +39,7 @@ def test_normal_query_returns_ranked_shortlist_with_caveats_and_gaps(cache):
     for s in res.shortlist:
         assert s.caveats, f"{s.record.formula} has no caveats"
         assert s.rationale
-        if s.record.dielectric.status != DataStatus.KNOWN:
+        if s.record.figure_of_merit.status != DataStatus.KNOWN:
             assert "dielectric" in s.missing_criteria
             assert any(c.code == "dielectric_unknown" for c in s.caveats)
     assert res.excluded and all(s.exclusion_reasons for s in res.excluded)
@@ -167,10 +167,10 @@ def test_missing_dielectric_is_never_scored_as_a_value(cache):
     seen = False
     for s in res.shortlist + res.ranked_beyond_shortlist + res.excluded:
         d = next(c for c in s.components if c.criterion == "dielectric")
-        if s.record.dielectric.status != DataStatus.KNOWN:
+        if s.record.figure_of_merit.status != DataStatus.KNOWN:
             seen = True
             assert d.status.is_unknown and d.normalized is None and d.contribution is None
-            assert d.status == s.record.dielectric.status  # the component keeps *why* it is missing
+            assert d.status == s.record.figure_of_merit.status  # the component keeps *why* it is missing
             assert "dielectric" in s.missing_criteria
             assert s.data_coverage < 1.0
         else:
@@ -198,23 +198,24 @@ def test_offline_with_empty_cache_is_honest():
 
 def test_polymorphs_collapse_into_one_row_per_compound(cache):
     # The fixture holds two HfO2 phases (monoclinic on hull; a theoretical cubic one 78 meV up),
-    # so with the observed-only filter lifted both pass the exploratory gates.
+    # so with the observed-only filter lifted both pass the exploratory gates. It also holds two
+    # observed ZrO2 phases, which collapse the same way.
     base = {"candidates": {"observed_only": False}}
     cfg_off = load_config(
         "exploratory", use_env=False, overrides={**base, "output": {"group_polymorphs": False}}
     )
     ungrouped = run_triage(PI, cfg_off, cache=cache, offline=True)
     forms = [s.record.formula for s in ungrouped.shortlist + ungrouped.ranked_beyond_shortlist]
-    assert forms.count("HfO2") == 2 and ungrouped.collapsed_polymorphs == []
+    assert forms.count("HfO2") == 2 and forms.count("ZrO2") == 2 and ungrouped.collapsed_polymorphs == []
 
     res = run_triage(PI, load_config("exploratory", use_env=False, overrides=base), cache=cache, offline=True)
     passing = res.shortlist + res.ranked_beyond_shortlist
     forms = [s.record.formula for s in passing]
     assert forms.count("HfO2") == 1 and len(set(forms)) == len(forms)
     assert [s.rank for s in passing] == list(range(1, len(passing) + 1))
-    assert len(res.collapsed_polymorphs) == 1
+    assert sorted(s.record.formula for s in res.collapsed_polymorphs) == ["HfO2", "ZrO2"]
     lead = next(s for s in passing if s.record.formula == "HfO2")
-    other = res.collapsed_polymorphs[0]
+    other = next(s for s in res.collapsed_polymorphs if s.record.formula == "HfO2")
     assert other.record.formula == "HfO2" and other.collapsed_under == lead.record.material_id
     assert other.rank is None and other.rank_by_material is not None
     assert lead.rank_by_material is not None and lead.rank_by_material < other.rank_by_material
@@ -234,7 +235,7 @@ def test_polymorphs_collapse_into_one_row_per_compound(cache):
     text = explain_candidate(res, other.record.material_id)
     assert "collapsed under the leading HfO2 phase" in text
     assert "+1 other phase" in list_candidates(res, "shortlist", 50) + list_candidates(res, "beyond", 500)
-    assert "1 further phases collapsed" in render(res, "pi_summary")
+    assert "2 further phases collapsed" in render(res, "pi_summary")
 
 
 # Tiers ------------------------------------------------------------------------------------------

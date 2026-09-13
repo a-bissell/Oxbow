@@ -63,6 +63,16 @@ def load_fixture(cache: Cache, config: Config, path: Path = FIXTURE_PATH) -> int
             {"found": False} if diel is None else {"found": True, **diel},
             FIXTURE_TS,
         )
+        # The elastic-tensor route of the thermal-barrier profile, keyed as the live client keys
+        # it. A material without a block reads ABSENT there (the source answered, no record), as a
+        # material without a dielectric block does under the dielectric profiles.
+        elastic = m.get("elasticity")
+        cache.put(
+            mp,
+            f"elasticity:{mid}",
+            {"found": False} if elastic is None else {"found": True, **elastic},
+            FIXTURE_TS,
+        )
         formula = m["formula_pretty"]
         oq = m.get("oqmd")
         # Formula-keyed records are shared between polymorphs; never let a polymorph without
@@ -95,8 +105,9 @@ def load_fixture(cache: Cache, config: Config, path: Path = FIXTURE_PATH) -> int
         ):
             universe.append(mid)
 
-    # Hull phases per element system plus Si, for the interface criterion. Real MP thermo
-    # data (the fixture README says so); keyed exactly as the live client stores them.
+    # Hull phases per element system plus the substrate (Si for the dielectric profiles, Al2O3
+    # for the thermal-barrier one), for the interface criterion. Real MP thermo data (the
+    # fixture README says so); keyed exactly as the live client stores them.
     for chemsys, payload in (data.get("thermo") or {}).items():
         cache.put(mp, f"thermo:{chemsys}", payload, FIXTURE_TS)
 

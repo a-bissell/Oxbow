@@ -1,0 +1,11 @@
+{
+ "params": {},
+ "response": {
+  "IdentifierList": {
+   "CID": [
+    446820
+   ]
+  }
+ },
+ "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/CeO/cids/JSON"
+}

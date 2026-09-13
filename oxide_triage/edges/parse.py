@@ -21,23 +21,47 @@ adding a rule per phrasing is not.
 from __future__ import annotations
 
 import re
+from collections.abc import Collection
+from functools import lru_cache
 from typing import Any
 
-from oxide_triage.config import CRITERIA, Config, HazardTable
+from oxide_triage.config import Config, HazardTable
 from oxide_triage.edges.llm import LLMClient
 from oxide_triage.elements import find_elements
 from oxide_triage.schemas import Criteria
 
 NUM = r"(\d+(?:\.\d+)?)"
 
-CRITERION_WORDS = {
+# Words a request uses to name a criterion ("prioritise the dielectric constant"). The fixed
+# six are here; the figure of merit's entry comes from the profile (``criterion_words``).
+FIXED_CRITERION_WORDS = {
     "stability": r"stabilit\w*|hull",
     "band_gap": r"band ?gaps?|gap",
-    "dielectric": r"dielectric|permittivit\w*|high[- ]?k|kappa",
     "toxicity": r"toxicit\w*|safety|hazard\w*|non-?toxic",
     "simplicity": r"simplicit\w*|simple composition\w*|few\w* elements",
     "literature": r"literature|evidence|published|papers?",
+    "interface": r"interface|substrate (?:reaction|compatib\w*)|react\w* with the substrate",
 }
+DEFAULT_FOM_WORDS = ("dielectric", r"permittivit\w*", r"high[- ]?k", "kappa")
+# The shipped table: the fixed six plus the default profile's dielectric constant, in the order
+# the criteria are weighted.
+CRITERION_WORDS = {
+    "stability": FIXED_CRITERION_WORDS["stability"],
+    "band_gap": FIXED_CRITERION_WORDS["band_gap"],
+    "dielectric": "|".join(DEFAULT_FOM_WORDS),
+    **{k: v for k, v in FIXED_CRITERION_WORDS.items() if k not in ("stability", "band_gap")},
+}
+
+
+def criterion_words(fom: Any) -> dict[str, str]:
+    """``CRITERION_WORDS`` for a profile: its figure of merit's vocabulary under its criterion name."""
+    words = "|".join(fom.vocabulary) if fom.vocabulary else re.escape(fom.criterion.replace("_", " "))
+    return {
+        "stability": FIXED_CRITERION_WORDS["stability"],
+        "band_gap": FIXED_CRITERION_WORDS["band_gap"],
+        fom.criterion: words,
+        **{k: v for k, v in FIXED_CRITERION_WORDS.items() if k not in ("stability", "band_gap")},
+    }
 
 
 # A clause is understood if a rule consumed part of it or it is the triage ask itself: the
@@ -57,6 +81,17 @@ _UNDERSTOOD = re.compile(
     r"json|audit|summary|brief|html|shortlist|top|list|show|give|return|tell)\b",
     re.I,
 )
+
+
+@lru_cache(maxsize=32)
+def understood_re(vocabulary: tuple[str, ...]) -> re.Pattern[str]:
+    """``_UNDERSTOOD`` plus a profile's figure-of-merit words, so a clause naming that
+    property ("low thermal conductivity") is the ask itself and not reported as unread."""
+    if not vocabulary:
+        return _UNDERSTOOD
+    return re.compile(_UNDERSTOOD.pattern[:-4] + "|" + "|".join(vocabulary) + r")\b", re.I)
+
+
 # Clauses that read as reasons or courtesies rather than asks.
 _ASIDE = re.compile(
     r"^\s*(?:because|since|as|so that|they'?re|they are|it'?s|it is|we'?re|we are|that'?s|"
@@ -84,7 +119,9 @@ _SUBSTRATE_ALIASES = {
 }
 
 
-def unhandled_clauses(text: str, consumed: list[tuple[int, int]]) -> list[str]:
+def unhandled_clauses(
+    text: str, consumed: list[tuple[int, int]], understood: re.Pattern[str] = _UNDERSTOOD
+) -> list[str]:
     """Clauses of ``text`` that no rule consumed and that are not the triage ask itself."""
     out: list[str] = []
     pos = 0
@@ -97,7 +134,7 @@ def unhandled_clauses(text: str, consumed: list[tuple[int, int]]) -> list[str]:
             continue
         if any(a < end and b > start for a, b in consumed):
             continue
-        if _UNDERSTOOD.search(clause):
+        if understood.search(clause):
             continue
         out.append(clause)
     return out
@@ -111,8 +148,15 @@ def apply_terminology(text: str, mapping: dict[str, str]) -> str:
 
 
 def rule_parse(
-    text: str, table: HazardTable, blocked: frozenset[str] | None = None, substrate: str = "Si"
+    text: str,
+    table: HazardTable,
+    blocked: frozenset[str] | None = None,
+    substrate: str = "Si",
+    words: dict[str, str] | None = None,
+    vocabulary: Collection[str] = (),
 ) -> Criteria:
+    """``words`` is the criterion vocabulary (``criterion_words(config.figure_of_merit)``;
+    the shipped table when omitted) and ``vocabulary`` the figure of merit's own terms."""
     t = text
     notes: list[str] = []
     kw: dict[str, Any] = {}
@@ -241,10 +285,10 @@ def rule_parse(
 
     # ---- weights ----------------------------------------------------------------------
     overrides: dict[str, float] = {}
-    for crit, words in CRITERION_WORDS.items():
+    for crit, crit_words in (words or CRITERION_WORDS).items():
         if hit(
             re.search(
-                rf"\b(?:prioriti[sz]e|emphasi[sz]e|weight\w*\s+(?:up|heavily|more)|focus on|most important(?:ly)?)\b[^.;]{{0,30}}?\b(?:{words})\b",
+                rf"\b(?:prioriti[sz]e|emphasi[sz]e|weight\w*\s+(?:up|heavily|more)|focus on|most important(?:ly)?)\b[^.;]{{0,30}}?\b(?:{crit_words})\b",
                 t,
                 re.I,
             )
@@ -252,7 +296,7 @@ def rule_parse(
             overrides[crit] = 0.4
         if hit(
             re.search(
-                rf"\b(?:ignore|de-?emphasi[sz]e|don'?t care about|do not care about|downweight)\b[^.;]{{0,30}}?\b(?:{words})\b",
+                rf"\b(?:ignore|de-?emphasi[sz]e|don'?t care about|do not care about|downweight)\b[^.;]{{0,30}}?\b(?:{crit_words})\b",
                 t,
                 re.I,
             )
@@ -289,7 +333,7 @@ def rule_parse(
                 f'"{m.group(0).strip()}": the interface criterion is computed against {substrate} in this '
                 "configuration; a request cannot change the substrate yet"
             )
-    unhandled.extend(f'"{c}"' for c in unhandled_clauses(t, consumed))
+    unhandled.extend(f'"{c}"' for c in unhandled_clauses(t, consumed, understood_re(tuple(vocabulary))))
     kw["unhandled"] = unhandled
 
     kw["interpretation_notes"] = notes
@@ -315,41 +359,45 @@ def _dedupe(items: list[str]) -> list[str]:
 # LLM parser (optional)
 # --------------------------------------------------------------------------------------
 
-CRITERIA_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "additionalProperties": False,
-    "properties": {
-        "top_k": {"type": ["integer", "null"], "minimum": 1, "maximum": 50},
-        "max_energy_above_hull_ev_atom": {"type": ["number", "null"], "minimum": 0},
-        "min_band_gap_ev": {"type": ["number", "null"], "minimum": 0},
-        "max_elements": {"type": ["integer", "null"], "minimum": 2, "maximum": 6},
-        "include_elements": {"type": "array", "items": {"type": "string"}},
-        "exclude_elements": {"type": "array", "items": {"type": "string"}},
-        "allow_elements": {"type": "array", "items": {"type": "string"}},
-        "weight_overrides": {
-            "type": "object",
-            "additionalProperties": False,
-            "properties": {c: {"type": ["number", "null"], "minimum": 0} for c in CRITERIA},
+
+def criteria_schema(criteria: Collection[str]) -> dict[str, Any]:
+    """The JSON schema the model's parse must satisfy; ``criteria`` names the weights it may set."""
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "top_k": {"type": ["integer", "null"], "minimum": 1, "maximum": 50},
+            "max_energy_above_hull_ev_atom": {"type": ["number", "null"], "minimum": 0},
+            "min_band_gap_ev": {"type": ["number", "null"], "minimum": 0},
+            "max_elements": {"type": ["integer", "null"], "minimum": 2, "maximum": 6},
+            "include_elements": {"type": "array", "items": {"type": "string"}},
+            "exclude_elements": {"type": "array", "items": {"type": "string"}},
+            "allow_elements": {"type": "array", "items": {"type": "string"}},
+            "weight_overrides": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {c: {"type": ["number", "null"], "minimum": 0} for c in criteria},
+            },
+            # anyOf rather than a null inside the enum: the Anthropic schema grammar rejects the latter.
+            "output_template": {
+                "anyOf": [{"type": "string", "enum": ["pi_summary", "audit", "json"]}, {"type": "null"}]
+            },
+            "interpretation_notes": {"type": "array", "items": {"type": "string"}},
         },
-        # anyOf rather than a null inside the enum: the Anthropic schema grammar rejects the latter.
-        "output_template": {
-            "anyOf": [{"type": "string", "enum": ["pi_summary", "audit", "json"]}, {"type": "null"}]
-        },
-        "interpretation_notes": {"type": "array", "items": {"type": "string"}},
-    },
-    "required": [
-        "top_k",
-        "max_energy_above_hull_ev_atom",
-        "min_band_gap_ev",
-        "max_elements",
-        "include_elements",
-        "exclude_elements",
-        "allow_elements",
-        "weight_overrides",
-        "output_template",
-        "interpretation_notes",
-    ],
-}
+        "required": [
+            "top_k",
+            "max_energy_above_hull_ev_atom",
+            "min_band_gap_ev",
+            "max_elements",
+            "include_elements",
+            "exclude_elements",
+            "allow_elements",
+            "weight_overrides",
+            "output_template",
+            "interpretation_notes",
+        ],
+    }
+
 
 PARSE_SYSTEM = (
     "Extract structured triage criteria from a materials scientist's request. Only set a field "
@@ -360,8 +408,8 @@ PARSE_SYSTEM = (
 )
 
 
-def llm_parse(text: str, llm: LLMClient) -> Criteria | None:
-    data = llm.complete_json(PARSE_SYSTEM, f"Request:\n{text}", CRITERIA_SCHEMA)
+def llm_parse(text: str, llm: LLMClient, criteria: Collection[str]) -> Criteria | None:
+    data = llm.complete_json(PARSE_SYSTEM, f"Request:\n{text}", criteria_schema(criteria))
     if not data:
         return None
     cleaned: dict[str, Any] = {k: v for k, v in data.items() if v is not None}
@@ -373,7 +421,7 @@ def llm_parse(text: str, llm: LLMClient) -> Criteria | None:
         return None
 
 
-def merge(rules: Criteria, model: Criteria | None) -> Criteria:
+def merge(rules: Criteria, model: Criteria | None, criteria: Collection[str]) -> Criteria:
     """Rules win on everything they set; the model may only fill defaults. Element allowances
     from the model are dropped: lifting a hazard block requires the deterministic parser."""
     if model is None:
@@ -400,7 +448,7 @@ def merge(rules: Criteria, model: Criteria | None) -> Criteria:
         out.exclude_elements = [e for e in model.exclude_elements if e not in out.include_elements]
         filled.append("exclude_elements")
     if not out.weight_overrides and model.weight_overrides:
-        out.weight_overrides = {k: v for k, v in model.weight_overrides.items() if k in CRITERIA}
+        out.weight_overrides = {k: v for k, v in model.weight_overrides.items() if k in criteria}
         filled.append("weight_overrides")
     if filled:
         out.interpretation_notes.append("filled by language model (validated): " + ", ".join(filled))
@@ -418,8 +466,17 @@ def parse_request(
 ) -> tuple[Criteria, str]:
     """``blocked``: elements the active profile blocks; only allowances for those are recorded."""
     canonical = apply_terminology(text, config.terminology)
-    rules = rule_parse(canonical, table, blocked, substrate=config.interface.substrate)
+    rules = rule_parse(
+        canonical,
+        table,
+        blocked,
+        substrate=config.interface.substrate,
+        words=criterion_words(config.figure_of_merit),
+        vocabulary=config.figure_of_merit.vocabulary,
+    )
     if llm.name != "none" and config.llm.use_for.parse:
-        model = llm_parse(canonical, llm)
-        return merge(rules, model), f"rules+{llm.name}" if model else "rules (model parse failed)"
+        model = llm_parse(canonical, llm, config.criteria())
+        return merge(rules, model, config.criteria()), (
+            f"rules+{llm.name}" if model else "rules (model parse failed)"
+        )
     return rules, "rules"

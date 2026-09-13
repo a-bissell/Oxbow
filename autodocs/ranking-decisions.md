@@ -6,7 +6,7 @@ in what order, and what each one did to the list. This is that record. Every ent
 trigger, the change, the effect on the live ranking, the reason, and where the reason is
 written in the repository. The last section lists what was deliberately *not* changed.
 
-The evaluation report (`docs/live-evaluation.md`, check 6) shows how the ranking behaves when
+The evaluation report (`autodocs/live-evaluation.md`, check 6) shows how the ranking behaves when
 every one of these settings is moved by a lot. That table, not this narrative, is the answer to
 "is it overfit".
 
@@ -105,7 +105,7 @@ it would have hidden the criterion's most informative result.
 
 ## What the sensitivity table says
 
-Check 6 of the evaluation (`docs/live-evaluation.md`) moves every weight to half and to one and a
+Check 6 of the evaluation (`autodocs/live-evaluation.md`) moves every weight to half and to one and a
 half times its value, and moves each parameter set after seeing live data past its original
 value: the literature saturation back to 50 and up to 5,000, the interface tolerance to 0 and to
 0.10, the dielectric saturation to 20 and to 40, the tie band to 0.02 and 0.08. Twenty-two

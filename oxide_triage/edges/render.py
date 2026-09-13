@@ -49,12 +49,13 @@ def rationale_line(sc: ScoredCandidate) -> str:
             )
         else:
             bits.append(f"gap {bg.effective_ev:.1f} eV ({bg.reported_functional})")
-    if r.dielectric.status == DataStatus.KNOWN and r.dielectric.e_total is not None:
-        bits.append(f"dielectric constant {r.dielectric.e_total:.0f} (DFPT)")
-    elif r.dielectric.status == DataStatus.NOT_RETRIEVED:
-        bits.append("dielectric constant not retrieved")
+    fom = r.figure_of_merit
+    if fom.status == DataStatus.KNOWN and fom.value is not None:
+        bits.append(fom.short or f"{fom.label} {fom.value:.0f} ({fom.method})")
+    elif fom.status == DataStatus.NOT_RETRIEVED:
+        bits.append(f"{fom.label} not retrieved")
     else:
-        bits.append("dielectric constant unknown")
+        bits.append(f"{fom.label} unknown")
     iface = r.interface
     if iface.status == DataStatus.KNOWN and iface.reaction_energy_ev_atom is not None:
         if iface.reaction_energy_ev_atom >= -1e-9:

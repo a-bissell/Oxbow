@@ -1,0 +1,238 @@
+{
+ "params": {
+  "heading": "GHS Classification"
+ },
+ "response": {
+  "Record": {
+   "RecordNumber": 159425,
+   "RecordTitle": "Samarium oxide (Sm2O3)",
+   "RecordType": "CID",
+   "Reference": [
+    {
+     "ANID": 1881330,
+     "Description": "The information provided here is aggregated from the \"Notified classification and labelling\" from ECHA's C&L Inventory. Read more: https://echa.europa.eu/information-on-chemicals/cl-inventory-database",
+     "LicenseNote": "Use of the information, documents and data from the ECHA website is subject to the terms and conditions of this Legal Notice, and subject to other binding limitations provided for under applicable law, the information, documents and data made available on the ECHA website may be reproduced, distributed and/or used, totally or in part, for non-commercial purposes provided that ECHA is acknowledged as the source: \"Source: European Chemicals Agency, http://echa.europa.eu/\". Such acknowledgement must be included in each copy of the material. ECHA permits and encourages organisations and individuals to create links to the ECHA website under the following cumulative conditions: Links can only be made to webpages that provide a link to the Legal Notice page.",
+     "LicenseURL": "https://echa.europa.eu/web/guest/legal-notice",
+     "Name": "Samarium (III) oxide (EC: 235-043-6)",
+     "ReferenceNumber": 12,
+     "SortOrder": 3233,
+     "SourceID": "102801",
+     "SourceName": "European Chemicals Agency (ECHA)",
+     "URL": "https://chem.echa.europa.eu/substance-search?searchText=235-043-6"
+    }
+   ],
+   "Section": [
+    {
+     "Description": "Information on safety and hazards for this compound, including safety/hazards properties, reactivity, incompatibilities, management techniques, first aid treatments, and more.  For toxicity and related information, please see the Toxicity section.",
+     "Section": [
+      {
+       "Description": "This section identifies the hazards of the chemical presented on the safety data sheet (SDS) and the appropriate warning information associated with those hazards.  The information in this section includes, but are not limited to, the hazard classification of the chemical, signal word, pictograms, hazard statements and precautionary statements.",
+       "Section": [
+        {
+         "Description": "GHS (Globally Harmonized System of Classification and Labelling of Chemicals) is a United Nations system to identify hazardous chemicals and to inform users about these hazards. GHS has been adopted by many countries around the world and is now also used as the basis for international and national transport regulations for dangerous goods. The GHS hazard statements, class categories, pictograms, signal words, and the precautionary statements can be found on the PubChem GHS page.",
+         "DisplayControls": {
+          "CreateTable": {
+           "ColumnContents": [
+            "Name",
+            "Value"
+           ],
+           "FromInformationIn": "ThisSection",
+           "NumberOfColumns": 2
+          },
+          "ShowAtMost": 1
+         },
+         "Information": [
+          {
+           "Name": "Note",
+           "ReferenceNumber": 12,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Length": 86,
+                "Start": 0,
+                "Type": "Italics"
+               }
+              ],
+              "String": "This chemical does not meet GHS hazard criteria for 55.4% (129 of 233) of all reports."
+             }
+            ]
+           }
+          },
+          {
+           "Name": "Pictogram(s)",
+           "ReferenceNumber": 12,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Extra": "Environmental Hazard",
+                "Length": 1,
+                "Start": 0,
+                "Type": "Icon",
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/images/ghs/GHS09.svg"
+               }
+              ],
+              "String": "          "
+             }
+            ]
+           }
+          },
+          {
+           "Name": "Signal",
+           "ReferenceNumber": 12,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Extra": "GHSWarning",
+                "Length": 7,
+                "Start": 0,
+                "Type": "Color"
+               }
+              ],
+              "String": "Warning"
+             }
+            ]
+           }
+          },
+          {
+           "Name": "GHS Hazard Statements",
+           "ReferenceNumber": 12,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Length": 4,
+                "Start": 0,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#H400"
+               },
+               {
+                "Extra": "GHSWarning",
+                "Length": 7,
+                "Start": 42,
+                "Type": "Color"
+               }
+              ],
+              "String": "H400 (44.6%): Very toxic to aquatic life [Warning Hazardous to the aquatic environment, acute hazard]"
+             },
+             {
+              "Markup": [
+               {
+                "Length": 4,
+                "Start": 0,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#H410"
+               },
+               {
+                "Extra": "GHSWarning",
+                "Length": 7,
+                "Start": 68,
+                "Type": "Color"
+               }
+              ],
+              "String": "H410 (44.6%): Very toxic to aquatic life with long lasting effects [Warning Hazardous to the aquatic environment, long-term hazard]"
+             }
+            ]
+           }
+          },
+          {
+           "Name": "Precautionary Statement Codes",
+           "ReferenceNumber": 12,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Length": 4,
+                "Start": 0,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P273"
+               },
+               {
+                "Length": 4,
+                "Start": 6,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P391"
+               },
+               {
+                "Length": 4,
+                "Start": 16,
+                "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/#P501"
+               }
+              ],
+              "String": "P273, P391, and P501 (click each P-code to see the statement)"
+             }
+            ]
+           }
+          },
+          {
+           "Name": "ECHA C&L Notifications Summary",
+           "ReferenceNumber": 12,
+           "Value": {
+            "StringWithMarkup": [
+             {
+              "Markup": [
+               {
+                "Length": 177,
+                "Start": 0,
+                "Type": "Italics"
+               }
+              ],
+              "String": "Aggregated GHS information provided per 233 reports by companies from 3 notifications to the ECHA C&L Inventory. Each notification may be associated with multiple companies."
+             },
+             {
+              "Markup": [
+               {
+                "Length": 80,
+                "Start": 0,
+                "Type": "Italics"
+               }
+              ],
+              "String": "Reported as not meeting GHS hazard criteria per 129 of 233 reports by companies."
+             },
+             {
+              "Markup": [
+               {
+                "Length": 98,
+                "Start": 0,
+                "Type": "Italics"
+               }
+              ],
+              "String": "There is 1 notification provided by 104 of 233 reports by companies with hazard statement code(s)."
+             },
+             {
+              "Markup": [
+               {
+                "Length": 20,
+                "Start": 327,
+                "URL": "https://chem.echa.europa.eu/substance-search?searchText=235-043-6"
+               },
+               {
+                "Length": 348,
+                "Start": 0,
+                "Type": "Italics"
+               }
+              ],
+              "String": "Information may vary between notifications depending on impurities, additives, and other factors. The percentage value in parenthesis indicates the notified classification ratio from companies that provide hazard codes. Only hazard codes with percentage values above 10% are shown. For more detailed information, please visit  ECHA C&L website."
+             }
+            ]
+           }
+          }
+         ],
+         "TOCHeading": "GHS Classification",
+         "URL": "https://pubchem.ncbi.nlm.nih.gov/ghs/"
+        }
+       ],
+       "TOCHeading": "Hazards Identification",
+       "URL": "https://www.osha.gov/sites/default/files/publications/OSHA3514.pdf"
+      }
+     ],
+     "TOCHeading": "Safety and Hazards"
+    }
+   ]
+  }
+ },
+ "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/159425/JSON"
+}

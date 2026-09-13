@@ -16,7 +16,7 @@
 
 **An agentic research assistant with a fully deterministic core**
 
-Oxbow is designed to help researchers organize, triage, assess, and report on a massive variety of oxide dielectric candidates.
+Oxbow is a materials-triage system for a research centre: it ranks known candidate materials from public data against explicit criteria and returns a shortlist where every number traces to a source and every gap is named. It ships instantiated for two material classes, oxide dielectrics for thin-film gate stacks (the worked example from the brief) and thermal barrier coatings, and a third class is a configuration profile away.
 
 The ranking process is fully deterministic, and every number has a traceable provenance back to open-access, publicly available data. Each natural language request is parsed into a validated structure; filtering, scoring, and ranking are performed by code-based tools; a refutation pass argues against each shortlisted candidate; the result is rendered through editable templates. The same query against the same cache returns the same answer.
 
@@ -141,8 +141,17 @@ A `.env` in the working directory or the repository root is loaded automatically
 
 ### Configuration and profiles
 
-<!-- default.yaml, the named profiles, the site overrides file the admin panel writes, and the
-     rule that every site departure from shipped policy is printed as a deviation. -->
+`config/default.yaml` holds every knob; the profiles under `config/profiles/` are partial overrides on it, and the admin panel writes a site overrides file (`site.yaml` next to the cache) rather than the shipped YAML. Every site departure from the shipped policy is printed as a deviation on every result.
+
+| Profile | Figure of merit | What it changes |
+|---|---|---|
+| `default` | dielectric constant (DFPT, Materials Project) | balanced oxide-dielectric triage on Si |
+| `conservative` | dielectric constant | tighter gates, tier-1 hazards blocked, literature weighted up |
+| `exploratory` | dielectric constant | wider hull and gap windows, missing data penalised lightly |
+| `ferroelectric-research` | dielectric constant | Pb and Bi permitted and flagged, lower gap bar |
+| `thermal-barrier` | minimum thermal conductivity (Clarke, from Materials Project elastic tensors; lower is better) | alumina substrate, no gap gate, its own cation universe and workhorses |
+
+A profile for another class replaces the `figure_of_merit:` block (property, provider, label, units, curve, weight, missing-data handling, request vocabulary), the substrate, the cation allowlist and the self-check's workhorse list. See section 6 of the design note.
 
 ### Data sources
 
@@ -159,8 +168,7 @@ A `.env` in the working directory or the repository root is loaded automatically
 
 ## Design
 
-<!-- Two or three sentences, then a link to docs/design-note.md. The generated documents from
-     the build (evaluation report, ranking decisions, sample report) live under autodocs/. -->
+Six of the seven scoring criteria are what any material class wants: thermodynamic stability, an insulating gap (which a profile may zero), stability against the substrate, a hazard screen, compositional simplicity and public literature evidence. The seventh is the application's figure of merit, declared by the profile: the dielectric constant for the oxide-dielectric profiles, Clarke's minimum thermal conductivity for the thermal-barrier one. The model lives only at the edges; the ranking is plain code over cached public data. The design note is [docs/design-note.md](docs/design-note.md); the generated documents (evaluation report, ranking decisions, sample report) live under [autodocs/](autodocs/).
 
 ## Development
 
@@ -168,7 +176,7 @@ A `.env` in the working directory or the repository root is loaded automatically
 pip install -e ".[all]"
 ruff check . && ruff format --check .
 pytest -q
-cd ui && npm ci && npm run build      # only to change the front end; the bundle is committed
+cd ui && npm ci && npm run build      # only to change the front end; the bundle is committed and CI checks it is current
 ```
 
 CI runs lint, the test suite, a wheel install into a clean environment, and a `--network none`

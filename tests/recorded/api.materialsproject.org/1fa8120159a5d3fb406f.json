@@ -1,0 +1,270 @@
+{
+ "params": {
+  "_fields": "material_id,bulk_modulus,shear_modulus,thermal_conductivity,debye_temperature,warnings",
+  "_limit": 100,
+  "material_ids": "mp-aaaabsal,mp-aaaabsaq,mp-aaaabsbw,mp-aaaabsng,mp-aaaabswf,mp-aaaabtea,mp-aaaabtss,mp-aaaabtuj,mp-aaaabtvr,mp-aaaabtwy,mp-aaaabtyf,mp-aaaabtys,mp-aaaabuau,mp-aaaabuav,mp-aaaabuaw,mp-aaaabuay,mp-aaaabubf,mp-aaaabuen,mp-aaaabumh,mp-aaaabumj,mp-aaaabwrf,mp-aaaabyuc,mp-aaabcsgf,mp-aaabcsjj,mp-aaabcsjy,mp-aaabcsws,mp-aaabcsxd,mp-aaabcsza,mp-aaabctdu,mp-aaabctec,mp-aaabctit,mp-aaabctjw,mp-aaabctpd,mp-aaabctuz,mp-aaabctyx,mp-aaabdawc,mp-aaabdbgs,mp-aaabetqj,mp-aaabettw,mp-aaabeujp,mp-aaabeuus,mp-aaabeuzm,mp-aaabevke,mp-aaabevog,mp-aaabewgf,mp-aaabewlp,mp-aaabewmf,mp-aaabewsc,mp-aaabewwa,mp-aaabewzm,mp-aaabexad,mp-aaabexae,mp-aaabfbra,mp-aaabfcwo,mp-aaabfiyf,mp-aaabfnjt,mp-aaabfnlp,mp-aaabfnmf,mp-aaabfnpe,mp-aaabfnrm,mp-aaabfnsb,mp-aaabfnuh,mp-aaabfnuv,mp-aaabfnva,mp-aaabfnxz,mp-aaabfnyf,mp-aaabfnyk,mp-aaabfodw,mp-aaabfoib,mp-aaabfokd,mp-aaabfonf,mp-aaabfoqt,mp-aaabfpcc,mp-aaabfpjf,mp-aaabfplo,mp-aaabfpnc,mp-aaabfpnk,mp-aaabfpsb,mp-aaabfpuf,mp-aaabfpws,mp-aaabfpxx,mp-aaabfqey,mp-aaabfqil,mp-aaabfqjs,mp-aaabfqli,mp-aaabfqlz,mp-aaabfqom,mp-aaabfqpn,mp-aaabfqva,mp-aaabfqws,mp-aaabfqxl,mp-aaabfqzn,mp-aaabfrec,mp-aaabfrer,mp-aaabfrfc,mp-aaabfrjj,mp-aaabfrjx,mp-aaabfrlf,mp-aaabfrlu,mp-aaabfrom"
+ },
+ "response": {
+  "data": [
+   {
+    "bulk_modulus": {
+     "reuss": 153.518,
+     "voigt": 154.331,
+     "vrh": 153.924
+    },
+    "debye_temperature": 518.982767880913,
+    "material_id": "mp-aaaabuau",
+    "shear_modulus": {
+     "reuss": 78.699,
+     "voigt": 79.326,
+     "vrh": 79.013
+    },
+    "thermal_conductivity": {
+     "cahill": 1.391790018500393,
+     "clarke": 1.260997655062906
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 160.948,
+     "voigt": 163.271,
+     "vrh": 162.11
+    },
+    "debye_temperature": 511.9454738910016,
+    "material_id": "mp-aaaabuaw",
+    "shear_modulus": {
+     "reuss": 81.235,
+     "voigt": 82.439,
+     "vrh": 81.837
+    },
+    "thermal_conductivity": {
+     "cahill": 1.396390183242144,
+     "clarke": 1.263704925168339
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 161.742,
+     "voigt": 167.613,
+     "vrh": 164.678
+    },
+    "debye_temperature": 498.03269956503834,
+    "material_id": "mp-aaaabuay",
+    "shear_modulus": {
+     "reuss": 81.071,
+     "voigt": 83.453,
+     "vrh": 82.262
+    },
+    "thermal_conductivity": {
+     "cahill": 1.376682177397111,
+     "clarke": 1.2449359337930561
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 131.73,
+     "voigt": 131.73,
+     "vrh": 131.73
+    },
+    "debye_temperature": 359.6801678461156,
+    "material_id": "mp-aaabcsws",
+    "shear_modulus": {
+     "reuss": 55.098,
+     "voigt": 56.217,
+     "vrh": 55.657
+    },
+    "thermal_conductivity": {
+     "cahill": 0.9354220357972901,
+     "clarke": 0.834152777278316
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 180.849,
+     "voigt": 186.853,
+     "vrh": 183.851
+    },
+    "debye_temperature": 556.2918725801296,
+    "material_id": "mp-aaabctuz",
+    "shear_modulus": {
+     "reuss": 105.266,
+     "voigt": 111.367,
+     "vrh": 108.317
+    },
+    "thermal_conductivity": {
+     "cahill": 1.468306613221488,
+     "clarke": 1.341030122589524
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 121.139,
+     "voigt": 121.151,
+     "vrh": 121.145
+    },
+    "debye_temperature": 582.8280192140937,
+    "material_id": "mp-aaabfbra",
+    "shear_modulus": {
+     "reuss": 38.264,
+     "voigt": 39.934,
+     "vrh": 39.099
+    },
+    "thermal_conductivity": {
+     "cahill": 1.521386509728521,
+     "clarke": 1.315987019564316
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 33.293,
+     "voigt": 36.827,
+     "vrh": 35.06
+    },
+    "debye_temperature": 517.7299913994993,
+    "material_id": "mp-aaabfcwo",
+    "shear_modulus": {
+     "reuss": 31.322,
+     "voigt": 35.563,
+     "vrh": 33.443
+    },
+    "thermal_conductivity": {
+     "cahill": 1.251366543061686,
+     "clarke": 1.149637360806195
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 252.656,
+     "voigt": 252.656,
+     "vrh": 252.656
+    },
+    "debye_temperature": 494.36168349938964,
+    "material_id": "mp-aaabfiyf",
+    "shear_modulus": {
+     "reuss": 97.131,
+     "voigt": 135.201,
+     "vrh": 116.166
+    },
+    "thermal_conductivity": {
+     "cahill": 1.446254938465991,
+     "clarke": 1.299452618030049
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 164.689,
+     "voigt": 168.6,
+     "vrh": 166.644
+    },
+    "debye_temperature": 527.1032692431593,
+    "material_id": "mp-aaabfnmf",
+    "shear_modulus": {
+     "reuss": 55.828,
+     "voigt": 65.375,
+     "vrh": 60.602
+    },
+    "thermal_conductivity": {
+     "cahill": 1.539414246704824,
+     "clarke": 1.351268661460316
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 180.113,
+     "voigt": 181.029,
+     "vrh": 180.571
+    },
+    "debye_temperature": 594.5842463183423,
+    "material_id": "mp-aaabfnyk",
+    "shear_modulus": {
+     "reuss": 58.48,
+     "voigt": 62.665,
+     "vrh": 60.573
+    },
+    "thermal_conductivity": {
+     "cahill": 1.750650671577672,
+     "clarke": 1.5218140955436992
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 91.582,
+     "voigt": 98.409,
+     "vrh": 94.996
+    },
+    "debye_temperature": 302.3188962881134,
+    "material_id": "mp-aaabfplo",
+    "shear_modulus": {
+     "reuss": 38.806,
+     "voigt": 43.18,
+     "vrh": 40.993
+    },
+    "thermal_conductivity": {
+     "cahill": 0.849866359871825,
+     "clarke": 0.75935940341259
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 111.14,
+     "voigt": 116.42,
+     "vrh": 113.78
+    },
+    "debye_temperature": 390.5571476821626,
+    "material_id": "mp-aaabfqpn",
+    "shear_modulus": {
+     "reuss": 62.972,
+     "voigt": 64.781,
+     "vrh": 63.877
+    },
+    "thermal_conductivity": {
+     "cahill": 1.003711011166335,
+     "clarke": 0.914421288218187
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 193.459,
+     "voigt": 194.739,
+     "vrh": 194.099
+    },
+    "debye_temperature": 590.4769537490739,
+    "material_id": "mp-aaabfrjx",
+    "shear_modulus": {
+     "reuss": 92.759,
+     "voigt": 96.658,
+     "vrh": 94.708
+    },
+    "thermal_conductivity": {
+     "cahill": 1.669373141568658,
+     "clarke": 1.507012824583795
+    },
+    "warnings": []
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "material_id",
+    "formula_pretty"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-13T15:51:40.362522+00:00",
+   "total_doc": 13
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/elasticity/"
+}

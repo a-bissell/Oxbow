@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api } from "../api";
-import { CRITERIA_LABELS } from "../format";
+import { CRITERIA_LABELS, registerFigureOfMerit } from "../format";
 import { useApp } from "../store";
 import type { JobState } from "../types";
 
@@ -191,7 +191,12 @@ function ProfilesPage() {
   const shipped = data?.shipped ?? null;
   const sh = (p: string) => shippedLabel(shipped, edited, p);
   const weights: Json = edited?.weights ?? {};
-  const total = Object.values(weights).reduce((a: number, b: any) => a + Number(b || 0), 0) || 1;
+  const fomWeight = Number(get(edited, "figure_of_merit.weight") || 0);
+  const fomLabel = String(get(edited, "figure_of_merit.label") ?? "figure of merit");
+  const fomUnits = String(get(edited, "figure_of_merit.units") ?? "");
+  const fomPreferLow = get(edited, "figure_of_merit.prefer") === "low";
+  registerFigureOfMerit({ criterion: String(get(edited, "figure_of_merit.criterion") ?? ""), label: fomLabel });
+  const total = (Object.values(weights).reduce((a: number, b: any) => a + Number(b || 0), 0) as number) + fomWeight || 1;
   return (
     <>
       <div className="admin__title">
@@ -231,11 +236,14 @@ function ProfilesPage() {
                 <span className="label">Weights · normalised at load</span>
                 <span className="small muted">sum {Number(total).toFixed(2)}</span>
               </div>
-              {Object.keys(CRITERIA_LABELS).map((k) => (
-                <FieldRow key={k} label={CRITERIA_LABELS[k]} shipped={sh(`weights.${k}`)} help={`${((100 * Number(weights[k] || 0)) / Number(total)).toFixed(0)}% of the score`}>
+              {Object.keys(weights).map((k) => (
+                <FieldRow key={k} label={CRITERIA_LABELS[k] ?? k} shipped={sh(`weights.${k}`)} help={`${((100 * Number(weights[k] || 0)) / Number(total)).toFixed(0)}% of the score`}>
                   <Num value={weights[k]} step={0.05} min={0} onChange={(v) => update(`weights.${k}`, v)} />
                 </FieldRow>
               ))}
+              <FieldRow label={`${fomLabel} (figure of merit)`} shipped={sh("figure_of_merit.weight")} help={`${((100 * fomWeight) / Number(total)).toFixed(0)}% of the score; the application property this profile ranks for`}>
+                <Num value={get(edited, "figure_of_merit.weight")} step={0.05} min={0} onChange={(v) => update("figure_of_merit.weight", v)} />
+              </FieldRow>
             </div>
             <div className="card panel">
               <span className="label">Gates</span>
@@ -282,12 +290,12 @@ function ProfilesPage() {
               </FieldRow>
             </div>
             <div className="card panel">
-              <span className="label">Dielectric and stability curves</span>
-              <FieldRow label="Dielectric scores 0 at ε ≤" shipped={sh("dielectric.low")}>
-                <Num value={get(edited, "dielectric.low")} step={1} min={0} onChange={(v) => update("dielectric.low", v)} />
+              <span className="label">Figure of merit and stability curves</span>
+              <FieldRow label={`${fomLabel} scores ${fomPreferLow ? 1 : 0} at or below${fomUnits ? ` (${fomUnits})` : ""}`} help={fomPreferLow ? "Lower is better for this figure of merit" : "Higher is better for this figure of merit"} shipped={sh("figure_of_merit.low")}>
+                <Num value={get(edited, "figure_of_merit.low")} step={fomPreferLow ? 0.1 : 1} min={0} onChange={(v) => update("figure_of_merit.low", v)} />
               </FieldRow>
-              <FieldRow label="Dielectric scores 1 at ε ≥" help="Saturation is deliberate: k of 20 to 30 is the useful gate-stack range" shipped={sh("dielectric.high")}>
-                <Num value={get(edited, "dielectric.high")} step={1} min={1} onChange={(v) => update("dielectric.high", v)} />
+              <FieldRow label={`${fomLabel} scores ${fomPreferLow ? 0 : 1} at or above${fomUnits ? ` (${fomUnits})` : ""}`} help="The curve saturates here; the profile file says why" shipped={sh("figure_of_merit.high")}>
+                <Num value={get(edited, "figure_of_merit.high")} step={fomPreferLow ? 0.1 : 1} min={0} onChange={(v) => update("figure_of_merit.high", v)} />
               </FieldRow>
               <FieldRow label="Stability score reaches 0 at E_hull (eV/atom)" shipped={sh("stability.zero_score_at_ev_atom")}>
                 <Num value={get(edited, "stability.zero_score_at_ev_atom")} step={0.01} min={0.001} onChange={(v) => update("stability.zero_score_at_ev_atom", v)} />

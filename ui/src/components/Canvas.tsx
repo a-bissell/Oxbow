@@ -3,7 +3,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { api } from "../api";
-import { CRITERIA_LABELS, allCandidates, diffResults, findCandidate, fmt, fmtInt, formulaParts, gateLabel, pct, rationaleFacts, visibleCaveats } from "../format";
+import { CRITERIA_LABELS, allCandidates, diffResults, findCandidate, fmt, fmtInt, formulaParts, gateLabel, pct, rationaleFacts, registerFigureOfMerit, visibleCaveats } from "../format";
 import { useApp, type View } from "../store";
 import type { ScoredCandidate, TriageResult } from "../types";
 
@@ -62,6 +62,8 @@ function CollapsibleBanner({ tone, title, noun, items }: { tone: "info" | "warn"
 }
 
 function Header({ result, rid, view, setView }: { result: TriageResult; rid: string; view: View; setView: (v: View) => void }) {
+  // The profile's figure of merit renders under its label everywhere a criterion name appears.
+  registerFigureOfMerit(result.scoring.figure_of_merit);
   const [showWarnings, setShowWarnings] = useState(false);
   const nPass = result.shortlist.length + result.ranked_beyond_shortlist.length;
   const scope = result.scope;
@@ -563,11 +565,15 @@ function FocusView({ result, rid, candidate }: { result: TriageResult; rid: stri
             <span className="muted">Band gap:</span> reported {bg.reported_ev == null ? "—" : `${bg.reported_ev.toFixed(2)} eV (${bg.reported_functional ?? "unknown functional"})`}
             {bg.effective_ev != null ? `, effective ${bg.effective_ev.toFixed(2)} eV${bg.corrected ? " (corrected)" : ""}` : ""}
           </div>
-          <ProvenanceLine label="Dielectric" p={r.dielectric.provenance} />
-          {r.dielectric.status === "known" && (
+          <ProvenanceLine label={r.figure_of_merit.label} p={r.figure_of_merit.provenance} />
+          {r.figure_of_merit.status === "known" && (
             <div className="small">
-              <span className="muted">Dielectric:</span> ε total {fmt(r.dielectric.e_total, 1)} · electronic {fmt(r.dielectric.e_electronic, 1)} · ionic {fmt(r.dielectric.e_ionic, 1)}
+              <span className="muted">{r.figure_of_merit.label}:</span>{" "}
+              {r.figure_of_merit.display ?? `${fmt(r.figure_of_merit.value, 2)} ${r.figure_of_merit.units}`.trim()}
             </div>
+          )}
+          {r.figure_of_merit.status !== "known" && r.figure_of_merit.absent_note && (
+            <div className="small muted">{r.figure_of_merit.label}: {r.figure_of_merit.absent_note}</div>
           )}
           <ProvenanceLine label="Cross-check" p={r.cross_check.provenance} />
           {r.cross_check.stability_ev_atom != null && (

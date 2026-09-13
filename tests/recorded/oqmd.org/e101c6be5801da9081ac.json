@@ -1,0 +1,169 @@
+{
+ "params": {
+  "composition": "CeO2",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -2.58886171308584,
+    "entry_id": 21471,
+    "name": "CeO2",
+    "spacegroup": "Cmmm",
+    "stability": 0.4573601766666635
+   },
+   {
+    "delta_e": -2.80216327641917,
+    "entry_id": 662729,
+    "name": "CeO2",
+    "spacegroup": "Fm-3m",
+    "stability": 0.24405861333333334
+   },
+   {
+    "delta_e": -2.8018819697525,
+    "entry_id": 673412,
+    "name": "CeO2",
+    "spacegroup": "Fm-3m",
+    "stability": 0.24433992000000337
+   },
+   {
+    "delta_e": -2.80282439641917,
+    "entry_id": 686445,
+    "name": "CeO2",
+    "spacegroup": "Fm-3m",
+    "stability": 0.24339749333333316
+   },
+   {
+    "delta_e": -2.2850077397525,
+    "entry_id": 1236493,
+    "name": "CeO2",
+    "spacegroup": "Fd-3m",
+    "stability": 0.7612141500000034
+   },
+   {
+    "delta_e": -2.9957927697525,
+    "entry_id": 1343412,
+    "name": "CeO2",
+    "spacegroup": "Pc",
+    "stability": 0.0504291200000031
+   },
+   {
+    "delta_e": -2.76647155641917,
+    "entry_id": 1343652,
+    "name": "CeO2",
+    "spacegroup": "P4/nmm",
+    "stability": 0.2797503333333333
+   },
+   {
+    "delta_e": -2.460282023085836,
+    "entry_id": 1472965,
+    "name": "CeO2",
+    "spacegroup": "P-3m1",
+    "stability": 0.5859398666666671
+   },
+   {
+    "delta_e": -2.5967365997525023,
+    "entry_id": 1473751,
+    "name": "CeO2",
+    "spacegroup": "P42/mnm",
+    "stability": 0.44948529000000104
+   },
+   {
+    "delta_e": -2.809518851419169,
+    "entry_id": 1472951,
+    "name": "CeO2",
+    "spacegroup": "Pnnm",
+    "stability": 0.23670303833333417
+   },
+   {
+    "delta_e": -2.845285582252503,
+    "entry_id": 1473309,
+    "name": "CeO2",
+    "spacegroup": "Pnma",
+    "stability": 0.20093630750000013
+   },
+   {
+    "delta_e": -2.8177533455858366,
+    "entry_id": 1472684,
+    "name": "CeO2",
+    "spacegroup": "Pnma",
+    "stability": 0.22846854416666673
+   },
+   {
+    "delta_e": -1.00763408641917,
+    "entry_id": 1589770,
+    "name": "CeO2",
+    "spacegroup": "Fd-3m",
+    "stability": 2.0385878033333333
+   },
+   {
+    "delta_e": -2.8014371230858366,
+    "entry_id": 1776269,
+    "name": "CeO2",
+    "spacegroup": "P2/m",
+    "stability": 0.2447847666666667
+   },
+   {
+    "delta_e": -3.0462218897525033,
+    "entry_id": 1791908,
+    "name": "CeO2",
+    "spacegroup": "C2/m",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -2.8041140755858365,
+    "entry_id": 1439746,
+    "name": "CeO2",
+    "spacegroup": "Pa-3",
+    "stability": 0.24210781416666682
+   },
+   {
+    "delta_e": -2.8145335455858365,
+    "entry_id": 1819500,
+    "name": "CeO2",
+    "spacegroup": "P21/c",
+    "stability": 0.23168834416666684
+   },
+   {
+    "delta_e": -2.5294685830858357,
+    "entry_id": 2015663,
+    "name": "CeO2",
+    "spacegroup": "I4/mmm",
+    "stability": 0.5167533066666676
+   },
+   {
+    "delta_e": -2.6442308264191694,
+    "entry_id": 2015662,
+    "name": "CeO2",
+    "spacegroup": "P-3m1",
+    "stability": 0.4019910633333339
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 19,
+   "data_returned": 19,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=CeO2&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-13 10:51:55"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

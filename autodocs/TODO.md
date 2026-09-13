@@ -30,8 +30,8 @@ Ideas / planned work for this project.
       literature fill are covered too.
 - [x] **Fill or accept recording gaps** — done 2026-09-10: clean re-record from a fresh cache
       (MP warm plus the self-check's pool and one query per profile), 134 responses over all
-      four sources including OpenAlex, retrieval 100% complete. `docs/live-evaluation.md` and
-      `docs/sample_report.html` are generated from that cache.
+      four sources including OpenAlex, retrieval 100% complete. `autodocs/live-evaluation.md` and
+      `autodocs/sample_report.html` are generated from that cache.
 - [x] **Validate the rest of the first live warm** — done 2026-09-10: all five evaluation checks
       pass on the live cache; the eval's known-answer check now defers to the configured
       self-check instead of carrying its own windows. Live default top five: LaAlO3, SrHfO3,

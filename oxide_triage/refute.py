@@ -29,6 +29,10 @@ THIN_LITERATURE_THRESHOLD = 10  # thin-film works below which the evidence is ca
 GAP_MARGIN_EV = 0.5
 GHS_SERIOUS = re.compile(r"^H(30[0-2]|31[0-2]|33[0-2]|34[01]|35[01]|36[0-2]|37[0-3])")
 SHORT_FORMULA_NOISE = re.compile(r"^[A-Z][a-z]?O$")  # CaO, BaO, MgO ... noisy literature search
+# Lanthanides with a partly filled 4f shell in their common oxidation state: semi-local DFT
+# places the f states at the Fermi level and reports a gap of 0 for Yb2O3, Eu oxides and the
+# like, and GGA+U moves it by an amount that is a choice, not a measurement.
+F_ELECTRON_CATIONS = frozenset({"Ce", "Pr", "Nd", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb"})
 
 
 def _load_hygroscopic() -> dict[str, Any]:
@@ -60,8 +64,10 @@ BENCH_ORDER: tuple[str, ...] = (
     "hazard_caution",
     "ghs_hazard_statements",
     "metastable",
-    "dielectric_unknown",
+    "polymorph_transformation_risk",
+    "figure_of_merit_unknown",  # stands for `<criterion>_unknown` of the active figure of merit
     "band_gap_near_threshold",
+    "f_electron_gap_unreliable",
     "functional_unknown",
     "no_thin_film_literature",
     "thin_literature",
@@ -79,8 +85,16 @@ BENCH_ORDER: tuple[str, ...] = (
 _BENCH_RANK = {code: i for i, code in enumerate(BENCH_ORDER)}
 
 
+def _bench_rank(code: str) -> int:
+    if code in _BENCH_RANK:
+        return _BENCH_RANK[code]
+    if code.endswith("_unknown"):  # the figure of merit's caveat carries the criterion's name
+        return _BENCH_RANK["figure_of_merit_unknown"]
+    return len(BENCH_ORDER)
+
+
 def caveat_sort_key(c: Caveat) -> tuple[int, int, str]:
-    return (SEVERITY_RANK[c.severity], _BENCH_RANK.get(c.code, len(BENCH_ORDER)), c.code)
+    return (SEVERITY_RANK[c.severity], _bench_rank(c.code), c.code)
 
 
 # Caveats that can be said once for the whole run when every shortlisted candidate carries
@@ -119,7 +133,7 @@ def shared_caveats(shortlist: list[ScoredCandidate], config: Config) -> list[Cav
         return []
     common = set.intersection(*({c.code for c in sc.caveats} for sc in shortlist))
     out: list[Caveat] = []
-    for code in sorted(common & RUN_LEVEL_TEXT.keys(), key=lambda k: _BENCH_RANK.get(k, 99)):
+    for code in sorted(common & RUN_LEVEL_TEXT.keys(), key=_bench_rank):
         first = next(c for c in shortlist[0].caveats if c.code == code)
         out.append(
             Caveat(
@@ -205,13 +219,19 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
             data_coverage=sc.data_coverage,
         )
 
-    # Dielectric data ---------------------------------------------------------------------
-    if r.dielectric.status == DataStatus.ABSENT:
+    # Figure-of-merit data ------------------------------------------------------------------
+    fom = r.figure_of_merit
+    if fom.status == DataStatus.ABSENT:
         add(
-            "dielectric_unknown",
+            f"{fom.criterion}_unknown",
             "warning",
-            "No DFPT dielectric constant in Materials Project for this entry. The candidate is "
-            "ranked on partial data; its dielectric merit is unverified, not low.",
+            f"No {fom.method} {fom.label} in Materials Project for this entry. The candidate is "
+            f"ranked on partial data; its {fom.criterion.replace('_', ' ')} merit is unverified, not low."
+            + (
+                f" ({fom.absent_note})"
+                if fom.absent_note and fom.absent_note != fom.absent_note.lower()
+                else ""
+            ),
             data_coverage=sc.data_coverage,
         )
 
@@ -376,6 +396,41 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
             thin_film_works=lit.thin_film_works,
         )
 
+    # Class-specific rules a profile switches on (config.refutation) ----------------------
+    rc = config.refutation
+    lead_hull = r.stability.energy_above_hull_ev_atom
+    if rc.polymorph_window_ev_atom is not None and sc.polymorphs and lead_hull is not None:
+        close = [
+            p
+            for p in sc.polymorphs
+            if p.energy_above_hull_ev_atom is not None
+            and abs(p.energy_above_hull_ev_atom - lead_hull) <= rc.polymorph_window_ev_atom
+        ]
+        if close:
+            phases = ", ".join(p.spacegroup_symbol or p.material_id for p in close[:4])
+            add(
+                "polymorph_transformation_risk",
+                "warning",
+                f"{r.formula} has {len(close)} other observed polymorph(s) within "
+                f"{rc.polymorph_window_ev_atom * 1000:.0f} meV/atom of the leading phase ({phases}). A "
+                "phase transformation under thermal cycling is plausible and is not modelled; this is "
+                "the reason zirconia is stabilised with yttria.",
+                polymorphs=[p.material_id for p in close],
+                window_ev_atom=rc.polymorph_window_ev_atom,
+            )
+    f_cations = sorted(set(r.elements) & F_ELECTRON_CATIONS)
+    gap_v = r.band_gap.value_ev
+    if rc.f_electron_gap_check and f_cations and gap_v is not None and gap_v < 0.5:
+        add(
+            "f_electron_gap_unreliable",
+            "info",
+            f"{r.formula} contains {', '.join(f_cations)}: a semi-local DFT gap of {gap_v:.2f} eV for a 4f-element "
+            "oxide is an artifact of where the f states land, not evidence of a metal. The gap is not "
+            "gated in this profile and should not be read as a property.",
+            elements=f_cations,
+            reported_gap_ev=gap_v,
+        )
+
     # Composition & coverage --------------------------------------------------------------
     if r.n_elements >= 4:
         add(
@@ -400,6 +455,8 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
             "Synthetic fixture record: every value above is illustrative, not real.",
         )
 
+    if rc.disabled_rules:
+        out = [c for c in out if c.code not in set(rc.disabled_rules)]
     out.sort(key=caveat_sort_key)
     return out
 
@@ -440,7 +497,7 @@ REFUTE_SCHEMA: dict[str, Any] = {
 }
 
 REFUTE_SYSTEM = (
-    "Your job is to argue AGAINST a candidate material for thin-film dielectric experiments, "
+    "Your job is to argue AGAINST a candidate material for thin-film experiments, "
     "using only the structured facts provided. Point out weaknesses a bench scientist should "
     "check before committing time. Do not restate caveats already listed. Do not introduce any "
     "number, citation or property that is not present in the facts. Each observation must name "
@@ -516,7 +573,7 @@ def candidate_facts(sc: ScoredCandidate) -> dict[str, Any]:
         "cross_check_oqmd": r.cross_check.model_dump(exclude={"provenance"}),
         "cross_source_agreement": sc.cross_source_agreement,
         "band_gap": sc.band_gap_assessment.model_dump(),
-        "dielectric": r.dielectric.model_dump(exclude={"provenance"}),
+        "figure_of_merit": r.figure_of_merit.model_dump(exclude={"provenance"}),
         "hazard": r.hazard.model_dump(exclude={"provenance"}),
         "literature": r.literature.model_dump(exclude={"provenance"}),
         "score": {

@@ -83,7 +83,7 @@ def test_build_refuses_empty_or_unchecked_cache(tmp_path):
 def test_build_refuses_a_failed_selfcheck(warmed, tmp_path):
     cache = Cache(warmed.cache.path)
     sc = read_selfcheck(cache)
-    cache.set_meta("selfcheck", sc.model_copy(update={"passed": False}).model_dump_json())
+    cache.set_meta("selfcheck:default", sc.model_copy(update={"passed": False}).model_dump_json())
     cache.close()
     with pytest.raises(BundleError, match="FAILED"):
         build_bundle(warmed, tmp_path / "bundle", allow_fixture=True)
@@ -163,7 +163,9 @@ def test_build_refuses_a_cache_below_the_release_completeness_floor(warmed, tmp_
     cache = Cache(warmed.cache.path)
     sc = read_selfcheck(cache)
     assert sc.retrieval_completeness == 1.0
-    cache.set_meta("selfcheck", sc.model_copy(update={"retrieval_completeness": 0.912}).model_dump_json())
+    cache.set_meta(
+        "selfcheck:default", sc.model_copy(update={"retrieval_completeness": 0.912}).model_dump_json()
+    )
     cache.log("oqmd", "formula:SrHfO3", "fetch_failed", "HTTP 502")
     cache.log("oqmd", "formula:LaAlO3", "fetch_failed", "HTTP 502")
     cache.log("oqmd", "formula:HfO2", "fetched")

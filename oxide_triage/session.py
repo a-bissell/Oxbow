@@ -10,9 +10,10 @@ from __future__ import annotations
 
 import hashlib
 from collections import OrderedDict
+from collections.abc import Collection
 from typing import Any
 
-from oxide_triage.config import CRITERIA, Config
+from oxide_triage.config import FIXED_CRITERIA, Config
 from oxide_triage.schemas import (
     Criteria,
     Deviation,
@@ -163,11 +164,20 @@ def explain_candidate(result: TriageResult, key: str) -> str:
     return "\n".join(lines)
 
 
+# The criteria a caller without a loaded configuration may weight: the six fixed ones and the
+# shipped default's figure of merit. Callers with a Config pass ``config.criteria()``.
+DEFAULT_CRITERIA: tuple[str, ...] = ("stability", "band_gap", "dielectric") + FIXED_CRITERIA[2:]
+
+
 def apply_changes(
-    criteria: Criteria, changes: dict[str, Any], note_prefix: str = "rerun"
+    criteria: Criteria,
+    changes: dict[str, Any],
+    note_prefix: str = "rerun",
+    allowed: Collection[str] = DEFAULT_CRITERIA,
 ) -> tuple[Criteria, list[str]]:
     """Return new criteria with ``changes`` applied, plus notes describing each change.
-    Unknown keys are rejected so a client cannot reach fields the schema does not expose."""
+    Unknown keys are rejected so a client cannot reach fields the schema does not expose;
+    ``allowed`` names the criteria a weight override may address."""
     unknown = sorted(set(changes) - CHANGEABLE)
     if unknown:
         raise ValueError(f"Cannot change {unknown}; changeable fields: {sorted(CHANGEABLE)}")
@@ -177,9 +187,9 @@ def apply_changes(
         if k == "weight_overrides":
             if not isinstance(v, dict):
                 raise ValueError("weight_overrides must be a mapping criterion -> weight")
-            bad = sorted(set(v) - set(CRITERIA))
+            bad = sorted(set(v) - set(allowed))
             if bad:
-                raise ValueError(f"Unknown criteria {bad}; valid: {list(CRITERIA)}")
+                raise ValueError(f"Unknown criteria {bad}; valid: {list(allowed)}")
             data[k] = {**data.get(k, {}), **{kk: float(vv) for kk, vv in v.items()}}
         else:
             data[k] = v

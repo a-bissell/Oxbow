@@ -133,7 +133,7 @@ timestamps, the full caveat list with origin (`rule` or `llm`), everything exclu
 shortlist cards with score bars and the main caveat, an expandable full breakdown per candidate,
 a data-gap map showing which criteria had data behind them for every passing candidate, the
 excluded list with reasons, the scoring rules, the scope statement, and optionally the
-evaluation checks. `oxide-triage report --out triage_report.html` (see `docs/sample_report.html`,
+evaluation checks. `oxide-triage report --out triage_report.html` (see `autodocs/sample_report.html`,
 generated from the live cache). Retrieved text is escaped, never interpreted.
 
 Things to know before trusting a number:
@@ -205,7 +205,7 @@ the classification in 1996, the tool never saw it while any setting was chosen, 
 eleven oxides it could not show unstable, ten agree and SrO does not; and of the perovskites a
 later Schlom-group paper believes stable on Si, CaZrO3 and SrZrO3 do not agree, which is
 worth knowing before trusting their placement here. The table is check 7 of
-`docs/live-evaluation.md`.
+`autodocs/live-evaluation.md`.
 
 **A gap of 0.03 is not an order.** The gaps are corrected DFT values, the dielectric constants
 are DFPT, the hull energies carry tens of meV of error, the literature counts are log-scaled
@@ -747,7 +747,7 @@ tests/
 ### Evaluation summary
 
 Seven checks; the fixture and the live cache both pass all of them. Three of the ranking
-parameters were set after seeing live data. `docs/ranking-decisions.md` lists every such
+parameters were set after seeing live data. `autodocs/ranking-decisions.md` lists every such
 decision in order with its trigger, effect and reason (and the four relaxations of the
 self-check), and check 6 below is the sensitivity table that shows the shortlist does not
 depend on them.
@@ -760,7 +760,7 @@ depend on them.
 | Determinism | identical result objects across runs |
 | Missing data | no candidate without a dielectric value is scored as if it had one, and a value the cache never downloaded is distinguished from one the source does not hold |
 | Held-out validation | the interface criterion against Hubbard & Schlom (1996), the published classification of binary oxides stable in contact with Si that the tool was never tuned against: 21 of 21 hard assertions agree, 10 of 11 soft; the three disagreements (SrO, and the CaZrO3/SrZrO3 "believed stable" of Coh et al. 2010) are named with the products the hull predicts. `oxide-triage validate` prints the table |
-| Sensitivity | every weight halved and multiplied by 1.5, and every parameter set after seeing live data moved past its original value (literature saturation 50 and 5,000, interface tolerance 0 and 0.10, dielectric saturation 20 and 40, tie band, missing-data policy): the first tier's members must stay in the top ten under all of it. The table is in `docs/live-evaluation.md`; the settings themselves, with what triggered each and what it moved, are in `docs/ranking-decisions.md` |
+| Sensitivity | every weight halved and multiplied by 1.5, and every parameter set after seeing live data moved past its original value (literature saturation 50 and 5,000, interface tolerance 0 and 0.10, dielectric saturation 20 and 40, tie band, missing-data policy): the first tier's members must stay in the top ten under all of it. The table is in `autodocs/live-evaluation.md`; the settings themselves, with what triggered each and what it moved, are in `autodocs/ranking-decisions.md` |
 
 The known-answer check has found two real bugs. Missing data could once *help* a candidate under
 the first scoring policy. And replayed against the partial live recording it failed for a reason
@@ -768,11 +768,11 @@ that turned out not to be about ranking at all — the workhorses had sunk becau
 and literature lookups were never retrieved, which is why an under-warmed cache now reports
 `INCONCLUSIVE` rather than `FAIL`. The numbers are under *Notes from the first live warm* above.
 
-**On live data** every check passes as well: `docs/live-evaluation.md` is the report from a
+**On live data** every check passes as well: `autodocs/live-evaluation.md` is the report from a
 clean Materials Project warm (708 candidates, 497 passing the default gates) with the four
 profiles' pools filled from OQMD, PubChem and OpenAlex, retrieval 100% complete. Reproduce it
 with `oxide-triage warm-cache`, one `oxide-triage query --profile <name>` per profile, then
-`oxide-triage eval --live-cache`. `docs/sample_report.html` is generated from that cache. The
+`oxide-triage eval --live-cache`. `autodocs/sample_report.html` is generated from that cache. The
 recordings under `tests/recorded` come from the same run and now cover all four sources.
 
 ## Licence

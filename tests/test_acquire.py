@@ -94,7 +94,7 @@ def test_detect_gaps_on_fixture():
     assert ("SrHfO3", "cross_check") in kinds  # fixture: no OQMD entry
     assert ("LaLuO3", "cross_check") in kinds
     assert ("Sc2O3", "functional") in kinds  # fixture: run_type None
-    assert ("Y2O3", "dielectric") in kinds
+    assert ("Y2O3", "figure_of_merit") in kinds
     assert not any(k == "literature" for _, k in kinds)  # fixture literature is complete
 
 
@@ -226,12 +226,12 @@ def test_functional_refresh_route():
 def test_dielectric_gaps_are_unfillable_and_named():
     layer, _ = make_layer(FakeHttp())
     records = layer.build_candidates()
-    report = fill_gaps(layer, records, ladder={"dielectric": []}, budget=10)
+    report = fill_gaps(layer, records, ladder={"figure_of_merit": []}, budget=10)
     assert report.attempts == [] and report.n_filled == 0
-    diel = [g for g in report.unfillable if g.kind == "dielectric"]
+    diel = [g for g in report.unfillable if g.kind == "figure_of_merit"]
     assert {g.formula for g in diel} >= {"Y2O3", "La2O3", "LaLuO3"}
     # and the record is still unknown, not estimated
-    assert next(r for r in layer.build_candidates() if r.formula == "Y2O3").dielectric.e_total is None
+    assert next(r for r in layer.build_candidates() if r.formula == "Y2O3").figure_of_merit.value is None
 
 
 # ---- budget, offline, errors ----------------------------------------------------------------
@@ -334,7 +334,7 @@ def test_result_carries_acquisition_summary():
     assert "Last acquisition pass" in render(res, "audit")
 
 
-@pytest.mark.parametrize("kind", ["cross_check", "literature", "functional", "dielectric"])
+@pytest.mark.parametrize("kind", ["cross_check", "literature", "functional", "figure_of_merit"])
 def test_every_gap_kind_has_a_ladder_entry(kind):
     assert kind in LADDER
 

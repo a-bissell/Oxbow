@@ -2,7 +2,7 @@
 # Every knob a site admin may want to turn lives here. Profiles in config/profiles/
 # are partial overrides deep-merged onto this file.
 #
-# Units: energies in eV/atom, band gaps in eV, dielectric constants dimensionless.
+# Units: energies in eV/atom, band gaps in eV; the figure of merit's units are declared in its block.
 
 profile_name: default
 description: >
@@ -10,12 +10,12 @@ description: >
   with public literature evidence.
 
 # ---------------------------------------------------------------------------
-# Criterion weights (relative; normalised to sum 1.0 at load time)
+# Criterion weights (relative; normalised to sum 1.0 at load time, together with
+# figure_of_merit.weight below). These six criteria are the same for any material class.
 # ---------------------------------------------------------------------------
 weights:
   stability: 0.25
   band_gap: 0.25
-  dielectric: 0.15
   interface: 0.15                 # stability in contact with the substrate (see `interface:` below)
   toxicity: 0.15
   simplicity: 0.10
@@ -60,11 +60,31 @@ stability:
   agreement_bonus: 0.10
   disagreement_penalty: 0.15
 
-dielectric:
+# ---------------------------------------------------------------------------
+# The application figure of merit: the one criterion that says what the profile ranks *for*.
+# The other six criteria are the same for any material class; a profile for another class
+# replaces this block (see config/profiles/thermal-barrier.yaml). The dielectric constant is
+# one instance of it, not a special case in the code.
+# ---------------------------------------------------------------------------
+figure_of_merit:
+  criterion: dielectric         # its name in the weights, the audit view, caveat codes and requests
+  label: dielectric constant
+  units: ""                     # dimensionless
+  property: e_total             # the field of the provider's record that is scored
+  provider: mp_dielectric       # Materials Project DFPT dielectric tensors (oxide_triage/sources/properties.py)
+  method: DFPT                  # shown beside every value, as the functional is shown beside a band gap
+  prefer: high
   low: 8.0                      # e_total at/below this scores 0 (SiO2 ~4, Al2O3 ~10)
   high: 30.0                    # e_total at/above this scores 1 (HfO2/ZrO2 ~20-25 land mid-high)
   # Saturating at ~30 is deliberate: for thin-film gate stacks k of 20-30 is the useful range and
   # much larger k correlates with small gaps and ferroelectric/paraelectric instability.
+  weight: 0.15
+  on_missing: flag              # flag: not scored, coverage reduced, caveated | exclude: a hard gate
+  # Words a request may use for this criterion ("prioritise the dielectric constant") and that the
+  # guard counts as an in-scope ask. Regular-expression alternatives.
+  vocabulary: ["dielectric", "permittivit\\w*", "high[- ]?k", "kappa"]
+  # What the profile ranks for; the guard says so when a request names another application.
+  application: "a gate dielectric (stability, band gap, permittivity, interface with the substrate)"
 
 toxicity:
   table_file: element_hazards.yaml

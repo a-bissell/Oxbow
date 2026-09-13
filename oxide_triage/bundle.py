@@ -143,7 +143,7 @@ def build_bundle(
                 "the cache holds synthetic fixture data; a release built from it would carry the "
                 "fixture banner on every output. Pass --allow-fixture only for a demo bundle."
             )
-        sc = read_selfcheck(cache)
+        sc = read_selfcheck(cache, config.profile_name)
         if sc is None:
             raise BundleError("no self-check recorded; run oxide-triage selfcheck first")
         if sc.inconclusive:

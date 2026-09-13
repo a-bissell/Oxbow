@@ -1,0 +1,99 @@
+{
+ "params": {
+  "composition": "SrO2",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -2.15934994058584,
+    "entry_id": 4577,
+    "name": "SrO2",
+    "spacegroup": "I4/mmm",
+    "stability": 0.04522646166666311
+   },
+   {
+    "delta_e": -2.10890862058584,
+    "entry_id": 1234127,
+    "name": "SrO2",
+    "spacegroup": "P42/mnm",
+    "stability": 0.09566778166666312
+   },
+   {
+    "delta_e": -0.834840072252503,
+    "entry_id": 1239856,
+    "name": "SrO2",
+    "spacegroup": "Fd-3m",
+    "stability": 1.3697363300000003
+   },
+   {
+    "delta_e": -2.2042775222525,
+    "entry_id": 1368171,
+    "name": "SrO2",
+    "spacegroup": "C2/c",
+    "stability": 0.00029888000000299897
+   },
+   {
+    "delta_e": -1.44063528058584,
+    "entry_id": 1416039,
+    "name": "SrO2",
+    "spacegroup": "Fm-3m",
+    "stability": 0.7639411216666632
+   },
+   {
+    "delta_e": -0.9210199122525028,
+    "entry_id": 1589751,
+    "name": "SrO2",
+    "spacegroup": "Fd-3m",
+    "stability": 1.2835564900000005
+   },
+   {
+    "delta_e": -2.203089085585837,
+    "entry_id": 2033563,
+    "name": "SrO2",
+    "spacegroup": "C2/c",
+    "stability": 0.0014873166666662385
+   },
+   {
+    "delta_e": -2.042863387252503,
+    "entry_id": 2033565,
+    "name": "SrO2",
+    "spacegroup": "P21/c",
+    "stability": 0.16171301500000013
+   },
+   {
+    "delta_e": -2.204576402252503,
+    "entry_id": 2170117,
+    "name": "SrO2",
+    "spacegroup": "P-1",
+    "stability": 0.0
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 9,
+   "data_returned": 9,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=SrO2&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-13 10:51:51"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

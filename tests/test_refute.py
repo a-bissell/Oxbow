@@ -81,7 +81,7 @@ def test_incomplete_retrieval_is_the_loudest_caveat():
     """A candidate the cache failed to fetch is pushed down the ranking for a reason that has
     nothing to do with the material. The refutation pass has to say so, and say it first."""
     r = make_record(e_total=None, thin_film=None, total=None)
-    r.dielectric.status = DataStatus.NOT_RETRIEVED
+    r.figure_of_merit.status = DataStatus.NOT_RETRIEVED
     r.literature.status = DataStatus.NOT_RETRIEVED
     sc = score_candidate(r, CFG, EFF)
     sc.caveats = rule_caveats(sc, EFF, CFG)
@@ -101,7 +101,7 @@ def test_absent_data_keeps_its_own_measured_caveats():
     """The mirror case: MP genuinely holds no DFPT record. That is a fact about the material's
     coverage and keeps the ordinary caveat, with no comparability warning."""
     r = make_record(e_total=None)
-    r.dielectric.status = DataStatus.ABSENT
+    r.figure_of_merit.status = DataStatus.ABSENT
     sc = score_candidate(r, CFG, EFF)
     sc.caveats = rule_caveats(sc, EFF, CFG)
     codes = [c.code for c in sc.caveats]

@@ -1,0 +1,111 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(CeO) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 1622,
+   "db_response_time_ms": 81,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    CeO\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "CeO"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:CeO,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/j.surfrep.2014.12.001",
+    "id": "https://openalex.org/W2008033919",
+    "publication_year": 2015,
+    "title": "The surface chemistry of cerium oxide"
+   },
+   {
+    "doi": "https://doi.org/10.1021/cm020076p",
+    "id": "https://openalex.org/W2025914103",
+    "publication_year": 2002,
+    "title": "Photocatalysis and Photoinduced Hydrophilicity of Various Metal Oxide Thin Films"
+   },
+   {
+    "doi": "https://doi.org/10.1021/jacs.5b05926",
+    "id": "https://openalex.org/W2340651582",
+    "publication_year": 2015,
+    "title": "Hexahedron Prism-Anchored Octahedronal CeO 2 : Crystal Facet-Based Homojunction Promoting Efficient Solar Fuel Synthesis"
+   },
+   {
+    "doi": "https://doi.org/10.1016/0368-2048(80)85034-1",
+    "id": "https://openalex.org/W1969138218",
+    "publication_year": 1980,
+    "title": "X-Ray photoelectron study of the reaction of oxygen with cerium"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.foodhyd.2014.06.017",
+    "id": "https://openalex.org/W2012209393",
+    "publication_year": 2014,
+    "title": "The preparation, characterization, antimicrobial stability and in vitro release evaluation of fish gelatin films incorporated with cinnamon essential oil nanoliposomes"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

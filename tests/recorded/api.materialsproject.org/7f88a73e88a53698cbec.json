@@ -1,0 +1,22 @@
+{
+ "params": {
+  "_fields": "material_id,bulk_modulus,shear_modulus,thermal_conductivity,debye_temperature,warnings",
+  "_limit": 50,
+  "material_ids": "mp-aaacppwt,mp-aaacpsqk,mp-aaacptde,mp-aaacptum,mp-aaacpumu,mp-aaacpvdy,mp-aaacpvjr,mp-aaacpvri,mp-aaacpwra,mp-aaacpxba,mp-aaacpxdt,mp-aaacpyal,mp-aaacpysa,mp-aaacpyvu,mp-aaacpzbx,mp-aaacqadt,mp-aaacqaxb,mp-aaacqazi,mp-aaacqbgg,mp-aaacqbqi,mp-aaacqdgz,mp-aaacqdyx,mp-aaacqemr,mp-aaacqfjf,mp-aaacqgfj,mp-aaacqgus,mp-aaacqgyb,mp-aaacqhdu,mp-aaacqhht,mp-aaacqhjc,mp-aaacqhpc,mp-aaacqisy,mp-aaacqjsh,mp-aaacqjxc,mp-aaacqjyl,mp-aaacqkdv,mp-aaacqkjb,mp-aaacqkkc,mp-aaacqlau,mp-aaacqlsv,mp-aaacqmbf,mp-aaacqmlx,mp-aaacqmol,mp-aaacqndx,mp-aaacqntb,mp-aaacqnzs,mp-aaacqowj,mp-aaacqpaw,mp-aaacqpce,mp-aaacqpge"
+ },
+ "response": {
+  "data": [],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "material_id",
+    "formula_pretty"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-13T15:51:40.797658+00:00",
+   "total_doc": 0
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/elasticity/"
+}

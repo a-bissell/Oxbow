@@ -1,0 +1,362 @@
+{
+ "params": {
+  "_fields": "material_id,bulk_modulus,shear_modulus,thermal_conductivity,debye_temperature,warnings",
+  "_limit": 100,
+  "material_ids": "mp-aaaaavld,mp-aaaaavpo,mp-aaaaavsm,mp-aaaaavzh,mp-aaaaawft,mp-aaaaawhy,mp-aaaaawnp,mp-aaaaawrb,mp-aaaaawuf,mp-aaaaawvt,mp-aaaaawxw,mp-aaaaaxbq,mp-aaaaaxhn,mp-aaaaaxhv,mp-aaaaaxif,mp-aaaaayjd,mp-aaaaazcm,mp-aaaaazcr,mp-aaaaazdd,mp-aaaaazdp,mp-aaaaazgg,mp-aaaaazht,mp-aaaaazjj,mp-aaaaazmx,mp-aaaaazne,mp-aaaaazol,mp-aaaaazop,mp-aaaaaztk,mp-aaaaazwj,mp-aaaaazzc,mp-aaaaazzj,mp-aaaababk,mp-aaaabadx,mp-aaaabaeo,mp-aaaabafj,mp-aaaabajp,mp-aaaabakf,mp-aaaabamq,mp-aaaabamv,mp-aaaabani,mp-aaaabaon,mp-aaaabaou,mp-aaaabash,mp-aaaabavi,mp-aaaabawj,mp-aaaabaxv,mp-aaaabazd,mp-aaaabbbc,mp-aaaabbbp,mp-aaaabbcj,mp-aaaabbfd,mp-aaaabbfj,mp-aaaabbgz,mp-aaaabbjy,mp-aaaabboe,mp-aaaabbox,mp-aaaabden,mp-aaaabdhk,mp-aaaabdjf,mp-aaaabdws,mp-aaaabehi,mp-aaaabfbm,mp-aaaabgam,mp-aaaabggg,mp-aaaabgor,mp-aaaabgra,mp-aaaabgry,mp-aaaabgwq,mp-aaaabhee,mp-aaaabheq,mp-aaaabhii,mp-aaaabhrw,mp-aaaabodo,mp-aaaabogz,mp-aaaaboiz,mp-aaaaboqb,mp-aaaaboux,mp-aaaabpcw,mp-aaaabpga,mp-aaaabpht,mp-aaaabpid,mp-aaaabpqs,mp-aaaabpqx,mp-aaaabprg,mp-aaaabpsq,mp-aaaabptc,mp-aaaabptw,mp-aaaabpty,mp-aaaabqcn,mp-aaaabqkb,mp-aaaabqkl,mp-aaaabqkx,mp-aaaabqnk,mp-aaaabqpt,mp-aaaabquf,mp-aaaabrel,mp-aaaabrfy,mp-aaaabrfz,mp-aaaabriw,mp-aaaabryh"
+ },
+ "response": {
+  "data": [
+   {
+    "bulk_modulus": {
+     "reuss": 74.846,
+     "voigt": 82.069,
+     "vrh": 78.458
+    },
+    "debye_temperature": 552.7391184627463,
+    "material_id": "mp-aaaaavpo",
+    "shear_modulus": {
+     "reuss": 43.072,
+     "voigt": 46.108,
+     "vrh": 44.59
+    },
+    "thermal_conductivity": {
+     "cahill": 1.490181303673735,
+     "clarke": 1.358520835622414
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 92.111,
+     "voigt": 92.772,
+     "vrh": 92.441
+    },
+    "debye_temperature": 529.2896844473605,
+    "material_id": "mp-aaaaawhy",
+    "shear_modulus": {
+     "reuss": 27.489,
+     "voigt": 34.619,
+     "vrh": 31.054
+    },
+    "thermal_conductivity": {
+     "cahill": 1.339794602890334,
+     "clarke": 1.164872582171166
+    },
+    "warnings": [
+     "Critical: Expect 24 total (primary plus derived) strain--stress states to fit the data; got 22."
+    ]
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 195.563,
+     "voigt": 197.284,
+     "vrh": 196.424
+    },
+    "debye_temperature": 693.7291442802888,
+    "material_id": "mp-aaaaawuf",
+    "shear_modulus": {
+     "reuss": 83.299,
+     "voigt": 88.246,
+     "vrh": 85.772
+    },
+    "thermal_conductivity": {
+     "cahill": 2.055467220785928,
+     "clarke": 1.838558117524606
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": -26.942,
+     "voigt": 19.988,
+     "vrh": -3.477
+    },
+    "debye_temperature": null,
+    "material_id": "mp-aaaaazcm",
+    "shear_modulus": {
+     "reuss": -286.762,
+     "voigt": 24.544,
+     "vrh": -131.109
+    },
+    "thermal_conductivity": null,
+    "warnings": [
+     "Critical: insufficient number of valid strains. Expect the matrix of all strains to be of rank 6; got rank 5.",
+     "Elastic tensor has negative eigenvalue(s), indicating that the structure is mechanically unstable.",
+     "Negative modulus: reuss bulk modulus is -26.942, indicating that the structure is mechanically unstable.",
+     "Negative modulus: vrh bulk modulus is -3.477, indicating that the structure is mechanically unstable.",
+     "Negative modulus: reuss shear modulus is -286.762, indicating that the structure is mechanically unstable.",
+     "Negative modulus: vrh shear modulus is -131.109, indicating that the structure is mechanically unstable.",
+     "Critical: Expect 24 total (primary plus derived) strain--stress states to fit the data; got 13.",
+     "Fitting elastic tensor resulted in unphysical modulus"
+    ]
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 102.817,
+     "voigt": 129.008,
+     "vrh": 115.912
+    },
+    "debye_temperature": 390.7152864703331,
+    "material_id": "mp-aaaaazdp",
+    "shear_modulus": {
+     "reuss": 46.705,
+     "voigt": 62.345,
+     "vrh": 54.525
+    },
+    "thermal_conductivity": {
+     "cahill": 1.08501656591767,
+     "clarke": 0.9767060655639641
+    },
+    "warnings": [
+     "Critical: Expect 24 total (primary plus derived) strain--stress states to fit the data; got 23."
+    ]
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 109.901,
+     "voigt": 114.673,
+     "vrh": 112.287
+    },
+    "debye_temperature": 465.71456869033926,
+    "material_id": "mp-aaaaazol",
+    "shear_modulus": {
+     "reuss": 61.714,
+     "voigt": 63.569,
+     "vrh": 62.641
+    },
+    "thermal_conductivity": {
+     "cahill": 1.1954601971602021,
+     "clarke": 1.088729469033794
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 148.511,
+     "voigt": 149.149,
+     "vrh": 148.83
+    },
+    "debye_temperature": 530.2181658304072,
+    "material_id": "mp-aaaaazwj",
+    "shear_modulus": {
+     "reuss": 74.361,
+     "voigt": 78.516,
+     "vrh": 76.439
+    },
+    "thermal_conductivity": {
+     "cahill": 1.5198432610443802,
+     "clarke": 1.377067338532588
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 70.404,
+     "voigt": 71.92,
+     "vrh": 71.162
+    },
+    "debye_temperature": 315.2700297716229,
+    "material_id": "mp-aaaababk",
+    "shear_modulus": {
+     "reuss": 27.449,
+     "voigt": 33.654,
+     "vrh": 30.552
+    },
+    "thermal_conductivity": {
+     "cahill": 0.8083549857127831,
+     "clarke": 0.7219269686262391
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 175.738,
+     "voigt": 178.795,
+     "vrh": 177.267
+    },
+    "debye_temperature": 544.1567808694115,
+    "material_id": "mp-aaaabdhk",
+    "shear_modulus": {
+     "reuss": 101.014,
+     "voigt": 105.598,
+     "vrh": 103.306
+    },
+    "thermal_conductivity": {
+     "cahill": 1.428745094990815,
+     "clarke": 1.304200943095267
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 170.992,
+     "voigt": 170.992,
+     "vrh": 170.992
+    },
+    "debye_temperature": 453.1827011722217,
+    "material_id": "mp-aaaabdws",
+    "shear_modulus": {
+     "reuss": 68.513,
+     "voigt": 79.365,
+     "vrh": 73.939
+    },
+    "thermal_conductivity": {
+     "cahill": 1.241251831903467,
+     "clarke": 1.10927298221163
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 255.171,
+     "voigt": 255.635,
+     "vrh": 255.403
+    },
+    "debye_temperature": 494.5699580388807,
+    "material_id": "mp-aaaabfbm",
+    "shear_modulus": {
+     "reuss": 100.284,
+     "voigt": 127.037,
+     "vrh": 113.66
+    },
+    "thermal_conductivity": {
+     "cahill": 1.406052285421591,
+     "clarke": 1.25980378678124
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 145.232,
+     "voigt": 146.867,
+     "vrh": 146.049
+    },
+    "debye_temperature": 402.15587760103296,
+    "material_id": "mp-aaaabgwq",
+    "shear_modulus": {
+     "reuss": 71.669,
+     "voigt": 72.243,
+     "vrh": 71.956
+    },
+    "thermal_conductivity": {
+     "cahill": 1.055168010921863,
+     "clarke": 0.9532307148238601
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 113.104,
+     "voigt": 113.436,
+     "vrh": 113.27
+    },
+    "debye_temperature": 397.59588320618445,
+    "material_id": "mp-aaaabheq",
+    "shear_modulus": {
+     "reuss": 51.565,
+     "voigt": 51.76,
+     "vrh": 51.662
+    },
+    "thermal_conductivity": {
+     "cahill": 1.018896895216301,
+     "clarke": 0.9148552686997391
+    },
+    "warnings": [
+     "Critical: Expect 24 total (primary plus derived) strain--stress states to fit the data; got 19."
+    ]
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 176.398,
+     "voigt": 1105.921,
+     "vrh": 641.16
+    },
+    "debye_temperature": null,
+    "material_id": "mp-aaaabpga",
+    "shear_modulus": {
+     "reuss": 95.156,
+     "voigt": -607.409,
+     "vrh": -256.127
+    },
+    "thermal_conductivity": null,
+    "warnings": [
+     "Elastic tensor has negative eigenvalue(s), indicating that the structure is mechanically unstable.",
+     "Large modulus. voigt bulk modulus is 1105.921; larger than 1000.0.",
+     "Negative modulus: voigt shear modulus is -607.409, indicating that the structure is mechanically unstable.",
+     "Negative modulus: vrh shear modulus is -256.127, indicating that the structure is mechanically unstable.",
+     "Fitting elastic tensor resulted in unphysical modulus",
+     "Fitting elastic tensor resulted in unphysical modulus"
+    ]
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 172.796,
+     "voigt": 173.216,
+     "vrh": 173.006
+    },
+    "debye_temperature": 611.3285720197762,
+    "material_id": "mp-aaaabpid",
+    "shear_modulus": {
+     "reuss": 71.671,
+     "voigt": 77.273,
+     "vrh": 74.472
+    },
+    "thermal_conductivity": {
+     "cahill": 1.736303618851974,
+     "clarke": 1.5510394671317291
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 80.754,
+     "voigt": 100.372,
+     "vrh": 90.563
+    },
+    "debye_temperature": 354.58056377373055,
+    "material_id": "mp-aaaabpqs",
+    "shear_modulus": {
+     "reuss": 25.894,
+     "voigt": 45.584,
+     "vrh": 35.739
+    },
+    "thermal_conductivity": {
+     "cahill": 0.9602680107151271,
+     "clarke": 0.8505003743624291
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 160.392,
+     "voigt": 164.625,
+     "vrh": 162.509
+    },
+    "debye_temperature": 660.3893344925323,
+    "material_id": "mp-aaaabptw",
+    "shear_modulus": {
+     "reuss": 70.532,
+     "voigt": 73.561,
+     "vrh": 72.047
+    },
+    "thermal_conductivity": {
+     "cahill": 1.896056856063573,
+     "clarke": 1.698272918197382
+    },
+    "warnings": []
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "material_id",
+    "formula_pretty"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-13T15:51:39.899894+00:00",
+   "total_doc": 17
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/elasticity/"
+}

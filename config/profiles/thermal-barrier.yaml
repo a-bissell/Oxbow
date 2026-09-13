@@ -1,0 +1,99 @@
+# Thermal barrier coatings: the second material class, and the proof that the engine is a
+# materials-triage system instantiated for oxide dielectrics rather than a dielectric tool.
+# Nothing in the code names this class: the profile replaces the figure of merit, the
+# substrate, the candidate universe, the workhorses the self-check demands, and the words the
+# parser and guard accept. Everything else (the ranking arithmetic, the missing-data policy,
+# the refutation pass, the LLM boundary) is shared with the oxide-dielectric profiles.
+profile_name: thermal-barrier
+description: >
+  Thermal barrier coating oxides: low intrinsic thermal conductivity (the Clarke minimum
+  from Materials Project's elastic tensors), thermodynamically stable, compatible with the
+  alumina scale that grows on the bond coat, non-toxic, simple, with public evidence.
+  Melting point, thermal expansion, sintering, CMAS attack and toughness are not modelled.
+
+# ---------------------------------------------------------------------------
+# The figure of merit. Clarke's minimum thermal conductivity is the standard first screen for
+# TBC candidates (D. R. Clarke, Surf. Coat. Technol. 163-164, 67 (2003)): the high-temperature
+# phonon conductivity floor a material approaches when its mean free path reaches the
+# interatomic spacing, computed from the elastic moduli and density. Materials Project derives
+# it from every fitted elastic tensor. Lower is better; the curve is inverted by `prefer: low`.
+# ---------------------------------------------------------------------------
+figure_of_merit:
+  criterion: thermal_conductivity
+  label: minimum thermal conductivity (Clarke)
+  units: W/(m·K)
+  property: thermal_conductivity.clarke
+  provider: mp_elasticity
+  method: DFT elastic tensor, Clarke model
+  prefer: low
+  low: 1.0                      # score 1 at/below: Gd2O3 0.83, YTaO4 1.07, La2Hf2O7 1.09, Y2O3 1.12
+  high: 2.5                     # score 0 at/above: Al2O3 2.55, MgO 2.39 (good conductors, poor barriers)
+  # ZrO2 (1.43), HfO2 (1.19), the zirconate perovskites (1.2-1.3) and the pyrochlores (1.2) land
+  # mid-curve; yttria-stabilised zirconia itself is a disordered solid solution and has no
+  # ordered Materials Project entry, so ZrO2 stands for it.
+  weight: 0.30
+  on_missing: flag              # a candidate without a usable elastic tensor is ranked on the rest, caveated
+  vocabulary: ["thermal conductivit\\w*", "conductivit\\w*", "phonon\\w*", "clarke", "cahill", "insulating coating\\w*", "thermal barrier\\w*", "tbc"]
+  application: "a thermal barrier coating (stability, low thermal conductivity, compatibility with the alumina scale)"
+
+weights:
+  stability: 0.25
+  band_gap: 0.0                 # an insulating gap is irrelevant to a thermal barrier
+  interface: 0.15               # against Al2O3, the thermally grown oxide on the bond coat
+  toxicity: 0.10
+  simplicity: 0.10
+  literature: 0.10
+
+gates:
+  max_energy_above_hull_ev_atom: 0.05
+  min_band_gap_ev: 0.0          # no gap gate; see band_gap weight
+  max_elements: 3
+  on_missing_band_gap: flag
+
+interface:
+  # The coating sits on the alumina scale that grows on the bond coat, so the reaction that
+  # matters is with Al2O3, not Si. Gd2Zr2O7 + Al2O3 -> GdAlO3 + ZrO2 (Leckie et al., Acta
+  # Mater. 53, 3281 (2005)) and Y2O3 + Al2O3 -> Y3Al5O12 are the classic failures the hull sees.
+  substrate: Al2O3
+
+candidates:
+  cation_allowlist_file: cation_allowlist_thermal_barrier.yaml
+  min_reported_gap_ev: 0.0      # the universe filter must not drop CeO2 (2.0 eV) or the 4f oxides
+                                # whose GGA+U gap is reported as 0 (Yb2O3, Yb2Si2O7)
+
+refutation:
+  # Two rules the dielectric profiles do not need. A competing observed polymorph within
+  # 20 meV/atom means a phase transformation on thermal cycling is plausible (the reason
+  # zirconia is stabilised with yttria at all). A 4f-element oxide whose GGA/GGA+U gap reads
+  # as 0 is a DFT artifact, not a metal, and the gap gate is off here anyway.
+  polymorph_window_ev_atom: 0.02
+  f_electron_gap_check: true
+
+terminology:
+  yttria-stabilized zirconia: ZrO2
+  yttria-stabilised zirconia: ZrO2
+  ysz: ZrO2
+  tbc: thermal barrier coating
+  tbcs: thermal barrier coatings
+
+selfcheck:
+  request: >
+    Find promising oxide candidates for thermal barrier coatings on a superalloy with an
+    alumina bond-coat scale. Prefer low thermal conductivity, thermodynamically stable,
+    non-toxic elements, simple compositions, and public evidence. Return a ranked shortlist
+    with caveats.
+  # The known materials of the class. ZrO2 stands for YSZ; La2Zr2O7 is kept although Materials
+  # Project holds no usable elastic tensor for it, so the check must name that absence rather
+  # than fail on it or hide it.
+  workhorses: [ZrO2, HfO2, La2Zr2O7, Sm2Zr2O7, SrZrO3, YTaO4]
+  leaders: [ZrO2]
+  # On the live warm (750 candidates, 394 passing) ZrO2 is 15th and HfO2 12th: a conductivity-first
+  # screen puts the rare-earth sesquioxides (Clarke 0.8-0.9 W/m·K against zirconia's 1.13) and
+  # CeO2 ahead of them, which is correct for the criterion and is what the caveats then argue
+  # with (hygroscopicity, reaction with the alumina scale). La2Zr2O7 sits at 131st with no
+  # elastic tensor at the source, named as unverifiable rather than failed.
+  leaders_top_n: 20
+  wide_profile: null            # no wider TBC profile ships
+
+output:
+  top_k: 8

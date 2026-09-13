@@ -216,7 +216,7 @@ known-answer check is ground-truth validation before trusting the system on unkn
 caught two real bugs: the scoring policy under which missing data could raise a rank, and a
 failure on the partial live cache that was about retrieval, not ranking, which is why it now
 reports `INCONCLUSIVE` on a sparse cache and reserves `FAIL` for a wrong known answer. Three
-ranking parameters were set after seeing live data; `docs/ranking-decisions.md` records each
+ranking parameters were set after seeing live data; `autodocs/ranking-decisions.md` records each
 with its trigger and effect, and the sixth check moves every weight and every one of those
 parameters past its original value and reports whether the first tier survives. The seventh is
 a held-out validation: the interface criterion against Hubbard and Schlom's 1996 classification,

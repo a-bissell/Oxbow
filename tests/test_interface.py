@@ -7,7 +7,7 @@ import json
 import pytest
 
 from oxide_triage.cache import Cache
-from oxide_triage.config import CRITERIA, load_config
+from oxide_triage.config import FIXED_CRITERIA, load_config
 from oxide_triage.pipeline import load_fixtures, run_triage
 from oxide_triage.schemas import DataStatus
 from oxide_triage.scoring.hull import hull_energy, interface_reaction, parse_formula
@@ -96,7 +96,7 @@ def test_fixture_carries_real_hull_data_and_the_textbook_pattern(cache):
         r = rows[reactive].record.interface
         assert r.status is DataStatus.KNOWN and r.reaction_energy_ev_atom < -0.1 and r.products, reactive
     # the criterion is scored, weighted, and the missing-data policy sees it like any other
-    assert "interface" in CRITERIA
+    assert "interface" in FIXED_CRITERIA
     hf = rows["HfO2"]
     comp = next(c for c in hf.components if c.criterion == "interface")
     assert comp.normalized == 1.0 and comp.weight > 0 and "stable against Si" in comp.raw_label

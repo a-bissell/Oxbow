@@ -1,6 +1,6 @@
 {#- PI summary: top candidates, one line of rationale each, the single most important caveat.
     Plain language. Edit freely; every value comes pre-computed in `result`. -#}
-# Oxbow: oxide dielectric triage — summary
+# Oxbow: materials triage ({{ result.profile_name }}) — summary
 
 {% if result.fixture_data %}
 > **SYNTHETIC FIXTURE DATA.** This run used the built-in development fixture, not live public
@@ -95,7 +95,7 @@ _No candidate passed every gate under this configuration. See the audit view for
 {{ result.scope_limitation }}
 
 Scores are relative within this run and this profile, and candidates in the same tier are a
-tie: DFT gaps, DFPT dielectric constants and log-scaled literature counts do not support ordering
+tie: DFT gaps, {{ result.scoring.figure_of_merit.method if result.scoring.figure_of_merit else "computed" }} {{ result.scoring.figure_of_merit.label if result.scoring.figure_of_merit else "figure-of-merit" }} values and log-scaled literature counts do not support ordering
 two candidates {{ result.tie_band }} apart. A candidate ranked on partial data
 (confidence medium/low) has criteria with **no data behind them**; those are named per entry,
 not scored as zero. Band gaps marked "corrected" are scaled DFT values, not measurements.

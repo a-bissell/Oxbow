@@ -1,7 +1,7 @@
 """Adaptive acquisition: attack gaps in the retrieved data with alternative read-only routes.
 
 After a cache warm the data layer knows exactly what it could not find: no OQMD match for a
-formula, no literature counts, an unresolved band-gap functional, no DFPT dielectric record.
+formula, no literature counts, an unresolved band-gap functional, no figure-of-merit record.
 This module turns each such gap into a small plan drawn from an **allowlist of routes**, each a
 read-only query against a public source that stores its result in the cache under the same key
 the normal path reads. Downstream code is unchanged; provenance says which route produced a
@@ -11,7 +11,7 @@ Where the agency is, and where it is not:
   * A planner orders the allowed routes for a gap. The default planner is a deterministic ladder.
     An optional model planner may reorder or skip routes; its output is validated to be a subset of
     the allowlist, otherwise the ladder is used. The model chooses *what to try*, never a value.
-  * A gap with no public route (per-material dielectric constants beyond MP's DFPT set) is
+  * A gap with no public route (the figure of merit beyond its configured provider) is
     reported as unfillable with the reason. It is never estimated.
   * Every attempt is recorded: gap, route, outcome. The report is stored in the cache and
     summarised on every result rendered from that cache.
@@ -35,8 +35,8 @@ from oxide_triage.sources.base import SourceError
 log = logging.getLogger(__name__)
 
 META_KEY = "acquisition"
-GapKind = Literal["cross_check", "literature", "functional", "dielectric"]
-GAP_KINDS: frozenset[str] = frozenset({"cross_check", "literature", "functional", "dielectric"})
+GapKind = Literal["cross_check", "literature", "functional", "figure_of_merit"]
+GAP_KINDS: frozenset[str] = frozenset({"cross_check", "literature", "functional", "figure_of_merit"})
 Outcome = Literal["filled", "no_match", "error", "not_applicable", "skipped_offline"]
 
 
@@ -127,13 +127,13 @@ def detect_gaps(records: list[CandidateRecord]) -> list[Gap]:
                     detail="band-gap functional unresolved",
                 )
             )
-        if r.dielectric.status != DataStatus.KNOWN:
+        if r.figure_of_merit.status != DataStatus.KNOWN:
             gaps.append(
                 Gap(
                     material_id=r.material_id,
                     formula=r.formula,
-                    kind="dielectric",
-                    detail="no DFPT dielectric record",
+                    kind="figure_of_merit",
+                    detail=r.figure_of_merit.absent_note or f"no {r.figure_of_merit.label} record",
                 )
             )
     return gaps
@@ -218,14 +218,15 @@ LADDER: dict[str, list[str]] = {
     "cross_check": ["oqmd_chemsys"],
     "literature": ["openalex_retry", "openalex_names_only"],
     "functional": ["mp_refresh_functional"],
-    "dielectric": [],  # no public per-material route beyond MP DFPT
+    "figure_of_merit": [],  # no public per-material route beyond the configured provider
 }
 
+# The provider's own wording (``PropertyProvider.no_route_reason``) is used when the layer is at
+# hand; this is the fallback.
 NO_ROUTE_REASON = {
-    "dielectric": (
-        "No public per-material dielectric source beyond Materials Project's DFPT set is wired in. "
-        "The JARVIS-DFT bulk dataset (OptB88vdW dielectric tensors) is a candidate future route; "
-        "until then the value stays unknown."
+    "figure_of_merit": (
+        "No public per-material route beyond the figure of merit's configured provider is wired "
+        "in; until the source holds a record the value stays unknown."
     ),
 }
 

@@ -1,6 +1,7 @@
 """Oxbow command line interface (installed as both `oxide-triage` and `oxbow`).
 
 oxide-triage query "Find promising oxide dielectric candidates ..." --profile conservative
+oxide-triage query "Oxides for thermal barrier coatings ..." --profile thermal-barrier
 oxide-triage warm-cache            # needs MP_API_KEY; fetches the candidate universe, runs self-check
 oxide-triage load-fixtures         # synthetic demo data, clearly flagged in every output
 oxide-triage add-material SrHfO3   # pull one compound into the universe (online)
@@ -310,7 +311,7 @@ def doctor(profile: str = typer.Option("default", "--profile", "-p")) -> None:
     typer.echo(f"chat: {'ready (' + chat_why + ')' if chat_ok else 'unavailable (' + chat_why + ')'}")
     cache = Cache(config.cache.path)
     try:
-        sc = read_selfcheck(cache)
+        sc = read_selfcheck(cache, config.profile_name)
         typer.echo(
             f"cache: {cache.count()} rows, fixture={cache.has_fixture_data}, "
             f"selfcheck={'not run' if sc is None else ('passed' if sc.passed else 'FAILED')}"
@@ -466,7 +467,7 @@ def profiles() -> None:
             f"{name:24s} hull<={g.max_energy_above_hull_ev_atom:<5g} gap>={g.min_band_gap_ev:<4g} "
             f"elements<={g.max_elements} blocked tiers={cfg.toxicity.blocklist_tiers} "
             f"allow={cfg.toxicity.element_allowlist or '-'} top_k={cfg.output.top_k} "
-            f"weights={cfg.weights.model_dump()}"
+            f"weights={cfg.criterion_weights()}"
         )
         typer.echo(f"{'':24s} {cfg.description.strip()}")
 
@@ -479,7 +480,7 @@ def cache_status(profile: str = typer.Option("default", "--profile", "-p")) -> N
     try:
         typer.echo(f"cache: {config.cache.path}")
         typer.echo(f"fixture data loaded: {cache.has_fixture_data}")
-        sc = read_selfcheck(cache)
+        sc = read_selfcheck(cache, config.profile_name)
         typer.echo(
             "self-check: "
             + ("not run" if sc is None else f"{'passed' if sc.passed else 'FAILED'} at {sc.checked_at}")
@@ -517,10 +518,6 @@ def mcp(
         server.run(transport="streamable-http", host=host, port=port)
     else:
         server.run(transport="stdio")
-
-
-if __name__ == "__main__":  # pragma: no cover
-    app()
 
 
 @app.command()
@@ -632,3 +629,7 @@ def bundle_install_cmd(
     typer.echo(f"cache: {config.cache.path}")
     if manifest.get("fixture_data"):
         typer.echo("WARNING: this bundle holds synthetic fixture data; every output will say so.", err=True)
+
+
+if __name__ == "__main__":  # pragma: no cover
+    app()

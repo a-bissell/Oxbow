@@ -1,0 +1,99 @@
+{
+ "params": {
+  "composition": "CeO",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -2.34719241668938,
+    "entry_id": 304629,
+    "name": "CeO",
+    "spacegroup": "Pm-3m",
+    "stability": 0.5864571630570632
+   },
+   {
+    "delta_e": -2.87317559668938,
+    "entry_id": 325713,
+    "name": "CeO",
+    "spacegroup": "R-3m",
+    "stability": 0.06047398305706331
+   },
+   {
+    "delta_e": -2.33483930168938,
+    "entry_id": 336171,
+    "name": "CeO",
+    "spacegroup": "P4/mmm",
+    "stability": 0.5988102780570634
+   },
+   {
+    "delta_e": -2.87176079668938,
+    "entry_id": 647033,
+    "name": "CeO",
+    "spacegroup": "Fm-3m",
+    "stability": 0.06188878305706336
+   },
+   {
+    "delta_e": -2.87364828168938,
+    "entry_id": 1103815,
+    "name": "CeO",
+    "spacegroup": "Fm-3m",
+    "stability": 0.060001298057063224
+   },
+   {
+    "delta_e": -2.68356944168938,
+    "entry_id": 1219156,
+    "name": "CeO",
+    "spacegroup": "F-43m",
+    "stability": 0.2500801380570632
+   },
+   {
+    "delta_e": -2.60722295668938,
+    "entry_id": 1228835,
+    "name": "CeO",
+    "spacegroup": "P-6m2",
+    "stability": 0.3264266230570634
+   },
+   {
+    "delta_e": -2.83463061418938,
+    "entry_id": 1243234,
+    "name": "CeO",
+    "spacegroup": "P63/mmc",
+    "stability": 0.09901896555706324
+   },
+   {
+    "delta_e": -2.62567649418938,
+    "entry_id": 1243233,
+    "name": "CeO",
+    "spacegroup": "P63/mmc",
+    "stability": 0.30797308555706326
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 9,
+   "data_returned": 9,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=CeO&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-13 10:51:53"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

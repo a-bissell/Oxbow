@@ -16,7 +16,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from oxide_triage.cache import Cache
-from oxide_triage.config import load_config
+from oxide_triage.config import list_profiles, load_config
 from oxide_triage.edges.render import render
 from oxide_triage.pipeline import load_fixtures, run_triage
 from oxide_triage.schemas import DataStatus, RequestBin, TriageResult
@@ -185,7 +185,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         ranked = _ranked(default)
         wide_ranked = _ranked(run(PI, "exploratory"))
         rows = ["| Workhorse | Default rank (of passing) | Exploratory rank | Note |", "|---|---|---|---|"]
-        for w in WORKHORSES:
+        for w in load_config("default").selfcheck.workhorses:
             if w in ranked:
                 d = f"{ranked.index(w) + 1}/{len(ranked)}"
                 note = ""
@@ -206,7 +206,19 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
             "Reading: this is ground-truth validation, not discovery. If an exotic compound outranks the "
             "workhorses on complete data, the scoring is wrong, not the literature."
         )
-        return bool(check.passed and not check.inconclusive), "\n".join(rows)
+        # Every shipped profile with its own known answer must pass on this cache too. The
+        # reweightings of the default criteria share the default's workhorses and its verdict.
+        all_ok = bool(check.passed and not check.inconclusive)
+        base = load_config("default").selfcheck.workhorses
+        for name in list_profiles():
+            pcfg = load_config(name)
+            if pcfg.selfcheck.workhorses == base:
+                continue
+            pc = run_selfcheck(pcfg, cache, offline=True)
+            verdict = "INCONCLUSIVE" if pc.inconclusive else ("passed" if pc.passed else "FAILED")
+            rows.append(f"\nProfile `{name}` self-check {verdict}: " + "; ".join(pc.details))
+            all_ok &= bool(pc.passed and not pc.inconclusive)
+        return all_ok, "\n".join(rows)
 
     # ---- 4. determinism ---------------------------------------------------------------
     def determinism() -> tuple[bool, str]:
@@ -221,30 +233,30 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
     # ---- 5. missing data --------------------------------------------------------------
     def missing_data() -> tuple[bool, str]:
         res = run(PI, "exploratory")
+        crit = load_config("exploratory").figure_of_merit.criterion
+        label = load_config("exploratory").figure_of_merit.label
         rows = [
-            "| Formula | Dielectric status | Component normalised | Contribution | Coverage | Confidence | Listed as missing |",
+            f"| Formula | {label.capitalize()} status | Component normalised | Contribution | Coverage | Confidence | Listed as missing |",
             "|---|---|---|---|---|---|---|",
         ]
         ok, n = True, 0
         for s in res.shortlist + res.ranked_beyond_shortlist:
-            if s.record.dielectric.status == DataStatus.KNOWN:
+            if s.record.figure_of_merit.status == DataStatus.KNOWN:
                 continue
             n += 1
-            comp = next(c for c in s.components if c.criterion == "dielectric")
+            comp = next(c for c in s.components if c.criterion == crit)
             good = (
                 comp.normalized is None
                 and comp.contribution is None
-                and "dielectric" in s.missing_criteria
+                and crit in s.missing_criteria
                 and s.data_coverage < 1
             )
             ok &= good
             if n <= 6:
                 rows.append(
-                    f"| {s.record.formula} | {s.record.dielectric.status.value} | {comp.normalized} | {comp.contribution} | {s.data_coverage:.0%} | {s.confidence} | {'dielectric' in s.missing_criteria} |"
+                    f"| {s.record.formula} | {s.record.figure_of_merit.status.value} | {comp.normalized} | {comp.contribution} | {s.data_coverage:.0%} | {s.confidence} | {crit in s.missing_criteria} |"
                 )
-        rows.append(
-            f"\n{n} passing candidates without a dielectric value; none scored as if they had one: {ok}"
-        )
+        rows.append(f"\n{n} passing candidates without a {label} value; none scored as if they had one: {ok}")
         return ok and n > 0, "\n".join(rows)
 
     # ---- 6. sensitivity ---------------------------------------------------------------
@@ -260,10 +272,24 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         watch = list(dict.fromkeys(tier1 + ["HfO2", "ZrO2", "Al2O3"]))
         cfg0 = load_config("default")
         perturbations: list[tuple[str, dict]] = []
-        for crit, w in cfg0.weights.model_dump().items():
+        fom_crit = cfg0.figure_of_merit.criterion
+        for crit, w in cfg0.criterion_weights().items():
             if w > 0:
-                perturbations.append((f"weights.{crit} x0.5", {"weights": {crit: w * 0.5}}))
-                perturbations.append((f"weights.{crit} x1.5", {"weights": {crit: w * 1.5}}))
+                key = {"figure_of_merit": {"weight": w}} if crit == fom_crit else {"weights": {crit: w}}
+                name = f"figure_of_merit.weight ({crit})" if crit == fom_crit else f"weights.{crit}"
+                half = (
+                    {"figure_of_merit": {"weight": w * 0.5}}
+                    if crit == fom_crit
+                    else {"weights": {crit: w * 0.5}}
+                )
+                more = (
+                    {"figure_of_merit": {"weight": w * 1.5}}
+                    if crit == fom_crit
+                    else {"weights": {crit: w * 1.5}}
+                )
+                del key
+                perturbations.append((f"{name} x0.5", half))
+                perturbations.append((f"{name} x1.5", more))
         perturbations += [
             (
                 "literature saturation 50 (the first setting)",
@@ -275,8 +301,8 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
             ),
             ("interface tolerance 0", {"interface": {"tolerance_ev_atom": 0.0}}),
             ("interface tolerance 0.10", {"interface": {"tolerance_ev_atom": 0.10}}),
-            ("dielectric saturates at 20", {"dielectric": {"high": 20.0}}),
-            ("dielectric saturates at 40", {"dielectric": {"high": 40.0}}),
+            (f"{fom_crit} saturates at 20", {"figure_of_merit": {"high": 20.0}}),
+            (f"{fom_crit} saturates at 40", {"figure_of_merit": {"high": 40.0}}),
             ("tie band 0.02", {"output": {"tie_band": 0.02}}),
             ("tie band 0.08", {"output": {"tie_band": 0.08}}),
         ]
@@ -394,9 +420,20 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         lines += [f"## {c.name} — {'PASS' if ok else 'FAIL'}", "", detail, ""]
 
     # profile comparison table
-    lines += ["## Profiles change the output", "", "| Profile | Top 5 |", "|---|---|"]
-    for p in ("default", "conservative", "exploratory", "ferroelectric-research"):
-        lines.append(f"| {p} | {', '.join(_ranked(run(PI, p))[:5])} |")
+    lines += [
+        "## Profiles change the output",
+        "",
+        "Each profile is run on its own self-check request (the oxide-dielectric profiles share the PI's).",
+        "",
+        "| Profile | Figure of merit | Top 5 |",
+        "|---|---|---|",
+    ]
+    for p in ["default", *list_profiles()]:
+        pcfg = load_config(p)
+        top = ", ".join(_ranked(run(pcfg.selfcheck.request, p))[:5])
+        lines.append(
+            f"| {p} | {pcfg.figure_of_merit.label} ({pcfg.figure_of_merit.prefer} preferred) | {top} |"
+        )
     lines.append("")
 
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")

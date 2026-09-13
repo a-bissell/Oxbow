@@ -21,7 +21,20 @@ export interface CandidateRecord {
   theoretical?: boolean | null;
   stability: { energy_above_hull_ev_atom?: number | null; is_stable?: boolean | null; status: DataStatus; provenance?: Provenance | null };
   band_gap: { value_ev?: number | null; functional?: string | null; status: DataStatus; provenance?: Provenance | null };
-  dielectric: { e_total?: number | null; e_electronic?: number | null; e_ionic?: number | null; status: DataStatus; provenance?: Provenance | null };
+  figure_of_merit: {
+    criterion: string;
+    property: string;
+    label: string;
+    units: string;
+    method?: string | null;
+    value?: number | null;
+    extras: Record<string, number>;
+    display?: string | null;
+    short?: string | null;
+    absent_note?: string | null;
+    status: DataStatus;
+    provenance?: Provenance | null;
+  };
   cross_check: { stability_ev_atom?: number | null; matched_formula?: string | null; status: DataStatus; provenance?: Provenance | null };
   literature: {
     total_works?: number | null;
@@ -40,6 +53,17 @@ export interface CandidateRecord {
     status: DataStatus;
   };
   is_fixture: boolean;
+}
+
+/** What the seventh criterion is in a run: the profile's application figure of merit. */
+export interface FigureOfMeritInfo {
+  criterion: string;
+  label: string;
+  units?: string;
+  method?: string;
+  property?: string;
+  provider?: string;
+  prefer?: string;
 }
 
 export interface GateResult {
@@ -130,7 +154,14 @@ export interface TriageResult {
   offline: boolean;
   deviations: Deviation[];
   scope_limitation: string;
-  scoring: { formula: string; missing_data_penalty: number; missing_data_policy: string; weights: Record<string, number>; gates: Record<string, unknown> };
+  scoring: {
+    formula: string;
+    missing_data_penalty: number;
+    missing_data_policy: string;
+    weights: Record<string, number>;
+    gates: Record<string, unknown>;
+    figure_of_merit?: FigureOfMeritInfo | null;
+  };
   shortlist: ScoredCandidate[];
   ranked_beyond_shortlist: ScoredCandidate[];
   excluded: ScoredCandidate[];
@@ -249,7 +280,7 @@ export interface Status {
   llm: { provider: string; model: string | null; driver: "rules" | "model"; agent_model: string | null };
   admin_editable: boolean;
   greetings: string[];
-  suggested_requests: { label: string; text: string }[];
+  suggested_requests: { label: string; text: string; profile?: string }[];
   scope_limitation: string;
 }
 
