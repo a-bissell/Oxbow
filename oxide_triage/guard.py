@@ -43,6 +43,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from functools import lru_cache
+from typing import Any
 
 from oxide_triage.config import HazardTable
 from oxide_triage.elements import find_elements
@@ -312,9 +314,34 @@ APPLICATION_RE = re.compile(
     r"thermoelectric\w*|magnet\w*|superconduct\w*|fuel cells?|scintillat\w*|phosphors?|lasers?)\b",
     re.I,
 )
+# The shipped application's own words. A profile for another class adds its own through
+# ``ScopeVocabulary``; these stay so a call without a profile behaves as it always did.
 DIELECTRIC_RE = re.compile(
     r"\b(dielectrics?|permittivit\w*|high[- ]?k|k[- ]values?|gate|capacitors?|insulat\w*)\b", re.I
 )
+DEFAULT_APPLICATION = "a gate dielectric (stability, band gap, permittivity, interface with the substrate)"
+
+
+@dataclass(frozen=True)
+class ScopeVocabulary:
+    """What the active profile ranks for: the words that make a request an in-scope ask for
+    its figure of merit, and how to name the application when declining another one. It can
+    only add in-scope evidence; it never adds a finding."""
+
+    terms: tuple[str, ...] = ()  # regex alternatives, from figure_of_merit.vocabulary
+    application: str = DEFAULT_APPLICATION
+
+
+def scope_vocabulary(config: Any) -> ScopeVocabulary:
+    fom = config.figure_of_merit
+    return ScopeVocabulary(terms=tuple(fom.vocabulary), application=fom.application or DEFAULT_APPLICATION)
+
+
+@lru_cache(maxsize=32)
+def _terms_re(terms: tuple[str, ...]) -> re.Pattern[str] | None:
+    return re.compile(r"\b(?:" + "|".join(terms) + r")\b", re.I) if terms else None
+
+
 # Writing tasks: the tool renders results, it does not write prose on request.
 OFF_TASK_RE = re.compile(
     r"\b(write|draft|compose|translate|proofread|summari[sz]e)\b[^.]{0,30}?"
@@ -323,16 +350,21 @@ OFF_TASK_RE = re.compile(
 )
 
 TOOL_DOES = (
-    "What this tool does: triage candidate oxides for thin-film dielectrics from cached public "
-    "data (Materials Project, OQMD, OpenAlex, PubChem) and return a ranked shortlist with the "
-    "evidence and caveats behind each entry. It can also explain a candidate, compare "
-    "candidates, and rerun with changed thresholds, elements or weights."
+    "What this tool does: triage candidate oxides for the application the active profile ranks "
+    "for (a gate dielectric, a thermal barrier coating) from cached public data (Materials "
+    "Project, OQMD, OpenAlex, PubChem) and return a ranked shortlist with the evidence and "
+    "caveats behind each entry. It can also explain a candidate, compare candidates, and rerun "
+    "with changed thresholds, elements or weights."
 )
 
 
-def scope_findings(text: str) -> list[GuardFinding]:
-    """Why a request is not an oxide-dielectric triage ask, if it is not."""
+def scope_findings(text: str, scope: ScopeVocabulary | None = None) -> list[GuardFinding]:
+    """Why a request is not a triage ask this profile can run, if it is not. ``scope`` is the
+    active profile's vocabulary; without it the shipped dielectric words apply."""
     out: list[GuardFinding] = []
+    own = _terms_re(scope.terms) if scope else None
+    in_own_scope = bool(own and own.search(text))
+    application = scope.application if scope and scope.application else DEFAULT_APPLICATION
     if m := OFF_TASK_RE.search(text):
         out.append(
             GuardFinding(
@@ -352,26 +384,25 @@ def scope_findings(text: str) -> list[GuardFinding]:
                 explanation=f"The candidate universe is oxides only; it holds no {m.group(0).lower()}.",
             )
         )
-    if (m := APPLICATION_RE.search(text)) and not DIELECTRIC_RE.search(text):
+    if (m := APPLICATION_RE.search(text)) and not DIELECTRIC_RE.search(text) and not in_own_scope:
         out.append(
             GuardFinding(
                 bin=RequestBin.OUT_OF_SCOPE,
                 code="other_application",
                 matched_text=m.group(0).strip()[:120],
                 explanation=(
-                    "The scoring profiles rank for a gate dielectric (stability, band gap, permittivity, "
-                    f"interface with the substrate). A ranking for {m.group(0).lower()} would be the "
-                    "same list under a different name."
+                    f"The scoring profiles rank for {application}. A ranking for "
+                    f"{m.group(0).lower()} would be the same list under a different name."
                 ),
             )
         )
-    if not out and not SCOPE_RE.search(text):
+    if not out and not SCOPE_RE.search(text) and not in_own_scope:
         out.append(
             GuardFinding(
                 bin=RequestBin.OUT_OF_SCOPE,
                 code="no_triage_ask",
                 matched_text=text.strip()[:120],
-                explanation="Nothing in the request asks for an oxide-dielectric triage.",
+                explanation="Nothing in the request asks for a materials triage.",
             )
         )
     return out
@@ -414,12 +445,14 @@ def guard_request(
     blocked: frozenset[str] | None = None,
     never_lift: frozenset[str] = frozenset(),
     follow_up: bool = False,
+    scope: ScopeVocabulary | None = None,
 ) -> GuardDecision:
     """``blocked`` is the set of elements the active profile blocks; when omitted, tier-2
     elements are assumed blocked (the shipped default). ``never_lift`` holds the elements a
     request cannot unblock; naming one of them declines the request. ``follow_up`` marks a
     later turn of a conversation: "yes, go ahead" has no triage ask in it and is still about
-    the triage, so only the first turn is declined for having none."""
+    the triage, so only the first turn is declined for having none. ``scope`` is the active
+    profile's vocabulary (``scope_vocabulary(config)``); without it the shipped words apply."""
     findings: list[GuardFinding] = []
 
     for rule in INTEGRITY_RULES:
@@ -479,10 +512,10 @@ def guard_request(
                 )
             )
     # An element allowance is an in-scope ask on its own ("include lead").
-    scope = [] if allowances else scope_findings(text)
+    scope_out = [] if allowances else scope_findings(text, scope)
     if follow_up:
-        scope = [f for f in scope if f.code != "no_triage_ask"]
-    findings.extend(scope)
+        scope_out = [f for f in scope_out if f.code != "no_triage_ask"]
+    findings.extend(scope_out)
 
     integrity = [f for f in findings if f.bin == RequestBin.INTEGRITY]
     policy = [f for f in findings if f.bin == RequestBin.HAZARD_POLICY]
@@ -509,7 +542,7 @@ def guard_request(
 
     # Nothing in scope to run: decline, and say what the tool does rather than answering a
     # different question. An impossible ask with no triage beside it lands here too.
-    if scope:
+    if scope_out:
         reasons = [
             f
             for f in findings

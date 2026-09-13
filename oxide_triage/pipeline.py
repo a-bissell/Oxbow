@@ -30,7 +30,7 @@ from oxide_triage.edges.llm import LLMClient, make_llm
 from oxide_triage.edges.parse import parse_request
 from oxide_triage.edges.render import rationale_line
 from oxide_triage.grouping import assign_tiers, group_polymorphs, polymorph_caveat
-from oxide_triage.guard import guard_request
+from oxide_triage.guard import guard_request, scope_vocabulary
 from oxide_triage.progress import ProgressFn, emit
 from oxide_triage.refute import refute, rule_caveats, shared_caveats
 from oxide_triage.schemas import (
@@ -196,7 +196,9 @@ def run_triage(
     table = load_hazard_table(config.toxicity.table_file)
     llm = llm or make_llm(config.llm)
     blocked = blocked_by_policy(config, table)
-    guard: GuardDecision = guard_request(request_text, table, blocked, never_liftable(config))
+    guard: GuardDecision = guard_request(
+        request_text, table, blocked, never_liftable(config), scope=scope_vocabulary(config)
+    )
     emit(progress, "parse", "Reading the request")
     if criteria is None:
         criteria, parser_label = parse_request(request_text, config, table, llm, blocked)

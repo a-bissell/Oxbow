@@ -28,7 +28,7 @@ from oxide_triage.bundle import read_release
 from oxide_triage.cache import Cache
 from oxide_triage.config import Config, list_profiles, load_config, load_hazard_table
 from oxide_triage.edges.render import render
-from oxide_triage.guard import guard_request
+from oxide_triage.guard import guard_request, scope_vocabulary
 from oxide_triage.pipeline import add_material as _add_material
 from oxide_triage.pipeline import not_acted_on_lines, run_triage
 from oxide_triage.progress import ProgressFn
@@ -87,7 +87,10 @@ def make_guard(config: Config) -> GuardFn:
     table = load_hazard_table(config.toxicity.table_file)
     blocked = blocked_by_policy(config, table)
     never = never_liftable(config)
-    return lambda text, follow_up=False: guard_request(text, table, blocked, never, follow_up=follow_up)
+    scope = scope_vocabulary(config)
+    return lambda text, follow_up=False: guard_request(
+        text, table, blocked, never, follow_up=follow_up, scope=scope
+    )
 
 
 def agent_system_prompt(profile: str, extra: str | None = None) -> str:
@@ -392,7 +395,7 @@ class ToolBox:
         cfg = self._config(profile)
         table = load_hazard_table(cfg.toxicity.table_file)
         blocked = blocked_by_policy(cfg, table)
-        guard = guard_request(request, table, blocked, never_liftable(cfg))
+        guard = guard_request(request, table, blocked, never_liftable(cfg), scope=scope_vocabulary(cfg))
         criteria, parser = _parse(request, cfg, table, make_llm(cfg.llm), blocked)
         eff, deviations = resolve(cfg, criteria, table)
         return {
