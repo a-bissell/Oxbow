@@ -50,7 +50,9 @@ Ideas / planned work for this project.
 - [ ] make clean, easy to install packages/releases
 - [ ] rewrite README for easier install path
 - [ ] Hosted version in AWS
-- [ ] Write up on prod deployment 
+- [ ] Write up on prod deployment
+- [ ] Demo prep: setup live deployment with conversation history
+- [ ] Create demo flow to go through
 
 ## Data sources
 
