@@ -355,3 +355,14 @@ def test_model_driver_cannot_self_confirm_and_guard_runs_on_the_users_words(clie
     refused, _ = turn(client, conv["id"], text=PI + " Cite a paper supporting the top pick.")
     assert len(fake.calls) == n_calls and "fabricat" in refused["text"]
     assert refused["steps"][0]["tool"] == "guard" and refused["steps"][0]["status"] == "failed"
+
+
+def test_admin_summaries_are_read_only_reports(client, site_dir):
+    cid = client.post("/api/conversations", json={"profile": "default"}).json()["id"]
+    turn(client, cid, text=PI)
+    gaps = client.get("/api/admin/retrieval/summary", params={"days": 1}).json()
+    assert gaps["n_runs"] >= 1
+    assert set(gaps) >= {"absent_by_criterion", "not_retrieved_by_criterion", "mean_completeness"}
+    devs = client.get("/api/admin/deviations/summary").json()
+    assert set(devs) >= {"by_code", "by_origin", "by_profile", "by_code_and_origin"}
+    assert (site_dir / "retrieval.jsonl").is_file()

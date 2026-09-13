@@ -1,7 +1,7 @@
 // Thin client over the FastAPI backend. Every call returns parsed JSON or throws with the
 // server's message; `streamTurn` reads the event stream of one assistant turn.
 
-import type { Conversation, ConversationSummary, Focus, JobState, Scope, Status, TriageResult, TurnEvent } from "./types";
+import type { Conversation, ConversationSummary, DeviationSummary, Focus, JobState, RetrievalSummary, Scope, Status, TriageResult, TurnEvent } from "./types";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, { headers: { "Content-Type": "application/json" }, ...init });
@@ -47,6 +47,10 @@ export const api = {
       request<{ saved: string; overlay: Record<string, any> }>("/api/admin/overlay", { method: "PUT", body: JSON.stringify(overlay) }),
     environment: () => request<Record<string, any>>("/api/admin/environment"),
     deviations: () => request<any[]>("/api/admin/deviations"),
+    deviationsSummary: (days?: number) =>
+      request<DeviationSummary>(`/api/admin/deviations/summary${days ? `?days=${days}` : ""}`),
+    retrievalSummary: (days?: number) =>
+      request<RetrievalSummary>(`/api/admin/retrieval/summary${days ? `?days=${days}` : ""}`),
     startJob: (kind: string, args: Record<string, unknown> = {}) =>
       request<JobState>("/api/admin/jobs", { method: "POST", body: JSON.stringify({ kind, args }) }),
     currentJob: () => request<JobState | null>("/api/admin/jobs/current"),
