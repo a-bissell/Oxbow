@@ -280,7 +280,7 @@ export interface Status {
   llm: { provider: string; model: string | null; driver: "rules" | "model"; agent_model: string | null };
   admin_editable: boolean;
   greetings: string[];
-  suggested_requests: { label: string; text: string }[];
+  suggested_requests: { label: string; text: string; profile?: string }[];
   scope_limitation: string;
 }
 

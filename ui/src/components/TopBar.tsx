@@ -24,7 +24,7 @@ export default function TopBar() {
   return (
     <header className="topbar">
       <div className="topbar__left">
-        <button className="brand" onClick={app.reset} title="Oxbow · oxide dielectric triage. New conversation">
+        <button className="brand" onClick={app.reset} title="Oxbow · materials triage. New conversation">
           <svg className="brand__mark" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
             <path d="M 8 98 C 40 98 40 84 60 84 C 80 84 80 98 112 98" fill="none" stroke="var(--accent)" strokeWidth="11" strokeLinecap="round" />
             <path d="M 44 70 A 24 24 0 1 1 76 70" fill="none" stroke="var(--brand-lake)" strokeWidth="11" strokeLinecap="round" />

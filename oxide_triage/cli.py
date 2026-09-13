@@ -520,10 +520,6 @@ def mcp(
         server.run(transport="stdio")
 
 
-if __name__ == "__main__":  # pragma: no cover
-    app()
-
-
 @app.command()
 def serve(
     host: str = typer.Option("127.0.0.1", "--host", help="Bind address (0.0.0.0 inside a container)."),
@@ -633,3 +629,7 @@ def bundle_install_cmd(
     typer.echo(f"cache: {config.cache.path}")
     if manifest.get("fixture_data"):
         typer.echo("WARNING: this bundle holds synthetic fixture data; every output will say so.", err=True)
+
+
+if __name__ == "__main__":  # pragma: no cover
+    app()

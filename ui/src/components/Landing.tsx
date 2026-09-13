@@ -90,6 +90,9 @@ export default function Landing() {
                 className="chip chip--btn"
                 title={q.text}
                 onClick={() => {
+                  // An example written for another profile switches to it, so the request is judged
+                  // against the criteria it was written for.
+                  if (q.profile) app.setScope({ ...app.scope, profile: q.profile });
                   app.setDraft(q.text);
                   app.focusComposer();
                 }}

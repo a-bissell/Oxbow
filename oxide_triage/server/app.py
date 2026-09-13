@@ -231,6 +231,16 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
                     "label": "Metastable phases",
                     "text": "Include metastable phases within 60 meV of the hull and prioritize the dielectric constant.",
                 },
+                {
+                    "label": "Thermal barrier coatings",
+                    "text": (
+                        "Find promising oxide candidates for thermal barrier coatings on a superalloy with an "
+                        "alumina bond-coat scale. Prefer low thermal conductivity, thermodynamically stable, "
+                        "non-toxic elements, simple compositions, and public evidence. Return a ranked "
+                        "shortlist with caveats."
+                    ),
+                    "profile": "thermal-barrier",
+                },
             ],
             "scope_limitation": "Deposition feasibility, film morphology, substrate compatibility and hygroscopic degradation are not modelled.",
         }
