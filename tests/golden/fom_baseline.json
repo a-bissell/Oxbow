@@ -123,9 +123,121 @@
      "polymorphs": []
     },
     {
+     "material_id": "fx-0037",
+     "formula": "La2Zr2O7",
+     "rank": 2,
+     "raw_score": 0.896683,
+     "adjusted_score": 0.896683,
+     "data_coverage": 1.0,
+     "confidence": "high",
+     "tier": 2,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 5.2 eV (corrected from GGA 3.7 eV); dielectric constant 36 (DFPT); reacts with Si (-0.09 eV/atom); benign elements; 420 thin-film papers.",
+     "missing_criteria": [],
+     "absent_criteria": [],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.217391,
+       "normalized": 1.0,
+       "contribution": 0.217391,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.217391,
+       "normalized": 0.814667,
+       "contribution": 0.177101,
+       "status": "known",
+       "raw_label": "effective gap = 5.22 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA value 3.73 eV x 1.4 = 5.22 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 4) / (5.5 - 4))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.130435,
+       "normalized": 1.0,
+       "contribution": 0.130435,
+       "status": "known",
+       "raw_label": "e_total = 36.3 (DFPT; electronic 4.9)",
+       "notes": [
+        "score = clamp((e_total - 8) / (30 - 8))"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.130435,
+       "normalized": 0.8205,
+       "contribution": 0.107022,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.086 eV/atom -> La2Si2O7 + ZrSi + ZrSi2",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (21 stable phases), at 30% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.130435,
+       "normalized": 1.0,
+       "contribution": 0.130435,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (La, Zr) [table 2026-09-09.1]",
+       "notes": [
+        "La: tier 0 (La2O3 not classified; hygroscopic)",
+        "Zr: tier 0 (ZrO2 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.086957,
+       "normalized": 0.6,
+       "contribution": 0.052174,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.086957,
+       "normalized": 0.944438,
+       "contribution": 0.082125,
+       "status": "known",
+       "raw_label": "420 thin-film works / 1800 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.972 (log-saturating at 500), total sub-score 0.880 (saturating at 5000), weights 0.7/0.3",
+        "search terms: La2Zr2O7"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "band_gap_corrected"
+     ],
+     "fom_status": "known",
+     "fom_provenance_note": "synthetic fixture record, NOT real data",
+     "polymorphs": []
+    },
+    {
      "material_id": "fx-0025",
      "formula": "LaAlO3",
-     "rank": 2,
+     "rank": 3,
      "raw_score": 0.893254,
      "adjusted_score": 0.893254,
      "data_coverage": 1.0,
@@ -237,7 +349,7 @@
     {
      "material_id": "fx-0004",
      "formula": "Al2O3",
-     "rank": 3,
+     "rank": 4,
      "raw_score": 0.880237,
      "adjusted_score": 0.880237,
      "data_coverage": 1.0,
@@ -348,7 +460,7 @@
     {
      "material_id": "fx-0006",
      "formula": "MgO",
-     "rank": 4,
+     "rank": 5,
      "raw_score": 0.879644,
      "adjusted_score": 0.879644,
      "data_coverage": 1.0,
@@ -462,7 +574,7 @@
     {
      "material_id": "fx-0007",
      "formula": "SiO2",
-     "rank": 5,
+     "rank": 6,
      "raw_score": 0.869565,
      "adjusted_score": 0.869565,
      "data_coverage": 1.0,
@@ -572,7 +684,7 @@
     {
      "material_id": "fx-0003",
      "formula": "ZrO2",
-     "rank": 6,
+     "rank": 7,
      "raw_score": 0.868611,
      "adjusted_score": 0.868611,
      "data_coverage": 1.0,
@@ -675,16 +787,19 @@
       "fixture_data",
       "substrate_reaction",
       "substrate_literature_confound",
-      "band_gap_corrected"
+      "band_gap_corrected",
+      "polymorphs_collapsed"
      ],
      "fom_status": "known",
      "fom_provenance_note": "synthetic fixture record, NOT real data",
-     "polymorphs": []
+     "polymorphs": [
+      "fx-0042"
+     ]
     },
     {
      "material_id": "fx-0009",
      "formula": "Y2O3",
-     "rank": 7,
+     "rank": 8,
      "raw_score": 1.0,
      "adjusted_score": 0.863043,
      "data_coverage": 0.869565,
@@ -803,7 +918,7 @@
     {
      "material_id": "fx-0012",
      "formula": "Gd2O3",
-     "rank": 8,
+     "rank": 9,
      "raw_score": 1.0,
      "adjusted_score": 0.863043,
      "data_coverage": 0.869565,
@@ -921,7 +1036,7 @@
     {
      "material_id": "fx-0027",
      "formula": "SrHfO3",
-     "rank": 9,
+     "rank": 10,
      "raw_score": 0.861488,
      "adjusted_score": 0.861488,
      "data_coverage": 1.0,
@@ -1033,7 +1148,7 @@
     {
      "material_id": "fx-0011",
      "formula": "Sc2O3",
-     "rank": 10,
+     "rank": 11,
      "raw_score": 0.997301,
      "adjusted_score": 0.860697,
      "data_coverage": 0.869565,
@@ -1152,7 +1267,7 @@
     {
      "material_id": "fx-0013",
      "formula": "Lu2O3",
-     "rank": 11,
+     "rank": 12,
      "raw_score": 0.993647,
      "adjusted_score": 0.857519,
      "data_coverage": 0.869565,
@@ -1270,7 +1385,7 @@
     {
      "material_id": "fx-0026",
      "formula": "MgAl2O4",
-     "rank": 12,
+     "rank": 13,
      "raw_score": 0.837747,
      "adjusted_score": 0.837747,
      "data_coverage": 1.0,
@@ -1382,7 +1497,7 @@
     {
      "material_id": "fx-0016",
      "formula": "CaO",
-     "rank": 13,
+     "rank": 14,
      "raw_score": 0.83473,
      "adjusted_score": 0.83473,
      "data_coverage": 1.0,
@@ -1496,7 +1611,7 @@
     {
      "material_id": "fx-0010",
      "formula": "La2O3",
-     "rank": 14,
+     "rank": 15,
      "raw_score": 0.965442,
      "adjusted_score": 0.832993,
      "data_coverage": 0.869565,
@@ -1616,7 +1731,7 @@
     {
      "material_id": "fx-0033",
      "formula": "ZrSiO4",
-     "rank": 15,
+     "rank": 16,
      "raw_score": 0.96,
      "adjusted_score": 0.828261,
      "data_coverage": 0.869565,
@@ -1735,7 +1850,7 @@
     {
      "material_id": "fx-0035",
      "formula": "Y3Al5O12",
-     "rank": 16,
+     "rank": 17,
      "raw_score": 0.96,
      "adjusted_score": 0.828261,
      "data_coverage": 0.869565,
@@ -1853,7 +1968,7 @@
     {
      "material_id": "fx-0032",
      "formula": "HfSiO4",
-     "rank": 17,
+     "rank": 18,
      "raw_score": 0.958317,
      "adjusted_score": 0.826797,
      "data_coverage": 0.869565,
@@ -1971,7 +2086,7 @@
     {
      "material_id": "fx-0031",
      "formula": "LaLuO3",
-     "rank": 18,
+     "rank": 19,
      "raw_score": 0.934415,
      "adjusted_score": 0.806013,
      "data_coverage": 0.869565,
@@ -2092,7 +2207,7 @@
     {
      "material_id": "fx-0028",
      "formula": "SrZrO3",
-     "rank": 19,
+     "rank": 20,
      "raw_score": 0.800311,
      "adjusted_score": 0.800311,
      "data_coverage": 1.0,
@@ -2202,14 +2317,126 @@
      "polymorphs": []
     },
     {
+     "material_id": "fx-0040",
+     "formula": "YTaO4",
+     "rank": 21,
+     "raw_score": 0.773798,
+     "adjusted_score": 0.773798,
+     "data_coverage": 1.0,
+     "confidence": "high",
+     "tier": 4,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 5.6 eV (corrected from GGA 4.0 eV); dielectric constant 18 (DFPT); reacts with Si (-0.19 eV/atom); benign elements; 60 thin-film papers.",
+     "missing_criteria": [],
+     "absent_criteria": [],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.217391,
+       "normalized": 1.0,
+       "contribution": 0.217391,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.217391,
+       "normalized": 1.0,
+       "contribution": 0.217391,
+       "status": "known",
+       "raw_label": "effective gap = 5.60 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA value 4.00 eV x 1.4 = 5.60 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 4) / (5.5 - 4))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.130435,
+       "normalized": 0.440909,
+       "contribution": 0.05751,
+       "status": "known",
+       "raw_label": "e_total = 17.7 (DFPT; electronic 4.6)",
+       "notes": [
+        "score = clamp((e_total - 8) / (30 - 8))"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.130435,
+       "normalized": 0.312,
+       "contribution": 0.040696,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.188 eV/atom -> Y2Si2O7 + TaSi2 + SiO2 + Ta5Si3",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (17 stable phases), at 35% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.130435,
+       "normalized": 1.0,
+       "contribution": 0.130435,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (Ta, Y) [table 2026-09-09.1]",
+       "notes": [
+        "Ta: tier 0 (Ta2O5 not classified; biocompatible)",
+        "Y: tier 0 (Y2O3 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.086957,
+       "normalized": 0.6,
+       "contribution": 0.052174,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.086957,
+       "normalized": 0.66932,
+       "contribution": 0.058202,
+       "status": "known",
+       "raw_label": "60 thin-film works / 350 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.661 (log-saturating at 500), total sub-score 0.688 (saturating at 5000), weights 0.7/0.3",
+        "search terms: YTaO4"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "band_gap_corrected"
+     ],
+     "fom_status": "known",
+     "fom_provenance_note": "synthetic fixture record, NOT real data",
+     "polymorphs": []
+    },
+    {
      "material_id": "fx-0017",
      "formula": "SrO",
-     "rank": 20,
+     "rank": 22,
      "raw_score": 0.725378,
      "adjusted_score": 0.725378,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 4,
+     "tier": 5,
      "rationale": "on the convex hull, OQMD agrees; effective gap 4.6 eV (corrected from GGA 3.3 eV); dielectric constant 14 (DFPT); reacts with Si (-0.14 eV/atom); benign elements; 900 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -2318,12 +2545,12 @@
     {
      "material_id": "fx-0029",
      "formula": "BaZrO3",
-     "rank": 21,
+     "rank": 23,
      "raw_score": 0.716449,
      "adjusted_score": 0.716449,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 4,
+     "tier": 5,
      "rationale": "on the convex hull, OQMD agrees; effective gap 4.5 eV (corrected from GGA 3.2 eV); dielectric constant 40 (DFPT); reacts with Si (-0.11 eV/atom); caution element(s): Ba; 2,000 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -2429,6 +2656,126 @@
      "fom_status": "known",
      "fom_provenance_note": "synthetic fixture record, NOT real data",
      "polymorphs": []
+    },
+    {
+     "material_id": "fx-0039",
+     "formula": "Sm2Zr2O7",
+     "rank": 24,
+     "raw_score": 0.705818,
+     "adjusted_score": 0.607233,
+     "data_coverage": 0.869565,
+     "confidence": "medium",
+     "tier": 6,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 4.3 eV (corrected from GGA+U 3.1 eV); dielectric constant unknown; reacts with Si (-0.10 eV/atom); benign elements; 110 thin-film papers.",
+     "missing_criteria": [
+      "dielectric"
+     ],
+     "absent_criteria": [
+      "dielectric"
+     ],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.217391,
+       "normalized": 1.0,
+       "contribution": 0.217391,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.217391,
+       "normalized": 0.226667,
+       "contribution": 0.049275,
+       "status": "known",
+       "raw_label": "effective gap = 4.34 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA+U value 3.10 eV x 1.4 = 4.34 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 4) / (5.5 - 4))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.130435,
+       "normalized": null,
+       "contribution": null,
+       "status": "absent",
+       "raw_label": "dielectric constant UNKNOWN",
+       "notes": [
+        "no DFPT dielectric record in MP",
+        "not scored; coverage reduced"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.130435,
+       "normalized": 0.7615,
+       "contribution": 0.099326,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.098 eV/atom -> Sm2Si2O7 + ZrSi + ZrSi2",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (20 stable phases), at 30% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.130435,
+       "normalized": 1.0,
+       "contribution": 0.130435,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (Sm, Zr) [table 2026-09-09.1]",
+       "notes": [
+        "Sm: tier 0 (Sm2O3 not classified)",
+        "Zr: tier 0 (ZrO2 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.086957,
+       "normalized": 0.6,
+       "contribution": 0.052174,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.086957,
+       "normalized": 0.749262,
+       "contribution": 0.065153,
+       "status": "known",
+       "raw_label": "110 thin-film works / 500 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.758 (log-saturating at 500), total sub-score 0.730 (saturating at 5000), weights 0.7/0.3",
+        "search terms: Sm2Zr2O7"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "dielectric_unknown",
+      "band_gap_near_threshold",
+      "partial_data",
+      "band_gap_corrected"
+     ],
+     "fom_status": "absent",
+     "fom_provenance_note": "no DFPT dielectric record in MP for this material",
+     "polymorphs": []
     }
    ],
    "excluded": [
@@ -2499,10 +2846,18 @@
      "reasons": [
       "effective gap 3.25 eV below 4 eV"
      ]
+    },
+    {
+     "material_id": "fx-0038",
+     "reasons": [
+      "effective gap 3.89 eV below 4 eV"
+     ]
     }
    ],
-   "collapsed": [],
-   "n_candidates_considered": 32,
+   "collapsed": [
+    "fx-0042"
+   ],
+   "n_candidates_considered": 37,
    "deviations": []
   },
   "conservative": {
@@ -4259,9 +4614,234 @@
      "polymorphs": []
     },
     {
+     "material_id": "fx-0037",
+     "formula": "La2Zr2O7",
+     "rank": 16,
+     "raw_score": 0.816104,
+     "adjusted_score": 0.816104,
+     "data_coverage": 1.0,
+     "confidence": "high",
+     "tier": 4,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 5.2 eV (corrected from GGA 3.7 eV); dielectric constant 36 (DFPT); reacts with Si (-0.09 eV/atom); benign elements; 420 thin-film papers.",
+     "missing_criteria": [],
+     "absent_criteria": [],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.26087,
+       "normalized": 1.0,
+       "contribution": 0.26087,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.217391,
+       "normalized": 0.444,
+       "contribution": 0.096522,
+       "status": "known",
+       "raw_label": "effective gap = 5.22 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA value 3.73 eV x 1.4 = 5.22 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 5) / (5.5 - 5))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.086957,
+       "normalized": 1.0,
+       "contribution": 0.086957,
+       "status": "known",
+       "raw_label": "e_total = 36.3 (DFPT; electronic 4.9)",
+       "notes": [
+        "score = clamp((e_total - 8) / (30 - 8))"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.130435,
+       "normalized": 0.8205,
+       "contribution": 0.107022,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.086 eV/atom -> La2Si2O7 + ZrSi + ZrSi2",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (21 stable phases), at 30% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.130435,
+       "normalized": 1.0,
+       "contribution": 0.130435,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (La, Zr) [table 2026-09-09.1]",
+       "notes": [
+        "La: tier 0 (La2O3 not classified; hygroscopic)",
+        "Zr: tier 0 (ZrO2 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.086957,
+       "normalized": 0.6,
+       "contribution": 0.052174,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.086957,
+       "normalized": 0.944438,
+       "contribution": 0.082125,
+       "status": "known",
+       "raw_label": "420 thin-film works / 1800 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.972 (log-saturating at 500), total sub-score 0.880 (saturating at 5000), weights 0.7/0.3",
+        "search terms: La2Zr2O7"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "band_gap_near_threshold",
+      "band_gap_corrected"
+     ],
+     "fom_status": "known",
+     "fom_provenance_note": "synthetic fixture record, NOT real data",
+     "polymorphs": []
+    },
+    {
+     "material_id": "fx-0040",
+     "formula": "YTaO4",
+     "rank": 17,
+     "raw_score": 0.798107,
+     "adjusted_score": 0.798107,
+     "data_coverage": 1.0,
+     "confidence": "high",
+     "tier": 4,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 5.6 eV (corrected from GGA 4.0 eV); dielectric constant 18 (DFPT); reacts with Si (-0.19 eV/atom); benign elements; 60 thin-film papers.",
+     "missing_criteria": [],
+     "absent_criteria": [],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.26087,
+       "normalized": 1.0,
+       "contribution": 0.26087,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.217391,
+       "normalized": 1.0,
+       "contribution": 0.217391,
+       "status": "known",
+       "raw_label": "effective gap = 5.60 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA value 4.00 eV x 1.4 = 5.60 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 5) / (5.5 - 5))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.086957,
+       "normalized": 0.440909,
+       "contribution": 0.03834,
+       "status": "known",
+       "raw_label": "e_total = 17.7 (DFPT; electronic 4.6)",
+       "notes": [
+        "score = clamp((e_total - 8) / (30 - 8))"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.130435,
+       "normalized": 0.312,
+       "contribution": 0.040696,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.188 eV/atom -> Y2Si2O7 + TaSi2 + SiO2 + Ta5Si3",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (17 stable phases), at 35% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.130435,
+       "normalized": 1.0,
+       "contribution": 0.130435,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (Ta, Y) [table 2026-09-09.1]",
+       "notes": [
+        "Ta: tier 0 (Ta2O5 not classified; biocompatible)",
+        "Y: tier 0 (Y2O3 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.086957,
+       "normalized": 0.6,
+       "contribution": 0.052174,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.086957,
+       "normalized": 0.66932,
+       "contribution": 0.058202,
+       "status": "known",
+       "raw_label": "60 thin-film works / 350 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.661 (log-saturating at 500), total sub-score 0.688 (saturating at 5000), weights 0.7/0.3",
+        "search terms: YTaO4"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "band_gap_corrected"
+     ],
+     "fom_status": "known",
+     "fom_provenance_note": "synthetic fixture record, NOT real data",
+     "polymorphs": []
+    },
+    {
      "material_id": "fx-0027",
      "formula": "SrHfO3",
-     "rank": 16,
+     "rank": 18,
      "raw_score": 0.796613,
      "adjusted_score": 0.796613,
      "data_coverage": 1.0,
@@ -4374,7 +4954,7 @@
     {
      "material_id": "fx-0003",
      "formula": "ZrO2",
-     "rank": 17,
+     "rank": 19,
      "raw_score": 0.762169,
      "adjusted_score": 0.762169,
      "data_coverage": 1.0,
@@ -4487,7 +5067,7 @@
     {
      "material_id": "fx-0016",
      "formula": "CaO",
-     "rank": 18,
+     "rank": 20,
      "raw_score": 0.753202,
      "adjusted_score": 0.753202,
      "data_coverage": 1.0,
@@ -4690,10 +5270,28 @@
       "effective gap 3.25 eV below 5 eV",
       "contains blocked element(s): Bi"
      ]
+    },
+    {
+     "material_id": "fx-0038",
+     "reasons": [
+      "effective gap 3.89 eV below 5 eV"
+     ]
+    },
+    {
+     "material_id": "fx-0039",
+     "reasons": [
+      "effective gap 4.34 eV below 5 eV"
+     ]
+    },
+    {
+     "material_id": "fx-0042",
+     "reasons": [
+      "effective gap 4.84 eV below 5 eV"
+     ]
     }
    ],
    "collapsed": [],
-   "n_candidates_considered": 32,
+   "n_candidates_considered": 37,
    "deviations": []
   },
   "exploratory": {
@@ -4708,9 +5306,121 @@
    },
    "ranked": [
     {
+     "material_id": "fx-0037",
+     "formula": "La2Zr2O7",
+     "rank": 1,
+     "raw_score": 0.939742,
+     "adjusted_score": 0.939742,
+     "data_coverage": 1.0,
+     "confidence": "high",
+     "tier": 1,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 5.2 eV (corrected from GGA 3.7 eV); dielectric constant 36 (DFPT); reacts with Si (-0.09 eV/atom); benign elements; 420 thin-film papers.",
+     "missing_criteria": [],
+     "absent_criteria": [],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.136364,
+       "normalized": 1.0,
+       "contribution": 0.136364,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.181818,
+       "normalized": 1.0,
+       "contribution": 0.181818,
+       "status": "known",
+       "raw_label": "effective gap = 5.22 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA value 3.73 eV x 1.4 = 5.22 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 3) / (5 - 3))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.272727,
+       "normalized": 1.0,
+       "contribution": 0.272727,
+       "status": "known",
+       "raw_label": "e_total = 36.3 (DFPT; electronic 4.9)",
+       "notes": [
+        "score = clamp((e_total - 8) / (30 - 8))"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.090909,
+       "normalized": 0.8205,
+       "contribution": 0.074591,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.086 eV/atom -> La2Si2O7 + ZrSi + ZrSi2",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (21 stable phases), at 30% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (La, Zr) [table 2026-09-09.1]",
+       "notes": [
+        "La: tier 0 (La2O3 not classified; hygroscopic)",
+        "Zr: tier 0 (ZrO2 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.090909,
+       "normalized": 0.6,
+       "contribution": 0.054545,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.136364,
+       "normalized": 0.944438,
+       "contribution": 0.128787,
+       "status": "known",
+       "raw_label": "420 thin-film works / 1800 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.972 (log-saturating at 500), total sub-score 0.880 (saturating at 5000), weights 0.7/0.3",
+        "search terms: La2Zr2O7"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "band_gap_corrected"
+     ],
+     "fom_status": "known",
+     "fom_provenance_note": "synthetic fixture record, NOT real data",
+     "polymorphs": []
+    },
+    {
      "material_id": "fx-0025",
      "formula": "LaAlO3",
-     "rank": 1,
+     "rank": 2,
      "raw_score": 0.901653,
      "adjusted_score": 0.901653,
      "data_coverage": 1.0,
@@ -4822,7 +5532,7 @@
     {
      "material_id": "fx-0001",
      "formula": "HfO2",
-     "rank": 2,
+     "rank": 3,
      "raw_score": 0.900827,
      "adjusted_score": 0.900827,
      "data_coverage": 1.0,
@@ -4932,12 +5642,12 @@
     {
      "material_id": "fx-0003",
      "formula": "ZrO2",
-     "rank": 3,
+     "rank": 4,
      "raw_score": 0.87355,
      "adjusted_score": 0.87355,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 1,
+     "tier": 2,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.1 eV (corrected from GGA 3.6 eV); dielectric constant 20 (DFPT); reacts with Si (-0.07 eV/atom); benign elements; 8,200 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -5035,16 +5745,19 @@
       "fixture_data",
       "substrate_reaction",
       "substrate_literature_confound",
-      "band_gap_corrected"
+      "band_gap_corrected",
+      "polymorphs_collapsed"
      ],
      "fom_status": "known",
      "fom_provenance_note": "synthetic fixture record, NOT real data",
-     "polymorphs": []
+     "polymorphs": [
+      "fx-0042"
+     ]
     },
     {
      "material_id": "fx-0028",
      "formula": "SrZrO3",
-     "rank": 4,
+     "rank": 5,
      "raw_score": 0.850347,
      "adjusted_score": 0.850347,
      "data_coverage": 1.0,
@@ -5156,7 +5869,7 @@
     {
      "material_id": "fx-0029",
      "formula": "BaZrO3",
-     "rank": 5,
+     "rank": 6,
      "raw_score": 0.845727,
      "adjusted_score": 0.845727,
      "data_coverage": 1.0,
@@ -5271,7 +5984,7 @@
     {
      "material_id": "fx-0027",
      "formula": "SrHfO3",
-     "rank": 6,
+     "rank": 7,
      "raw_score": 0.836341,
      "adjusted_score": 0.836341,
      "data_coverage": 1.0,
@@ -5383,7 +6096,7 @@
     {
      "material_id": "fx-0016",
      "formula": "CaO",
-     "rank": 7,
+     "rank": 8,
      "raw_score": 0.77686,
      "adjusted_score": 0.77686,
      "data_coverage": 1.0,
@@ -5497,7 +6210,7 @@
     {
      "material_id": "fx-0004",
      "formula": "Al2O3",
-     "rank": 8,
+     "rank": 9,
      "raw_score": 0.749587,
      "adjusted_score": 0.749587,
      "data_coverage": 1.0,
@@ -5608,7 +6321,7 @@
     {
      "material_id": "fx-0006",
      "formula": "MgO",
-     "rank": 9,
+     "rank": 10,
      "raw_score": 0.748347,
      "adjusted_score": 0.748347,
      "data_coverage": 1.0,
@@ -5722,7 +6435,7 @@
     {
      "material_id": "fx-0017",
      "formula": "SrO",
-     "rank": 10,
+     "rank": 11,
      "raw_score": 0.730426,
      "adjusted_score": 0.730426,
      "data_coverage": 1.0,
@@ -5836,7 +6549,7 @@
     {
      "material_id": "fx-0007",
      "formula": "SiO2",
-     "rank": 11,
+     "rank": 12,
      "raw_score": 0.727273,
      "adjusted_score": 0.727273,
      "data_coverage": 1.0,
@@ -5946,7 +6659,7 @@
     {
      "material_id": "fx-0009",
      "formula": "Y2O3",
-     "rank": 12,
+     "rank": 13,
      "raw_score": 1.0,
      "adjusted_score": 0.727273,
      "data_coverage": 0.727273,
@@ -6065,7 +6778,7 @@
     {
      "material_id": "fx-0012",
      "formula": "Gd2O3",
-     "rank": 13,
+     "rank": 14,
      "raw_score": 1.0,
      "adjusted_score": 0.727273,
      "data_coverage": 0.727273,
@@ -6183,7 +6896,7 @@
     {
      "material_id": "fx-0005",
      "formula": "Ta2O5",
-     "rank": 14,
+     "rank": 15,
      "raw_score": 0.726389,
      "adjusted_score": 0.726389,
      "data_coverage": 1.0,
@@ -6296,7 +7009,7 @@
     {
      "material_id": "fx-0011",
      "formula": "Sc2O3",
-     "rank": 15,
+     "rank": 16,
      "raw_score": 0.99869,
      "adjusted_score": 0.72632,
      "data_coverage": 0.727273,
@@ -6415,7 +7128,7 @@
     {
      "material_id": "fx-0010",
      "formula": "La2O3",
-     "rank": 16,
+     "rank": 17,
      "raw_score": 0.992313,
      "adjusted_score": 0.721682,
      "data_coverage": 0.727273,
@@ -6535,7 +7248,7 @@
     {
      "material_id": "fx-0013",
      "formula": "Lu2O3",
-     "rank": 17,
+     "rank": 18,
      "raw_score": 0.988088,
      "adjusted_score": 0.71861,
      "data_coverage": 0.727273,
@@ -6653,7 +7366,7 @@
     {
      "material_id": "fx-0034",
      "formula": "Bi2O3",
-     "rank": 18,
+     "rank": 19,
      "raw_score": 0.704364,
      "adjusted_score": 0.704364,
      "data_coverage": 1.0,
@@ -6764,9 +7477,121 @@
      "polymorphs": []
     },
     {
+     "material_id": "fx-0040",
+     "formula": "YTaO4",
+     "rank": 20,
+     "raw_score": 0.703519,
+     "adjusted_score": 0.703519,
+     "data_coverage": 1.0,
+     "confidence": "high",
+     "tier": 4,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 5.6 eV (corrected from GGA 4.0 eV); dielectric constant 18 (DFPT); reacts with Si (-0.19 eV/atom); benign elements; 60 thin-film papers.",
+     "missing_criteria": [],
+     "absent_criteria": [],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.136364,
+       "normalized": 1.0,
+       "contribution": 0.136364,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.181818,
+       "normalized": 1.0,
+       "contribution": 0.181818,
+       "status": "known",
+       "raw_label": "effective gap = 5.60 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA value 4.00 eV x 1.4 = 5.60 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 3) / (5 - 3))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.272727,
+       "normalized": 0.440909,
+       "contribution": 0.120248,
+       "status": "known",
+       "raw_label": "e_total = 17.7 (DFPT; electronic 4.6)",
+       "notes": [
+        "score = clamp((e_total - 8) / (30 - 8))"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.090909,
+       "normalized": 0.312,
+       "contribution": 0.028364,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.188 eV/atom -> Y2Si2O7 + TaSi2 + SiO2 + Ta5Si3",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (17 stable phases), at 35% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (Ta, Y) [table 2026-09-09.1]",
+       "notes": [
+        "Ta: tier 0 (Ta2O5 not classified; biocompatible)",
+        "Y: tier 0 (Y2O3 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.090909,
+       "normalized": 0.6,
+       "contribution": 0.054545,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.136364,
+       "normalized": 0.66932,
+       "contribution": 0.091271,
+       "status": "known",
+       "raw_label": "60 thin-film works / 350 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.661 (log-saturating at 500), total sub-score 0.688 (saturating at 5000), weights 0.7/0.3",
+        "search terms: YTaO4"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "band_gap_corrected"
+     ],
+     "fom_status": "known",
+     "fom_provenance_note": "synthetic fixture record, NOT real data",
+     "polymorphs": []
+    },
+    {
      "material_id": "fx-0026",
      "formula": "MgAl2O4",
-     "rank": 19,
+     "rank": 21,
      "raw_score": 0.697108,
      "adjusted_score": 0.697108,
      "data_coverage": 1.0,
@@ -6878,7 +7703,7 @@
     {
      "material_id": "fx-0033",
      "formula": "ZrSiO4",
-     "rank": 20,
+     "rank": 22,
      "raw_score": 0.95,
      "adjusted_score": 0.690909,
      "data_coverage": 0.727273,
@@ -6997,7 +7822,7 @@
     {
      "material_id": "fx-0035",
      "formula": "Y3Al5O12",
-     "rank": 21,
+     "rank": 23,
      "raw_score": 0.95,
      "adjusted_score": 0.690909,
      "data_coverage": 0.727273,
@@ -7115,7 +7940,7 @@
     {
      "material_id": "fx-0032",
      "formula": "HfSiO4",
-     "rank": 22,
+     "rank": 24,
      "raw_score": 0.946844,
      "adjusted_score": 0.688614,
      "data_coverage": 0.727273,
@@ -7233,7 +8058,7 @@
     {
      "material_id": "fx-0031",
      "formula": "LaLuO3",
-     "rank": 23,
+     "rank": 25,
      "raw_score": 0.916092,
      "adjusted_score": 0.666249,
      "data_coverage": 0.727273,
@@ -7350,6 +8175,245 @@
      "fom_status": "absent",
      "fom_provenance_note": "no DFPT dielectric record in MP for this material",
      "polymorphs": []
+    },
+    {
+     "material_id": "fx-0039",
+     "formula": "Sm2Zr2O7",
+     "rank": 26,
+     "raw_score": 0.790674,
+     "adjusted_score": 0.575036,
+     "data_coverage": 0.727273,
+     "confidence": "medium",
+     "tier": 6,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 4.3 eV (corrected from GGA+U 3.1 eV); dielectric constant unknown; reacts with Si (-0.10 eV/atom); benign elements; 110 thin-film papers.",
+     "missing_criteria": [
+      "dielectric"
+     ],
+     "absent_criteria": [
+      "dielectric"
+     ],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.136364,
+       "normalized": 1.0,
+       "contribution": 0.136364,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.181818,
+       "normalized": 0.67,
+       "contribution": 0.121818,
+       "status": "known",
+       "raw_label": "effective gap = 4.34 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA+U value 3.10 eV x 1.4 = 4.34 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 3) / (5 - 3))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.272727,
+       "normalized": null,
+       "contribution": null,
+       "status": "absent",
+       "raw_label": "dielectric constant UNKNOWN",
+       "notes": [
+        "no DFPT dielectric record in MP",
+        "not scored; coverage reduced"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.090909,
+       "normalized": 0.7615,
+       "contribution": 0.069227,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.098 eV/atom -> Sm2Si2O7 + ZrSi + ZrSi2",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (20 stable phases), at 30% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (Sm, Zr) [table 2026-09-09.1]",
+       "notes": [
+        "Sm: tier 0 (Sm2O3 not classified)",
+        "Zr: tier 0 (ZrO2 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.090909,
+       "normalized": 0.6,
+       "contribution": 0.054545,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.136364,
+       "normalized": 0.749262,
+       "contribution": 0.102172,
+       "status": "known",
+       "raw_label": "110 thin-film works / 500 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.758 (log-saturating at 500), total sub-score 0.730 (saturating at 5000), weights 0.7/0.3",
+        "search terms: Sm2Zr2O7"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "dielectric_unknown",
+      "partial_data",
+      "band_gap_corrected"
+     ],
+     "fom_status": "absent",
+     "fom_provenance_note": "no DFPT dielectric record in MP for this material",
+     "polymorphs": []
+    },
+    {
+     "material_id": "fx-0038",
+     "formula": "Gd2Zr2O7",
+     "rank": 27,
+     "raw_score": 0.763163,
+     "adjusted_score": 0.555028,
+     "data_coverage": 0.727273,
+     "confidence": "medium",
+     "tier": 6,
+     "rationale": "4 meV/atom above hull, OQMD agrees; effective gap 3.9 eV (corrected from GGA+U 2.8 eV); dielectric constant unknown; reacts with Si (-0.10 eV/atom); benign elements; 300 thin-film papers.",
+     "missing_criteria": [
+      "dielectric"
+     ],
+     "absent_criteria": [
+      "dielectric"
+     ],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.136364,
+       "normalized": 1.0,
+       "contribution": 0.136364,
+       "status": "known",
+       "raw_label": "E_hull = 0.004 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 0.960",
+        "OQMD agrees (hull distance 0.004 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.181818,
+       "normalized": 0.446,
+       "contribution": 0.081091,
+       "status": "known",
+       "raw_label": "effective gap = 3.89 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA+U value 2.78 eV x 1.4 = 3.89 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 3) / (5 - 3))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.272727,
+       "normalized": null,
+       "contribution": null,
+       "status": "absent",
+       "raw_label": "dielectric constant UNKNOWN",
+       "notes": [
+        "no DFPT dielectric record in MP",
+        "not scored; coverage reduced"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.090909,
+       "normalized": 0.7705,
+       "contribution": 0.070045,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.096 eV/atom -> Gd2Si2O7 + ZrSi + ZrSi2",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (19 stable phases), at 30% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (Gd, Zr) [table 2026-09-09.1]",
+       "notes": [
+        "Gd: tier 0 (Gd2O3 not classified)",
+        "Zr: tier 0 (ZrO2 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.090909,
+       "normalized": 0.6,
+       "contribution": 0.054545,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.136364,
+       "normalized": 0.895203,
+       "contribution": 0.122073,
+       "status": "known",
+       "raw_label": "300 thin-film works / 1300 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.918 (log-saturating at 500), total sub-score 0.842 (saturating at 5000), weights 0.7/0.3",
+        "search terms: Gd2Zr2O7"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "dielectric_unknown",
+      "metastable",
+      "partial_data",
+      "band_gap_corrected"
+     ],
+     "fom_status": "absent",
+     "fom_provenance_note": "no DFPT dielectric record in MP for this material",
+     "polymorphs": []
     }
    ],
    "excluded": [
@@ -7409,8 +8473,10 @@
      ]
     }
    ],
-   "collapsed": [],
-   "n_candidates_considered": 32,
+   "collapsed": [
+    "fx-0042"
+   ],
+   "n_candidates_considered": 37,
    "deviations": []
   },
   "ferroelectric-research": {
@@ -7425,14 +8491,126 @@
    },
    "ranked": [
     {
+     "material_id": "fx-0037",
+     "formula": "La2Zr2O7",
+     "rank": 1,
+     "raw_score": 0.955398,
+     "adjusted_score": 0.955398,
+     "data_coverage": 1.0,
+     "confidence": "high",
+     "tier": 1,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 5.2 eV (corrected from GGA 3.7 eV); dielectric constant 36 (DFPT); reacts with Si (-0.09 eV/atom); benign elements; 420 thin-film papers.",
+     "missing_criteria": [],
+     "absent_criteria": [],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.181818,
+       "normalized": 1.0,
+       "contribution": 0.181818,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "effective gap = 5.22 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA value 3.73 eV x 1.4 = 5.22 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 2.5) / (4 - 2.5))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.318182,
+       "normalized": 1.0,
+       "contribution": 0.318182,
+       "status": "known",
+       "raw_label": "e_total = 36.3 (DFPT; electronic 4.9)",
+       "notes": [
+        "score = clamp((e_total - 8) / (30 - 8))"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.090909,
+       "normalized": 0.8205,
+       "contribution": 0.074591,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.086 eV/atom -> La2Si2O7 + ZrSi + ZrSi2",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (21 stable phases), at 30% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (La, Zr) [table 2026-09-09.1]",
+       "notes": [
+        "La: tier 0 (La2O3 not classified; hygroscopic)",
+        "Zr: tier 0 (ZrO2 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.045455,
+       "normalized": 0.6,
+       "contribution": 0.027273,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.181818,
+       "normalized": 0.944438,
+       "contribution": 0.171716,
+       "status": "known",
+       "raw_label": "420 thin-film works / 1800 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.972 (log-saturating at 500), total sub-score 0.880 (saturating at 5000), weights 0.7/0.3",
+        "search terms: La2Zr2O7"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "band_gap_corrected"
+     ],
+     "fom_status": "known",
+     "fom_provenance_note": "synthetic fixture record, NOT real data",
+     "polymorphs": []
+    },
+    {
      "material_id": "fx-0025",
      "formula": "LaAlO3",
-     "rank": 1,
+     "rank": 2,
      "raw_score": 0.909504,
      "adjusted_score": 0.909504,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 1,
+     "tier": 2,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.2 eV (corrected from GGA 3.7 eV); dielectric constant 25 (DFPT); stable against Si; benign elements; 12,100 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -7539,12 +8717,12 @@
     {
      "material_id": "fx-0029",
      "formula": "BaZrO3",
-     "rank": 2,
+     "rank": 3,
      "raw_score": 0.908636,
      "adjusted_score": 0.908636,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 1,
+     "tier": 2,
      "rationale": "on the convex hull, OQMD agrees; effective gap 4.5 eV (corrected from GGA 3.2 eV); dielectric constant 40 (DFPT); reacts with Si (-0.11 eV/atom); caution element(s): Ba; 2,000 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -7654,12 +8832,12 @@
     {
      "material_id": "fx-0001",
      "formula": "HfO2",
-     "rank": 3,
+     "rank": 4,
      "raw_score": 0.884298,
      "adjusted_score": 0.884298,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 1,
+     "tier": 2,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.6 eV (corrected from GGA 4.0 eV); dielectric constant 22 (DFPT); stable against Si; benign elements; 4,600 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -7764,12 +8942,12 @@
     {
      "material_id": "fx-0028",
      "formula": "SrZrO3",
-     "rank": 4,
+     "rank": 5,
      "raw_score": 0.862678,
      "adjusted_score": 0.862678,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 2,
+     "tier": 3,
      "rationale": "on the convex hull, OQMD agrees; effective gap 4.9 eV (corrected from GGA 3.5 eV); dielectric constant 24 (DFPT); reacts with Si (-0.12 eV/atom); benign elements; 1,200 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -7876,12 +9054,12 @@
     {
      "material_id": "fx-0003",
      "formula": "ZrO2",
-     "rank": 5,
+     "rank": 6,
      "raw_score": 0.853921,
      "adjusted_score": 0.853921,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 2,
+     "tier": 3,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.1 eV (corrected from GGA 3.6 eV); dielectric constant 20 (DFPT); reacts with Si (-0.07 eV/atom); benign elements; 8,200 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -7979,21 +9157,24 @@
       "fixture_data",
       "substrate_reaction",
       "substrate_literature_confound",
-      "band_gap_corrected"
+      "band_gap_corrected",
+      "polymorphs_collapsed"
      ],
      "fom_status": "known",
      "fom_provenance_note": "synthetic fixture record, NOT real data",
-     "polymorphs": []
+     "polymorphs": [
+      "fx-0042"
+     ]
     },
     {
      "material_id": "fx-0021",
      "formula": "SrTiO3",
-     "rank": 6,
+     "rank": 7,
      "raw_score": 0.851364,
      "adjusted_score": 0.851364,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 2,
+     "tier": 3,
      "rationale": "on the convex hull, OQMD agrees; effective gap 2.5 eV (corrected from GGA 1.8 eV); dielectric constant 85 (DFPT); reacts with Si (-0.14 eV/atom); benign elements; 30,500 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -8102,12 +9283,12 @@
     {
      "material_id": "fx-0027",
      "formula": "SrHfO3",
-     "rank": 7,
+     "rank": 8,
      "raw_score": 0.832752,
      "adjusted_score": 0.832752,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 2,
+     "tier": 3,
      "rationale": "on the convex hull; effective gap 5.2 eV (corrected from GGA 3.7 eV); dielectric constant 20 (DFPT); stable against Si; benign elements; 900 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -8214,12 +9395,12 @@
     {
      "material_id": "fx-0034",
      "formula": "Bi2O3",
-     "rank": 8,
+     "rank": 9,
      "raw_score": 0.818061,
      "adjusted_score": 0.818061,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 3,
+     "tier": 4,
      "rationale": "on the convex hull, OQMD agrees; effective gap 3.2 eV (corrected from GGA 2.3 eV); dielectric constant 40 (DFPT); reacts with Si (-0.98 eV/atom); caution element(s): Bi; 8,100 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -8326,12 +9507,12 @@
     {
      "material_id": "fx-0018",
      "formula": "BaO",
-     "rank": 9,
+     "rank": 10,
      "raw_score": 0.811364,
      "adjusted_score": 0.811364,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 3,
+     "tier": 4,
      "rationale": "on the convex hull, OQMD agrees; effective gap 3.0 eV (corrected from GGA 2.1 eV); dielectric constant 34 (DFPT); reacts with Si (-0.23 eV/atom); caution element(s): Ba; 820 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -8443,12 +9624,12 @@
     {
      "material_id": "fx-0005",
      "formula": "Ta2O5",
-     "rank": 10,
+     "rank": 11,
      "raw_score": 0.810953,
      "adjusted_score": 0.810953,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 3,
+     "tier": 4,
      "rationale": "12 meV/atom above hull, OQMD disagrees; effective gap 3.7 eV (corrected from GGA 2.6 eV); dielectric constant 28 (DFPT); reacts with Si (-0.30 eV/atom); benign elements; 6,100 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -8556,12 +9737,12 @@
     {
      "material_id": "fx-0022",
      "formula": "BaTiO3",
-     "rank": 11,
+     "rank": 12,
      "raw_score": 0.799667,
      "adjusted_score": 0.799667,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 3,
+     "tier": 4,
      "rationale": "on the convex hull, OQMD agrees; effective gap 2.6 eV (corrected from GGA 1.8 eV); dielectric constant 60 (DFPT); reacts with Si (-0.16 eV/atom); caution element(s): Ba; 40,200 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -8672,12 +9853,12 @@
     {
      "material_id": "fx-0020",
      "formula": "CeO2",
-     "rank": 12,
+     "rank": 13,
      "raw_score": 0.792722,
      "adjusted_score": 0.792722,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 3,
+     "tier": 4,
      "rationale": "on the convex hull, OQMD agrees; effective gap 2.8 eV (corrected from GGA+U 2.0 eV); dielectric constant 22 (DFPT); reacts with Si (-0.10 eV/atom); benign elements; 8,100 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -8784,12 +9965,12 @@
     {
      "material_id": "fx-0016",
      "formula": "CaO",
-     "rank": 13,
+     "rank": 14,
      "raw_score": 0.739669,
      "adjusted_score": 0.739669,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 4,
+     "tier": 5,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.1 eV (corrected from GGA 3.6 eV); dielectric constant 12 (DFPT); reacts with Si (-0.03 eV/atom); benign elements; 2,100 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -8898,12 +10079,12 @@
     {
      "material_id": "fx-0017",
      "formula": "SrO",
-     "rank": 14,
+     "rank": 15,
      "raw_score": 0.729368,
      "adjusted_score": 0.729368,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 4,
+     "tier": 5,
      "rationale": "on the convex hull, OQMD agrees; effective gap 4.6 eV (corrected from GGA 3.3 eV); dielectric constant 14 (DFPT); reacts with Si (-0.14 eV/atom); benign elements; 900 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -9012,12 +10193,12 @@
     {
      "material_id": "fx-0023",
      "formula": "PbTiO3",
-     "rank": 15,
+     "rank": 16,
      "raw_score": 0.720485,
      "adjusted_score": 0.720485,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 4,
+     "tier": 5,
      "rationale": "on the convex hull, OQMD agrees; effective gap 2.7 eV (corrected from GGA 1.9 eV); dielectric constant 50 (DFPT); reacts with Si (-0.35 eV/atom); hazardous element(s) permitted by config: Pb; 20,100 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -9128,12 +10309,12 @@
     {
      "material_id": "fx-0004",
      "formula": "Al2O3",
-     "rank": 16,
+     "rank": 17,
      "raw_score": 0.707851,
      "adjusted_score": 0.707851,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 4,
+     "tier": 5,
      "rationale": "on the convex hull, OQMD agrees; effective gap 8.6 eV (corrected from GGA 6.1 eV); dielectric constant 10 (DFPT); stable against Si; benign elements; 15,200 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -9239,12 +10420,12 @@
     {
      "material_id": "fx-0006",
      "formula": "MgO",
-     "rank": 17,
+     "rank": 18,
      "raw_score": 0.706405,
      "adjusted_score": 0.706405,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 4,
+     "tier": 5,
      "rationale": "on the convex hull, OQMD agrees; effective gap 6.2 eV (corrected from GGA 4.5 eV); dielectric constant 10 (DFPT); stable against Si; benign elements; 12,100 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -9353,12 +10534,12 @@
     {
      "material_id": "fx-0007",
      "formula": "SiO2",
-     "rank": 18,
+     "rank": 19,
      "raw_score": 0.681818,
      "adjusted_score": 0.681818,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 7.9 eV (corrected from GGA 5.6 eV); dielectric constant 4 (DFPT); stable against Si; benign elements; 41,000 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -9461,14 +10642,126 @@
      "polymorphs": []
     },
     {
+     "material_id": "fx-0040",
+     "formula": "YTaO4",
+     "rank": 20,
+     "raw_score": 0.681256,
+     "adjusted_score": 0.681256,
+     "data_coverage": 1.0,
+     "confidence": "high",
+     "tier": 6,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 5.6 eV (corrected from GGA 4.0 eV); dielectric constant 18 (DFPT); reacts with Si (-0.19 eV/atom); benign elements; 60 thin-film papers.",
+     "missing_criteria": [],
+     "absent_criteria": [],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.181818,
+       "normalized": 1.0,
+       "contribution": 0.181818,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "effective gap = 5.60 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA value 4.00 eV x 1.4 = 5.60 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 2.5) / (4 - 2.5))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.318182,
+       "normalized": 0.440909,
+       "contribution": 0.140289,
+       "status": "known",
+       "raw_label": "e_total = 17.7 (DFPT; electronic 4.6)",
+       "notes": [
+        "score = clamp((e_total - 8) / (30 - 8))"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.090909,
+       "normalized": 0.312,
+       "contribution": 0.028364,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.188 eV/atom -> Y2Si2O7 + TaSi2 + SiO2 + Ta5Si3",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (17 stable phases), at 35% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (Ta, Y) [table 2026-09-09.1]",
+       "notes": [
+        "Ta: tier 0 (Ta2O5 not classified; biocompatible)",
+        "Y: tier 0 (Y2O3 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.045455,
+       "normalized": 0.6,
+       "contribution": 0.027273,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.181818,
+       "normalized": 0.66932,
+       "contribution": 0.121695,
+       "status": "known",
+       "raw_label": "60 thin-film works / 350 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.661 (log-saturating at 500), total sub-score 0.688 (saturating at 5000), weights 0.7/0.3",
+        "search terms: YTaO4"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "band_gap_corrected"
+     ],
+     "fom_status": "known",
+     "fom_provenance_note": "synthetic fixture record, NOT real data",
+     "polymorphs": []
+    },
+    {
      "material_id": "fx-0026",
      "formula": "MgAl2O4",
-     "rank": 19,
+     "rank": 21,
      "raw_score": 0.670867,
      "adjusted_score": 0.670867,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 7.2 eV (corrected from GGA 5.1 eV); dielectric constant 8 (DFPT); stable against Si; benign elements; 3,050 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -9575,12 +10868,12 @@
     {
      "material_id": "fx-0009",
      "formula": "Y2O3",
-     "rank": 20,
+     "rank": 22,
      "raw_score": 1.0,
      "adjusted_score": 0.665909,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.7 eV (corrected from GGA 4.1 eV); dielectric constant unknown; stable against Si; benign elements; 5,100 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -9694,12 +10987,12 @@
     {
      "material_id": "fx-0012",
      "formula": "Gd2O3",
-     "rank": 21,
+     "rank": 23,
      "raw_score": 1.0,
      "adjusted_score": 0.665909,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.6 eV (corrected from GGA+U 4.0 eV); dielectric constant unknown; stable against Si; benign elements; 1,800 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -9812,12 +11105,12 @@
     {
      "material_id": "fx-0011",
      "formula": "Sc2O3",
-     "rank": 22,
+     "rank": 24,
      "raw_score": 0.998137,
      "adjusted_score": 0.664638,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.5 eV (corrected from unknown 3.9 eV); dielectric constant unknown; stable against Si; benign elements; 920 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -9931,12 +11224,12 @@
     {
      "material_id": "fx-0010",
      "formula": "La2O3",
-     "rank": 23,
+     "rank": 25,
      "raw_score": 0.9918,
      "adjusted_score": 0.660318,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.3 eV (corrected from GGA 3.8 eV); dielectric constant unknown; reacts with Si (-0.06 eV/atom); benign elements; 3,050 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -10051,12 +11344,12 @@
     {
      "material_id": "fx-0013",
      "formula": "Lu2O3",
-     "rank": 24,
+     "rank": 26,
      "raw_score": 0.983058,
      "adjusted_score": 0.654358,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 5.9 eV (corrected from GGA 4.2 eV); dielectric constant unknown; stable against Si; benign elements; 410 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -10169,12 +11462,12 @@
     {
      "material_id": "fx-0033",
      "formula": "ZrSiO4",
-     "rank": 25,
+     "rank": 27,
      "raw_score": 0.973333,
      "adjusted_score": 0.647727,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 6.3 eV (corrected from GGA 4.5 eV); dielectric constant unknown; reacts with Si (-0.03 eV/atom); benign elements; 1,000 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -10288,12 +11581,12 @@
     {
      "material_id": "fx-0035",
      "formula": "Y3Al5O12",
-     "rank": 26,
+     "rank": 28,
      "raw_score": 0.973333,
      "adjusted_score": 0.647727,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 6.5 eV (corrected from GGA 4.6 eV); dielectric constant unknown; stable against Si; benign elements; 5,050 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -10406,12 +11699,12 @@
     {
      "material_id": "fx-0032",
      "formula": "HfSiO4",
-     "rank": 27,
+     "rank": 29,
      "raw_score": 0.968844,
      "adjusted_score": 0.644666,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 5,
+     "tier": 6,
      "rationale": "on the convex hull, OQMD agrees; effective gap 7.7 eV (corrected from GGA 5.5 eV); dielectric constant unknown; stable against Si; benign elements; 1,500 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -10524,12 +11817,12 @@
     {
      "material_id": "fx-0031",
      "formula": "LaLuO3",
-     "rank": 28,
+     "rank": 30,
      "raw_score": 0.925108,
      "adjusted_score": 0.614846,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 6,
+     "tier": 7,
      "rationale": "5 meV/atom above hull; effective gap 5.6 eV (corrected from GGA 4.0 eV); dielectric constant unknown; reacts with Si (-0.04 eV/atom); benign elements; 300 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -10643,14 +11936,253 @@
      "polymorphs": []
     },
     {
+     "material_id": "fx-0038",
+     "formula": "Gd2Zr2O7",
+     "rank": 31,
+     "raw_score": 0.905187,
+     "adjusted_score": 0.601264,
+     "data_coverage": 0.681818,
+     "confidence": "medium",
+     "tier": 7,
+     "rationale": "4 meV/atom above hull, OQMD agrees; effective gap 3.9 eV (corrected from GGA+U 2.8 eV); dielectric constant unknown; reacts with Si (-0.10 eV/atom); benign elements; 300 thin-film papers.",
+     "missing_criteria": [
+      "dielectric"
+     ],
+     "absent_criteria": [
+      "dielectric"
+     ],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.181818,
+       "normalized": 1.0,
+       "contribution": 0.181818,
+       "status": "known",
+       "raw_label": "E_hull = 0.004 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 0.960",
+        "OQMD agrees (hull distance 0.004 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.090909,
+       "normalized": 0.928,
+       "contribution": 0.084364,
+       "status": "known",
+       "raw_label": "effective gap = 3.89 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA+U value 2.78 eV x 1.4 = 3.89 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 2.5) / (4 - 2.5))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.318182,
+       "normalized": null,
+       "contribution": null,
+       "status": "absent",
+       "raw_label": "dielectric constant UNKNOWN",
+       "notes": [
+        "no DFPT dielectric record in MP",
+        "not scored; coverage reduced"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.090909,
+       "normalized": 0.7705,
+       "contribution": 0.070045,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.096 eV/atom -> Gd2Si2O7 + ZrSi + ZrSi2",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (19 stable phases), at 30% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (Gd, Zr) [table 2026-09-09.1]",
+       "notes": [
+        "Gd: tier 0 (Gd2O3 not classified)",
+        "Zr: tier 0 (ZrO2 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.045455,
+       "normalized": 0.6,
+       "contribution": 0.027273,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.181818,
+       "normalized": 0.895203,
+       "contribution": 0.162764,
+       "status": "known",
+       "raw_label": "300 thin-film works / 1300 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.918 (log-saturating at 500), total sub-score 0.842 (saturating at 5000), weights 0.7/0.3",
+        "search terms: Gd2Zr2O7"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "dielectric_unknown",
+      "metastable",
+      "partial_data",
+      "band_gap_corrected"
+     ],
+     "fom_status": "absent",
+     "fom_provenance_note": "no DFPT dielectric record in MP for this material",
+     "polymorphs": []
+    },
+    {
+     "material_id": "fx-0039",
+     "formula": "Sm2Zr2O7",
+     "rank": 32,
+     "raw_score": 0.87467,
+     "adjusted_score": 0.580456,
+     "data_coverage": 0.681818,
+     "confidence": "medium",
+     "tier": 7,
+     "rationale": "on the convex hull, OQMD agrees; effective gap 4.3 eV (corrected from GGA+U 3.1 eV); dielectric constant unknown; reacts with Si (-0.10 eV/atom); benign elements; 110 thin-film papers.",
+     "missing_criteria": [
+      "dielectric"
+     ],
+     "absent_criteria": [
+      "dielectric"
+     ],
+     "not_retrieved_criteria": [],
+     "components": [
+      {
+       "criterion": "stability",
+       "weight": 0.181818,
+       "normalized": 1.0,
+       "contribution": 0.181818,
+       "status": "known",
+       "raw_label": "E_hull = 0.000 eV/atom [GGA/GGA+U/r2SCAN mixed hull (MP default)]",
+       "notes": [
+        "base = 1 - E_hull/0.1 = 1.000",
+        "OQMD agrees (hull distance 0.000 eV/atom): +0.1 bonus"
+       ]
+      },
+      {
+       "criterion": "band_gap",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "effective gap = 4.34 eV (corrected)",
+       "notes": [
+        "CORRECTED: GGA+U value 3.10 eV x 1.4 = 4.34 eV (no hybrid value available; fell back to scalar correction)",
+        "score = clamp((gap - 2.5) / (4 - 2.5))"
+       ]
+      },
+      {
+       "criterion": "dielectric",
+       "weight": 0.318182,
+       "normalized": null,
+       "contribution": null,
+       "status": "absent",
+       "raw_label": "dielectric constant UNKNOWN",
+       "notes": [
+        "no DFPT dielectric record in MP",
+        "not scored; coverage reduced"
+       ]
+      },
+      {
+       "criterion": "interface",
+       "weight": 0.090909,
+       "normalized": 0.7615,
+       "contribution": 0.069227,
+       "status": "known",
+       "raw_label": "reacts with Si: -0.098 eV/atom -> Sm2Si2O7 + ZrSi + ZrSi2",
+       "notes": [
+        "score = clamp(1 + (E_rxn + 0.05) / 0.2); reactions inside 0.05 eV/atom count as none; most exothermic reaction of the oxide with Si against the GGA_GGA+U_R2SCAN hull (20 stable phases), at 30% Si",
+        "bulk thermodynamics only: kinetics, interlayers and epitaxy are not modelled"
+       ]
+      },
+      {
+       "criterion": "toxicity",
+       "weight": 0.090909,
+       "normalized": 1.0,
+       "contribution": 0.090909,
+       "status": "known",
+       "raw_label": "worst element tier = 0 (Sm, Zr) [table 2026-09-09.1]",
+       "notes": [
+        "Sm: tier 0 (Sm2O3 not classified)",
+        "Zr: tier 0 (ZrO2 not classified)"
+       ]
+      },
+      {
+       "criterion": "simplicity",
+       "weight": 0.045455,
+       "normalized": 0.6,
+       "contribution": 0.027273,
+       "status": "known",
+       "raw_label": "3 distinct elements",
+       "notes": [
+        "lookup table {2: 1.0, 3: 0.6, 4: 0.3, 5: 0.1}"
+       ]
+      },
+      {
+       "criterion": "literature",
+       "weight": 0.181818,
+       "normalized": 0.749262,
+       "contribution": 0.13623,
+       "status": "known",
+       "raw_label": "110 thin-film works / 500 total (OpenAlex)",
+       "notes": [
+        "thin-film sub-score 0.758 (log-saturating at 500), total sub-score 0.730 (saturating at 5000), weights 0.7/0.3",
+        "search terms: Sm2Zr2O7"
+       ]
+      }
+     ],
+     "gates": [
+      "stability",
+      "band_gap",
+      "max_elements",
+      "hazard_blocklist"
+     ],
+     "caveats": [
+      "fixture_data",
+      "substrate_reaction",
+      "dielectric_unknown",
+      "partial_data",
+      "band_gap_corrected"
+     ],
+     "fom_status": "absent",
+     "fom_provenance_note": "no DFPT dielectric record in MP for this material",
+     "polymorphs": []
+    },
+    {
      "material_id": "fx-0019",
      "formula": "Ga2O3",
-     "rank": 29,
+     "rank": 33,
      "raw_score": 0.556036,
      "adjusted_score": 0.556036,
      "data_coverage": 1.0,
      "confidence": "high",
-     "tier": 7,
+     "tier": 8,
      "rationale": "on the convex hull, OQMD agrees; effective gap 2.8 eV (corrected from GGA 2.0 eV); dielectric constant 10 (DFPT); reacts with Si (-0.51 eV/atom); benign elements; 15,300 thin-film papers.",
      "missing_criteria": [],
      "absent_criteria": [],
@@ -10757,12 +12289,12 @@
     {
      "material_id": "fx-0024",
      "formula": "PbZrO3",
-     "rank": 30,
+     "rank": 34,
      "raw_score": 0.652267,
      "adjusted_score": 0.428818,
      "data_coverage": 0.681818,
      "confidence": "medium",
-     "tier": 8,
+     "tier": 9,
      "rationale": "on the convex hull, OQMD agrees; effective gap 3.4 eV (corrected from GGA 2.4 eV); dielectric constant unknown; reacts with Si (-0.37 eV/atom); hazardous element(s) permitted by config: Pb; 6,050 thin-film papers.",
      "missing_criteria": [
       "dielectric"
@@ -10889,8 +12421,10 @@
      ]
     }
    ],
-   "collapsed": [],
-   "n_candidates_considered": 32,
+   "collapsed": [
+    "fx-0042"
+   ],
+   "n_candidates_considered": 37,
    "deviations": [
     "profile_element_allowlist"
    ]
@@ -10911,6 +12445,7 @@
    "interface": 0.107143
   },
   "ranked": [
+   "fx-0037",
    "fx-0001",
    "fx-0025",
    "fx-0003",
@@ -10920,6 +12455,7 @@
    "fx-0004",
    "fx-0006",
    "fx-0016",
+   "fx-0040",
    "fx-0007",
    "fx-0009",
    "fx-0012",
@@ -10931,7 +12467,8 @@
    "fx-0035",
    "fx-0032",
    "fx-0031",
-   "fx-0017"
+   "fx-0017",
+   "fx-0039"
   ]
  }
 }

@@ -1,0 +1,126 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Gd2O3 OR \"gadolinium oxide\" OR gadolinia) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 871,
+   "db_response_time_ms": 187,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    (Gd2O3 or stemmed \"gadolinium oxide\" or gadolinia)\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "Gd2O3"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"gadolinium oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "gadolinia"
+        }
+       ],
+       "join": "or"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:Gd2O3|%22gadolinium oxide%22|gadolinia,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/0167-2738(92)90102-u",
+    "id": "https://openalex.org/W1971273014",
+    "publication_year": 1992,
+    "title": "Electrical properties of ceria-based oxides and their application to solid oxide fuel cells"
+   },
+   {
+    "doi": "https://doi.org/10.1126/science.283.5409.1897",
+    "id": "https://openalex.org/W2069740480",
+    "publication_year": 1999,
+    "title": "Epitaxial Cubic Gadolinium Oxide as a Dielectric for Gallium Arsenide Passivation"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.126899",
+    "id": "https://openalex.org/W1494087470",
+    "publication_year": 2000,
+    "title": "High \u03b5 gate dielectrics Gd2O3 and Y2O3 for silicon"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.1352688",
+    "id": "https://openalex.org/W1904422208",
+    "publication_year": 2001,
+    "title": "Properties of high \u03ba gate dielectrics Gd2O3 and Y2O3 for Si"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.ssi.2004.02.026",
+    "id": "https://openalex.org/W2005373509",
+    "publication_year": 2004,
+    "title": "Low-temperature SOFC with thin film GDC electrolyte prepared in situ by solid-state reaction"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

@@ -131,8 +131,87 @@ class MPDielectricProvider:
         )
 
 
+class MPElasticityProvider:
+    """Materials Project's elastic-tensor set (``/materials/elasticity/``), which carries the
+    Clarke and Cahill minimum thermal conductivities and the Debye temperature derived from the
+    tensor. A record the source flags (an unphysical fit, a mechanically unstable structure)
+    extracts to no value with the flag quoted: the source answered, so the status is ABSENT,
+    and the reason travels with the record."""
+
+    name = "mp_elasticity"
+
+    def __init__(self, mp: MaterialsProject, fom: FigureOfMeritConfig):
+        self.mp = mp
+        self.fom = fom
+
+    def prefetch(self, material_ids: list[str]) -> None:
+        self.mp.prefetch_elasticity(material_ids)
+
+    def fetch(self, material_id: str) -> tuple[dict[str, Any] | None, str | None, str]:
+        return self.mp.elasticity(material_id)
+
+    def extract(self, payload: dict[str, Any] | None) -> Extracted:
+        if not payload or not payload.get("found"):
+            return Extracted(value=None)
+        warnings = [str(w) for w in payload.get("warnings") or []]
+        if warnings:
+            return Extracted(
+                value=None,
+                reject_reason="MP elasticity record flagged by the source: " + "; ".join(warnings)[:240],
+            )
+        value = _opt_float(_path(payload, self.fom.property))
+        tc = payload.get("thermal_conductivity") or {}
+        extras = {
+            k: v
+            for k, v in (
+                ("clarke", _opt_float(tc.get("clarke"))),
+                ("cahill", _opt_float(tc.get("cahill"))),
+                ("debye_temperature", _opt_float(payload.get("debye_temperature"))),
+                ("bulk_modulus_vrh", _opt_float((payload.get("bulk_modulus") or {}).get("vrh"))),
+                ("shear_modulus_vrh", _opt_float((payload.get("shear_modulus") or {}).get("vrh"))),
+            )
+            if v is not None and not self.fom.property.endswith(k)
+        }
+        return Extracted(value=value, extras=extras)
+
+    def describe(self, value: float, extras: dict[str, float]) -> tuple[str, str]:
+        units = f" {self.fom.units}" if self.fom.units else ""
+        parts = []
+        if "cahill" in extras:
+            parts.append(f"Cahill {extras['cahill']:.2f}")
+        if "debye_temperature" in extras:
+            parts.append(f"Debye {extras['debye_temperature']:.0f} K")
+        if "bulk_modulus_vrh" in extras:
+            parts.append(f"B {extras['bulk_modulus_vrh']:.0f} GPa")
+        tail = f"; {', '.join(parts)}" if parts else ""
+        display = f"{self.fom.property} = {value:.2f}{units} ({self.fom.method}{tail})"
+        return display, f"{self.fom.label} {value:.1f}{units} ({self.fom.method})"
+
+    def dataset_note(self) -> str:
+        return "MP elastic tensor dataset"
+
+    def absent_note(self) -> str:
+        return "no elastic tensor record in MP"
+
+    def absent_reason(self) -> str:
+        return "no elastic tensor record in MP for this material"
+
+    def unretrieved_reason(self, fetch_status: str) -> str:
+        return (
+            f"MP elasticity lookup never completed here ({fetch_status}); "
+            "this is a gap in the cache, not in MP"
+        )
+
+    def no_route_reason(self) -> str:
+        return (
+            "No public per-material elastic-tensor source beyond Materials Project is wired in; "
+            "until MP holds a usable record the value stays unknown."
+        )
+
+
 PROVIDERS: dict[str, type] = {
     "mp_dielectric": MPDielectricProvider,
+    "mp_elasticity": MPElasticityProvider,
 }
 
 

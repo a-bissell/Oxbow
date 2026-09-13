@@ -1,0 +1,57 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(CeO2 OR ceria OR \"cerium oxide\")",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 70895,
+   "db_response_time_ms": 39,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (CeO2 or stemmed \"cerium oxide\" or ceria)",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "CeO2"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"cerium oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "ceria"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:CeO2|%22cerium oxide%22|ceria&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1080/01614949608006464",
+    "id": "https://openalex.org/W1964912153",
+    "publication_year": 1996,
+    "title": "Catalytic Properties of Ceria and CeO 2 -Containing Materials"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

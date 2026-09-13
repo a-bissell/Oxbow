@@ -1,0 +1,99 @@
+{
+ "params": {
+  "composition": "Nd2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.59014328752725,
+    "entry_id": 5470,
+    "name": "Nd2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.03028442050000013
+   },
+   {
+    "delta_e": -3.40653200552725,
+    "entry_id": 5146,
+    "name": "Nd2O3",
+    "spacegroup": "C2",
+    "stability": 0.2138957024999999
+   },
+   {
+    "delta_e": -2.69242211352725,
+    "entry_id": 351894,
+    "name": "Nd2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.9280055945000001
+   },
+   {
+    "delta_e": -3.59342764552725,
+    "entry_id": 20304,
+    "name": "Nd2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.027000062499999977
+   },
+   {
+    "delta_e": -3.56740203052725,
+    "entry_id": 428073,
+    "name": "Nd2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.05302567749999998
+   },
+   {
+    "delta_e": -3.62042770802725,
+    "entry_id": 30801,
+    "name": "Nd2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.52794723702725,
+    "entry_id": 1343974,
+    "name": "Nd2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.09248047100000001
+   },
+   {
+    "delta_e": -3.61942117302725,
+    "entry_id": 1343549,
+    "name": "Nd2O3",
+    "spacegroup": "I213",
+    "stability": 0.0010065350000001416
+   },
+   {
+    "delta_e": -3.40403410352725,
+    "entry_id": 1444202,
+    "name": "Nd2O3",
+    "spacegroup": "P321",
+    "stability": 0.2163936044999999
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 9,
+   "data_returned": 9,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Nd2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-13 10:51:52"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

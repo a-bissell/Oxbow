@@ -12,10 +12,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
-from oxide_triage.cache import Cache
+# Run as a script, the checkout must win over an installed copy of the package.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from oxide_triage.cache import Cache  # noqa: E402
 from oxide_triage.config import list_profiles, load_config
 from oxide_triage.edges.llm import NullLLM
 from oxide_triage.pipeline import load_fixtures, run_triage

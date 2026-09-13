@@ -1,0 +1,57 @@
+{
+ "params": {
+  "composition": "ErTaO4",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.55114414641917,
+    "entry_id": 3849,
+    "name": "ErTaO4",
+    "spacegroup": "P2/c",
+    "stability": 0.007880216666670048
+   },
+   {
+    "delta_e": -3.55902436308584,
+    "entry_id": 19066,
+    "name": "ErTaO4",
+    "spacegroup": "C2/c",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.450640042252503,
+    "entry_id": 1739369,
+    "name": "ErTaO4",
+    "spacegroup": "I41/amd",
+    "stability": 0.10838432083333682
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 3,
+   "data_returned": 3,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=ErTaO4&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-13 10:51:58"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

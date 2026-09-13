@@ -139,3 +139,48 @@ def test_replayed_gaps_are_not_retrieved_not_absent(monkeypatch):
     assert not result.comparable
     assert "INCOMPLETE RETRIEVAL" in result.note
     assert result.not_retrieved_by_criterion, result.note
+
+
+@pytest.mark.skipif(not _has_recordings(), reason="no recorded live responses under tests/recorded/")
+def test_thermal_barrier_replay_warm_and_selfcheck(monkeypatch):
+    """The second material class through the same recorded transport: the elasticity route,
+    absent-at-the-source workhorses, and the profile's own known answer."""
+    monkeypatch.setenv("MP_API_KEY", "recorded")
+    cfg = load_config("thermal-barrier", use_env=False)
+    cache = Cache(":memory:")
+    layer = DataLayer.from_config(cfg, cache=cache, offline=False, http=ReplayHttp(RECORDED))
+    records = layer.build_candidates()
+    if not records:
+        pytest.skip("recordings predate the thermal-barrier universe query parameters; re-record the warm")
+    by = {r.formula: r for r in records}
+    assert {"ZrO2", "HfO2", "La2Zr2O7", "SrZrO3"} <= set(by), "workhorses missing from the live universe"
+    known = [r for r in records if r.figure_of_merit.status == DataStatus.KNOWN]
+    assert 0 < len(known) < len(records), "elastic-tensor coverage should be partial on real data"
+    assert all(r.figure_of_merit.criterion == "thermal_conductivity" for r in records)
+    assert all(r.figure_of_merit.units == "W/(m·K)" for r in known)
+
+    def values(formula: str) -> list[float]:
+        return [
+            r.figure_of_merit.value
+            for r in records
+            if r.formula == formula and r.figure_of_merit.value is not None
+        ]
+
+    assert values("ZrO2") and all(v < 2.0 for v in values("ZrO2"))  # a low-conductivity oxide
+    assert values("Al2O3") and all(v > 2.0 for v in values("Al2O3"))  # a good conductor scores low
+    # MP answered for every candidate: no elastic tensor is ABSENT, never NOT_RETRIEVED.
+    assert by["La2Zr2O7"].figure_of_merit.status == DataStatus.ABSENT
+    assert not any(r.figure_of_merit.status == DataStatus.NOT_RETRIEVED for r in records)
+    assert all(r.interface.substrate == "Al2O3" for r in records if r.interface.status == DataStatus.KNOWN)
+    check = run_selfcheck(cfg, cache, http=ReplayHttp(RECORDED))
+    assert check.profile == "thermal-barrier"
+    if (
+        check.retrieval_completeness is not None
+        and check.retrieval_completeness < cfg.selfcheck.min_retrieval_completeness
+    ):
+        assert check.inconclusive, check.details
+    else:
+        assert check.passed, check.details
+        assert any(d.startswith("La2Zr2O7") and "unverifiable" in d for d in check.details) or any(
+            d.startswith("La2Zr2O7") and "rank" in d for d in check.details
+        )

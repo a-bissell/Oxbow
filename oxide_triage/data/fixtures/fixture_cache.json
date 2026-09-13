@@ -1,6 +1,6 @@
 {
- "_README": "SYNTHETIC DEVELOPMENT FIXTURE. Values are hand-written approximations of publicly reported magnitudes (PBE band gaps, hull distances, DFPT dielectric constants, literature counts) chosen to exercise the pipeline: known workhorses, gate failures, missing dielectric data, cross-source disagreement, hazardous elements, hygroscopic oxides. Material ids are fx-NNNN and never correspond to Materials Project ids. Do not use for real triage; build the real cache with `oxide-triage warm-cache`. The `thermo` map holds, per element system plus Si, the stable phases and their formation energies from Materials Project (GGA_GGA+U_R2SCAN, fetched 2026-09-10) so the interface criterion has a real hull to work from; it is the only part of the fixture that is not hand-written.",
- "version": "fixture-2026-09-09.1",
+ "_README": "SYNTHETIC DEVELOPMENT FIXTURE. Values are hand-written approximations of publicly reported magnitudes (PBE band gaps, hull distances, DFPT dielectric constants, literature counts) chosen to exercise the pipeline: known workhorses, gate failures, missing dielectric data, cross-source disagreement, hazardous elements, hygroscopic oxides. Material ids are fx-NNNN and never correspond to Materials Project ids. Do not use for real triage; build the real cache with `oxide-triage warm-cache`. Elasticity blocks (bulk and shear moduli, the Clarke and Cahill minimum thermal conductivities, the Debye temperature) are approximations of the Materials Project elastic-tensor records for the thermal-barrier profile; two carry the source's own warnings so a flagged record can be exercised. The `thermo` map holds, per element system plus Si (and plus Al for the thermal-barrier profile's alumina substrate), the stable phases and their formation energies from Materials Project (GGA_GGA+U_R2SCAN, fetched 2026-09-10) so the interface criterion has a real hull to work from; it is the only part of the fixture that is not hand-written.",
+ "version": "fixture-2026-09-13.1",
  "materials": [
   {
    "material_id": "fx-0001",
@@ -75,6 +75,20 @@
     "cid": 292779,
     "ghs_codes": [],
     "matched_name": "HfO2"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 205
+    },
+    "shear_modulus": {
+     "vrh": 113
+    },
+    "thermal_conductivity": {
+     "clarke": 1.19,
+     "cahill": 1.32
+    },
+    "debye_temperature": 465,
+    "warnings": []
    }
   },
   {
@@ -140,6 +154,20 @@
     "cid": 292779,
     "ghs_codes": [],
     "matched_name": "HfO2"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 218
+    },
+    "shear_modulus": {
+     "vrh": 120
+    },
+    "thermal_conductivity": {
+     "clarke": 1.21,
+     "cahill": 1.34
+    },
+    "debye_temperature": 472,
+    "warnings": []
    }
   },
   {
@@ -209,6 +237,20 @@
     "cid": 62395,
     "ghs_codes": [],
     "matched_name": "ZrO2"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 183
+    },
+    "shear_modulus": {
+     "vrh": 101
+    },
+    "thermal_conductivity": {
+     "clarke": 1.43,
+     "cahill": 1.59
+    },
+    "debye_temperature": 567,
+    "warnings": []
    }
   },
   {
@@ -278,6 +320,20 @@
     "cid": 9989226,
     "ghs_codes": [],
     "matched_name": "Al2O3"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 213
+    },
+    "shear_modulus": {
+     "vrh": 117
+    },
+    "thermal_conductivity": {
+     "clarke": 2.55,
+     "cahill": 2.79
+    },
+    "debye_temperature": 926,
+    "warnings": []
    }
   },
   {
@@ -418,6 +474,20 @@
      "H319"
     ],
     "matched_name": "MgO"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 151
+    },
+    "shear_modulus": {
+     "vrh": 83
+    },
+    "thermal_conductivity": {
+     "clarke": 2.39,
+     "cahill": 2.6
+    },
+    "debye_temperature": 902,
+    "warnings": []
    }
   },
   {
@@ -487,6 +557,20 @@
     "cid": 24261,
     "ghs_codes": [],
     "matched_name": "SiO2"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 30
+    },
+    "shear_modulus": {
+     "vrh": 16
+    },
+    "thermal_conductivity": {
+     "clarke": 1.3,
+     "cahill": 1.46
+    },
+    "debye_temperature": 588,
+    "warnings": []
    }
   },
   {
@@ -556,6 +640,20 @@
     "cid": 26042,
     "ghs_codes": [],
     "matched_name": "TiO2"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 184
+    },
+    "shear_modulus": {
+     "vrh": 101
+    },
+    "thermal_conductivity": {
+     "clarke": 1.37,
+     "cahill": 1.64
+    },
+    "debye_temperature": 524,
+    "warnings": []
    }
   },
   {
@@ -620,6 +718,20 @@
     "cid": 159416,
     "ghs_codes": [],
     "matched_name": "Y2O3"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 138
+    },
+    "shear_modulus": {
+     "vrh": 76
+    },
+    "thermal_conductivity": {
+     "clarke": 1.12,
+     "cahill": 1.25
+    },
+    "debye_temperature": 478,
+    "warnings": []
    }
   },
   {
@@ -752,6 +864,22 @@
     "cid": 518715,
     "ghs_codes": [],
     "matched_name": "Sc2O3"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 167
+    },
+    "shear_modulus": {
+     "vrh": 92
+    },
+    "thermal_conductivity": {
+     "clarke": 1.68,
+     "cahill": 1.87
+    },
+    "debye_temperature": 665,
+    "warnings": [
+     "Critical: Expect 24 total (primary plus derived) strain--stress states to fit the data; got 15."
+    ]
    }
   },
   {
@@ -816,6 +944,20 @@
     "cid": 159426,
     "ghs_codes": [],
     "matched_name": "Gd2O3"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 132
+    },
+    "shear_modulus": {
+     "vrh": 73
+    },
+    "thermal_conductivity": {
+     "clarke": 0.83,
+     "cahill": 0.94
+    },
+    "debye_temperature": 360,
+    "warnings": []
    }
   },
   {
@@ -880,6 +1022,20 @@
     "cid": 160052,
     "ghs_codes": [],
     "matched_name": "Lu2O3"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 156
+    },
+    "shear_modulus": {
+     "vrh": 86
+    },
+    "thermal_conductivity": {
+     "clarke": 0.93,
+     "cahill": 1.03
+    },
+    "debye_temperature": 383,
+    "warnings": []
    }
   },
   {
@@ -956,6 +1112,20 @@
      "H335"
     ],
     "matched_name": "BeO"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 208
+    },
+    "shear_modulus": {
+     "vrh": 114
+    },
+    "thermal_conductivity": {
+     "clarke": 3.69,
+     "cahill": 4.02
+    },
+    "debye_temperature": 1248,
+    "warnings": []
    }
   },
   {
@@ -1308,6 +1478,20 @@
     "cid": 5379600,
     "ghs_codes": [],
     "matched_name": "Ga2O3"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 156
+    },
+    "shear_modulus": {
+     "vrh": 86
+    },
+    "thermal_conductivity": {
+     "clarke": 1.39,
+     "cahill": 1.54
+    },
+    "debye_temperature": 528,
+    "warnings": []
    }
   },
   {
@@ -1377,6 +1561,20 @@
     "cid": 73963,
     "ghs_codes": [],
     "matched_name": "CeO2"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 171
+    },
+    "shear_modulus": {
+     "vrh": 94
+    },
+    "thermal_conductivity": {
+     "clarke": 1.11,
+     "cahill": 1.24
+    },
+    "debye_temperature": 453,
+    "warnings": []
    }
   },
   {
@@ -1447,6 +1645,20 @@
     "cid": 6337436,
     "ghs_codes": [],
     "matched_name": "SrTiO3"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 168
+    },
+    "shear_modulus": {
+     "vrh": 92
+    },
+    "thermal_conductivity": {
+     "clarke": 1.61,
+     "cahill": 1.76
+    },
+    "debye_temperature": 646,
+    "warnings": []
    }
   },
   {
@@ -1790,6 +2002,20 @@
     "cid": 6337051,
     "ghs_codes": [],
     "matched_name": "MgAl2O4"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 183
+    },
+    "shear_modulus": {
+     "vrh": 101
+    },
+    "thermal_conductivity": {
+     "clarke": 2.24,
+     "cahill": 2.46
+    },
+    "debye_temperature": 826,
+    "warnings": []
    }
   },
   {
@@ -1921,6 +2147,20 @@
     "cid": 6336744,
     "ghs_codes": [],
     "matched_name": "SrZrO3"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 146
+    },
+    "shear_modulus": {
+     "vrh": 80
+    },
+    "thermal_conductivity": {
+     "clarke": 1.28,
+     "cahill": 1.41
+    },
+    "debye_temperature": 541,
+    "warnings": []
    }
   },
   {
@@ -1993,6 +2233,20 @@
      "H302"
     ],
     "matched_name": "BaZrO3"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 147
+    },
+    "shear_modulus": {
+     "vrh": 81
+    },
+    "thermal_conductivity": {
+     "clarke": 1.19,
+     "cahill": 1.3
+    },
+    "debye_temperature": 517,
+    "warnings": []
    }
   },
   {
@@ -2370,7 +2624,21 @@
      "\"thin film\""
     ]
    },
-   "pubchem": null
+   "pubchem": null,
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 170
+    },
+    "shear_modulus": {
+     "vrh": 94
+    },
+    "thermal_conductivity": {
+     "clarke": 1.84,
+     "cahill": 2.01
+    },
+    "debye_temperature": 714,
+    "warnings": []
+   }
   },
   {
    "material_id": "fx-0036",
@@ -2439,6 +2707,409 @@
     "cid": 517277,
     "ghs_codes": [],
     "matched_name": "Cr2O3"
+   }
+  },
+  {
+   "material_id": "fx-0037",
+   "formula_pretty": "La2Zr2O7",
+   "elements": [
+    "La",
+    "O",
+    "Zr"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fd-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.6,
+   "is_stable": true,
+   "band_gap": 3.73,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0037"
+    }
+   ],
+   "run_type": "GGA",
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.6,
+    "entry_id": 100038,
+    "name": "La2Zr2O7"
+   },
+   "literature": {
+    "total_works": 1800,
+    "thin_film_works": 420,
+    "query_terms": [
+     "La2Zr2O7"
+    ],
+    "sample_works": [
+     {
+      "work_id": "W-fixture-La2Zr2O7-0",
+      "title": "Thermal barrier coatings of La2Zr2O7: deposition and thermal conductivity",
+      "year": 2015,
+      "doi": null
+     }
+    ]
+   },
+   "pubchem": null,
+   "dielectric": {
+    "e_total": 36.3,
+    "e_electronic": 4.9,
+    "e_ionic": 31.4,
+    "n": 2.21
+   }
+  },
+  {
+   "material_id": "fx-0038",
+   "formula_pretty": "Gd2Zr2O7",
+   "elements": [
+    "Gd",
+    "O",
+    "Zr"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fd-3m"
+   },
+   "energy_above_hull": 0.004,
+   "formation_energy_per_atom": -3.58,
+   "is_stable": false,
+   "band_gap": 2.78,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0038"
+    }
+   ],
+   "run_type": "GGA+U",
+   "oqmd": {
+    "stability": 0.004,
+    "delta_e": -3.58,
+    "entry_id": 100039,
+    "name": "Gd2Zr2O7"
+   },
+   "literature": {
+    "total_works": 1300,
+    "thin_film_works": 300,
+    "query_terms": [
+     "Gd2Zr2O7"
+    ],
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Gd2Zr2O7-0",
+      "title": "Thermal barrier coatings of Gd2Zr2O7: deposition and thermal conductivity",
+      "year": 2015,
+      "doi": null
+     }
+    ]
+   },
+   "pubchem": null,
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 2648477
+    },
+    "shear_modulus": {
+     "vrh": 1456662
+    },
+    "thermal_conductivity": {
+     "clarke": 161.22,
+     "cahill": 176.37
+    },
+    "debye_temperature": 67308,
+    "warnings": [
+     "Fitting elastic tensor resulted in unphysical modulus",
+     "Large modulus. vrh bulk modulus is 2648476.645; larger than 1000.0."
+    ]
+   }
+  },
+  {
+   "material_id": "fx-0039",
+   "formula_pretty": "Sm2Zr2O7",
+   "elements": [
+    "O",
+    "Sm",
+    "Zr"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Cubic",
+    "symbol": "Fd-3m"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.57,
+   "is_stable": true,
+   "band_gap": 3.1,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0039"
+    }
+   ],
+   "run_type": "GGA+U",
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.57,
+    "entry_id": 100040,
+    "name": "Sm2Zr2O7"
+   },
+   "literature": {
+    "total_works": 500,
+    "thin_film_works": 110,
+    "query_terms": [
+     "Sm2Zr2O7"
+    ],
+    "sample_works": [
+     {
+      "work_id": "W-fixture-Sm2Zr2O7-0",
+      "title": "Thermal barrier coatings of Sm2Zr2O7: deposition and thermal conductivity",
+      "year": 2015,
+      "doi": null
+     }
+    ]
+   },
+   "pubchem": null,
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 162
+    },
+    "shear_modulus": {
+     "vrh": 89
+    },
+    "thermal_conductivity": {
+     "clarke": 1.22,
+     "cahill": 1.34
+    },
+    "debye_temperature": 507,
+    "warnings": []
+   }
+  },
+  {
+   "material_id": "fx-0040",
+   "formula_pretty": "YTaO4",
+   "elements": [
+    "O",
+    "Ta",
+    "Y"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Monoclinic",
+    "symbol": "P2/c"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.44,
+   "is_stable": true,
+   "band_gap": 4.0,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0040"
+    }
+   ],
+   "run_type": "GGA",
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.44,
+    "entry_id": 100041,
+    "name": "YTaO4"
+   },
+   "literature": {
+    "total_works": 350,
+    "thin_film_works": 60,
+    "query_terms": [
+     "YTaO4"
+    ],
+    "sample_works": [
+     {
+      "work_id": "W-fixture-YTaO4-0",
+      "title": "Thermal barrier coatings of YTaO4: deposition and thermal conductivity",
+      "year": 2015,
+      "doi": null
+     }
+    ]
+   },
+   "pubchem": null,
+   "dielectric": {
+    "e_total": 17.7,
+    "e_electronic": 4.6,
+    "e_ionic": 13.1,
+    "n": 2.15
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 138
+    },
+    "shear_modulus": {
+     "vrh": 76
+    },
+    "thermal_conductivity": {
+     "clarke": 1.07,
+     "cahill": 1.19
+    },
+    "debye_temperature": 431,
+    "warnings": []
+   }
+  },
+  {
+   "material_id": "fx-0041",
+   "formula_pretty": "LaPO4",
+   "elements": [
+    "La",
+    "O",
+    "P"
+   ],
+   "nelements": 3,
+   "symmetry": {
+    "crystal_system": "Monoclinic",
+    "symbol": "P2_1/c"
+   },
+   "energy_above_hull": 0.0,
+   "formation_energy_per_atom": -3.11,
+   "is_stable": true,
+   "band_gap": 4.48,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0041"
+    }
+   ],
+   "run_type": "GGA",
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.11,
+    "entry_id": 100042,
+    "name": "LaPO4"
+   },
+   "literature": {
+    "total_works": 2100,
+    "thin_film_works": 180,
+    "query_terms": [
+     "LaPO4"
+    ],
+    "sample_works": [
+     {
+      "work_id": "W-fixture-LaPO4-0",
+      "title": "Thermal barrier coatings of LaPO4: deposition and thermal conductivity",
+      "year": 2015,
+      "doi": null
+     }
+    ]
+   },
+   "pubchem": null,
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 105
+    },
+    "shear_modulus": {
+     "vrh": 58
+    },
+    "thermal_conductivity": {
+     "clarke": 1.09,
+     "cahill": 1.21
+    },
+    "debye_temperature": 443,
+    "warnings": []
+   }
+  },
+  {
+   "material_id": "fx-0042",
+   "formula_pretty": "ZrO2",
+   "elements": [
+    "Zr",
+    "O"
+   ],
+   "nelements": 2,
+   "symmetry": {
+    "crystal_system": "Orthorhombic",
+    "symbol": "Pbca"
+   },
+   "energy_above_hull": 0.009,
+   "formation_energy_per_atom": -3.72,
+   "is_stable": false,
+   "band_gap": 3.46,
+   "is_gap_direct": false,
+   "is_metal": false,
+   "theoretical": false,
+   "deprecated": false,
+   "origins": [
+    {
+     "name": "band_gap",
+     "task_id": "fx-task-0042"
+    }
+   ],
+   "run_type": "GGA",
+   "oqmd": {
+    "stability": 0.0,
+    "delta_e": -3.7,
+    "entry_id": 100003,
+    "name": "ZrO2"
+   },
+   "literature": {
+    "total_works": 31000,
+    "thin_film_works": 8200,
+    "sample_works": [
+     {
+      "work_id": "W-fixture-ZrO2-0",
+      "title": "Zirconia thin films grown by atomic layer deposition",
+      "year": 2010,
+      "doi": null
+     },
+     {
+      "work_id": "W-fixture-ZrO2-1",
+      "title": "Dielectric properties of sputtered ZrO2 films",
+      "year": 2011,
+      "doi": null
+     }
+    ],
+    "query_terms": [
+     "ZrO2"
+    ],
+    "thin_film_terms": [
+     "\"thin film\""
+    ]
+   },
+   "pubchem": {
+    "cid": 62395,
+    "ghs_codes": [],
+    "matched_name": "ZrO2"
+   },
+   "elasticity": {
+    "bulk_modulus": {
+     "vrh": 197
+    },
+    "shear_modulus": {
+     "vrh": 95
+    },
+    "thermal_conductivity": {
+     "clarke": 1.46,
+     "cahill": 1.63
+    },
+    "debye_temperature": 578,
+    "warnings": []
    }
   }
  ],
@@ -3218,6 +3889,648 @@
     "SiO2": -3.2728,
     "Zn2SiO4": -2.4471,
     "ZnO": -1.7909
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Ba-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Ba21Al40": -0.2433,
+    "Ba3AlO4": -2.945,
+    "Ba4Al2O7": -3.1866,
+    "Ba4Al5": -0.2218,
+    "Ba7Al10": -0.2308,
+    "Ba7Al64O103": -3.4479,
+    "BaAl2O4": -3.4482,
+    "BaAl4": -0.2412,
+    "BaO": -2.8236,
+    "BaO10": -0.6016,
+    "BaO2": -2.1702
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Ba-O-Ti": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Ba21Al40": -0.2433,
+    "Ba2Ti13O22": -3.3662,
+    "Ba2Ti6O13": -3.4893,
+    "Ba2TiO4": -3.3991,
+    "Ba3AlO4": -2.945,
+    "Ba3Ti20O40": -3.4805,
+    "Ba4Al2O7": -3.1866,
+    "Ba4Al5": -0.2218,
+    "Ba4Ti13O30": -3.5267,
+    "Ba7Al10": -0.2308,
+    "Ba7Al64O103": -3.4479,
+    "BaAl2O4": -3.4482,
+    "BaAl4": -0.2412,
+    "BaO": -2.8236,
+    "BaO10": -0.6016,
+    "BaO2": -2.1702,
+    "BaTi2O5": -3.5321,
+    "BaTi8O16": -3.4852,
+    "BaTiO3": -3.4923,
+    "Ti2O": -2.0356,
+    "Ti2O3": -3.3034,
+    "Ti3Al": -0.2972,
+    "Ti3O": -1.5699,
+    "Ti3O5": -3.3821,
+    "Ti6O": -0.9167,
+    "TiAl": -0.447,
+    "TiAl2": -0.4727,
+    "TiAl3": -0.4339,
+    "TiO": -2.908,
+    "TiO2": -3.5081
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Ba-O-Zr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Ba21Al40": -0.2433,
+    "Ba2ZrO4": -3.4308,
+    "Ba3AlO4": -2.945,
+    "Ba3Zr2O7": -3.5195,
+    "Ba4Al2O7": -3.1866,
+    "Ba4Al5": -0.2218,
+    "Ba7Al10": -0.2308,
+    "Ba7Al64O103": -3.4479,
+    "BaAl2O4": -3.4482,
+    "BaAl4": -0.2412,
+    "BaO": -2.8236,
+    "BaO10": -0.6016,
+    "BaO2": -2.1702,
+    "BaZrO3": -3.6392,
+    "Zr3Al": -0.3188,
+    "Zr3O": -1.5462,
+    "Zr4Al3": -0.5185,
+    "Zr4O": -1.2407,
+    "ZrAl2": -0.6153,
+    "ZrAl3": -0.5308,
+    "ZrO2": -3.8136
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Ca-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Ca11Al14O32": -3.4477,
+    "Ca13Al14": -0.2904,
+    "Ca6Al7O16": -3.4096,
+    "Ca8Al3": -0.1761,
+    "CaAl2": -0.3554,
+    "CaAl4": -0.2206,
+    "CaAl4O7": -3.464,
+    "CaO": -3.306,
+    "CaO2": -2.2066
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Ce-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Ce2O3": -3.7683,
+    "Ce3Al": -0.2354,
+    "Ce3Al11": -0.4023,
+    "Ce5O9": -3.9571,
+    "Ce7O12": -3.9176,
+    "CeAl2": -0.5022,
+    "CeAl3": -0.4586,
+    "CeAlO3": -3.6203,
+    "CeO": -3.2322,
+    "CeO2": -3.9272
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Gd-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Gd2O3": -3.8954,
+    "Gd3Al": -0.2198,
+    "Gd3Al5O12": -3.6497,
+    "GdAl2": -0.5717,
+    "GdAl3": -0.4545
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Gd-O-Zr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Gd2O3": -3.8954,
+    "Gd3Al": -0.2198,
+    "Gd3Al5O12": -3.6497,
+    "GdAl2": -0.5717,
+    "GdAl3": -0.4545,
+    "Zr3Al": -0.3188,
+    "Zr3O": -1.5462,
+    "Zr4Al3": -0.5185,
+    "Zr4O": -1.2407,
+    "ZrAl2": -0.6153,
+    "ZrAl3": -0.5308,
+    "ZrO2": -3.8136
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Hf-La-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Hf4Al3": -0.4465,
+    "HfAl2": -0.5145,
+    "HfAl3": -0.4373,
+    "HfO2": -4.0198,
+    "La2Hf2O7": -4.0422,
+    "La2O3": -3.8759,
+    "La3Al": -0.2579,
+    "La3Al11": -0.421,
+    "La3AlO": -1.4739,
+    "La4Al2O9": -3.791,
+    "LaAl": -0.47,
+    "LaAl2": -0.5448,
+    "LaAl3": -0.4894,
+    "LaAlO3": -3.7225
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Hf-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Hf4Al3": -0.4465,
+    "HfAl2": -0.5145,
+    "HfAl3": -0.4373,
+    "HfO2": -4.0198
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Hf-O-Si": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Al2SiO5": -3.3769,
+    "Hf2Si": -0.791,
+    "Hf3Si2": -0.8443,
+    "Hf4Al3": -0.4465,
+    "HfAl2": -0.5145,
+    "HfAl3": -0.4373,
+    "HfO2": -4.0198,
+    "HfSi": -0.8553,
+    "HfSiO4": -3.6555,
+    "SiO2": -3.2728
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Hf-O-Sr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Hf4Al3": -0.4465,
+    "HfAl2": -0.5145,
+    "HfAl3": -0.4373,
+    "HfO2": -4.0198,
+    "Sr3Al2O6": -3.3422,
+    "Sr5Al9": -0.2839,
+    "SrAl2": -0.2851,
+    "SrAl2O4": -3.4588,
+    "SrAl4": -0.2585,
+    "SrAl4O7": -3.4643,
+    "SrHfO3": -3.8124,
+    "SrO": -3.0756,
+    "SrO2": -2.2045
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-La-Lu-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "La2O3": -3.8759,
+    "La3Al": -0.2579,
+    "La3Al11": -0.421,
+    "La3AlO": -1.4739,
+    "La4Al2O9": -3.791,
+    "LaAl": -0.47,
+    "LaAl2": -0.5448,
+    "LaAl3": -0.4894,
+    "LaAlO3": -3.7225,
+    "Lu2O3": -4.1238,
+    "Lu3Al2": -0.3782,
+    "Lu3Al5O12": -3.7253,
+    "LuAl": -0.4578,
+    "LuAl2": -0.5502,
+    "LuAl3": -0.4373
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-La-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "La2O3": -3.8759,
+    "La3Al": -0.2579,
+    "La3Al11": -0.421,
+    "La3AlO": -1.4739,
+    "La4Al2O9": -3.791,
+    "LaAl": -0.47,
+    "LaAl2": -0.5448,
+    "LaAl3": -0.4894,
+    "LaAlO3": -3.7225
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-La-O-P": {
+   "phases": {
+    "Al(PO3)3": -2.8412,
+    "Al2O3": -3.4266,
+    "AlP": -0.7372,
+    "AlPO4": -3.1272,
+    "La(PO3)3": -3.0119,
+    "La2O3": -3.8759,
+    "La3Al": -0.2579,
+    "La3Al11": -0.421,
+    "La3AlO": -1.4739,
+    "La3PO7": -3.7011,
+    "La4Al2O9": -3.791,
+    "LaAl": -0.47,
+    "LaAl2": -0.5448,
+    "LaAl3": -0.4894,
+    "LaAlO3": -3.7225,
+    "LaP": -1.8161,
+    "LaP2": -1.2607,
+    "LaP5": -0.6786,
+    "LaP5O14": -2.8398,
+    "LaP7": -0.5148,
+    "LaPO4": -3.5381,
+    "P2O5": -2.449
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-La-O-Zr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "La2O3": -3.8759,
+    "La2Zr2O7": -3.9093,
+    "La3Al": -0.2579,
+    "La3Al11": -0.421,
+    "La3AlO": -1.4739,
+    "La4Al2O9": -3.791,
+    "LaAl": -0.47,
+    "LaAl2": -0.5448,
+    "LaAl3": -0.4894,
+    "LaAlO3": -3.7225,
+    "Zr3Al": -0.3188,
+    "Zr3O": -1.5462,
+    "Zr4Al3": -0.5185,
+    "Zr4O": -1.2407,
+    "ZrAl2": -0.6153,
+    "ZrAl3": -0.5308,
+    "ZrO2": -3.8136
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Lu-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Lu2O3": -4.1238,
+    "Lu3Al2": -0.3782,
+    "Lu3Al5O12": -3.7253,
+    "LuAl": -0.4578,
+    "LuAl2": -0.5502,
+    "LuAl3": -0.4373
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Mg-O": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Mg17Al12": -0.0093,
+    "MgAl2": -0.0119,
+    "MgAl2O4": -3.37,
+    "MgO": -3.0383
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-Nd-O-Zr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Nd2O3": -3.7815,
+    "Nd2Zr2O7": -3.8424,
+    "Nd3Al": -0.229,
+    "Nd4Al2O9": -3.7161,
+    "NdAl": -0.4554,
+    "NdAl2": -0.5582,
+    "NdAl3": -0.4927,
+    "NdAlO3": -3.6725,
+    "NdO2": -3.1597,
+    "Zr3Al": -0.3188,
+    "Zr3O": -1.5462,
+    "Zr4Al3": -0.5185,
+    "Zr4O": -1.2407,
+    "ZrAl2": -0.6153,
+    "ZrAl3": -0.5308,
+    "ZrO2": -3.8136
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O": {
+   "phases": {
+    "Al2O3": -3.4266
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Sc": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Sc2Al": -0.3664,
+    "Sc2O3": -3.9687,
+    "Sc3Al": -0.2888,
+    "ScAl": -0.4662,
+    "ScAl2": -0.5308,
+    "ScAl3": -0.4791
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Si-Zr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Al2SiO5": -3.3769,
+    "SiO2": -3.2728,
+    "Zr2Si": -0.8331,
+    "Zr3Al": -0.3188,
+    "Zr3O": -1.5462,
+    "Zr3Si2": -0.9323,
+    "Zr4Al3": -0.5185,
+    "Zr4O": -1.2407,
+    "ZrAl2": -0.6153,
+    "ZrAl3": -0.5308,
+    "ZrO2": -3.8136,
+    "ZrSi": -0.984,
+    "ZrSi2": -0.6572,
+    "ZrSiO4": -3.5588
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Sm-Zr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Sm2O3": -3.862,
+    "Sm2Zr2O7": -3.8557,
+    "Sm3Al": -0.2377,
+    "Sm3Al5O12": -3.644,
+    "Sm4Al2O9": -3.7571,
+    "SmAl": -0.4696,
+    "SmAl2": -0.5767,
+    "SmAl3": -0.4944,
+    "SmAlO3": -3.6978,
+    "Zr3Al": -0.3188,
+    "Zr3O": -1.5462,
+    "Zr4Al3": -0.5185,
+    "Zr4O": -1.2407,
+    "ZrAl2": -0.6153,
+    "ZrAl3": -0.5308,
+    "ZrO2": -3.8136
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Sr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Sr3Al2O6": -3.3422,
+    "Sr5Al9": -0.2839,
+    "SrAl2": -0.2851,
+    "SrAl2O4": -3.4588,
+    "SrAl4": -0.2585,
+    "SrAl4O7": -3.4643,
+    "SrO": -3.0756,
+    "SrO2": -2.2045
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Sr-Ti": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Sr2TiO4": -3.4434,
+    "Sr3Al2O6": -3.3422,
+    "Sr3Ti2O7": -3.4925,
+    "Sr5Al9": -0.2839,
+    "SrAl2": -0.2851,
+    "SrAl2O4": -3.4588,
+    "SrAl4": -0.2585,
+    "SrAl4O7": -3.4643,
+    "SrO": -3.0756,
+    "SrO2": -2.2045,
+    "SrTi11O20": -3.4285,
+    "SrTi3Al8O19": -3.4657,
+    "SrTiO3": -3.5517,
+    "Ti2O": -2.0356,
+    "Ti2O3": -3.3034,
+    "Ti3Al": -0.2972,
+    "Ti3O": -1.5699,
+    "Ti3O5": -3.3821,
+    "Ti6O": -0.9167,
+    "TiAl": -0.447,
+    "TiAl2": -0.4727,
+    "TiAl3": -0.4339,
+    "TiO": -2.908,
+    "TiO2": -3.5081
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Sr-Zr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Sr2Zr7O16": -3.7601,
+    "Sr3Al2O6": -3.3422,
+    "Sr5Al9": -0.2839,
+    "SrAl2": -0.2851,
+    "SrAl2O4": -3.4588,
+    "SrAl4": -0.2585,
+    "SrAl4O7": -3.4643,
+    "SrO": -3.0756,
+    "SrO2": -2.2045,
+    "SrZrO3": -3.6617,
+    "Zr3Al": -0.3188,
+    "Zr3O": -1.5462,
+    "Zr4Al3": -0.5185,
+    "Zr4O": -1.2407,
+    "ZrAl2": -0.6153,
+    "ZrAl3": -0.5308,
+    "ZrO2": -3.8136
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Ta": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Ta2Al": -0.2957,
+    "Ta2O5": -3.3466,
+    "TaAl3": -0.3736,
+    "TaAlO4": -3.4113
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Ta-Y": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Ta2Al": -0.2957,
+    "Ta2O5": -3.3466,
+    "TaAl3": -0.3736,
+    "TaAlO4": -3.4113,
+    "Y2Al": -0.3363,
+    "Y2O3": -3.9539,
+    "Y3Al5O12": -3.6754,
+    "Y3TaO7": -3.8262,
+    "Y6Ta4Al43": -0.3349,
+    "YAl": -0.4684,
+    "YAl2": -0.5829,
+    "YAl3": -0.4745,
+    "YTaO4": -3.708
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Ti": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Ti2O": -2.0356,
+    "Ti2O3": -3.3034,
+    "Ti3Al": -0.2972,
+    "Ti3O": -1.5699,
+    "Ti3O5": -3.3821,
+    "Ti6O": -0.9167,
+    "TiAl": -0.447,
+    "TiAl2": -0.4727,
+    "TiAl3": -0.4339,
+    "TiO": -2.908,
+    "TiO2": -3.5081
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Y": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Y2Al": -0.3363,
+    "Y2O3": -3.9539,
+    "Y3Al5O12": -3.6754,
+    "YAl": -0.4684,
+    "YAl2": -0.5829,
+    "YAl3": -0.4745
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Al-O-Zr": {
+   "phases": {
+    "Al2O3": -3.4266,
+    "Zr3Al": -0.3188,
+    "Zr3O": -1.5462,
+    "Zr4Al3": -0.5185,
+    "Zr4O": -1.2407,
+    "ZrAl2": -0.6153,
+    "ZrAl3": -0.5308,
+    "ZrO2": -3.8136
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "La-O-Si-Zr": {
+   "phases": {
+    "La2O3": -3.8759,
+    "La2Si2O7": -3.674,
+    "La2SiO5": -3.7785,
+    "La2Zr2O7": -3.9093,
+    "La5Si3": -0.679,
+    "La5Si4": -0.7718,
+    "LaSi": -0.8145,
+    "LaSi2": -0.7082,
+    "SiO2": -3.2728,
+    "Zr2Si": -0.8331,
+    "Zr3O": -1.5462,
+    "Zr3Si2": -0.9323,
+    "Zr4O": -1.2407,
+    "ZrO2": -3.8136,
+    "ZrSi": -0.984,
+    "ZrSi2": -0.6572,
+    "ZrSiO4": -3.5588
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "Gd-O-Si-Zr": {
+   "phases": {
+    "Gd2O3": -3.8954,
+    "Gd2Si2O7": -3.6297,
+    "Gd2SiO5": -3.733,
+    "Gd5Si4": -0.7024,
+    "GdSi": -0.7705,
+    "GdSi2": -0.5446,
+    "SiO2": -3.2728,
+    "Zr2Si": -0.8331,
+    "Zr3O": -1.5462,
+    "Zr3Si2": -0.9323,
+    "Zr4O": -1.2407,
+    "ZrO2": -3.8136,
+    "ZrSi": -0.984,
+    "ZrSi2": -0.6572,
+    "ZrSiO4": -3.5588
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "O-Si-Sm-Zr": {
+   "phases": {
+    "SiO2": -3.2728,
+    "Sm2O3": -3.862,
+    "Sm2Si2O7": -3.6372,
+    "Sm2SiO5": -3.7401,
+    "Sm2Zr2O7": -3.8557,
+    "Sm5Si3": -0.6998,
+    "Sm5Si4": -0.7943,
+    "SmSi": -0.8629,
+    "Zr2Si": -0.8331,
+    "Zr3O": -1.5462,
+    "Zr3Si2": -0.9323,
+    "Zr4O": -1.2407,
+    "ZrO2": -3.8136,
+    "ZrSi": -0.984,
+    "ZrSi2": -0.6572,
+    "ZrSiO4": -3.5588
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "O-Si-Ta-Y": {
+   "phases": {
+    "SiO2": -3.2728,
+    "Ta2O5": -3.3466,
+    "Ta2Si": -0.5942,
+    "Ta3Si": -0.4694,
+    "Ta5Si3": -0.655,
+    "TaSi2": -0.4463,
+    "Y2O3": -3.9539,
+    "Y2Si2O7": -3.671,
+    "Y2SiO5": -3.7812,
+    "Y3TaO7": -3.8262,
+    "Y5Si3": -0.7842,
+    "YSi": -0.8982,
+    "YTaO4": -3.708
+   },
+   "thermo_type": "GGA_GGA+U_R2SCAN"
+  },
+  "La-O-P-Si": {
+   "phases": {
+    "La(PO3)3": -3.0119,
+    "La(SiP3)2": -0.4632,
+    "La2O3": -3.8759,
+    "La2Si2O7": -3.674,
+    "La2SiO5": -3.7785,
+    "La3PO7": -3.7011,
+    "La5Si3": -0.679,
+    "La5Si4": -0.7718,
+    "LaP": -1.8161,
+    "LaP2": -1.2607,
+    "LaP5": -0.6786,
+    "LaP5O14": -2.8398,
+    "LaP7": -0.5148,
+    "LaPO4": -3.5381,
+    "LaSi": -0.8145,
+    "LaSi2": -0.7082,
+    "LaSiP3": -0.7327,
+    "P2O5": -2.449,
+    "Si5P6O25": -2.8718,
+    "SiO2": -3.2728,
+    "SiP": -0.17,
+    "SiP2": -0.1424,
+    "SiP2O7": -2.7818
    },
    "thermo_type": "GGA_GGA+U_R2SCAN"
   }

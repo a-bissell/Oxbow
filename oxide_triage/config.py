@@ -218,6 +218,20 @@ class MissingDataConfig(BaseModel):
         return v
 
 
+class RefutationConfig(BaseModel):
+    """Rule-derived caveats a profile can switch on or off. The rules themselves are code
+    (refute.py); this block holds the knobs a material class needs. Off by default so the
+    oxide-dielectric profiles' output is unchanged."""
+
+    # Caveat codes a profile does not want (e.g. hygroscopic_risk for a class where it is moot).
+    disabled_rules: list[str] = Field(default_factory=list)
+    # A competing observed polymorph within this many eV/atom of the leading phase earns a
+    # phase-transformation caveat (thermal cycling). None = off.
+    polymorph_window_ev_atom: float | None = Field(default=None, ge=0)
+    # Flag a 4f-element oxide whose reported semi-local gap is near zero as a DFT artifact.
+    f_electron_gap_check: bool = False
+
+
 class SourceFetchConfig(BaseModel):
     """Per-source fetch limits. ``workers`` overrides ``candidates.fetch_workers`` for the warm's
     thread pool (0 = fetch this source sequentially); ``max_rps`` caps requests per second across
@@ -386,6 +400,7 @@ class Config(BaseModel):
     literature: LiteratureConfig
     interface: InterfaceConfig = Field(default_factory=InterfaceConfig)
     missing_data: MissingDataConfig
+    refutation: RefutationConfig = Field(default_factory=RefutationConfig)
     retrieval: RetrievalConfig = Field(default_factory=RetrievalConfig)
     candidates: CandidatesConfig
     output: OutputConfig
@@ -495,6 +510,7 @@ POLICY_SECTIONS: frozenset[str] = frozenset(
         "toxicity",
         "simplicity",
         "missing_data",
+        "refutation",
         "literature",
     }
 )

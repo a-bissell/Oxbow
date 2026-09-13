@@ -1,0 +1,165 @@
+{
+ "params": {
+  "_fields": "task_id,run_type",
+  "_limit": 14,
+  "task_ids": "aaacqgus,aaacyeja,aaacxvra,aaadvjhf,aaaebbnq,aaafbeac,aaaebitw,aaaebfld,aaaebazp,aaaedsij,aaaedjkx,aaaczppu,aaafcdcx,aaagjbyj"
+ },
+ "response": {
+  "data": [
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CLOZJRoOWgxovxTKsPhQaD4KriQiDloMaL8UyrD4UGg+Cq4k",
+    "run_type": "GGA",
+    "task_id": "aaafbeac"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CJe8JRoOWgxovxTY2CXW2cQKrhoiDloMaL8U2Ngl1tnECq4a",
+    "run_type": "GGA",
+    "task_id": "aaafcdcx"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CObxFxoOWgxovxUQ8Iy+ORoKu5siDloMaL8VEPCMvjkaCrub",
+    "run_type": "r2SCAN",
+    "task_id": "aaagjbyj"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "COvHQxoOWgxovxaFYq8S4rIK1QAiDloMaL8WhWKvEuKyCtUA",
+    "run_type": "GGA",
+    "task_id": "aaaebfld"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CJGfNhoOWgxovxaFYq8S4rIK3SoiDloMaL8WhWKvEuKyCt0q",
+    "run_type": "GGA",
+    "task_id": "aaaebitw"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CO2iNhoOWgxovxaGzger2CQK2zciDloMaL8Whs4Hq9gkCts3",
+    "run_type": "GGA",
+    "task_id": "aaaebazp"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CNTyNRoOWgxovxaGzger2CQK3jgiDloMaL8Whs4Hq9gkCt44",
+    "run_type": "GGA",
+    "task_id": "aaaebbnq"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CJKaNxoOWgxovxaeyUKTBAMK2cQiDloMaL8WnslCkwQDCtnE",
+    "run_type": "GGA",
+    "task_id": "aaaedsij"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CI6rOBoOWgxovxawYsuKIBwK9U4iDloMaL8WsGLLiiAcCvVO",
+    "run_type": "GGA",
+    "task_id": "aaaedjkx"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CMy8TBoOWgxovxf4KhV2ZUMLBqciDloMaL8X+CoVdmVDCwan",
+    "run_type": "GGA",
+    "task_id": "aaacxvra"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CLO9QBoOWgxovxgb3O6mRwIK/+0iDloMaL8YG9zupkcCCv/t",
+    "run_type": "GGA",
+    "task_id": "aaacyeja"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CJnGQBoOWgxovxggGK38yqYK/tsiDloMaL8YIBit/MqmCv7b",
+    "run_type": "GGA",
+    "task_id": "aaaczppu"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CLXbUBoOWgxovxjIGwsTr/0LIXYiDloMaL8YyBsLE6/9CyF2",
+    "run_type": "GGA",
+    "task_id": "aaadvjhf"
+   },
+   {
+    "meta": {
+     "count": {
+      "total": 14
+     }
+    },
+    "meta_pagination_token": "CJuzYhoOWgxovxsTqBneqXULTdUiDloMaL8bE6gZ3ql1C03V",
+    "run_type": "GGA",
+    "task_id": "aaacqgus"
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "task_id",
+    "formula_pretty",
+    "last_updated"
+   ],
+   "facet": {},
+   "max_limit": 1000,
+   "pagination_token": "CJuzYhoOWgxovxsTqBneqXULTdUiDloMaL8bE6gZ3ql1C03V",
+   "time_stamp": "2026-09-13T15:51:43.290871+00:00",
+   "total_doc": 14
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/tasks/"
+}

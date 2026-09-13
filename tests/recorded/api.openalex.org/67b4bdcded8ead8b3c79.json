@@ -1,0 +1,111 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Sm2O3) AND (\"thin film\" OR \"thin films\" OR \"atomic layer deposition\" OR sputtered OR sputtering OR epitaxial OR \"pulsed laser deposition\" OR \"chemical vapor deposition\")",
+  "per-page": 5,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 160,
+   "db_response_time_ms": 29,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 5,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    Sm2O3\n    and (\n      stemmed \"atomic layer deposition\"\n      or stemmed \"chemical vapor deposition\"\n      or stemmed \"pulsed laser deposition\"\n      or stemmed \"thin film\"\n      or stemmed \"thin films\"\n      or epitaxial\n      or sputtered\n      or sputtering\n    )\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "column_id": "title_and_abstract.search",
+       "operator": "has",
+       "value": "Sm2O3"
+      },
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"atomic layer deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"chemical vapor deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"pulsed laser deposition\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin film\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"thin films\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "epitaxial"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtered"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "sputtering"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:Sm2O3,title_and_abstract.search:%22atomic layer deposition%22|%22chemical vapor deposition%22|%22pulsed laser deposition%22|%22thin film%22|%22thin films%22|epitaxial|sputtered|sputtering&per_page=5"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1002/adma.200900781",
+    "id": "https://openalex.org/W1982260223",
+    "publication_year": 2009,
+    "title": "Vertical Interface Effect on the Physical Properties of Self\u2010Assembled Nanocomposite Epitaxial Films"
+   },
+   {
+    "doi": "https://doi.org/10.1016/s0925-8388(03)00615-7",
+    "id": "https://openalex.org/W2080829867",
+    "publication_year": 2003,
+    "title": "Dielectric and optical properties of samarium oxide thin films"
+   },
+   {
+    "doi": "https://doi.org/10.1063/1.3000013",
+    "id": "https://openalex.org/W1615645475",
+    "publication_year": 2008,
+    "title": "Leakage mechanisms of self-assembled (BiFeO3)0.5:(Sm2O3)0.5 nanocomposite films"
+   },
+   {
+    "doi": "https://doi.org/10.1002/adfm.201404420",
+    "id": "https://openalex.org/W2127663507",
+    "publication_year": 2015,
+    "title": "Strain Tuning and Strong Enhancement of Ionic Conductivity in SrZrO3\u2013RE2O3 (RE = Sm, Eu, Gd, Dy, and Er) Nanocomposite Films"
+   },
+   {
+    "doi": "https://doi.org/10.1016/j.mssp.2011.02.001",
+    "id": "https://openalex.org/W2077358326",
+    "publication_year": 2010,
+    "title": "Sm2O3 gate dielectric on Si substrate"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

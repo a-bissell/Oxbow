@@ -1,0 +1,55 @@
+# Elements permitted as cations when pulling the candidate universe for the thermal-barrier
+# profile from Materials Project. Oxygen must be the *only* anion (see cation_allowlist.yaml
+# for why); the anion is not configurable and every profile shares that limit.
+#
+# This is the thermal-barrier-minded list (v1). A thermal barrier coating is an oxide that
+# survives on a superalloy at 1,000-1,300 C over a thermally grown alumina scale, so the
+# families are the fluorite and pyrochlore formers, the rare earths that stabilise or form
+# them, the alkaline earths of the zirconate perovskites, and the framework formers of the
+# silicate, aluminate and phosphate candidates. Dropped: the alkalis, the late transition
+# metals and the p-block metals (Pb, Bi, Sn, In, Ga, Ge, Zn) for which no TBC literature
+# exists, and the radioactive elements. This is a domain judgment to confirm with a coatings
+# group; each family says why it is in.
+version: "2026-09-13.1"
+# The `cations` list below stays the fetch allowlist; the families must cover it exactly (tested).
+families:
+  - id: fluorite_formers
+    name: Fluorite and pyrochlore formers
+    cations: [Zr, Hf, Ce]
+    rationale: ZrO2 (the parent of yttria-stabilised zirconia), HfO2, CeO2 and the RE2Zr2O7 / RE2Hf2O7 pyrochlores.
+  - id: rare_earths
+    name: Rare earths and group 3
+    cations: [Sc, Y, La, Nd, Sm, Gd, Dy, Er, Yb, Lu]
+    rationale: The stabilisers of zirconia and the A-site of the pyrochlore, zirconate and tantalate TBC candidates; the sesquioxides themselves have low intrinsic conductivity.
+  - id: alkaline_earths
+    name: Alkaline earths
+    cations: [Mg, Ca, Sr, Ba]
+    rationale: The A-site of SrZrO3 and BaZrO3, and MgO / CaO as reference oxides with high conductivity.
+  - id: framework
+    name: Framework formers
+    cations: [Al, Si, Ti, Ta, Nb, P]
+    rationale: Alumina (the thermally grown oxide itself, a reference), the rare-earth silicates of environmental barrier coatings, the ferroelastic tantalates (YTaO4) and monazite LaPO4.
+cations:
+  - Zr
+  - Hf
+  - Ce
+  - Sc
+  - Y
+  - La
+  - Nd
+  - Sm
+  - Gd
+  - Dy
+  - Er
+  - Yb
+  - Lu
+  - Mg
+  - Ca
+  - Sr
+  - Ba
+  - Al
+  - Si
+  - Ti
+  - Ta
+  - Nb
+  - P

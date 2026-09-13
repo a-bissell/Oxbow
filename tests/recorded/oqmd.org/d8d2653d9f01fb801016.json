@@ -1,0 +1,99 @@
+{
+ "params": {
+  "composition": "La2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.68733518552725,
+    "entry_id": 10085,
+    "name": "La2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.02520295274999995
+   },
+   {
+    "delta_e": -3.68768973352725,
+    "entry_id": 10228,
+    "name": "La2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.024848404750000164
+   },
+   {
+    "delta_e": -2.82458909152725,
+    "entry_id": 351063,
+    "name": "La2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.8879490467500002
+   },
+   {
+    "delta_e": -3.68278839686059,
+    "entry_id": 20301,
+    "name": "La2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.02974974141665987
+   },
+   {
+    "delta_e": -3.65609607052725,
+    "entry_id": 427686,
+    "name": "La2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.056442067749999936
+   },
+   {
+    "delta_e": -3.71253813827725,
+    "entry_id": 30652,
+    "name": "La2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.60482263252725,
+    "entry_id": 1343489,
+    "name": "La2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.10771550574999988
+   },
+   {
+    "delta_e": -3.47532964152725,
+    "entry_id": 1442704,
+    "name": "La2O3",
+    "spacegroup": "P321",
+    "stability": 0.2372084967500001
+   },
+   {
+    "delta_e": -3.471141459527253,
+    "entry_id": 40054,
+    "name": "La2O3",
+    "spacegroup": "P321",
+    "stability": 0.24139667874999704
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 9,
+   "data_returned": 9,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=La2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-13 10:51:54"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}

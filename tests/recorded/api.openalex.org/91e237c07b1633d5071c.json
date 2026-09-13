@@ -1,0 +1,57 @@
+{
+ "params": {
+  "filter": "title_and_abstract.search:(Gd2O3 OR \"gadolinium oxide\" OR gadolinia)",
+  "per-page": 1,
+  "select": "id,title,publication_year,doi",
+  "sort": "cited_by_count:desc"
+ },
+ "response": {
+  "group_by": [],
+  "meta": {
+   "cost_usd": 0.001,
+   "count": 7702,
+   "db_response_time_ms": 71,
+   "groups_count": null,
+   "page": 1,
+   "per_page": 1,
+   "x_query": {
+    "oql": "works where title/abstract has (\n    Gd2O3\n    or stemmed \"gadolinium oxide\"\n    or gadolinia\n  )",
+    "oqo": {
+     "filter_rows": [
+      {
+       "filters": [
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "Gd2O3"
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "\"gadolinium oxide\""
+        },
+        {
+         "column_id": "title_and_abstract.search",
+         "operator": "has",
+         "value": "gadolinia"
+        }
+       ],
+       "join": "or"
+      }
+     ],
+     "get_rows": "works"
+    },
+    "url": "/works?filter=title_and_abstract.search:Gd2O3|%22gadolinium oxide%22|gadolinia&per_page=1"
+   }
+  },
+  "results": [
+   {
+    "doi": "https://doi.org/10.1016/0167-2738(92)90102-u",
+    "id": "https://openalex.org/W1971273014",
+    "publication_year": 1992,
+    "title": "Electrical properties of ceria-based oxides and their application to solid oxide fuel cells"
+   }
+  ]
+ },
+ "url": "https://api.openalex.org/works"
+}

@@ -3,6 +3,8 @@
 Endpoints (https://api.materialsproject.org, header ``X-API-KEY``):
   * ``/materials/summary/``     thermo + electronic summary per material
   * ``/materials/dielectric/``  DFPT dielectric tensors (sparse coverage)
+  * ``/materials/elasticity/``  elastic tensors with the derived Clarke/Cahill minimum thermal
+                                conductivity and Debye temperature (sparser still)
   * ``/materials/tasks/``       per-calculation ``run_type`` (the DFT functional)
 
 Known domain surprises this module makes explicit rather than hiding:
@@ -49,6 +51,14 @@ SUMMARY_FIELDS = [
     "last_updated",
 ]
 DIELECTRIC_FIELDS = ["material_id", "e_total", "e_electronic", "e_ionic", "n"]
+ELASTICITY_FIELDS = [
+    "material_id",
+    "bulk_modulus",
+    "shear_modulus",
+    "thermal_conductivity",
+    "debye_temperature",
+    "warnings",
+]
 PAGE_SIZE = 1000
 
 # Everything in the periodic table that is *not* an allowlisted cation and not oxygen is
@@ -316,6 +326,56 @@ class MaterialsProject(CachedSource):
             }
 
         return self.cached(f"dielectric:{material_id}", fetch)
+
+    # ---- elasticity (the thermal-barrier figure of merit) -----------------------------
+
+    @staticmethod
+    def _elasticity_payload(doc: dict[str, Any] | None) -> dict[str, Any]:
+        if doc is None:
+            return {"found": False}
+        return {
+            "found": True,
+            "bulk_modulus": doc.get("bulk_modulus"),
+            "shear_modulus": doc.get("shear_modulus"),
+            "thermal_conductivity": doc.get("thermal_conductivity"),
+            "debye_temperature": doc.get("debye_temperature"),
+            "warnings": list(doc.get("warnings") or []),
+        }
+
+    def elasticity(self, material_id: str) -> tuple[dict[str, Any] | None, str | None, str]:
+        def fetch() -> dict[str, Any]:
+            page = self.http.get_json(
+                f"{BASE_URL}/materials/elasticity/",
+                params={"material_ids": material_id, "_fields": ",".join(ELASTICITY_FIELDS)},
+                headers=self._headers(),
+            )
+            data = (page or {}).get("data", []) if isinstance(page, dict) else []
+            return self._elasticity_payload(data[0] if data else None)
+
+        return self.cached(f"elasticity:{material_id}", fetch)
+
+    def prefetch_elasticity(self, material_ids: list[str]) -> None:
+        """Batch the elasticity lookups (one request per 100 ids) into the cache."""
+        missing = [m for m in material_ids if self.cache.get(self.name, f"elasticity:{m}") is None]
+        if self.offline or not missing:
+            return
+        for i in range(0, len(missing), 100):
+            chunk = missing[i : i + 100]
+            try:
+                page = self.http.get_json(
+                    f"{BASE_URL}/materials/elasticity/",
+                    params={
+                        "material_ids": ",".join(chunk),
+                        "_fields": ",".join(ELASTICITY_FIELDS),
+                        "_limit": len(chunk),
+                    },
+                    headers=self._headers(),
+                )
+            except SourceError:
+                return  # per-material fallback path will record the failure
+            found = {d["material_id"]: d for d in (page or {}).get("data", [])}
+            for m in chunk:
+                self.cache.put(self.name, f"elasticity:{m}", self._elasticity_payload(found.get(m)))
 
     # ---- hull phases for the interface criterion --------------------------------------
 

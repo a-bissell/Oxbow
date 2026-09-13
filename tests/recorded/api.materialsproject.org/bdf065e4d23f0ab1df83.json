@@ -1,0 +1,201 @@
+{
+ "params": {
+  "_fields": "material_id,bulk_modulus,shear_modulus,thermal_conductivity,debye_temperature,warnings",
+  "_limit": 100,
+  "material_ids": "mp-aaabfror,mp-aaabfrpq,mp-aaabfrpw,mp-aaabfrqh,mp-aaabfrqm,mp-aaabfrts,mp-aaabfrvy,mp-aaabfrww,mp-aaabfrxp,mp-aaabfsaq,mp-aaabfscy,mp-aaabfsgx,mp-aaabfsna,mp-aaabfsuu,mp-aaabfsvr,mp-aaabfswi,mp-aaabfsxc,mp-aaabfsxe,mp-aaabftbe,mp-aaabftcc,mp-aaabftcl,mp-aaabftei,mp-aaabftfm,mp-aaabftgz,mp-aaabfthm,mp-aaabftib,mp-aaabftig,mp-aaabftih,mp-aaabftiz,mp-aaabftmn,mp-aaabftns,mp-aaabftoy,mp-aaabftpz,mp-aaabftqj,mp-aaabftrr,mp-aaabftrw,mp-aaabftwb,mp-aaabftyc,mp-aaabftzb,mp-aaabftzv,mp-aaabfueh,mp-aaabfuej,mp-aaabfuhp,mp-aaabfuka,mp-aaabfupp,mp-aaabfvbn,mp-aaabfvdp,mp-aaabfvjc,mp-aaabfvjd,mp-aaabfvna,mp-aaabfvsk,mp-aaabfvsr,mp-aaabfvte,mp-aaabfwbo,mp-aaabfwfo,mp-aaabfwid,mp-aaabfwjc,mp-aaabfwki,mp-aaabfwma,mp-aaabfwmy,mp-aaabfwpo,mp-aaabfwqh,mp-aaabfwql,mp-aaabfwxd,mp-aaabfwxk,mp-aaabfwxx,mp-aaabfwyg,mp-aaabfwzf,mp-aaabfxbp,mp-aaabfxil,mp-aaabfxkr,mp-aaabfxmp,mp-aaabfxpp,mp-aaabfxpv,mp-aaabfxqb,mp-aaabfxqg,mp-aaabfxtw,mp-aaabfxud,mp-aaabfxur,mp-aaabfxvx,mp-aaabfxwc,mp-aaabfxww,mp-aaabfxxg,mp-aaabfxxz,mp-aaabfyae,mp-aaabfyag,mp-aaabfyak,mp-aaabfyax,mp-aaabfydx,mp-aaabfykl,mp-aaabfyna,mp-aaabfyrj,mp-aaabfyrz,mp-aaabfysd,mp-aaabfyxw,mp-aaabfzlx,mp-aaabgagz,mp-aaabgaxc,mp-aaabgevs,mp-aaabgysb"
+ },
+ "response": {
+  "data": [
+   {
+    "bulk_modulus": {
+     "reuss": 100.654,
+     "voigt": 104.423,
+     "vrh": 102.538
+    },
+    "debye_temperature": 427.4232175712357,
+    "material_id": "mp-aaabftqj",
+    "shear_modulus": {
+     "reuss": 47.33,
+     "voigt": 59.933,
+     "vrh": 53.631
+    },
+    "thermal_conductivity": {
+     "cahill": 1.137019571310014,
+     "clarke": 1.031457763488443
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 140.65,
+     "voigt": 144.824,
+     "vrh": 142.737
+    },
+    "debye_temperature": 472.7276991520156,
+    "material_id": "mp-aaabfuhp",
+    "shear_modulus": {
+     "reuss": 56.95,
+     "voigt": 68.125,
+     "vrh": 62.537
+    },
+    "thermal_conductivity": {
+     "cahill": 1.275587127863734,
+     "clarke": 1.141321050030411
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 151.126,
+     "voigt": 152.929,
+     "vrh": 152.027
+    },
+    "debye_temperature": 756.0360060049926,
+    "material_id": "mp-aaabfuka",
+    "shear_modulus": {
+     "reuss": 81.349,
+     "voigt": 96.883,
+     "vrh": 89.116
+    },
+    "thermal_conductivity": {
+     "cahill": 2.166893711512535,
+     "clarke": 1.9785754465794132
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 177.146,
+     "voigt": 178.887,
+     "vrh": 178.016
+    },
+    "debye_temperature": 481.82192556258946,
+    "material_id": "mp-aaabfupp",
+    "shear_modulus": {
+     "reuss": 70.508,
+     "voigt": 76.057,
+     "vrh": 73.282
+    },
+    "thermal_conductivity": {
+     "cahill": 1.386021032420133,
+     "clarke": 1.232859718083463
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 72.429,
+     "voigt": 78.434,
+     "vrh": 75.432
+    },
+    "debye_temperature": 542.4283284005614,
+    "material_id": "mp-aaabfvna",
+    "shear_modulus": {
+     "reuss": 41.926,
+     "voigt": 43.249,
+     "vrh": 42.587
+    },
+    "thermal_conductivity": {
+     "cahill": 1.4518080846952142,
+     "clarke": 1.323065024471732
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 50.809,
+     "voigt": 52.87,
+     "vrh": 51.839
+    },
+    "debye_temperature": 349.13392286850234,
+    "material_id": "mp-aaabfwid",
+    "shear_modulus": {
+     "reuss": 23.453,
+     "voigt": 25.694,
+     "vrh": 24.574
+    },
+    "thermal_conductivity": {
+     "cahill": 0.9216299015107491,
+     "clarke": 0.8301392927762341
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 66.299,
+     "voigt": 103.882,
+     "vrh": 85.09
+    },
+    "debye_temperature": 503.5788680519237,
+    "material_id": "mp-aaabfwyg",
+    "shear_modulus": {
+     "reuss": 41.487,
+     "voigt": 54.05,
+     "vrh": 47.769
+    },
+    "thermal_conductivity": {
+     "cahill": 1.326715636691737,
+     "clarke": 1.208689723904016
+    },
+    "warnings": [
+     "Critical: Expect 24 total (primary plus derived) strain--stress states to fit the data; got 22."
+    ]
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 118.519,
+     "voigt": 122.087,
+     "vrh": 120.303
+    },
+    "debye_temperature": 397.9496391157257,
+    "material_id": "mp-aaabfxbp",
+    "shear_modulus": {
+     "reuss": 67.329,
+     "voigt": 69.151,
+     "vrh": 68.24
+    },
+    "thermal_conductivity": {
+     "cahill": 1.030074619138066,
+     "clarke": 0.938968096581525
+    },
+    "warnings": []
+   },
+   {
+    "bulk_modulus": {
+     "reuss": 120.796,
+     "voigt": 121.16,
+     "vrh": 120.978
+    },
+    "debye_temperature": 346.20598804036354,
+    "material_id": "mp-aaabfxud",
+    "shear_modulus": {
+     "reuss": -0.853,
+     "voigt": 54.736,
+     "vrh": 26.941
+    },
+    "thermal_conductivity": {
+     "cahill": 1.050937062491983,
+     "clarke": 0.8586212073928491
+    },
+    "warnings": [
+     "Critical: insufficient number of valid strains. Expect the matrix of all strains to be of rank 6; got rank 5.",
+     "Elastic tensor has negative eigenvalue(s), indicating that the structure is mechanically unstable.",
+     "Negative modulus: reuss shear modulus is -0.853, indicating that the structure is mechanically unstable.",
+     "Critical: Expect 24 total (primary plus derived) strain--stress states to fit the data; got 17."
+    ]
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "material_id",
+    "formula_pretty"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-13T15:51:40.551839+00:00",
+   "total_doc": 9
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/elasticity/"
+}

@@ -1,0 +1,432 @@
+{
+ "params": {
+  "_fields": "formula_pretty,chemsys,formation_energy_per_atom",
+  "_limit": 1000,
+  "_skip": 0,
+  "chemsys": "Al-Ba,Al-Ba-Dy,Al-Ba-Dy-O,Al-Ba-O,Al-Ba-O-Yb,Al-Ba-Yb,Al-Ce,Al-Ce-O,Al-Ce-O-Si,Al-Ce-Si,Al-Dy,Al-Dy-O,Al-Dy-O-Ta,Al-Dy-Ta,Al-La,Al-La-O,Al-La-O-Y,Al-La-Y,Al-Mg,Al-Mg-O,Al-Mg-O-Ta,Al-Mg-Ta,Al-O,Al-O-Si,Al-O-Sr,Al-O-Sr-Ta,Al-O-Ta,Al-O-Y,Al-O-Yb,Al-Si,Al-Sr,Al-Sr-Ta,Al-Ta,Al-Y,Al-Yb,Ba-Dy,Ba-Dy-O,Ba-O,Ba-O-Yb,Ba-Yb,Ce-O,Ce-O-Si,Ce-Si,Dy-O,Dy-O-Ta,Dy-Ta,La-O,La-O-Y,La-Y,Mg-O,Mg-O-Ta,Mg-Ta,O-Si,O-Sr,O-Sr-Ta,O-Ta,O-Y,O-Yb,Sr-Ta",
+  "energy_above_hull_max": 0.0,
+  "thermo_types": "GGA_GGA+U_R2SCAN"
+ },
+ "response": {
+  "data": [
+   {
+    "chemsys": "Al-Ba",
+    "formation_energy_per_atom": -0.2307527311764709,
+    "formula_pretty": "Ba7Al10"
+   },
+   {
+    "chemsys": "Al-Ba",
+    "formation_energy_per_atom": -0.2218056483333331,
+    "formula_pretty": "Ba4Al5"
+   },
+   {
+    "chemsys": "Al-Ba",
+    "formation_energy_per_atom": -0.2411815400000009,
+    "formula_pretty": "BaAl4"
+   },
+   {
+    "chemsys": "Al-Ba",
+    "formation_energy_per_atom": -0.2433311760655749,
+    "formula_pretty": "Ba21Al40"
+   },
+   {
+    "chemsys": "Al-Ba-Dy-O",
+    "formation_energy_per_atom": -3.41384142345679,
+    "formula_pretty": "Ba6Dy2Al4O15"
+   },
+   {
+    "chemsys": "Al-Ba-O",
+    "formation_energy_per_atom": -3.4478886202011494,
+    "formula_pretty": "Ba7Al64O103"
+   },
+   {
+    "chemsys": "Al-Ba-O",
+    "formation_energy_per_atom": -3.1865793357692302,
+    "formula_pretty": "Ba4Al2O7"
+   },
+   {
+    "chemsys": "Al-Ba-O",
+    "formation_energy_per_atom": -3.4481509325,
+    "formula_pretty": "BaAl2O4"
+   },
+   {
+    "chemsys": "Al-Ba-O",
+    "formation_energy_per_atom": -2.9449554246874996,
+    "formula_pretty": "Ba3AlO4"
+   },
+   {
+    "chemsys": "Al-Ce",
+    "formation_energy_per_atom": -0.5022380533333338,
+    "formula_pretty": "CeAl2"
+   },
+   {
+    "chemsys": "Al-Ce",
+    "formation_energy_per_atom": -0.40233300571428493,
+    "formula_pretty": "Ce3Al11"
+   },
+   {
+    "chemsys": "Al-Ce",
+    "formation_energy_per_atom": -0.4586414712500009,
+    "formula_pretty": "CeAl3"
+   },
+   {
+    "chemsys": "Al-Ce",
+    "formation_energy_per_atom": -0.2354365924999975,
+    "formula_pretty": "Ce3Al"
+   },
+   {
+    "chemsys": "Al-Ce-O",
+    "formation_energy_per_atom": -3.620338527999999,
+    "formula_pretty": "CeAlO3"
+   },
+   {
+    "chemsys": "Al-Ce-Si",
+    "formation_energy_per_atom": -0.7011846483333315,
+    "formula_pretty": "CeAlSi"
+   },
+   {
+    "chemsys": "Al-Dy",
+    "formation_energy_per_atom": -0.5868704383333329,
+    "formula_pretty": "DyAl2"
+   },
+   {
+    "chemsys": "Al-Dy",
+    "formation_energy_per_atom": -0.48227621624999983,
+    "formula_pretty": "DyAl"
+   },
+   {
+    "chemsys": "Al-Dy",
+    "formation_energy_per_atom": -0.3442739925000022,
+    "formula_pretty": "Dy2Al"
+   },
+   {
+    "chemsys": "Al-Dy",
+    "formation_energy_per_atom": -0.4805608187499981,
+    "formula_pretty": "DyAl3"
+   },
+   {
+    "chemsys": "Al-Dy-O",
+    "formation_energy_per_atom": -3.6972129154999975,
+    "formula_pretty": "Dy3Al5O12"
+   },
+   {
+    "chemsys": "Al-Dy-Ta",
+    "formation_energy_per_atom": -0.3382795698930814,
+    "formula_pretty": "Dy6Ta4Al43"
+   },
+   {
+    "chemsys": "Al-La",
+    "formation_energy_per_atom": -0.42103565249999925,
+    "formula_pretty": "La3Al11"
+   },
+   {
+    "chemsys": "Al-La",
+    "formation_energy_per_atom": -0.25790424124999944,
+    "formula_pretty": "La3Al"
+   },
+   {
+    "chemsys": "Al-La",
+    "formation_energy_per_atom": -0.4893534474999992,
+    "formula_pretty": "LaAl3"
+   },
+   {
+    "chemsys": "Al-La",
+    "formation_energy_per_atom": -0.544782338333332,
+    "formula_pretty": "LaAl2"
+   },
+   {
+    "chemsys": "Al-La",
+    "formation_energy_per_atom": -0.470004778749999,
+    "formula_pretty": "LaAl"
+   },
+   {
+    "chemsys": "Al-La-O",
+    "formation_energy_per_atom": -3.722466563000002,
+    "formula_pretty": "LaAlO3"
+   },
+   {
+    "chemsys": "Al-La-O",
+    "formation_energy_per_atom": -1.473911112000002,
+    "formula_pretty": "La3AlO"
+   },
+   {
+    "chemsys": "Al-La-O",
+    "formation_energy_per_atom": -3.7910376603333398,
+    "formula_pretty": "La4Al2O9"
+   },
+   {
+    "chemsys": "Al-Mg",
+    "formation_energy_per_atom": -0.009331720172413866,
+    "formula_pretty": "Mg17Al12"
+   },
+   {
+    "chemsys": "Al-Mg",
+    "formation_energy_per_atom": -0.011892303333333132,
+    "formula_pretty": "MgAl2"
+   },
+   {
+    "chemsys": "Al-Mg-O",
+    "formation_energy_per_atom": -3.3700013771428527,
+    "formula_pretty": "MgAl2O4"
+   },
+   {
+    "chemsys": "Al-Mg-Ta",
+    "formation_energy_per_atom": -0.1165776147681167,
+    "formula_pretty": "Mg3(TaAl9)2"
+   },
+   {
+    "chemsys": "Al-O",
+    "formation_energy_per_atom": -3.4265510080000006,
+    "formula_pretty": "Al2O3"
+   },
+   {
+    "chemsys": "Al-O-Si",
+    "formation_energy_per_atom": -3.3768698634375003,
+    "formula_pretty": "Al2SiO5"
+   },
+   {
+    "chemsys": "Al-O-Sr",
+    "formation_energy_per_atom": -3.342221047765152,
+    "formula_pretty": "Sr3Al2O6"
+   },
+   {
+    "chemsys": "Al-O-Sr",
+    "formation_energy_per_atom": -3.4642884175,
+    "formula_pretty": "SrAl4O7"
+   },
+   {
+    "chemsys": "Al-O-Sr",
+    "formation_energy_per_atom": -3.4588350046428573,
+    "formula_pretty": "SrAl2O4"
+   },
+   {
+    "chemsys": "Al-O-Sr-Ta",
+    "formation_energy_per_atom": -3.4853614157333332,
+    "formula_pretty": "Sr2TaAlO6"
+   },
+   {
+    "chemsys": "Al-O-Ta",
+    "formation_energy_per_atom": -3.4112966558055553,
+    "formula_pretty": "TaAlO4"
+   },
+   {
+    "chemsys": "Al-O-Y",
+    "formation_energy_per_atom": -3.675374461249997,
+    "formula_pretty": "Y3Al5O12"
+   },
+   {
+    "chemsys": "Al-Sr",
+    "formation_energy_per_atom": -0.25851097200000056,
+    "formula_pretty": "SrAl4"
+   },
+   {
+    "chemsys": "Al-Sr",
+    "formation_energy_per_atom": -0.2850754433333324,
+    "formula_pretty": "SrAl2"
+   },
+   {
+    "chemsys": "Al-Sr",
+    "formation_energy_per_atom": -0.2838714635714276,
+    "formula_pretty": "Sr5Al9"
+   },
+   {
+    "chemsys": "Al-Ta",
+    "formation_energy_per_atom": -0.29570217388888975,
+    "formula_pretty": "Ta2Al"
+   },
+   {
+    "chemsys": "Al-Ta",
+    "formation_energy_per_atom": -0.37362651433333127,
+    "formula_pretty": "TaAl3"
+   },
+   {
+    "chemsys": "Al-Y",
+    "formation_energy_per_atom": -0.4684286025000013,
+    "formula_pretty": "YAl"
+   },
+   {
+    "chemsys": "Al-Y",
+    "formation_energy_per_atom": -0.5829048933333331,
+    "formula_pretty": "YAl2"
+   },
+   {
+    "chemsys": "Al-Y",
+    "formation_energy_per_atom": -0.3362663108333355,
+    "formula_pretty": "Y2Al"
+   },
+   {
+    "chemsys": "Al-Y",
+    "formation_energy_per_atom": -0.4745201125000005,
+    "formula_pretty": "YAl3"
+   },
+   {
+    "chemsys": "Ba-Dy-O",
+    "formation_energy_per_atom": -3.6789843933333333,
+    "formula_pretty": "BaDy2O4"
+   },
+   {
+    "chemsys": "Ba-O",
+    "formation_energy_per_atom": -2.8236427075000003,
+    "formula_pretty": "BaO"
+   },
+   {
+    "chemsys": "Ba-O",
+    "formation_energy_per_atom": -0.6015697763636357,
+    "formula_pretty": "BaO10"
+   },
+   {
+    "chemsys": "Ba-O",
+    "formation_energy_per_atom": -2.1701926633333346,
+    "formula_pretty": "BaO2"
+   },
+   {
+    "chemsys": "Ce-O",
+    "formation_energy_per_atom": -3.917592265263155,
+    "formula_pretty": "Ce7O12"
+   },
+   {
+    "chemsys": "Ce-O",
+    "formation_energy_per_atom": -3.927176196666666,
+    "formula_pretty": "CeO2"
+   },
+   {
+    "chemsys": "Ce-O",
+    "formation_energy_per_atom": -3.7682512802499994,
+    "formula_pretty": "Ce2O3"
+   },
+   {
+    "chemsys": "Ce-O",
+    "formation_energy_per_atom": -3.2322314924999986,
+    "formula_pretty": "CeO"
+   },
+   {
+    "chemsys": "Ce-O",
+    "formation_energy_per_atom": -3.9571209660714257,
+    "formula_pretty": "Ce5O9"
+   },
+   {
+    "chemsys": "Ce-O-Si",
+    "formation_energy_per_atom": -3.5638162843181806,
+    "formula_pretty": "Ce2Si2O7"
+   },
+   {
+    "chemsys": "Ce-O-Si",
+    "formation_energy_per_atom": -1.3878518011904735,
+    "formula_pretty": "Ce10Si8O3"
+   },
+   {
+    "chemsys": "Ce-Si",
+    "formation_energy_per_atom": -0.6778101900000001,
+    "formula_pretty": "CeSi2"
+   },
+   {
+    "chemsys": "Ce-Si",
+    "formation_energy_per_atom": -0.7491293674999966,
+    "formula_pretty": "CeSi"
+   },
+   {
+    "chemsys": "Ce-Si",
+    "formation_energy_per_atom": -0.6375793762499988,
+    "formula_pretty": "Ce5Si3"
+   },
+   {
+    "chemsys": "Dy-O",
+    "formation_energy_per_atom": -4.005045779666665,
+    "formula_pretty": "Dy2O3"
+   },
+   {
+    "chemsys": "Dy-O-Ta",
+    "formation_energy_per_atom": -3.8607882133939366,
+    "formula_pretty": "Dy3TaO7"
+   },
+   {
+    "chemsys": "Dy-O-Ta",
+    "formation_energy_per_atom": -3.7336660264999986,
+    "formula_pretty": "DyTaO4"
+   },
+   {
+    "chemsys": "La-O",
+    "formation_energy_per_atom": -3.8759289195,
+    "formula_pretty": "La2O3"
+   },
+   {
+    "chemsys": "Mg-O",
+    "formation_energy_per_atom": -3.03830917,
+    "formula_pretty": "MgO"
+   },
+   {
+    "chemsys": "Mg-O-Ta",
+    "formation_energy_per_atom": -3.2403028306444486,
+    "formula_pretty": "Mg4Ta2O9"
+   },
+   {
+    "chemsys": "Mg-O-Ta",
+    "formation_energy_per_atom": -3.325803555518519,
+    "formula_pretty": "MgTa2O6"
+   },
+   {
+    "chemsys": "O-Si",
+    "formation_energy_per_atom": -3.2728313438888907,
+    "formula_pretty": "SiO2"
+   },
+   {
+    "chemsys": "O-Sr",
+    "formation_energy_per_atom": -3.0756235274999995,
+    "formula_pretty": "SrO"
+   },
+   {
+    "chemsys": "O-Sr",
+    "formation_energy_per_atom": -2.2044791333333316,
+    "formula_pretty": "SrO2"
+   },
+   {
+    "chemsys": "O-Sr-Ta",
+    "formation_energy_per_atom": -3.4249879949777786,
+    "formula_pretty": "Sr4Ta2O9"
+   },
+   {
+    "chemsys": "O-Sr-Ta",
+    "formation_energy_per_atom": -3.487587180518501,
+    "formula_pretty": "SrTa2O6"
+   },
+   {
+    "chemsys": "O-Sr-Ta",
+    "formation_energy_per_atom": -3.477598544763891,
+    "formula_pretty": "Sr5Ta4O15"
+   },
+   {
+    "chemsys": "O-Sr-Ta",
+    "formation_energy_per_atom": -3.499453334060604,
+    "formula_pretty": "Sr2Ta2O7"
+   },
+   {
+    "chemsys": "O-Sr-Ta",
+    "formation_energy_per_atom": -3.431262843708332,
+    "formula_pretty": "SrTa4O11"
+   },
+   {
+    "chemsys": "O-Ta",
+    "formation_energy_per_atom": -3.3465631313809516,
+    "formula_pretty": "Ta2O5"
+   },
+   {
+    "chemsys": "O-Y",
+    "formation_energy_per_atom": -3.953871922749999,
+    "formula_pretty": "Y2O3"
+   }
+  ],
+  "meta": {
+   "api_version": "0.87.3.dev11+ga5415ca70",
+   "default_fields": [
+    "thermo_id",
+    "material_id",
+    "last_updated"
+   ],
+   "facet": null,
+   "max_limit": 1000,
+   "time_stamp": "2026-09-13T15:51:44.463850+00:00",
+   "total_doc": 81
+  }
+ },
+ "url": "https://api.materialsproject.org/materials/thermo/"
+}

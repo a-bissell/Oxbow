@@ -1,0 +1,106 @@
+{
+ "params": {
+  "composition": "Gd2O3",
+  "fields": "name,entry_id,delta_e,stability,spacegroup",
+  "limit": 50
+ },
+ "response": {
+  "data": [
+   {
+    "delta_e": -3.74186562252725,
+    "entry_id": 20292,
+    "name": "Gd2O3",
+    "spacegroup": "P-3m1",
+    "stability": 0.0507620339999999
+   },
+   {
+    "delta_e": -3.78004678852725,
+    "entry_id": 5435,
+    "name": "Gd2O3",
+    "spacegroup": "I213",
+    "stability": 0.01258086799999969
+   },
+   {
+    "delta_e": -2.84987988652725,
+    "entry_id": 352983,
+    "name": "Gd2O3",
+    "spacegroup": "Pm-3m",
+    "stability": 0.94274777
+   },
+   {
+    "delta_e": -3.75467229852725,
+    "entry_id": 20306,
+    "name": "Gd2O3",
+    "spacegroup": "C2/m",
+    "stability": 0.03795535800000005
+   },
+   {
+    "delta_e": -3.73901878852725,
+    "entry_id": 427161,
+    "name": "Gd2O3",
+    "spacegroup": "R-3c",
+    "stability": 0.053608867999999976
+   },
+   {
+    "delta_e": -3.73881434152725,
+    "entry_id": 678220,
+    "name": "Gd2O3",
+    "spacegroup": "R-3",
+    "stability": 0.05381331499999975
+   },
+   {
+    "delta_e": -3.79262765652725,
+    "entry_id": 7281,
+    "name": "Gd2O3",
+    "spacegroup": "Ia-3",
+    "stability": 0.0
+   },
+   {
+    "delta_e": -3.66291886202725,
+    "entry_id": 1343367,
+    "name": "Gd2O3",
+    "spacegroup": "Pnma",
+    "stability": 0.12970879449999995
+   },
+   {
+    "delta_e": -3.58268793852725,
+    "entry_id": 1442709,
+    "name": "Gd2O3",
+    "spacegroup": "P321",
+    "stability": 0.20993971799999978
+   },
+   {
+    "delta_e": -3.57937131052725,
+    "entry_id": 1444194,
+    "name": "Gd2O3",
+    "spacegroup": "P-62m",
+    "stability": 0.21325634599999965
+   }
+  ],
+  "links": {
+   "base_url": {
+    "href": "https://oqmd.org/oqmdapi",
+    "meta": {
+     "_oqmd_version": "1.0"
+    }
+   },
+   "next": null,
+   "previous": null
+  },
+  "meta": {
+   "api_version": "1.0",
+   "comments": "",
+   "data_available": 10,
+   "data_returned": 10,
+   "more_data_available": false,
+   "query": {
+    "representation": "http://oqmd.org/oqmdapi/formationenergy?composition=Gd2O3&fields=name%2Centry_id%2Cdelta_e%2Cstability%2Cspacegroup&limit=50"
+   },
+   "query_tree": "",
+   "time_stamp": "2026-09-13 10:51:50"
+  },
+  "resource": {},
+  "response_message": "OK"
+ },
+ "url": "https://oqmd.org/oqmdapi/formationenergy"
+}
