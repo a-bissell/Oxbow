@@ -46,6 +46,14 @@ Ideas / planned work for this project.
       out (Python validates the result anyway). Before this the model edges always fell back to
       rules against the real API.
 
+## Packaging and deployment
+- [ ] make clean, easy to install packages/releases
+- [ ] rewrite README for easier install path
+- [ ] Hosted version in AWS
+- [ ] Write up on prod deployment
+- [ ] Demo prep: setup live deployment with conversation history
+- [ ] Create demo flow to go through
+
 ## Data sources
 
 - [ ] **Add JARVIS-DFT bulk dataset as a second dielectric route** (OptB88vdW dielectric
@@ -77,37 +85,7 @@ Ideas / planned work for this project.
 
 ## Local language model
 
-- [ ] **Replace the Qwen3-8B local model with a first-class Gemma 4 12B implementation, running
-      natively on a MacBook Pro.** Today the local path is a vLLM + NVIDIA compose overlay
-      (`docker/compose.local-llm.yml`) with Qwen-specific settings in the edge client
-      (`oxide_triage/edges/llm.py`: the default model name, the thinking-mode switch, the Hermes
-      tool-call format the vLLM flags assume). A Mac has no NVIDIA path and Docker on macOS cannot
-      reach the GPU, so "first class" means a native serving story, not a container. Scope:
-      - **Serving.** Gemma 4 12B through an OpenAI-compatible server on Apple Silicon: Ollama,
-        llama.cpp's server, or an MLX server; pick one as the documented default and keep the
-        other two as `LLM_BASE_URL` targets. At 4-bit the weights are roughly 7-8 GB and fit a
-        32 GB machine beside the app; bf16 needs ~24 GB. Record the measured numbers.
-        `LLM_PROVIDER=openai_compatible` stays the contract; the app in Docker reaches the host
-        server at `host.docker.internal`, the app run from a venv reaches it on localhost.
-      - **Edge client.** Make the client model-agnostic: the Qwen defaults and the thinking-mode
-        knob move to a per-model profile (name, extra request body, tool-call and structured-
-        output capabilities), and Gemma 4 becomes the shipped default. Verify against the real
-        model that (a) the parse edge returns schema-valid JSON, (b) the refutation edge's
-        observations pass the numeric guard, and (c) the assistant's tool-use loop (`agent.py`)
-        completes the PI request, an explain, a compare and a rerun without a fallback to rules.
-        Where Gemma's tool calling differs from the Hermes format, the adapter lives in the
-        client, never in the tools.
-      - **Tests and evaluation.** Recorded Gemma responses for the replay tests of the local
-        driver, the same way the sources are recorded; an eval row that runs the fixture suite
-        with the local model and reports fallback counts, so a regression in the model path
-        shows as a number.
-      - **Docs and packaging.** README "locally hosted model" section and the design note's
-        deployment paragraph rewritten around the Mac path; `.env.example` defaults;
-        `compose.local-llm.yml` either retargeted to the native server or retired. Ties into the
-        offline-release follow-up: a companion weights asset so the USB-stick install can carry
-        the model too.
-      - **Licence check.** Gemma ships under Google's own terms rather than Apache-2.0; note the
-        implications for a commercial deployment before it becomes the default.
+- [ ] Strip out local model integration (out of scope)
 
 ## UI
 
