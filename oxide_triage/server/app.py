@@ -180,7 +180,8 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
                     "description": c.description.strip(),
                     "top_k": c.output.top_k,
                     "gates": c.gates.model_dump(),
-                    "weights": c.weights.normalized(),
+                    "weights": c.normalized_weights(),
+                    "figure_of_merit": c.figure_of_merit.model_dump(),
                     "default_families": c.candidates.default_families,
                 }
             )

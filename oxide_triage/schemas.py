@@ -84,11 +84,24 @@ class BandGapRecord(BaseModel):
     provenance: Provenance | None = None
 
 
-class DielectricRecord(BaseModel):
-    e_total: float | None = None
-    e_electronic: float | None = None
-    e_ionic: float | None = None
-    refractive_index: float | None = None
+class PropertyRecord(BaseModel):
+    """The application figure of merit for one material: one property from one provider (see
+    ``sources/properties.py``), with the same status vocabulary as every other field group.
+    ``display`` and ``short`` are the provider's wording of the value for the audit view and
+    the one-line rationale; ``absent_note`` says why there is no value when the source holds
+    none. ``extras`` carries the companion numbers the provider returned (the electronic and
+    ionic parts of a dielectric tensor, the Debye temperature beside a thermal conductivity)."""
+
+    criterion: str = "figure_of_merit"
+    property: str = ""
+    label: str = "figure of merit"
+    units: str = ""
+    method: str | None = None
+    value: float | None = None
+    extras: dict[str, float] = Field(default_factory=dict)
+    display: str | None = None
+    short: str | None = None
+    absent_note: str | None = None
     status: DataStatus = DataStatus.NOT_RETRIEVED
     provenance: Provenance | None = None
 
@@ -159,7 +172,7 @@ class CandidateRecord(BaseModel):
     theoretical: bool | None = None  # True = no experimentally observed structure in MP
     stability: StabilityRecord = Field(default_factory=StabilityRecord)
     band_gap: BandGapRecord = Field(default_factory=BandGapRecord)
-    dielectric: DielectricRecord = Field(default_factory=DielectricRecord)
+    figure_of_merit: PropertyRecord = Field(default_factory=PropertyRecord)
     cross_check: CrossCheckRecord = Field(default_factory=CrossCheckRecord)
     literature: LiteratureRecord = Field(default_factory=LiteratureRecord)
     hazard: HazardRecord = Field(default_factory=HazardRecord)
@@ -202,9 +215,7 @@ class RequestBin(StrEnum):
     CONFIG_DEVIATION = "configuration_deviation"  # Bin 2 (proceed, surface loudly)
     INTEGRITY = "evidence_integrity_attack"  # Bin 3 (refuse)
     OVERRIDE = "override_attempt"  # Bin 0 (proceed; the request asks for a mode that does not exist)
-    OUT_OF_SCOPE = (
-        "out_of_scope"  # not an oxide-dielectric triage ask at all (decline, say what the tool does)
-    )
+    OUT_OF_SCOPE = "out_of_scope"  # not a materials-triage ask at all (decline, say what the tool does)
     HAZARD_POLICY = "hazard_policy"  # asks to lift an element the site never lifts by request (decline)
 
 
@@ -330,6 +341,18 @@ class RetrievalCompleteness(BaseModel):
     note: str
 
 
+class FigureOfMeritInfo(BaseModel):
+    """What the seventh criterion is in this run, for templates and the front end."""
+
+    criterion: str
+    label: str
+    units: str = ""
+    method: str = ""
+    property: str = ""
+    provider: str = ""
+    prefer: str = "high"
+
+
 class ScoringExplanation(BaseModel):
     formula: str
     missing_data_penalty: float
@@ -337,6 +360,7 @@ class ScoringExplanation(BaseModel):
     confidence_thresholds: dict[str, float]
     weights: dict[str, float]
     gates: dict[str, Any]
+    figure_of_merit: FigureOfMeritInfo | None = None
 
 
 class ScopeInfo(BaseModel):

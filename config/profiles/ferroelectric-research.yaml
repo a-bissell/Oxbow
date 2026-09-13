@@ -10,11 +10,12 @@ description: >
 weights:
   stability: 0.20
   band_gap: 0.10
-  dielectric: 0.35
   interface: 0.10
   toxicity: 0.10
   simplicity: 0.05
   literature: 0.20
+figure_of_merit:
+  weight: 0.35                  # the dielectric constant (default.yaml declares it)
 gates:
   max_energy_above_hull_ev_atom: 0.05
   min_band_gap_ev: 2.5

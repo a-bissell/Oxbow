@@ -6,7 +6,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Oxbow: oxide dielectric triage — {{ result.profile_name }}</title>
+<title>Oxbow: materials triage — {{ result.profile_name }}</title>
 <style>
   :root {
     --bg: #fbfaf7; --fg: #1d1d1b; --muted: #5f5e58; --line: #e3e0d8; --card: #ffffff;
@@ -77,7 +77,7 @@
 <main>
 {% set passing = result.shortlist + result.ranked_beyond_shortlist %}
 <header>
-  <h1>Oxbow <span class="sub">oxide dielectric triage</span></h1>
+  <h1>Oxbow <span class="sub">materials triage · {{ result.profile_name }}</span></h1>
   <p class="sub">{{ result.request_text }}</p>
   <div class="meta">
     <div>Profile <b>{{ result.profile_name }}</b></div>
@@ -170,7 +170,7 @@ comparing candidates against each other.</div>
       <tr><th>Field</th><th>Source</th><th>Id</th><th>Retrieved</th><th>Functional / note</th></tr>
       <tr><td>stability</td><td>{{ r.stability.provenance.source if r.stability.provenance else "—" }}</td><td class="mono">{{ r.stability.provenance.source_id if r.stability.provenance else "—" }}</td><td class="mono">{{ r.stability.provenance.retrieved_at if r.stability.provenance else "—" }}</td><td>{{ r.stability.functional }}</td></tr>
       <tr><td>band gap</td><td>{{ r.band_gap.provenance.source if r.band_gap.provenance else "—" }}</td><td class="mono">{{ r.band_gap.provenance.source_id if r.band_gap.provenance else "—" }}</td><td class="mono">{{ r.band_gap.provenance.retrieved_at if r.band_gap.provenance else "—" }}</td><td>{{ r.band_gap.functional }}</td></tr>
-      <tr><td>dielectric</td><td>{{ r.dielectric.provenance.source if r.dielectric.provenance else "—" }}</td><td class="mono">{{ r.dielectric.provenance.source_id if r.dielectric.provenance else "—" }}</td><td class="mono">{{ r.dielectric.provenance.retrieved_at if r.dielectric.provenance else "—" }}</td><td>{{ r.dielectric.status.value }}{% if r.dielectric.provenance and r.dielectric.provenance.note %} · {{ r.dielectric.provenance.note }}{% endif %}</td></tr>
+      <tr><td>{{ r.figure_of_merit.criterion }}</td><td>{{ r.figure_of_merit.provenance.source if r.figure_of_merit.provenance else "—" }}</td><td class="mono">{{ r.figure_of_merit.provenance.source_id if r.figure_of_merit.provenance else "—" }}</td><td class="mono">{{ r.figure_of_merit.provenance.retrieved_at if r.figure_of_merit.provenance else "—" }}</td><td>{{ r.figure_of_merit.status.value }}{% if r.figure_of_merit.provenance and r.figure_of_merit.provenance.note %} · {{ r.figure_of_merit.provenance.note }}{% endif %}</td></tr>
       <tr><td>literature</td><td>{{ r.literature.provenance.source if r.literature.provenance else "—" }}</td><td>{{ r.literature.query_terms | join(", ") }}</td><td class="mono">{{ r.literature.provenance.retrieved_at if r.literature.provenance else "—" }}</td><td>{{ r.literature.status.value }}{% if r.literature.provenance and r.literature.provenance.note %} · {{ r.literature.provenance.note }}{% endif %}</td></tr>
       <tr><td>hazard</td><td>{{ r.hazard.provenance.source if r.hazard.provenance else "—" }}</td><td class="mono">{{ r.hazard.provenance.source_id if r.hazard.provenance else "—" }}</td><td>{{ r.hazard.provenance.note if r.hazard.provenance else "—" }}</td><td>PubChem {{ r.hazard.pubchem_status.value }}{% if r.hazard.pubchem_cid %} (CID {{ r.hazard.pubchem_cid }}){% endif %}</td></tr>
     </table></div>

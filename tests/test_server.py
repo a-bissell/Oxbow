@@ -230,7 +230,7 @@ def test_admin_config_overlay_roundtrip(client):
     assert after["effective"]["gates"]["min_band_gap_ev"] == 2.0
     assert after["shipped"]["gates"]["min_band_gap_ev"] != 2.0
     assert client.get("/api/admin/config").json()["effective"]["output"]["top_k"] == 6
-    bad = client.put("/api/admin/overlay", json={"base": {"dielectric": {"low": 50, "high": 10}}})
+    bad = client.put("/api/admin/overlay", json={"base": {"figure_of_merit": {"low": 50, "high": 10}}})
     assert bad.status_code == 422
     unknown = client.put("/api/admin/overlay", json={"base": {"nope": {"x": 1}}})
     assert unknown.status_code == 422

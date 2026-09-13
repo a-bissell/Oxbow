@@ -92,7 +92,7 @@ def test_live_shape_replay_warm_and_selfcheck(monkeypatch):
         assert r.band_gap.functional is not None
     functionals = {r.band_gap.functional for r in records}
     assert functionals - {"unknown"}, "no band-gap functional resolved from the tasks endpoint"
-    known_diel = sum(r.dielectric.status == DataStatus.KNOWN for r in records)
+    known_diel = sum(r.figure_of_merit.status == DataStatus.KNOWN for r in records)
     assert 0 < known_diel < len(records), "dielectric coverage should be partial on real data"
     # The recorded warm is incomplete: OpenAlex stopped on its daily budget and OQMD rate-limited
     # partway through, so most candidates have no literature counts and no cross-check. That must
@@ -124,7 +124,7 @@ def test_replayed_gaps_are_not_retrieved_not_absent(monkeypatch):
 
     # MP answered for every candidate, so its own fields are never NOT_RETRIEVED.
     assert all(r.stability.status == DataStatus.KNOWN for r in records)
-    assert not any(r.dielectric.status == DataStatus.NOT_RETRIEVED for r in records), (
+    assert not any(r.figure_of_merit.status == DataStatus.NOT_RETRIEVED for r in records), (
         "MP answered the dielectric query for every candidate; a null result is ABSENT"
     )
     # OQMD and OpenAlex did not finish, so their gaps must be attributed to the cache.

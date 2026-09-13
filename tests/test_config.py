@@ -15,7 +15,8 @@ from oxide_triage.config import (
 def test_default_loads_and_normalises_weights():
     cfg = load_config(use_env=False)
     assert isinstance(cfg, Config)
-    assert sum(cfg.weights.normalized().values()) == pytest.approx(1.0)
+    assert sum(cfg.normalized_weights().values()) == pytest.approx(1.0)
+    assert list(cfg.normalized_weights()) == list(cfg.criteria())
 
 
 def test_profiles_exist_and_differ():
@@ -52,7 +53,7 @@ def test_invalid_values_rejected():
     with pytest.raises(ValueError):
         load_config(use_env=False, overrides={"band_gap": {"correction": {"strategy": "magic"}}})
     with pytest.raises(ValueError):
-        load_config(use_env=False, overrides={"dielectric": {"low": 50, "high": 10}})
+        load_config(use_env=False, overrides={"figure_of_merit": {"low": 50, "high": 10}})
 
 
 def test_config_hash_ignores_cache_and_llm():
@@ -279,7 +280,7 @@ def test_diff_layer_and_origins(tmp_path):
     assert layers.origin_of("gates.min_band_gap_ev") == "profile"  # conservative.yaml sets it
     assert layers.origin_of("gates.max_elements") == "profile"
     assert layers.origin_of("output.top_k") == "site.profile"
-    assert layers.origin_of("dielectric.low") == "default"
+    assert layers.origin_of("figure_of_merit.low") == "default"
     base_layers = config_layers("default", use_env=False, site_config=site)
     assert base_layers.origin_of("gates.min_band_gap_ev") == "site.base"
     reference = base_layers.reference_for("base")

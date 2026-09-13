@@ -221,30 +221,30 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
     # ---- 5. missing data --------------------------------------------------------------
     def missing_data() -> tuple[bool, str]:
         res = run(PI, "exploratory")
+        crit = load_config("exploratory").figure_of_merit.criterion
+        label = load_config("exploratory").figure_of_merit.label
         rows = [
-            "| Formula | Dielectric status | Component normalised | Contribution | Coverage | Confidence | Listed as missing |",
+            f"| Formula | {label.capitalize()} status | Component normalised | Contribution | Coverage | Confidence | Listed as missing |",
             "|---|---|---|---|---|---|---|",
         ]
         ok, n = True, 0
         for s in res.shortlist + res.ranked_beyond_shortlist:
-            if s.record.dielectric.status == DataStatus.KNOWN:
+            if s.record.figure_of_merit.status == DataStatus.KNOWN:
                 continue
             n += 1
-            comp = next(c for c in s.components if c.criterion == "dielectric")
+            comp = next(c for c in s.components if c.criterion == crit)
             good = (
                 comp.normalized is None
                 and comp.contribution is None
-                and "dielectric" in s.missing_criteria
+                and crit in s.missing_criteria
                 and s.data_coverage < 1
             )
             ok &= good
             if n <= 6:
                 rows.append(
-                    f"| {s.record.formula} | {s.record.dielectric.status.value} | {comp.normalized} | {comp.contribution} | {s.data_coverage:.0%} | {s.confidence} | {'dielectric' in s.missing_criteria} |"
+                    f"| {s.record.formula} | {s.record.figure_of_merit.status.value} | {comp.normalized} | {comp.contribution} | {s.data_coverage:.0%} | {s.confidence} | {crit in s.missing_criteria} |"
                 )
-        rows.append(
-            f"\n{n} passing candidates without a dielectric value; none scored as if they had one: {ok}"
-        )
+        rows.append(f"\n{n} passing candidates without a {label} value; none scored as if they had one: {ok}")
         return ok and n > 0, "\n".join(rows)
 
     # ---- 6. sensitivity ---------------------------------------------------------------
@@ -260,10 +260,24 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         watch = list(dict.fromkeys(tier1 + ["HfO2", "ZrO2", "Al2O3"]))
         cfg0 = load_config("default")
         perturbations: list[tuple[str, dict]] = []
-        for crit, w in cfg0.weights.model_dump().items():
+        fom_crit = cfg0.figure_of_merit.criterion
+        for crit, w in cfg0.criterion_weights().items():
             if w > 0:
-                perturbations.append((f"weights.{crit} x0.5", {"weights": {crit: w * 0.5}}))
-                perturbations.append((f"weights.{crit} x1.5", {"weights": {crit: w * 1.5}}))
+                key = {"figure_of_merit": {"weight": w}} if crit == fom_crit else {"weights": {crit: w}}
+                name = f"figure_of_merit.weight ({crit})" if crit == fom_crit else f"weights.{crit}"
+                half = (
+                    {"figure_of_merit": {"weight": w * 0.5}}
+                    if crit == fom_crit
+                    else {"weights": {crit: w * 0.5}}
+                )
+                more = (
+                    {"figure_of_merit": {"weight": w * 1.5}}
+                    if crit == fom_crit
+                    else {"weights": {crit: w * 1.5}}
+                )
+                del key
+                perturbations.append((f"{name} x0.5", half))
+                perturbations.append((f"{name} x1.5", more))
         perturbations += [
             (
                 "literature saturation 50 (the first setting)",
@@ -275,8 +289,8 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
             ),
             ("interface tolerance 0", {"interface": {"tolerance_ev_atom": 0.0}}),
             ("interface tolerance 0.10", {"interface": {"tolerance_ev_atom": 0.10}}),
-            ("dielectric saturates at 20", {"dielectric": {"high": 20.0}}),
-            ("dielectric saturates at 40", {"dielectric": {"high": 40.0}}),
+            (f"{fom_crit} saturates at 20", {"figure_of_merit": {"high": 20.0}}),
+            (f"{fom_crit} saturates at 40", {"figure_of_merit": {"high": 40.0}}),
             ("tie band 0.02", {"output": {"tie_band": 0.02}}),
             ("tie band 0.08", {"output": {"tie_band": 0.08}}),
         ]

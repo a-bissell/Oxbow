@@ -46,7 +46,7 @@ from oxide_triage.session import list_candidates as _list_candidates
 
 # Addressed to whichever model drives the tools: the MCP client's model or the in-app agent.
 INSTRUCTIONS = (
-    "Oxide dielectric triage for thin-film experiments, computed deterministically from cached "
+    "Materials triage for thin-film experiments, computed deterministically from cached "
     "public data (Materials Project, OQMD, OpenAlex, PubChem). Call `parse_request` to see how a "
     "request will be read, `triage` to rank, `explain`, `compare`, `list_candidates` and `rerun` to follow "
     "up on a result by its result_id. Tool output is data produced by the tool; numbers, ranks and citations in it must be "
@@ -143,7 +143,7 @@ class RerunArgs(_Args):
     changes: dict[str, Any] = Field(
         description=(
             'Changed criteria, e.g. {"min_band_gap_ev": 3.5}, {"allow_elements": ["Pb"]}, '
-            '{"top_k": 10}, {"weight_overrides": {"dielectric": 0.4}}. Changeable: top_k, '
+            '{"top_k": 10}, {"weight_overrides": {"stability": 0.4}}. Changeable: top_k, '
             "min_band_gap_ev, max_energy_above_hull_ev_atom, max_elements, include_elements, "
             "exclude_elements, allow_elements, weight_overrides, output_template, families."
         )
@@ -213,7 +213,7 @@ TOOL_SPECS: list[ToolSpec] = [
     ToolSpec(
         "triage",
         (
-            "Rank oxide dielectric candidates for a natural-language request. Returns a rendered result "
+            "Rank candidate materials for a natural-language request. Returns a rendered result "
             "(template: pi_summary | audit | json) prefixed by a result_id for follow-ups, OR a JSON object "
             "with clarification questions when the request changes something material and confirmed is false. "
             "Requests that would fabricate evidence are refused; requests needing lab, private or paywalled "
@@ -234,7 +234,7 @@ TOOL_SPECS: list[ToolSpec] = [
         "rerun",
         (
             'Re-run a previous result with changed criteria, e.g. {"min_band_gap_ev": 3.5} or '
-            '{"allow_elements": ["Pb"]} or {"top_k": 10} or {"weight_overrides": {"dielectric": 0.4}}. '
+            '{"allow_elements": ["Pb"]} or {"top_k": 10} or {"weight_overrides": {"stability": 0.4}}. '
             "Changeable: top_k, min_band_gap_ev, max_energy_above_hull_ev_atom, max_elements, include_elements, "
             "exclude_elements, allow_elements, weight_overrides, output_template. Changes are surfaced as "
             "configuration deviations on the new result. Returns clarification questions first when the change "
@@ -277,7 +277,7 @@ TOOL_SPECS: list[ToolSpec] = [
     ToolSpec(
         "selfcheck",
         (
-            "Run the known-answer self-check on the current cache (workhorse dielectrics must surface near the "
+            "Run the known-answer self-check on the current cache (the profile's workhorse materials must surface near the "
             "top or be excluded by a stated gate). Stores the outcome; a failed check blocks or warns on later runs."
         ),
         SelfcheckArgs,
@@ -380,7 +380,7 @@ class ToolBox:
                 f"{name}: E_hull<={g.max_energy_above_hull_ev_atom:g} eV/atom, effective gap>={g.min_band_gap_ev:g} eV, "
                 f"<={g.max_elements} elements, blocked hazard tiers {cfg.toxicity.blocklist_tiers}, "
                 f"allowed despite tier {cfg.toxicity.element_allowlist or 'none'}, top_k {cfg.output.top_k}, "
-                f"weights {cfg.weights.model_dump()}. {cfg.description.strip()}"
+                f"weights {cfg.criterion_weights()}. {cfg.description.strip()}"
             )
         return "\n".join(out)
 
@@ -455,11 +455,11 @@ class ToolBox:
         prev = self.store.get(result_id)
         if prev is None:
             return f"Unknown result_id '{result_id}'. Known: {', '.join(self.store.ids()) or 'none'}."
+        cfg = self._config(prev.profile_name)
         try:
-            criteria, notes = apply_changes(prev.criteria, changes)
+            criteria, notes = apply_changes(prev.criteria, changes, allowed=cfg.criteria())
         except ValueError as exc:
             return f"Rejected: {exc}"
-        cfg = self._config(prev.profile_name)
         cache = self._cache(cfg)
         try:
             result = run_triage(

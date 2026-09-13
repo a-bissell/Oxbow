@@ -1,6 +1,7 @@
 """Oxbow command line interface (installed as both `oxide-triage` and `oxbow`).
 
 oxide-triage query "Find promising oxide dielectric candidates ..." --profile conservative
+oxide-triage query "Oxides for thermal barrier coatings ..." --profile thermal-barrier
 oxide-triage warm-cache            # needs MP_API_KEY; fetches the candidate universe, runs self-check
 oxide-triage load-fixtures         # synthetic demo data, clearly flagged in every output
 oxide-triage add-material SrHfO3   # pull one compound into the universe (online)
@@ -466,7 +467,7 @@ def profiles() -> None:
             f"{name:24s} hull<={g.max_energy_above_hull_ev_atom:<5g} gap>={g.min_band_gap_ev:<4g} "
             f"elements<={g.max_elements} blocked tiers={cfg.toxicity.blocklist_tiers} "
             f"allow={cfg.toxicity.element_allowlist or '-'} top_k={cfg.output.top_k} "
-            f"weights={cfg.weights.model_dump()}"
+            f"weights={cfg.criterion_weights()}"
         )
         typer.echo(f"{'':24s} {cfg.description.strip()}")
 

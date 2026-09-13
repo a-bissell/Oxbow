@@ -27,10 +27,10 @@ from oxide_triage.schemas import (
     CandidateRecord,
     CrossCheckRecord,
     DataStatus,
-    DielectricRecord,
     HazardRecord,
     InterfaceRecord,
     LiteratureRecord,
+    PropertyRecord,
     Provenance,
     StabilityRecord,
     WorkRef,
@@ -41,6 +41,7 @@ from oxide_triage.sources.hazards import hazard_record
 from oxide_triage.sources.materials_project import THERMO_FUNCTIONAL_LABEL, MaterialsProject
 from oxide_triage.sources.openalex import OpenAlex
 from oxide_triage.sources.oqmd import OQMD
+from oxide_triage.sources.properties import PropertyProvider, make_provider
 from oxide_triage.sources.pubchem import PubChem
 
 
@@ -60,6 +61,7 @@ class DataLayer:
     oqmd: OQMD
     openalex: OpenAlex
     pubchem: PubChem
+    fom: PropertyProvider  # the figure-of-merit adapter named by config.figure_of_merit.provider
     hazard_table: HazardTable
     aliases: dict[str, list[str]]
     cations: list[str]
@@ -92,15 +94,17 @@ class DataLayer:
                 **kw,
             )
 
+        mp = MaterialsProject(
+            cache,
+            ttl,
+            off,
+            http=live("materials_project", user_agent="oxide-triage/0.1 (materials-project-client)"),
+        )
         return cls(
             config=config,
             cache=cache,
-            mp=MaterialsProject(
-                cache,
-                ttl,
-                off,
-                http=live("materials_project", user_agent="oxide-triage/0.1 (materials-project-client)"),
-            ),
+            mp=mp,
+            fom=make_provider(config.figure_of_merit, mp),
             oqmd=OQMD(
                 cache, ttl, off, http=live("oqmd", timeout_s=60, user_agent="oxide-triage/0.1 (oqmd-client)")
             ),
@@ -293,7 +297,7 @@ class DataLayer:
         if not ids:
             return []
         if not self.offline:
-            self.mp.prefetch_dielectric(ids)
+            self.fom.prefetch(ids)
             task_ids = []
             formulas: list[str] = []
             for mid in ids:
@@ -387,37 +391,7 @@ class DataLayer:
             provenance=mp_prov,
         )
 
-        diel_payload, diel_ts, diel_fetch = self.mp.dielectric(mid)
-        diel_found = bool(
-            diel_payload and diel_payload.get("found") and diel_payload.get("e_total") is not None
-        )
-        diel_status = status_for(diel_fetch, diel_found)
-        if diel_found and diel_payload is not None:
-            dielectric = DielectricRecord(
-                e_total=float(diel_payload["e_total"]),
-                e_electronic=_opt_float(diel_payload.get("e_electronic")),
-                e_ionic=_opt_float(diel_payload.get("e_ionic")),
-                refractive_index=_opt_float(diel_payload.get("n")),
-                status=DataStatus.KNOWN,
-                provenance=mp_prov.model_copy(
-                    update={"retrieved_at": diel_ts, "note": src_note or "MP DFPT dataset"}
-                ),
-            )
-        else:
-            dielectric = DielectricRecord(
-                status=diel_status,
-                provenance=mp_prov.model_copy(
-                    update={
-                        "retrieved_at": diel_ts,
-                        "note": _why(
-                            diel_status,
-                            "no DFPT dielectric record in MP for this material",
-                            f"MP dielectric lookup never completed here ({diel_fetch}); "
-                            "this is a gap in the cache, not in MP",
-                        ),
-                    }
-                ),
-            )
+        figure_of_merit = self._figure_of_merit(mid, mp_prov, src_note)
 
         warm = self.warm_fetches_formula_sources
         cross = self._cross_check(formula, is_fixture, fetch=warm)
@@ -437,7 +411,7 @@ class DataLayer:
             theoretical=doc.get("theoretical"),
             stability=stability,
             band_gap=band_gap,
-            dielectric=dielectric,
+            figure_of_merit=figure_of_merit,
             cross_check=cross,
             literature=literature,
             hazard=hazard,
@@ -469,6 +443,52 @@ class DataLayer:
                 counts.get("failed", 0),
             )
         return counts
+
+    def _figure_of_merit(self, mid: str, mp_prov: Provenance, src_note: str | None) -> PropertyRecord:
+        """The application property through the configured provider. The provider answers with
+        the fetch layer's vocabulary; ``status_for`` turns it into the data vocabulary, so a
+        source with no record (ABSENT) never looks like a lookup that never ran (NOT_RETRIEVED).
+        A record the source flags as unusable is ABSENT with the provider's reason."""
+        cfg = self.config.figure_of_merit
+        payload, ts, fetch_status = self.fom.fetch(mid)
+        ext = self.fom.extract(payload)
+        found = ext.value is not None
+        status = status_for(fetch_status, found)
+        base = {
+            "criterion": cfg.criterion,
+            "property": cfg.property,
+            "label": cfg.label,
+            "units": cfg.units,
+            "method": cfg.method,
+        }
+        if found and ext.value is not None:
+            display, short = self.fom.describe(ext.value, ext.extras)
+            return PropertyRecord(
+                **base,
+                value=ext.value,
+                extras=ext.extras,
+                display=display,
+                short=short,
+                status=DataStatus.KNOWN,
+                provenance=mp_prov.model_copy(
+                    update={"retrieved_at": ts, "note": src_note or self.fom.dataset_note()}
+                ),
+            )
+        return PropertyRecord(
+            **base,
+            absent_note=ext.reject_reason or self.fom.absent_note(),
+            status=status,
+            provenance=mp_prov.model_copy(
+                update={
+                    "retrieved_at": ts,
+                    "note": _why(
+                        status,
+                        ext.reject_reason or self.fom.absent_reason(),
+                        self.fom.unretrieved_reason(fetch_status),
+                    ),
+                }
+            ),
+        )
 
     def _interface(self, formula: str, elements: list[str], is_fixture: bool, fetch: bool) -> InterfaceRecord:
         cfg = self.config.interface

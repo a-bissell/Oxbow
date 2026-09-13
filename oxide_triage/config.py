@@ -71,26 +71,29 @@ ENV_KEYS: dict[str, str] = {
     "llm.base_url": "LLM_BASE_URL",
 }
 
-CRITERIA = ("stability", "band_gap", "dielectric", "interface", "toxicity", "simplicity", "literature")
+# The six criteria every material class wants: thermodynamic stability, an insulating gap (a
+# profile may zero it), stability against the substrate, a hazard screen, compositional
+# simplicity and public literature evidence. The seventh criterion is the application's figure
+# of merit and is declared by ``figure_of_merit:`` in the profile; see ``Config.criteria``.
+FIXED_CRITERIA = ("stability", "band_gap", "interface", "toxicity", "simplicity", "literature")
+# Property providers the figure of merit can name (implemented in sources/properties.py).
+PROPERTY_PROVIDERS = ("mp_dielectric", "mp_elasticity")
 
 
 class Weights(BaseModel):
+    """Weights of the six fixed criteria. The figure of merit's weight lives in its own block
+    (``figure_of_merit.weight``) because a profile overlay cannot delete a key it inherits from
+    default.yaml, and a profile with a different figure of merit must not inherit the
+    dielectric weight under the old name."""
+
     stability: float = Field(ge=0)
     band_gap: float = Field(ge=0)
-    dielectric: float = Field(ge=0)
     toxicity: float = Field(ge=0)
     simplicity: float = Field(ge=0)
     literature: float = Field(ge=0)
     interface: float = Field(
         default=0.0, ge=0
     )  # default 0 so a site file written before the criterion still loads
-
-    def normalized(self) -> dict[str, float]:
-        raw = self.model_dump()
-        total = sum(raw.values())
-        if total <= 0:
-            raise ValueError("At least one criterion weight must be positive")
-        return {k: v / total for k, v in raw.items()}
 
 
 class Gates(BaseModel):
@@ -124,14 +127,45 @@ class StabilityConfig(BaseModel):
     disagreement_penalty: float = Field(ge=0)
 
 
-class DielectricConfig(BaseModel):
-    low: float = Field(ge=0)
-    high: float = Field(gt=0)
+class FigureOfMeritConfig(BaseModel):
+    """The one application-specific criterion. A profile declares which property it is, who
+    supplies it, how it is scored and how its absence is treated; the dielectric constant of the
+    oxide-dielectric profiles is one instance, not a special case in code."""
+
+    criterion: str  # its name in weights, audit rows, caveat codes and the parser's vocabulary
+    label: str  # shown to people, e.g. "dielectric constant"
+    units: str = ""
+    property: str  # dotted path into the provider's payload, e.g. e_total
+    provider: str  # a name in PROPERTY_PROVIDERS
+    method: str  # shown beside every value, as the functional is beside a band gap
+    prefer: Literal["high", "low"] = "high"
+    low: float = Field(ge=0)  # prefer high: score 0 at/below; prefer low: score 1 at/below
+    high: float = Field(gt=0)  # prefer high: score 1 at/above; prefer low: score 0 at/above
+    weight: float = Field(ge=0)
+    on_missing: Literal["flag", "exclude"] = "flag"  # flag: not scored, caveated; exclude: a gate
+    vocabulary: list[str] = Field(default_factory=list)  # regex alternatives the parser and guard accept
+    application: str = ""  # what the profile ranks for, in the guard's out-of-scope explanation
+
+    @field_validator("criterion")
+    @classmethod
+    def _criterion_name(cls, v: str) -> str:
+        if not re.fullmatch(r"[a-z][a-z0-9_]*", v):
+            raise ValueError("figure_of_merit.criterion must be a lowercase identifier")
+        if v in FIXED_CRITERIA:
+            raise ValueError(f"figure_of_merit.criterion cannot reuse the fixed criterion '{v}'")
+        return v
+
+    @field_validator("provider")
+    @classmethod
+    def _known_provider(cls, v: str) -> str:
+        if v not in PROPERTY_PROVIDERS:
+            raise ValueError(f"figure_of_merit.provider must be one of {', '.join(PROPERTY_PROVIDERS)}")
+        return v
 
     @model_validator(mode="after")
-    def _ordered(self) -> DielectricConfig:
+    def _ordered(self) -> FigureOfMeritConfig:
         if self.high <= self.low:
-            raise ValueError("dielectric.high must exceed dielectric.low")
+            raise ValueError("figure_of_merit.high must exceed figure_of_merit.low")
         return self
 
 
@@ -276,11 +310,22 @@ class RetrievalConfig(BaseModel):
     min_completeness_serve: float = Field(default=0.0, ge=0, le=1)  # below this, refuse to rank (0 = never)
 
 
+DEFAULT_SELFCHECK_REQUEST = (
+    "Find promising oxide dielectric candidates for thin-film experiments. Prefer "
+    "thermodynamically stable materials, wide band gaps, non-toxic elements, simple "
+    "compositions, and public evidence. Return a ranked shortlist with caveats."
+)
+
+
 class SelfCheckConfig(BaseModel):
     enabled: bool = True
     on_failure: Literal["block", "warn"] = "block"
+    # The unconstrained request the known-answer check runs, under the active profile.
+    request: str = DEFAULT_SELFCHECK_REQUEST
     workhorses: list[str] = Field(default_factory=lambda: ["HfO2", "ZrO2", "Al2O3", "Ta2O5"])
     leaders: list[str] = Field(default_factory=lambda: ["HfO2"])
+    # A second, wider profile the workhorses must also surface under; null skips that half.
+    wide_profile: str | None = "exploratory"
     # Windows for the rank rules. On real data the default top five are the perovskite high-k
     # candidates (SrHfO3, LaAlO3, LaScO3, ...) and the workhorses sit just behind them, so the
     # windows are wide enough to pass a correct ranking and still catch a broken fetch or gate.
@@ -335,7 +380,7 @@ class Config(BaseModel):
     gates: Gates
     band_gap: BandGapConfig
     stability: StabilityConfig
-    dielectric: DielectricConfig
+    figure_of_merit: FigureOfMeritConfig
     toxicity: ToxicityConfig
     simplicity: SimplicityConfig
     literature: LiteratureConfig
@@ -354,6 +399,39 @@ class Config(BaseModel):
     # Provenance, filled by the loader; excluded from dumps and therefore from the hash.
     site_overrides: list[SiteOverride] = Field(default_factory=list, exclude=True)
     site_config_path: str | None = Field(default=None, exclude=True)
+
+    def criteria(self) -> tuple[str, ...]:
+        """The seven criterion names in the order the weights are reported: the six fixed ones
+        with the figure of merit in the third slot, where the dielectric criterion always was."""
+        return (
+            "stability",
+            "band_gap",
+            self.figure_of_merit.criterion,
+            "toxicity",
+            "simplicity",
+            "literature",
+            "interface",
+        )
+
+    def criterion_weights(self) -> dict[str, float]:
+        """Raw weights of all seven criteria, keyed by name, in ``criteria()`` order."""
+        w = self.weights
+        return {
+            "stability": w.stability,
+            "band_gap": w.band_gap,
+            self.figure_of_merit.criterion: self.figure_of_merit.weight,
+            "toxicity": w.toxicity,
+            "simplicity": w.simplicity,
+            "literature": w.literature,
+            "interface": w.interface,
+        }
+
+    def normalized_weights(self) -> dict[str, float]:
+        raw = self.criterion_weights()
+        total = sum(raw.values())
+        if total <= 0:
+            raise ValueError("At least one criterion weight must be positive")
+        return {k: v / total for k, v in raw.items()}
 
     def config_hash(self) -> str:
         """Stable hash of everything that affects ranking (excludes cache path / LLM / agent)."""
@@ -394,7 +472,17 @@ DICT_PATHS: frozenset[str] = frozenset(
     p for p, f in leaf_fields(Config).items() if get_origin(f.annotation) is dict
 )
 READ_ONLY_PATHS: frozenset[str] = frozenset(
-    {"profile_name", "toxicity.table_file", "candidates.cation_allowlist_file", "cache.path"}
+    {
+        "profile_name",
+        "toxicity.table_file",
+        "candidates.cation_allowlist_file",
+        "cache.path",
+        # Renaming the criterion or switching its source is a profile decision, not a site edit:
+        # caveat codes, cache keys and the parser vocabulary all hang off it.
+        "figure_of_merit.criterion",
+        "figure_of_merit.provider",
+        "figure_of_merit.property",
+    }
 )
 # What counts as ranking *policy*: a site change here prints a deviation on every result.
 POLICY_SECTIONS: frozenset[str] = frozenset(
@@ -403,7 +491,7 @@ POLICY_SECTIONS: frozenset[str] = frozenset(
         "gates",
         "band_gap",
         "stability",
-        "dielectric",
+        "figure_of_merit",
         "toxicity",
         "simplicity",
         "missing_data",
@@ -602,6 +690,13 @@ SITE_HEADER = (
     "# (OXIDE_TRIAGE_CACHE, OXIDE_TRIAGE_OFFLINE, LLM_*) win over anything here.\n"
 )
 _SITE_STRIPPED = ("profile_name", "cache.path")
+# Keys a site file may hold from before the dielectric criterion became the configurable figure
+# of merit. They are moved, not rejected, so an Admin-written site.yaml keeps loading.
+_LEGACY_PATHS = {
+    "weights.dielectric": "figure_of_merit.weight",
+    "dielectric.low": "figure_of_merit.low",
+    "dielectric.high": "figure_of_merit.high",
+}
 
 
 def _clean_layer(layer: dict[str, Any], name: str) -> dict[str, Any]:
@@ -609,6 +704,11 @@ def _clean_layer(layer: dict[str, Any], name: str) -> dict[str, Any]:
     for path in _SITE_STRIPPED:
         if _pop_path(layer, path):
             log.warning("%s: '%s' cannot be set in the site file; ignored", name, path)
+    for old, new in _LEGACY_PATHS.items():
+        value = flatten_leaves(layer).get(old)
+        if value is not None and _pop_path(layer, old):
+            _set_path(layer, new, value)
+            log.warning("%s: '%s' is now '%s'; moved", name, old, new)
     unknown = [p for p in flatten_leaves(layer) if p not in LEAF_PATHS]
     if unknown:
         raise ValueError(f"{name}: unknown configuration key '{unknown[0]}'")

@@ -28,6 +28,7 @@ from oxide_triage.schemas import (
     CandidateRecord,
     ComponentScore,
     DataStatus,
+    FigureOfMeritInfo,
     GateResult,
     RetrievalCompleteness,
     ScoredCandidate,
@@ -121,6 +122,20 @@ def evaluate_gates(
         )
         if not ok:
             reasons.append(gates[-1].reason or "band gap gate failed")
+
+    # Figure of merit: a gate only when the profile says a candidate without it is not a candidate
+    fom = record.figure_of_merit
+    if eff.on_missing_fom == "exclude" and (fom.status != DataStatus.KNOWN or fom.value is None):
+        gates.append(
+            GateResult(
+                gate=eff.fom_criterion,
+                passed=False,
+                threshold_label=f"{eff.fom_label} known",
+                observed_label=f"{eff.fom_label} {fom.status.value}",
+                reason=f"{eff.fom_label} not available (on_missing=exclude)",
+            )
+        )
+        reasons.append(gates[-1].reason or f"{eff.fom_label} unknown")
 
     # Composition size
     ok = record.n_elements <= eff.max_elements
@@ -322,29 +337,35 @@ def score_components(
             )
         )
 
-    # Dielectric ----------------------------------------------------------------------
-    d = record.dielectric
-    if d.status == DataStatus.KNOWN and d.e_total is not None:
-        lo, hi = config.dielectric.low, config.dielectric.high
-        norm = clamp01((d.e_total - lo) / (hi - lo))
+    # Figure of merit (the application property; config.figure_of_merit says which) ----
+    fom = config.figure_of_merit
+    d = record.figure_of_merit
+    if d.status == DataStatus.KNOWN and d.value is not None:
+        lo, hi = fom.low, fom.high
+        if fom.prefer == "high":
+            norm = clamp01((d.value - lo) / (hi - lo))
+            rule = f"score = clamp(({fom.property} - {lo:g}) / ({hi:g} - {lo:g}))"
+        else:
+            norm = clamp01((hi - d.value) / (hi - lo))
+            rule = f"score = clamp(({hi:g} - {fom.property}) / ({hi:g} - {lo:g}))"
         comps.append(
             _component(
-                "dielectric",
-                w["dielectric"],
-                f"e_total = {d.e_total:.1f} (DFPT; electronic {d.e_electronic if d.e_electronic is not None else '?'})",
+                fom.criterion,
+                w[fom.criterion],
+                d.display or f"{fom.property} = {d.value:.1f} ({fom.method})",
                 norm,
-                [f"score = clamp((e_total - {lo:g}) / ({hi:g} - {lo:g}))"],
+                [rule],
             )
         )
     else:
         comps.append(
             _component(
-                "dielectric",
-                w["dielectric"],
-                "dielectric constant UNKNOWN",
+                fom.criterion,
+                w[fom.criterion],
+                f"{fom.label} UNKNOWN",
                 None,
                 [
-                    _missing_note(d.status, "no DFPT dielectric record in MP"),
+                    _missing_note(d.status, d.absent_note or f"no {fom.label} value in the source"),
                     "not scored; coverage reduced",
                 ],
                 status=d.status,
@@ -681,5 +702,15 @@ def explanation(config: Config, eff: Effective) -> ScoringExplanation:
             "band_gap_correction": config.band_gap.correction.model_dump(),
             "on_missing_stability": eff.on_missing_stability,
             "on_missing_band_gap": eff.on_missing_band_gap,
+            f"on_missing_{config.figure_of_merit.criterion}": eff.on_missing_fom,
         },
+        figure_of_merit=FigureOfMeritInfo(
+            criterion=config.figure_of_merit.criterion,
+            label=config.figure_of_merit.label,
+            units=config.figure_of_merit.units,
+            method=config.figure_of_merit.method,
+            property=config.figure_of_merit.property,
+            provider=config.figure_of_merit.provider,
+            prefer=config.figure_of_merit.prefer,
+        ),
     )

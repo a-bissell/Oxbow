@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from oxide_triage.config import CRITERIA, Config, HazardTable
+from oxide_triage.config import Config, HazardTable
 from oxide_triage.schemas import Criteria, Deviation
 
 
@@ -26,6 +26,10 @@ class Effective:
     top_k: int = 5
     on_missing_stability: str = "exclude"
     on_missing_band_gap: str = "exclude"
+    # The application figure of merit (config.figure_of_merit), as the gates need it.
+    fom_criterion: str = "figure_of_merit"
+    fom_label: str = "figure of merit"
+    on_missing_fom: str = "flag"
 
 
 def _fmt(value: object) -> str:
@@ -166,11 +170,11 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
         )
         max_el = criteria.max_elements
 
-    weights = config.weights.normalized()
+    weights = config.normalized_weights()
     if criteria.weight_overrides:
-        merged = dict(config.weights.model_dump())
+        merged = config.criterion_weights()
         for k, v in criteria.weight_overrides.items():
-            if k in CRITERIA and v >= 0:
+            if k in merged and v >= 0:
                 merged[k] = v
         total = sum(merged.values())
         if total > 0:
@@ -198,6 +202,9 @@ def resolve(config: Config, criteria: Criteria, table: HazardTable) -> tuple[Eff
         include_elements=frozenset(criteria.include_elements),
         exclude_elements=frozenset(criteria.exclude_elements),
         top_k=criteria.top_k or config.output.top_k,
+        fom_criterion=config.figure_of_merit.criterion,
+        fom_label=config.figure_of_merit.label,
+        on_missing_fom=config.figure_of_merit.on_missing,
         on_missing_stability=config.gates.on_missing_stability,
         on_missing_band_gap=config.gates.on_missing_band_gap,
     )

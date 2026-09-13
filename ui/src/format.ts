@@ -1,6 +1,6 @@
 // Small formatting helpers. No arithmetic on scores beyond display rounding.
 
-import type { ScoredCandidate, TriageResult } from "./types";
+import type { FigureOfMeritInfo, ScoredCandidate, TriageResult } from "./types";
 
 export const fmt = (x: number | null | undefined, digits = 3): string => (x == null ? "—" : x.toFixed(digits));
 export const pct = (x: number | null | undefined): string => (x == null ? "—" : `${Math.round(x * 100)}%`);
@@ -16,6 +16,8 @@ export function formulaParts(formula: string): { text: string; sub: boolean }[] 
   return out;
 }
 
+// The six fixed criteria. The seventh, the profile's figure of merit, is registered from each
+// result (or the admin config) so its criterion name renders as its label.
 export const CRITERIA_LABELS: Record<string, string> = {
   stability: "stability",
   band_gap: "band gap",
@@ -25,6 +27,10 @@ export const CRITERIA_LABELS: Record<string, string> = {
   simplicity: "simplicity",
   literature: "literature",
 };
+
+export function registerFigureOfMerit(fom?: FigureOfMeritInfo | { criterion?: string; label?: string } | null): void {
+  if (fom && fom.criterion && fom.label) CRITERIA_LABELS[fom.criterion] = fom.label;
+}
 
 export const GATE_LABELS: Record<string, string> = {
   energy_above_hull: "energy above hull",

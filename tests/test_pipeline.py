@@ -39,7 +39,7 @@ def test_normal_query_returns_ranked_shortlist_with_caveats_and_gaps(cache):
     for s in res.shortlist:
         assert s.caveats, f"{s.record.formula} has no caveats"
         assert s.rationale
-        if s.record.dielectric.status != DataStatus.KNOWN:
+        if s.record.figure_of_merit.status != DataStatus.KNOWN:
             assert "dielectric" in s.missing_criteria
             assert any(c.code == "dielectric_unknown" for c in s.caveats)
     assert res.excluded and all(s.exclusion_reasons for s in res.excluded)
@@ -167,10 +167,10 @@ def test_missing_dielectric_is_never_scored_as_a_value(cache):
     seen = False
     for s in res.shortlist + res.ranked_beyond_shortlist + res.excluded:
         d = next(c for c in s.components if c.criterion == "dielectric")
-        if s.record.dielectric.status != DataStatus.KNOWN:
+        if s.record.figure_of_merit.status != DataStatus.KNOWN:
             seen = True
             assert d.status.is_unknown and d.normalized is None and d.contribution is None
-            assert d.status == s.record.dielectric.status  # the component keeps *why* it is missing
+            assert d.status == s.record.figure_of_merit.status  # the component keeps *why* it is missing
             assert "dielectric" in s.missing_criteria
             assert s.data_coverage < 1.0
         else:

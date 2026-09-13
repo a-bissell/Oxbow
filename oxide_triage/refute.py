@@ -60,7 +60,7 @@ BENCH_ORDER: tuple[str, ...] = (
     "hazard_caution",
     "ghs_hazard_statements",
     "metastable",
-    "dielectric_unknown",
+    "figure_of_merit_unknown",  # stands for `<criterion>_unknown` of the active figure of merit
     "band_gap_near_threshold",
     "functional_unknown",
     "no_thin_film_literature",
@@ -79,8 +79,16 @@ BENCH_ORDER: tuple[str, ...] = (
 _BENCH_RANK = {code: i for i, code in enumerate(BENCH_ORDER)}
 
 
+def _bench_rank(code: str) -> int:
+    if code in _BENCH_RANK:
+        return _BENCH_RANK[code]
+    if code.endswith("_unknown"):  # the figure of merit's caveat carries the criterion's name
+        return _BENCH_RANK["figure_of_merit_unknown"]
+    return len(BENCH_ORDER)
+
+
 def caveat_sort_key(c: Caveat) -> tuple[int, int, str]:
-    return (SEVERITY_RANK[c.severity], _BENCH_RANK.get(c.code, len(BENCH_ORDER)), c.code)
+    return (SEVERITY_RANK[c.severity], _bench_rank(c.code), c.code)
 
 
 # Caveats that can be said once for the whole run when every shortlisted candidate carries
@@ -119,7 +127,7 @@ def shared_caveats(shortlist: list[ScoredCandidate], config: Config) -> list[Cav
         return []
     common = set.intersection(*({c.code for c in sc.caveats} for sc in shortlist))
     out: list[Caveat] = []
-    for code in sorted(common & RUN_LEVEL_TEXT.keys(), key=lambda k: _BENCH_RANK.get(k, 99)):
+    for code in sorted(common & RUN_LEVEL_TEXT.keys(), key=_bench_rank):
         first = next(c for c in shortlist[0].caveats if c.code == code)
         out.append(
             Caveat(
@@ -205,13 +213,19 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
             data_coverage=sc.data_coverage,
         )
 
-    # Dielectric data ---------------------------------------------------------------------
-    if r.dielectric.status == DataStatus.ABSENT:
+    # Figure-of-merit data ------------------------------------------------------------------
+    fom = r.figure_of_merit
+    if fom.status == DataStatus.ABSENT:
         add(
-            "dielectric_unknown",
+            f"{fom.criterion}_unknown",
             "warning",
-            "No DFPT dielectric constant in Materials Project for this entry. The candidate is "
-            "ranked on partial data; its dielectric merit is unverified, not low.",
+            f"No {fom.method} {fom.label} in Materials Project for this entry. The candidate is "
+            f"ranked on partial data; its {fom.criterion.replace('_', ' ')} merit is unverified, not low."
+            + (
+                f" ({fom.absent_note})"
+                if fom.absent_note and fom.absent_note != fom.absent_note.lower()
+                else ""
+            ),
             data_coverage=sc.data_coverage,
         )
 
@@ -440,7 +454,7 @@ REFUTE_SCHEMA: dict[str, Any] = {
 }
 
 REFUTE_SYSTEM = (
-    "Your job is to argue AGAINST a candidate material for thin-film dielectric experiments, "
+    "Your job is to argue AGAINST a candidate material for thin-film experiments, "
     "using only the structured facts provided. Point out weaknesses a bench scientist should "
     "check before committing time. Do not restate caveats already listed. Do not introduce any "
     "number, citation or property that is not present in the facts. Each observation must name "
@@ -516,7 +530,7 @@ def candidate_facts(sc: ScoredCandidate) -> dict[str, Any]:
         "cross_check_oqmd": r.cross_check.model_dump(exclude={"provenance"}),
         "cross_source_agreement": sc.cross_source_agreement,
         "band_gap": sc.band_gap_assessment.model_dump(),
-        "dielectric": r.dielectric.model_dump(exclude={"provenance"}),
+        "figure_of_merit": r.figure_of_merit.model_dump(exclude={"provenance"}),
         "hazard": r.hazard.model_dump(exclude={"provenance"}),
         "literature": r.literature.model_dump(exclude={"provenance"}),
         "score": {

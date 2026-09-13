@@ -21,9 +21,10 @@ adding a rule per phrasing is not.
 from __future__ import annotations
 
 import re
+from collections.abc import Collection
 from typing import Any
 
-from oxide_triage.config import CRITERIA, Config, HazardTable
+from oxide_triage.config import Config, HazardTable
 from oxide_triage.edges.llm import LLMClient
 from oxide_triage.elements import find_elements
 from oxide_triage.schemas import Criteria
@@ -315,41 +316,45 @@ def _dedupe(items: list[str]) -> list[str]:
 # LLM parser (optional)
 # --------------------------------------------------------------------------------------
 
-CRITERIA_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "additionalProperties": False,
-    "properties": {
-        "top_k": {"type": ["integer", "null"], "minimum": 1, "maximum": 50},
-        "max_energy_above_hull_ev_atom": {"type": ["number", "null"], "minimum": 0},
-        "min_band_gap_ev": {"type": ["number", "null"], "minimum": 0},
-        "max_elements": {"type": ["integer", "null"], "minimum": 2, "maximum": 6},
-        "include_elements": {"type": "array", "items": {"type": "string"}},
-        "exclude_elements": {"type": "array", "items": {"type": "string"}},
-        "allow_elements": {"type": "array", "items": {"type": "string"}},
-        "weight_overrides": {
-            "type": "object",
-            "additionalProperties": False,
-            "properties": {c: {"type": ["number", "null"], "minimum": 0} for c in CRITERIA},
+
+def criteria_schema(criteria: Collection[str]) -> dict[str, Any]:
+    """The JSON schema the model's parse must satisfy; ``criteria`` names the weights it may set."""
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "top_k": {"type": ["integer", "null"], "minimum": 1, "maximum": 50},
+            "max_energy_above_hull_ev_atom": {"type": ["number", "null"], "minimum": 0},
+            "min_band_gap_ev": {"type": ["number", "null"], "minimum": 0},
+            "max_elements": {"type": ["integer", "null"], "minimum": 2, "maximum": 6},
+            "include_elements": {"type": "array", "items": {"type": "string"}},
+            "exclude_elements": {"type": "array", "items": {"type": "string"}},
+            "allow_elements": {"type": "array", "items": {"type": "string"}},
+            "weight_overrides": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {c: {"type": ["number", "null"], "minimum": 0} for c in criteria},
+            },
+            # anyOf rather than a null inside the enum: the Anthropic schema grammar rejects the latter.
+            "output_template": {
+                "anyOf": [{"type": "string", "enum": ["pi_summary", "audit", "json"]}, {"type": "null"}]
+            },
+            "interpretation_notes": {"type": "array", "items": {"type": "string"}},
         },
-        # anyOf rather than a null inside the enum: the Anthropic schema grammar rejects the latter.
-        "output_template": {
-            "anyOf": [{"type": "string", "enum": ["pi_summary", "audit", "json"]}, {"type": "null"}]
-        },
-        "interpretation_notes": {"type": "array", "items": {"type": "string"}},
-    },
-    "required": [
-        "top_k",
-        "max_energy_above_hull_ev_atom",
-        "min_band_gap_ev",
-        "max_elements",
-        "include_elements",
-        "exclude_elements",
-        "allow_elements",
-        "weight_overrides",
-        "output_template",
-        "interpretation_notes",
-    ],
-}
+        "required": [
+            "top_k",
+            "max_energy_above_hull_ev_atom",
+            "min_band_gap_ev",
+            "max_elements",
+            "include_elements",
+            "exclude_elements",
+            "allow_elements",
+            "weight_overrides",
+            "output_template",
+            "interpretation_notes",
+        ],
+    }
+
 
 PARSE_SYSTEM = (
     "Extract structured triage criteria from a materials scientist's request. Only set a field "
@@ -360,8 +365,8 @@ PARSE_SYSTEM = (
 )
 
 
-def llm_parse(text: str, llm: LLMClient) -> Criteria | None:
-    data = llm.complete_json(PARSE_SYSTEM, f"Request:\n{text}", CRITERIA_SCHEMA)
+def llm_parse(text: str, llm: LLMClient, criteria: Collection[str]) -> Criteria | None:
+    data = llm.complete_json(PARSE_SYSTEM, f"Request:\n{text}", criteria_schema(criteria))
     if not data:
         return None
     cleaned: dict[str, Any] = {k: v for k, v in data.items() if v is not None}
@@ -373,7 +378,7 @@ def llm_parse(text: str, llm: LLMClient) -> Criteria | None:
         return None
 
 
-def merge(rules: Criteria, model: Criteria | None) -> Criteria:
+def merge(rules: Criteria, model: Criteria | None, criteria: Collection[str]) -> Criteria:
     """Rules win on everything they set; the model may only fill defaults. Element allowances
     from the model are dropped: lifting a hazard block requires the deterministic parser."""
     if model is None:
@@ -400,7 +405,7 @@ def merge(rules: Criteria, model: Criteria | None) -> Criteria:
         out.exclude_elements = [e for e in model.exclude_elements if e not in out.include_elements]
         filled.append("exclude_elements")
     if not out.weight_overrides and model.weight_overrides:
-        out.weight_overrides = {k: v for k, v in model.weight_overrides.items() if k in CRITERIA}
+        out.weight_overrides = {k: v for k, v in model.weight_overrides.items() if k in criteria}
         filled.append("weight_overrides")
     if filled:
         out.interpretation_notes.append("filled by language model (validated): " + ", ".join(filled))
@@ -420,6 +425,8 @@ def parse_request(
     canonical = apply_terminology(text, config.terminology)
     rules = rule_parse(canonical, table, blocked, substrate=config.interface.substrate)
     if llm.name != "none" and config.llm.use_for.parse:
-        model = llm_parse(canonical, llm)
-        return merge(rules, model), f"rules+{llm.name}" if model else "rules (model parse failed)"
+        model = llm_parse(canonical, llm, config.criteria())
+        return merge(rules, model, config.criteria()), (
+            f"rules+{llm.name}" if model else "rules (model parse failed)"
+        )
     return rules, "rules"

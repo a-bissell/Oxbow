@@ -13,10 +13,10 @@ from oxide_triage.schemas import (
     Criteria,
     CrossCheckRecord,
     DataStatus,
-    DielectricRecord,
     HazardRecord,
     InterfaceRecord,
     LiteratureRecord,
+    PropertyRecord,
     StabilityRecord,
 )
 from oxide_triage.scoring.bandgap import assess_band_gap
@@ -64,8 +64,13 @@ def make_record(
             functional=functional,
             status=DataStatus.KNOWN if gap is not None else DataStatus.ABSENT,
         ),
-        dielectric=DielectricRecord(
-            e_total=e_total, status=DataStatus.KNOWN if e_total is not None else DataStatus.ABSENT
+        figure_of_merit=PropertyRecord(
+            criterion="dielectric",
+            property="e_total",
+            label="dielectric constant",
+            method="DFPT",
+            value=e_total,
+            status=DataStatus.KNOWN if e_total is not None else DataStatus.ABSENT,
         ),
         cross_check=CrossCheckRecord(
             stability_ev_atom=oqmd, status=DataStatus.KNOWN if oqmd is not None else DataStatus.ABSENT
@@ -349,9 +354,9 @@ class TestRetrievalProvenance:
     def _pair(self, cfg, eff):
         """The same material, its dielectric absent from the source vs never retrieved."""
         absent = make_record(e_total=None)
-        absent.dielectric.status = DataStatus.ABSENT
+        absent.figure_of_merit.status = DataStatus.ABSENT
         unfetched = make_record(e_total=None)
-        unfetched.dielectric.status = DataStatus.NOT_RETRIEVED
+        unfetched.figure_of_merit.status = DataStatus.NOT_RETRIEVED
         return score_candidate(absent, cfg, eff), score_candidate(unfetched, cfg, eff)
 
     def test_scores_are_identical_whatever_the_reason(self, cfg, eff):
@@ -392,7 +397,7 @@ class TestRetrievalProvenance:
         recs = [make_record(mid=f"g-{i}") for i in range(n_good)]
         for i in range(n_bad):
             r = make_record(mid=f"b-{i}", e_total=None, thin_film=None, total=None)
-            r.dielectric.status = DataStatus.NOT_RETRIEVED
+            r.figure_of_merit.status = DataStatus.NOT_RETRIEVED
             r.literature.status = DataStatus.NOT_RETRIEVED
             recs.append(r)
         return recs

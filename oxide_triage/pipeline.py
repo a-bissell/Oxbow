@@ -206,7 +206,7 @@ def run_triage(
     if overrides:
         # Values set on a front end's controls were chosen deliberately, so they are applied
         # without a clarification question; they still surface as deviations on the result.
-        criteria, _ = apply_changes(criteria, overrides, note_prefix="scope")
+        criteria, _ = apply_changes(criteria, overrides, note_prefix="scope", allowed=config.criteria())
     if not criteria.families and config.candidates.default_families:
         criteria.families = list(config.candidates.default_families)
     if template:
@@ -518,7 +518,7 @@ def add_material(formula: str, config: Config, cache: Cache | None = None) -> di
                     "e_hull": r.stability.energy_above_hull_ev_atom,
                     "band_gap": r.band_gap.value_ev,
                     "functional": r.band_gap.functional,
-                    "dielectric": r.dielectric.status.value,
+                    "figure_of_merit": r.figure_of_merit.status.value,
                 }
                 for r in records
             ],
