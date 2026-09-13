@@ -311,7 +311,17 @@ def run_triage(
         if block_msg:
             return TriageResult(**base, cache_fingerprint=cache.fingerprint([]), warnings=[block_msg])
 
-        layer = DataLayer.from_config(config, cache=cache, offline=offline, http=http)
+        # The interface record is computed per query from the cached hulls, so a substrate the
+        # request named reaches the data layer as a configuration; the hull of each element
+        # system plus that substrate is fetched on a live run and reported missing on an
+        # offline one. Nothing else in the config moves, and the result's config hash is the
+        # profile's: the change is on the deviation list.
+        data_config = config
+        if eff.substrate != config.interface.substrate:
+            data_config = config.model_copy(
+                update={"interface": config.interface.model_copy(update={"substrate": eff.substrate})}
+            )
+        layer = DataLayer.from_config(data_config, cache=cache, offline=offline, http=http)
         fill_note: str | None = None
         retrieval_scope: int | None = None
         scope_info: ScopeInfo | None = None

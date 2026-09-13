@@ -243,7 +243,10 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
                     "profile": "thermal-barrier",
                 },
             ],
-            "scope_limitation": "Deposition feasibility, film morphology, substrate compatibility and hygroscopic degradation are not modelled.",
+            "scope_limitation": (
+                "Stability against the substrate is bulk hull thermodynamics only; deposition feasibility, "
+                "reaction kinetics, film morphology and hygroscopic degradation are not modelled."
+            ),
         }
 
     @app.get("/api/universe/scope")

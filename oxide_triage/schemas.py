@@ -11,7 +11,10 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+from oxide_triage.elements import SYMBOLS
+from oxide_triage.formula import parse_formula
 
 SCOPE_LIMITATION = (
     "This system ranks on thermodynamic and electronic criteria computed from public "
@@ -203,10 +206,29 @@ class Criteria(BaseModel):
     weight_overrides: dict[str, float] = Field(default_factory=dict)
     output_template: TemplateName | None = None
     families: list[str] = Field(default_factory=list)  # cation families in scope; empty = all
+    # The substrate the interface criterion is computed against, when the request names one
+    # ("on germanium"): an element or a hull-phase formula. None = the profile's substrate.
+    substrate: str | None = None
     interpretation_notes: list[str] = Field(default_factory=list)
     # Clauses of the request no rule consumed: printed back as "not acted on" so a scientist
     # never has to guess whether an ask was honoured.
     unhandled: list[str] = Field(default_factory=list)
+
+    @field_validator("substrate")
+    @classmethod
+    def _substrate_is_a_formula(cls, v: str | None) -> str | None:
+        """A substrate is a chemical formula of real elements, never free text: it is used
+        as a hull-phase key and printed into provenance notes."""
+        if v is None:
+            return None
+        v = v.strip()
+        try:
+            elements = parse_formula(v)
+        except ValueError as exc:
+            raise ValueError(f"substrate must be a chemical formula, got {v!r}") from exc
+        if unknown := sorted(set(elements) - SYMBOLS):
+            raise ValueError(f"substrate {v!r} names unknown element(s): {', '.join(unknown)}")
+        return v
 
 
 class RequestBin(StrEnum):

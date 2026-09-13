@@ -46,18 +46,39 @@ Ideas / planned work for this project.
       out (Python validates the result anyway). Before this the model edges always fell back to
       rules against the real API.
 
-## Packaging and deployment
-- [ ] make clean, easy to install packages/releases
-- [ ] rewrite README for easier install path
-- [ ] Hosted version in AWS
-- [ ] Write up on prod deployment
-- [ ] Demo prep: setup live deployment with conversation history
-- [ ] Create demo flow to go through
+## Material classes (the figure-of-merit seam)
+
+- [x] **Make the seventh criterion a configurable figure of merit** — done 2026-09-13
+      (`figure_of_merit:` in `config/default.yaml`; providers in
+      `oxide_triage/sources/properties.py`): property, provider, label, units, method,
+      preference direction and curve, weight, missing-data handling, and the words the parser
+      and guard accept. The self-check judges the active profile with one stored verdict per
+      profile. `tests/test_fom_regression.py` holds the four oxide-dielectric profiles byte for
+      byte against a baseline captured before the seam. The record's JSON key `dielectric`
+      became `figure_of_merit`; old site files are migrated on load with a warning.
+- [x] **Ship a second material class: thermal barrier coatings** — done 2026-09-13
+      (`config/profiles/thermal-barrier.yaml` and its cation allowlist): Clarke's minimum
+      thermal conductivity from Materials Project elastic tensors, lower preferred, Al2O3
+      substrate, band gap zeroed and ungated, two class-specific refutation rules. No code path
+      names the class. Live: 750 candidates, 394 passing; ZrO2 15th, HfO2 12th, La2Zr2O7 named
+      as having no elastic tensor at the source rather than failed on. The design note
+      (`docs/design-note.md`, section 6) lists the files a new class touches.
+- [ ] **The anion as the second seam.** The universe is oxides by construction (the acquisition
+      filter, the formula parser's expectations, the cation allowlists and the hazard screen all
+      assume it). Fluoride UV windows were not chosen as the second class for this reason. Out
+      of scope for the current project; named here so the next class is not picked to work
+      around it.
+- Thermal barriers rank on conductivity, stability and compatibility only. Melting point,
+  thermal expansion, sintering, CMAS attack and toughness have no public per-material source
+  and are named as unmodelled on every output. Not planned work until a source exists.
 
 ## Data sources
 
 - [ ] **Add JARVIS-DFT bulk dataset as a second dielectric route** (OptB88vdW dielectric
-      tensors); flagged as a candidate route in `oxide_triage/acquire.py`.
+      tensors). Since the figure-of-merit seam this is a `PropertyProvider` in
+      `oxide_triage/sources/properties.py` beside the two Materials Project routes, selected by
+      `figure_of_merit.provider` in a profile; the dielectric provider's no-route reason names it
+      as the candidate. Needs a cache key and recorded responses like every other source.
 - [ ] **Literature evidence graph** — under consideration, not committed. The weakest input
       today is literature: two OpenAlex counts from a formula-string search, flagged as noisy
       for short formulae. The question a PI actually asks is not "how many papers mention
@@ -149,10 +170,19 @@ Ideas / planned work for this project.
             (`oxide-triage validate`, evaluation check 7): 21/21 hard, 10/11 soft; SrO, CaZrO3,
             SrZrO3 named as disagreements.
       - [ ] Chase the three disagreements: are the MP alkaline-earth silicate energies the cause?
-      - [ ] Let a request name the substrate ("on germanium", "on SrTiO3").
+      - [x] Let a request name the substrate — done 2026-09-13: "on germanium", "on a sapphire
+            substrate", "on SrTiO3" set `Criteria.substrate` (validated as a formula of real
+            elements); the interface criterion is computed against it, a `request_substrate`
+            deviation says so, and `rerun` accepts `{"substrate": "Ge"}`. A name with no hull
+            phase (glass, graphene) is reported as not acted on. Offline, a system whose hull
+            is not cached is named on the candidate; a live run fetches it.
       - [ ] Multi-substrate view: the same shortlist against Si, Ge and a perovskite side by side.
 
 ## Known limitations (by design, not planned work)
+
+- The design note a reader should trust is `docs/design-note.md`. The generated documents in
+  this directory (`live-evaluation.md`, `ranking-decisions.md`, `sample_report.html`) are
+  regenerated from the live cache; this file is hand-maintained.
 
 - Literature counts from formula-string search are noisy for short formulae (flagged per candidate).
 - The hazard table is a screen, not a toxicological assessment.

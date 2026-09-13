@@ -101,21 +101,36 @@ _ASIDE = re.compile(
 _CLAUSE_SPLIT = re.compile(
     r"[.;!?\n]+|,\s+(?:and|then|also|but|plus)\s+|\s+(?:and|and then|and also|but also|then)\s+", re.I
 )
-# A substrate named in the request. The interface criterion is computed against the
-# configured substrate; a request cannot change it yet, so the ask is reported, not applied.
+# A substrate named in the request ("on germanium", "on a sapphire substrate"). When it maps
+# to an element or a hull-phase formula the interface criterion is computed against it and the
+# change is a deviation; a name with no hull phase (glass, graphene) is reported, not applied.
 _SUBSTRATE = re.compile(
     r"\bon\s+(?:a\s+|an\s+|the\s+)?(germanium|ge|gaas|gallium arsenide|gan|gallium nitride|sic|"
     r"silicon carbide|srtio3|strontium titanate|sapphire|glass|quartz|graphene|mos2|inp|diamond|"
     r"silicon|si)\b(?:\s+(?:substrates?|wafers?))?",
     re.I,
 )
-_SUBSTRATE_ALIASES = {
+_SUBSTRATE_ALIASES: dict[str, str | None] = {
     "si": "Si",
     "silicon": "Si",
     "ge": "Ge",
     "germanium": "Ge",
     "srtio3": "SrTiO3",
     "strontium titanate": "SrTiO3",
+    "sapphire": "Al2O3",
+    "quartz": "SiO2",
+    "diamond": "C",
+    "gaas": "GaAs",
+    "gallium arsenide": "GaAs",
+    "gan": "GaN",
+    "gallium nitride": "GaN",
+    "sic": "SiC",
+    "silicon carbide": "SiC",
+    "inp": "InP",
+    "mos2": "MoS2",
+    # No hull phase to compute against: amorphous, or the same phase as an element's reference.
+    "glass": None,
+    "graphene": None,
 }
 
 
@@ -322,17 +337,25 @@ def rule_parse(
     elif hit(re.search(r"\b(summary|brief|one screen|plain language|for the PI|non-technical)\b", t, re.I)):
         kw["output_template"] = "pi_summary"
 
-    # ---- what was asked for and not done ------------------------------------------------
+    # ---- substrate ------------------------------------------------------------------------
     unhandled: list[str] = []
     for m in _SUBSTRATE.finditer(t):
         name = m.group(1).lower()
         canonical = _SUBSTRATE_ALIASES.get(name, m.group(1))
-        if canonical.lower() != substrate.lower():
-            hit(m)
+        hit(m)
+        if canonical is None:
             unhandled.append(
-                f'"{m.group(0).strip()}": the interface criterion is computed against {substrate} in this '
-                "configuration; a request cannot change the substrate yet"
+                f'"{m.group(0).strip()}": {name} has no hull phase to compute the interface criterion '
+                f"against, so it stays against {substrate}"
             )
+        elif canonical.lower() != substrate.lower() and "substrate" not in kw:
+            kw["substrate"] = canonical
+            notes.append(
+                f"interface criterion computed against {canonical} as the request names it "
+                f"(the profile uses {substrate})"
+            )
+
+    # ---- what was asked for and not done ------------------------------------------------
     unhandled.extend(f'"{c}"' for c in unhandled_clauses(t, consumed, understood_re(tuple(vocabulary))))
     kw["unhandled"] = unhandled
 
@@ -383,6 +406,9 @@ def criteria_schema(criteria: Collection[str]) -> dict[str, Any]:
                 "anyOf": [{"type": "string", "enum": ["pi_summary", "audit", "json"]}, {"type": "null"}]
             },
             "interpretation_notes": {"type": "array", "items": {"type": "string"}},
+            # The substrate the request names for the interface criterion, as a formula (Ge,
+            # SrTiO3); validated as a formula of real elements before it is used.
+            "substrate": {"type": ["string", "null"]},
         },
         "required": [
             "top_k",
@@ -403,7 +429,9 @@ PARSE_SYSTEM = (
     "Extract structured triage criteria from a materials scientist's request. Only set a field "
     "when the request states it explicitly; otherwise use null / empty. Element lists use "
     "chemical symbols. `allow_elements` is for hazardous elements the scientist explicitly wants "
-    "included (e.g. lead). `exclude_elements` for elements to avoid. Never invent thresholds. "
+    "included (e.g. lead). `exclude_elements` for elements to avoid. `substrate` is the substrate "
+    "the request names for the film, as a chemical formula (germanium -> Ge, sapphire -> Al2O3), "
+    "or null when none is named. Never invent thresholds. "
     "Put one short note per interpretation in `interpretation_notes`."
 )
 
@@ -435,6 +463,7 @@ def merge(rules: Criteria, model: Criteria | None, criteria: Collection[str]) ->
         "min_band_gap_ev",
         "max_elements",
         "output_template",
+        "substrate",  # validated as a formula of real elements by the schema, so no free text lands
     ):
         if getattr(out, field) == getattr(defaults, field) and getattr(model, field) != getattr(
             defaults, field

@@ -25,6 +25,7 @@ from oxide_triage.schemas import (
 
 CHANGEABLE = {
     "top_k",
+    "substrate",
     "min_band_gap_ev",
     "max_energy_above_hull_ev_atom",
     "max_elements",
