@@ -18,25 +18,46 @@ This system does not propose new materials or make publishable claims. The oxide
 
 ## 2. General Architecture
 ```mermaid
-flowchart LR
+flowchart TB
+    REQ([Scientist request]) --> G
     subgraph EDGE_IN["Front edge"]
-        G[Guard<br/>rule-based bins] --> P[Parser<br/>rules, optional LLM fill-in<br/>validated schema]
+        G["Guard<br/>rule-based bins"] --> P["Parser<br/>rules, optional LLM fill-in<br/>validated schema"]
     end
-    subgraph CORE["Deterministic core "]
-        D[Data layer<br/>SQLite cache] --> S[Gates + 6 general criteria<br/>+ 1 figure of merit<br/>missing-data policy] --> R[Rank<br/>tie-break by id]
+    subgraph SRC["Public sources, cached with a retrieval timestamp"]
+        MP[("Materials Project")]
+        OQ[("OQMD")]
+        OA[("OpenAlex")]
+        PC[("PubChem")]
+        HZ[/"element hazard table<br/>versioned YAML"/]
+    end
+    subgraph CORE["Deterministic core: no model, no network, no clock"]
+        D["Data layer, SQLite cache<br/>every value carries a status:<br/>KNOWN · ABSENT · NOT_RETRIEVED"]
+        subgraph GATES["Hard gates: exclude before scoring, reason stated"]
+            G1["E_hull ≤ max"] ~~~ G2["effective band gap ≥ min"] ~~~ G3["element count ≤ max"]
+            G4["no blocked hazard-tier element"] ~~~ G5["required / excluded elements"] ~~~ G6["figure of merit known<br/>(only if the profile says<br/>on_missing: exclude)"]
+        end
+        subgraph CRIT["Seven weighted criteria, each normalised to 0…1"]
+            C1["Stability<br/>1 − E_hull / zero-point<br/>OQMD agrees: bonus<br/>OQMD disagrees: penalty"] ~~~ C2["Effective band gap<br/>DFT correction labelled<br/>functional shown"] ~~~ C3["Interface with substrate<br/>most exothermic hull reaction<br/>products named<br/>inside tolerance counts as none"] ~~~ C4["Hazard tier<br/>worst element in the<br/>versioned table"]
+            C5["Compositional simplicity<br/>lookup by element count"] ~~~ C6["Literature<br/>log-saturating<br/>thin-film weighted"] ~~~ C7["Figure of merit<br/>declared by the profile:<br/>property · provider · prefer high or low<br/>linear between two saturation points"]
+        end
+        subgraph AGG["Aggregate under the missing-data policy"]
+            A1["raw = Σ w·s (known) / Σ w (known)"] ~~~ A2["coverage = Σ w (known) / Σ w (all)"]
+            A3["no_credit (default)<br/>adjusted = raw × coverage<br/>− penalty × (1 − coverage)<br/>an unknown criterion earns nothing"] ~~~ A4["confidence high / medium / low<br/>any missing criterion caps it at medium<br/>any NOT_RETRIEVED forces low"]
+        end
+        R["Rank<br/>adjusted score descending<br/>ties broken by material id<br/>polymorphs collapse under their best phase<br/>scores within the tie band share a tier<br/>no ranking below the completeness floor"]
+        D --> GATES --> CRIT --> AGG --> R
     end
     subgraph EDGE_OUT["Back edge"]
-        F[Refutation<br/>rule caveats, optional LLM<br/>over delimited facts<br/>numeric guard] --> T[Templates<br/>PI summary · audit · JSON]
+        F["Refutation<br/>rule caveats, optional LLM<br/>over delimited facts<br/>numeric guard"] --> T["Templates<br/>PI summary · audit · JSON"]
     end
-    REQ([Scientist request]) --> G
-    P -->|Criteria| S
+    P -->|"criteria, weights, substrate"| D
+    MP -.warm cache.-> D
+    OQ -.-> D
+    OA -.-> D
+    PC -.-> D
+    HZ --> D
     R --> F
     T --> OUT([Shortlist + caveats + gaps])
-    MP[(Materials Project)] -.warm-cache.-> D
-    OQ[(OQMD)] -.-> D
-    OA[(OpenAlex)] -.-> D
-    PC[(PubChem)] -.-> D
-    HZ[/element hazard table<br/>versioned YAML/] --> D
     style CORE fill:#eef6ee,stroke:#3a7d44
 ```
 
