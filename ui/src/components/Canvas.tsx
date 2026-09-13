@@ -3,7 +3,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { api } from "../api";
-import { CRITERIA_LABELS, allCandidates, diffResults, findCandidate, fmt, fmtInt, formulaParts, gateLabel, pct, primaryCaveat } from "../format";
+import { CRITERIA_LABELS, allCandidates, diffResults, findCandidate, fmt, fmtInt, formulaParts, gateLabel, pct, rationaleFacts, visibleCaveats } from "../format";
 import { useApp, type View } from "../store";
 import type { ScoredCandidate, TriageResult } from "../types";
 
@@ -38,6 +38,28 @@ function MissingChips({ sc }: { sc: ScoredCandidate }) {
 }
 
 // ---- header ----------------------------------------------------------------------------------
+
+// A run-wide banner that shows only its headline until clicked, so the results start higher.
+function CollapsibleBanner({ tone, title, noun, items }: { tone: "info" | "warn"; title: string; noun: string; items: ReactNode[] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`banner banner--${tone} small`}>
+      <button className="banner__summary" onClick={() => setOpen(!open)} aria-expanded={open}>
+        <strong>{title}</strong>
+        <span className="banner__count">
+          {items.length} {items.length === 1 ? noun : `${noun}s`} {open ? "▴" : "▾"}
+        </span>
+      </button>
+      {open && (
+        <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+          {items.map((it, i) => (
+            <li key={i}>{it}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function Header({ result, rid, view, setView }: { result: TriageResult; rid: string; view: View; setView: (v: View) => void }) {
   const [showWarnings, setShowWarnings] = useState(false);
@@ -79,26 +101,26 @@ function Header({ result, rid, view, setView }: { result: TriageResult; rid: str
       {result.fixture_data && <div className="banner banner--crit small">Synthetic fixture data. Every number here is illustrative.</div>}
       {result.retrieval && !result.retrieval.comparable && <div className="banner banner--warn small">{result.retrieval.note}</div>}
       {(result.run_notes ?? []).length > 0 && (
-        <div className="banner banner--info small">
-          <strong>Applies to every shortlisted candidate.</strong>
-          <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
-            {(result.run_notes ?? []).map((c, i) => (
-              <li key={i}>
-                <span className={`sev sev--${c.severity}`}>{c.severity}</span> {c.text}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <CollapsibleBanner
+          tone="info"
+          title="Applies to every shortlisted candidate"
+          noun="note"
+          items={(result.run_notes ?? []).map((c, i) => (
+            <span key={i}>
+              <span className={`sev sev--${c.severity}`}>{c.severity}</span> {c.text}
+            </span>
+          ))}
+        />
       )}
       {(result.not_acted_on ?? []).length > 0 && (
-        <div className="banner banner--warn small">
-          <strong>Parts of the request not acted on.</strong>
-          <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
-            {(result.not_acted_on ?? []).map((line, i) => (
-              <li key={i}>{line}</li>
-            ))}
-          </ul>
-        </div>
+        <CollapsibleBanner
+          tone="warn"
+          title="Parts of the request not acted on"
+          noun="part"
+          items={(result.not_acted_on ?? []).map((line, i) => (
+            <span key={i}>{line}</span>
+          ))}
+        />
       )}
       {(result.deviations.length > 0 || notices.length > 0) && (
         <div className="wrap">
@@ -173,7 +195,9 @@ function DiffCard({ prev, next, onShowPrev }: { prev: TriageResult; next: Triage
 
 function CandidateCard({ sc, onOpen, focused, shared }: { sc: ScoredCandidate; onOpen: () => void; focused: boolean; shared: string[] }) {
   const r = sc.record;
-  const cav = primaryCaveat(sc, shared);
+  const cavs = visibleCaveats(sc, shared);
+  const cav = cavs[0];
+  const facts = rationaleFacts(sc.rationale);
   return (
     <button className={`card ccard ${focused ? "ccard--focus" : ""}`} onClick={onOpen}>
       <div className="ccard__rank">{sc.rank}</div>
@@ -200,8 +224,19 @@ function CandidateCard({ sc, onOpen, focused, shared }: { sc: ScoredCandidate; o
           )}
           <MissingChips sc={sc} />
         </div>
-        {sc.rationale && <div className="ccard__line">{sc.rationale}</div>}
-        {cav && <div className={`ccard__caveat ${cav.severity === "critical" ? "ccard__caveat--crit" : ""}`}>Caveat · {cav.text}</div>}
+        {facts.length > 0 && (
+          <div className="ccard__facts">
+            {facts.map((f, i) => (
+              <span key={i}>{f}</span>
+            ))}
+          </div>
+        )}
+        {cav && (
+          <div className={`ccard__caveat ${cav.severity === "critical" ? "ccard__caveat--crit" : ""}`}>
+            <span className="ccard__caveat-txt">Caveat · {cav.text}</span>
+            {cavs.length > 1 && <span className="ccard__caveat-more">+{cavs.length - 1} more</span>}
+          </div>
+        )}
       </div>
       <div className="col" style={{ gap: 4 }}>
         <div className="bar">

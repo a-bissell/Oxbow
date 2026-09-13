@@ -55,11 +55,22 @@ export function findCandidate(r: TriageResult, key: string): ScoredCandidate | u
   return ranked[0] ?? matches[0];
 }
 
-/** The caveat a row leads with. `exclude` holds the codes already said once for the whole run
- *  (result.run_notes), so each row's headline is the one specific to that candidate. */
-export function primaryCaveat(sc: ScoredCandidate, exclude: string[] = []) {
+/** The caveats a row shows, most severe first, minus the codes already said once for the whole
+ *  run (result.run_notes) and the fixture-data note. The list view leads with the first and keeps
+ *  the rest as a count; the full text lives in the focus view. */
+export function visibleCaveats(sc: ScoredCandidate, exclude: string[] = []) {
   const skip = new Set([...exclude, "fixture_data"]);
-  return sc.caveats.find((c) => !skip.has(c.code));
+  return sc.caveats.filter((c) => !skip.has(c.code));
+}
+
+/** The rationale split into its clauses, so the list can lay them out as scannable tokens
+ *  instead of one semicolon-joined line. The wording stays exactly as the server wrote it. */
+export function rationaleFacts(rationale: string | null | undefined): string[] {
+  if (!rationale) return [];
+  return rationale
+    .split(";")
+    .map((s) => s.trim().replace(/\.$/, ""))
+    .filter(Boolean);
 }
 
 export function timeAgo(iso: string): string {
