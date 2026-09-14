@@ -118,7 +118,7 @@ Or pick a shipped profile with `-p` on the command line or in the web app:
 
 A new profile is a YAML file in `config/profiles/` that overrides only what differs. Ranking for a different property means replacing the `figure_of_merit:` block, as `thermal-barrier.yaml` does.
 
-**A field deployment engineer sets things up once per site:**
+**A forward deployed engineer sets things up once per site:**
 
 - `oxbow bundle build` packages a warmed cache with a manifest; `oxbow bundle verify` and `oxbow bundle install` load it on a machine with no network. See [docker/OFFLINE.md](docker/OFFLINE.md).
 - `OXIDE_TRIAGE_CONFIG_DIR` points an installed wheel at a directory of config files outside a checkout; `OXIDE_TRIAGE_CACHE` places the cache and, with it, `site.yaml` and the logs.
