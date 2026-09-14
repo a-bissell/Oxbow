@@ -108,7 +108,7 @@ def agent_system_prompt(profile: str, extra: str | None = None) -> str:
 # Argument models: the schema the model sees is the schema that validates the call
 # --------------------------------------------------------------------------------------
 
-AgentTemplate = Literal["pi_summary", "audit"]
+AgentTemplate = Literal["pi_summary", "advanced", "audit"]
 
 
 class _Args(BaseModel):
@@ -128,7 +128,8 @@ class TriageArgs(_Args):
     request: str = Field(description="The scientist's request in plain English.")
     profile: str = Field(default="default", description="Configuration profile name.")
     template: AgentTemplate | None = Field(
-        default=None, description="pi_summary (default) or audit (every component, gate and source)."
+        default=None,
+        description="pi_summary (default; the model reads its detailed form) or audit (every component, gate and source).",
     )
     confirmed: bool = Field(
         default=False,
@@ -152,7 +153,9 @@ class RerunArgs(_Args):
             "(the element or hull-phase formula the interface criterion is computed against)."
         )
     )
-    template: AgentTemplate | None = Field(default=None, description="pi_summary (default) or audit.")
+    template: AgentTemplate | None = Field(
+        default=None, description="pi_summary (default), advanced or audit."
+    )
     confirmed: bool = Field(
         default=False,
         description="Set true only after the user has agreed to the clarification questions.",
@@ -218,7 +221,7 @@ TOOL_SPECS: list[ToolSpec] = [
         "triage",
         (
             "Rank candidate materials for a natural-language request. Returns a rendered result "
-            "(template: pi_summary | audit | json) prefixed by a result_id for follow-ups, OR a JSON object "
+            "(template: pi_summary | advanced | audit | json) prefixed by a result_id for follow-ups, OR a JSON object "
             "with clarification questions when the request changes something material and confirmed is false. "
             "Requests that would fabricate evidence are refused; requests needing lab, private or paywalled "
             "access are declined as capabilities this deployment does not have."
@@ -361,6 +364,10 @@ class ToolBox:
         self._last_result_id = rid
         self._n_results += 1
         template = template or result.criteria.output_template or default
+        # The plain summary is written for a person and leaves out the per-criterion detail the
+        # assistant answers from; the model always reads the detailed form of it.
+        if template == "pi_summary":
+            template = "advanced"
         if result.needs_confirmation:
             return json.dumps(
                 {

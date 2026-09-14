@@ -16,7 +16,12 @@ from oxide_triage.refute import primary_caveat
 from oxide_triage.schemas import DataStatus, ScoredCandidate, TriageResult
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
-TEMPLATE_FILES = {"pi_summary": "pi_summary.md.j2", "audit": "audit.md.j2", "html": "report.html.j2"}
+TEMPLATE_FILES = {
+    "pi_summary": "pi_summary.md.j2",  # the plain summary: one line per candidate
+    "advanced": "advanced.md.j2",  # the detailed summary: full rationale, tiers, gaps, hashes
+    "audit": "audit.md.j2",
+    "html": "report.html.j2",
+}
 
 
 def fmt(x: float | None, digits: int = 3) -> str:
@@ -75,6 +80,72 @@ def rationale_line(sc: ScoredCandidate) -> str:
     return "; ".join(bits) + "."
 
 
+def plain_line(sc: ScoredCandidate) -> str:
+    """The rationale in plain words for the summary: what a PI needs to place the candidate,
+    no method names, no ids. Computed facts only, like ``rationale_line``."""
+    r = sc.record
+    bits: list[str] = []
+    e_hull = r.stability.energy_above_hull_ev_atom
+    if e_hull is not None:
+        mev = e_hull * 1000
+        if e_hull == 0:
+            stab = "stable"
+        elif mev < 1:
+            stab = f"nearly stable ({mev:.1f} meV above the hull)"
+        else:
+            stab = f"metastable ({mev:.0f} meV above the hull)"
+        if sc.cross_source_agreement == "disagree":
+            stab += ", sources disagree"
+        bits.append(stab)
+    bg = sc.band_gap_assessment
+    if bg.effective_ev is not None:
+        bits.append(f"gap {'≈' if bg.corrected else ''}{bg.effective_ev:.1f} eV")  # ≈: a scaled DFT value
+    fom = r.figure_of_merit
+    if fom.status == DataStatus.KNOWN and fom.value is not None:
+        bits.append(f"{fom.label} {fom.value:.0f}{(' ' + fom.units) if fom.units else ''}")
+    else:
+        bits.append(f"no {fom.label} data")
+    iface = r.interface
+    if iface.status == DataStatus.KNOWN and iface.reaction_energy_ev_atom is not None:
+        bits.append(
+            f"fine on {iface.substrate}"
+            if iface.reaction_energy_ev_atom >= -1e-9
+            else f"reacts with {iface.substrate}"
+        )
+    tier = r.hazard.worst_tier
+    if tier is not None and tier > 0:
+        bits.append(f"contains {', '.join(r.hazard.worst_elements)} (caution)")
+    lit = r.literature
+    if lit.status == DataStatus.KNOWN and lit.thin_film_works is not None:
+        n = lit.thin_film_works
+        if n >= 1000:
+            bits.append("well studied")
+        elif n >= 100:
+            bits.append(f"some literature ({n:,} papers)")
+        elif n > 0:
+            bits.append(f"little literature ({n} papers)")
+        else:
+            bits.append("no thin-film papers found")
+    return ", ".join(bits) + "."
+
+
+def tie_lines(shortlist: list[ScoredCandidate], band: float) -> list[str]:
+    """One sentence per tier that holds more than one shortlisted candidate."""
+    out: list[str] = []
+    by_tier: dict[int, list[ScoredCandidate]] = {}
+    for sc in shortlist:
+        if sc.tier is not None:
+            by_tier.setdefault(sc.tier, []).append(sc)
+    for members in by_tier.values():
+        if len(members) > 1:
+            ranks = [m.rank for m in members if m.rank is not None]
+            names = " and ".join(
+                [", ".join(m.record.formula for m in members[:-1]), members[-1].record.formula]
+            )
+            out.append(f"{ranks[0]}–{ranks[-1]} are effectively tied ({names}; scores within {band:g}).")
+    return out
+
+
 def make_env(templates_dir: Path = TEMPLATES_DIR) -> Environment:
     env = Environment(
         loader=FileSystemLoader(str(templates_dir)),
@@ -87,6 +158,8 @@ def make_env(templates_dir: Path = TEMPLATES_DIR) -> Environment:
     env.filters["fmt"] = fmt
     env.filters["pct"] = pct
     env.filters["primary_caveat"] = primary_caveat
+    env.filters["plain_line"] = plain_line
+    env.filters["tie_lines"] = tie_lines
     return env
 
 

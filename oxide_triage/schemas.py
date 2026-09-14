@@ -187,7 +187,7 @@ class CandidateRecord(BaseModel):
 # Structured request (front edge output)
 # --------------------------------------------------------------------------------------
 
-TemplateName = Literal["pi_summary", "audit", "json", "html"]
+TemplateName = Literal["pi_summary", "advanced", "audit", "json", "html"]
 
 
 class Criteria(BaseModel):

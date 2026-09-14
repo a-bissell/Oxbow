@@ -40,7 +40,7 @@ server = MCPServer(
     name="oxide-triage",
     title="Oxbow: oxide dielectric triage",
     instructions=INSTRUCTIONS,
-    version="0.2.3",
+    version="0.2.4",
 )
 # Who the deviation log names for a call depends on the transport. Over stdio the client is
 # a process of the same OS user, so that user is the actor. Over HTTP the process user is the

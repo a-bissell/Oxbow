@@ -69,7 +69,9 @@ def _setup_logging(verbose: bool) -> None:
 def query(
     request: str = typer.Argument(PI_REQUEST, help="Natural-language request. Defaults to the PI's example."),
     profile: str = typer.Option("default", "--profile", "-p", help="Config profile name."),
-    template: str | None = typer.Option(None, "--template", "-t", help="pi_summary | audit | json | html"),
+    template: str | None = typer.Option(
+        None, "--template", "-t", help="pi_summary | advanced | audit | json | html"
+    ),
     offline: bool | None = typer.Option(
         None, "--offline/--online", help="Force cache-only or allow fetches."
     ),

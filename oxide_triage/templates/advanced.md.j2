@@ -1,0 +1,107 @@
+{#- Advanced summary: every candidate's full rationale line, tiers, data gaps named per entry,
+    the run's deviations and notices, and the hashes. Sits between the plain summary
+    (pi_summary) and the technical audit. Edit freely; every value comes pre-computed in `result`. -#}
+# Oxbow: materials triage ({{ result.profile_name }}) — detailed summary
+
+{% if result.fixture_data %}
+> **SYNTHETIC FIXTURE DATA.** This run used the built-in development fixture, not live public
+> databases. Every number below is illustrative. Do not act on it.
+
+{% endif %}
+{% if not result.guard.proceed %}
+## Request declined
+
+```
+{{ result.warnings[0] }}
+```
+
+_No ranking was run. Nothing below this line is a result._
+
+{% endif %}
+{% if result.retrieval and not result.retrieval.comparable %}
+> **The data behind this ranking is incomplete.** Only {{ result.retrieval.completeness | pct }} of
+> what the ranking needed was actually downloaded ({{ result.retrieval.n_fully_retrieved }} of
+> {{ result.retrieval.n_ranked }} candidates have a full record). Candidates are scored lower when
+> data is missing, so the *order* below partly reflects which downloads finished rather than which
+> materials are better. Treat it as a starting point, not a ranking, until the cache is refilled.
+
+{% endif %}
+{% if result.deviations %}
+> **Configuration deviations in effect** (read before the shortlist):
+{% for d in result.deviations %}
+> - {{ d.description }} _(origin: {{ d.origin }})_
+{% endfor %}
+
+{% endif %}
+{% set notices = result.guard.findings | selectattr("bin", "in", ["architecturally_impossible", "override_attempt"]) | list %}
+{% if notices %}
+> **Request notices:**
+{% for f in notices %}
+> - **{{ "Not possible in this deployment" if f.bin == "architecturally_impossible" else "No such mode exists" }}** — "{{ f.matched_text }}": {{ f.explanation }}
+{% endfor %}
+
+{% endif %}
+**Request:** {{ result.request_text }}
+
+**Profile:** `{{ result.profile_name }}` · **Candidates considered:** {{ result.n_candidates_considered }} · **Passed gates:** {{ result.shortlist | length + result.ranked_beyond_shortlist | length }} compounds{% if result.collapsed_polymorphs %} ({{ result.collapsed_polymorphs | length }} further phases collapsed under their compound's row){% endif %} · **Shown:** {{ result.shortlist | length }}
+{% if result.criteria.interpretation_notes %}
+**How the request was read:** {{ result.criteria.interpretation_notes | join("; ") }}
+{% endif %}
+{% if result.not_acted_on %}
+**Parts of the request not acted on:**
+{% for line in result.not_acted_on %}
+- {{ line }}
+{% endfor %}
+{% endif %}
+
+## Shortlist
+
+{% if not result.shortlist %}
+_No candidate passed every gate under this configuration. See the audit view for the reasons._
+{% endif %}
+{% set shared = result.run_notes | map(attribute="code") | list %}
+{% if result.run_notes %}
+**Applies to every shortlisted candidate:**
+{% for c in result.run_notes %}
+- ({{ c.severity }}) {{ c.text }}
+{% endfor %}
+
+{% endif %}
+{% set ns = namespace(tier=None) %}
+{% for sc in result.shortlist %}
+{% set cav = sc | primary_caveat(shared) %}
+{% if sc.tier is not none and sc.tier != ns.tier %}
+{% set ns.tier = sc.tier %}
+{% set members = result.shortlist | selectattr("tier", "equalto", sc.tier) | list %}
+{% if members | length > 1 %}
+**Tier {{ sc.tier }}** — {{ members | length }} candidates within {{ result.tie_band }} of each other: effectively tied, the order below is arbitrary.
+{% else %}
+**Tier {{ sc.tier }}**
+{% endif %}
+
+{% endif %}
+**{{ sc.rank }}. {{ sc.record.formula }}** ({{ sc.record.crystal_system or "?" }}, `{{ sc.record.material_id }}`{% if sc.polymorphs %}, +{{ sc.polymorphs | length }} other phase{{ "s" if sc.polymorphs | length > 1 }}{% endif %}) — score {{ sc.adjusted_score | fmt(2) }}, confidence **{{ sc.confidence }}**{% if sc.absent_criteria %}, no data for: {{ sc.absent_criteria | join(", ") }}{% endif %}{% if sc.not_retrieved_criteria %}, **never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}**{% endif %}
+
+- Why: {{ sc.rationale }}
+{% if cav %}
+- Main caveat ({{ cav.severity }}): {{ cav.text }}
+{% endif %}
+{% if sc.caveats | length > 1 %}
+- {{ sc.caveats | length - 1 }} further caveat(s) in the audit view.
+{% endif %}
+
+{% endfor %}
+## Read this before running anything
+
+{{ result.scope_limitation }}
+
+Scores are relative within this run and this profile, and candidates in the same tier are a
+tie: DFT gaps, {{ result.scoring.figure_of_merit.method if result.scoring.figure_of_merit else "computed" }} {{ result.scoring.figure_of_merit.label if result.scoring.figure_of_merit else "figure-of-merit" }} values and log-scaled literature counts do not support ordering
+two candidates {{ result.tie_band }} apart. A candidate ranked on partial data
+(confidence medium/low) has criteria with **no data behind them**; those are named per entry,
+not scored as zero. Band gaps marked "corrected" are scaled DFT values, not measurements.
+
+{% if result.warnings %}
+**Run warnings:** {{ result.warnings | join(" ") }}
+{% endif %}
+_Generated {{ result.generated_at }} · config `{{ result.config_hash }}` · cache `{{ result.cache_fingerprint }}` · language model: {{ result.llm_usage | dictsort | map("join", "=") | join(", ") }}_

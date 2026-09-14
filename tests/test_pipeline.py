@@ -235,7 +235,8 @@ def test_polymorphs_collapse_into_one_row_per_compound(cache):
     text = explain_candidate(res, other.record.material_id)
     assert "collapsed under the leading HfO2 phase" in text
     assert "+1 other phase" in list_candidates(res, "shortlist", 50) + list_candidates(res, "beyond", 500)
-    assert "2 further phases collapsed" in render(res, "pi_summary")
+    assert "2 further phases collapsed" in render(res, "advanced")
+    assert "+1 other phase" in render(res, "pi_summary")
 
 
 # Tiers ------------------------------------------------------------------------------------------
@@ -262,8 +263,10 @@ def test_tiers_group_effective_ties_and_are_measured_from_the_tier_leader(cache)
         if t + 1 in by_tier:
             assert lead - by_tier[t + 1][0].adjusted_score > band
     # the summary says so, and explain names the peers
-    text = render(res, "pi_summary")
+    text = render(res, "advanced")
     assert "**Tier 1**" in text and "order below is arbitrary" in text or "**Tier 1**" in text
+    if len([s for s in res.shortlist if s.tier == 1]) > 1:
+        assert "effectively tied" in render(res, "pi_summary")
     from oxide_triage.session import explain_candidate
 
     assert "Tier 1" in explain_candidate(res, res.shortlist[0].record.formula)

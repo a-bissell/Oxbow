@@ -139,6 +139,12 @@ Ideas / planned work for this project.
             gate for a public demo exists since 2026-09-14 (`OXBOW_PASSWORD`,
             `oxide_triage/server/auth.py`): one password, a signed cookie, no accounts and no
             record of who signed in. It is not this item.
+- [x] **A plain PI summary, with the previous one kept as "advanced"** — done 2026-09-14:
+      `pi_summary` is now one line of plain words per candidate (stable / gap / figure of merit /
+      substrate / literature), one caveat each, ties stated in a sentence, deviations and
+      not-acted-on lines kept, hashes in one footer line. The previous summary is the
+      `advanced` template, between it and `audit`; the assistant reads `advanced` so its answers
+      keep their detail. Canvas downloads: Summary, Advanced, Audit, JSON, Report.
 - [x] **Interactive Agent UI** — done 2026-09-10: chat beside a results canvas, click a
       candidate to focus it, compare, rerun with a diff, clarify-before-run in the
       conversation. The assistant drives the same tools the MCP server exposes through the

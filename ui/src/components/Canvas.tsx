@@ -89,11 +89,17 @@ function Header({ result, rid, view, setView }: { result: TriageResult; rid: str
           </div>
         </div>
         <div className="row">
-          <a className="btn btn--sm" href={api.renderUrl(rid, "html")} download>
-            Report
+          <a className="btn btn--sm" href={api.renderUrl(rid, "pi_summary")} download>
+            Summary
+          </a>
+          <a className="btn btn--sm" href={api.renderUrl(rid, "advanced")} download>
+            Advanced
           </a>
           <a className="btn btn--sm" href={api.renderUrl(rid, "audit")} download>
             Audit
+          </a>
+          <a className="btn btn--sm" href={api.renderUrl(rid, "html")} download>
+            Report
           </a>
           <a className="btn btn--sm" href={api.renderUrl(rid, "json")} download>
             JSON
