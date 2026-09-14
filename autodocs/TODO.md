@@ -135,7 +135,10 @@ Ideas / planned work for this project.
       - [ ] Preview a profile edit: re-rank the last result under the draft before saving
             (`preview_config` exists; needs an endpoint that runs a rerun against it).
       - [ ] Site-defined profiles (new named profiles created from the panel).
-      - [ ] Real authentication in front of the admin panel (a proxy today).
+      - [ ] Real authentication in front of the admin panel (a proxy today). A shared-password
+            gate for a public demo exists since 2026-09-14 (`OXBOW_PASSWORD`,
+            `oxide_triage/server/auth.py`): one password, a signed cookie, no accounts and no
+            record of who signed in. It is not this item.
 - [x] **Interactive Agent UI** — done 2026-09-10: chat beside a results canvas, click a
       candidate to focus it, compare, rerun with a diff, clarify-before-run in the
       conversation. The assistant drives the same tools the MCP server exposes through the
