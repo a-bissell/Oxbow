@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/brand/oxbow-lockup-dark.svg">
-    <img alt="Oxbow: deterministic triage for oxide dielectrics" src="docs/brand/oxbow-lockup.svg" width="520">
+    <img alt="Oxbow: deterministic materials triage" src="docs/brand/oxbow-lockup.svg" width="520">
   </picture>
 </p>
 

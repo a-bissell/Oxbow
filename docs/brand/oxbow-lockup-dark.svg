@@ -5,5 +5,5 @@
   <path d="M 44 70 A 24 24 0 1 1 76 70" fill="none" stroke="#8ecae6" stroke-width="9" stroke-linecap="round"/>
 </g>
   <text x="160" y="84" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="56" font-weight="700" letter-spacing="-1.5" fill="#ffffff">Oxbow</text>
-  <text x="163" y="114" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" letter-spacing="0.4" fill="#b6c2d1">Deterministic triage for oxide dielectrics</text>
+  <text x="163" y="114" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" letter-spacing="0.4" fill="#b6c2d1">Deterministic materials triage</text>
 </svg>
