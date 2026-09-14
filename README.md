@@ -13,15 +13,15 @@
 </p>
 
 # Oxbow
-Oxbow ranks candidate materials against explicit criteria for a stated property (dielectric constant, thermal conductivity, whatever the active profile scores for) drawing on public data from Materials Project, OQMD, OpenAlex and PubChem. Every number in the shortlist traces to a source and every data gap is named. The ranking is deterministic code over a local cache, so the same request against the same cache gives the same answer. The Claude-backed assistant interprets the request and answers follow-ups, but never changes a number, a rank or a citation. 
+Oxbow ranks candidate materials against explicit criteria for a stated property (dielectric constant, thermal conductivity, or whatever the active profile scores for) drawing on public data from Materials Project, OQMD, OpenAlex and PubChem. Every number in the shortlist traces to a source and every data gap is named. The ranking is deterministic code over a local cache, so the same request against the same cache gives the same answer. The Claude-backed assistant interprets the request and answers follow-ups, but never changes a number, a rank or a citation. 
 
-Oxbow runs as a web app, a command line tool, or an MCP server for Claude Desktop, Cowork or Cursor.
+Oxbow runs as a web app, a command line tool, or an MCP server for Claude Desktop, Cowork, Cursor etc.
 
 A hosted demo is at [ox-90f340a12770442fba24fc56c1830e71.ecs.us-east-1.on.aws](https://ox-90f340a12770442fba24fc56c1830e71.ecs.us-east-1.on.aws), password on request. The design is in [docs/design-note.md](docs/design-note.md).
 
 ## Install
 
-Needs Python 3.11 or newer. Docker instructions below.
+Needs Python 3.11 or newer
 
 ```bash
 git clone https://github.com/a-bissell/oxide-triage.git
