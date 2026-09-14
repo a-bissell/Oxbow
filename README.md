@@ -22,8 +22,6 @@ The ranking process is fully deterministic, and every number has a traceable pro
 
 Oxbow was designed from the ground up with deep LLM integration in mind. The model acts as a research assistant; it interprets user requests with some flexibility and states caveats, it engages in followups conversationally and can help clarify or explain anything in the report. Nothing it says can change a number, a rank, or a citation (see docs/design-note.md for a deeper dive on this)
 
-For airgapped installations, full support has been baked in for locally hosted language models such as Gemma4 and Qwen 3.8. Because Oxbow is built upon a robust suite of deterministic tools and operates in a well defined problem space, even small models that run on consumer laptops offer impressive performance.
-
 If needed, the whole system can be run offline with no language model at all. With no model attached, the rules-based heuristics engine kicks in and supports natural language based querying and simple followup workflows. 
 
 The Oxbow web app is the premiere interface. It features a dynamic and interactive reporting window, auditing tools, an admin panel, and allows users to complete entire workflows in one place. Optionally, we include an MCP server so scientists can fit it inside their existing workflows in Claude Cowork, Cursor, Hermes Agent etc. 
@@ -116,9 +114,9 @@ Install steps are in [`docker/OFFLINE.md`](docker/OFFLINE.md).
 |---|---|
 | `MP_API_KEY` | warming the cache from Materials Project (free) |
 | `OPENALEX_API_KEY` | optional; literature counts beyond the free daily budget |
-| `LLM_PROVIDER` | `none` (default, rules-driven assistant), `anthropic`, or `openai_compatible` |
+| `LLM_PROVIDER` | `none` (default, rules-driven assistant) or `anthropic` |
 | `ANTHROPIC_API_KEY` | only with `LLM_PROVIDER=anthropic` |
-| `LLM_BASE_URL`, `LLM_MODEL` | only with `LLM_PROVIDER=openai_compatible` |
+| `LLM_MODEL` | optional with `LLM_PROVIDER=anthropic`; the model for the parse and refute edges |
 | `OXIDE_TRIAGE_CACHE` | path of the SQLite cache (default `data/cache.sqlite`) |
 | `OXIDE_TRIAGE_OFFLINE` | `1` forces cache-only operation |
 | `OXIDE_TRIAGE_ADMIN` | `1` enables editing and cache jobs in the admin panel |

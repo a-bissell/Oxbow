@@ -445,13 +445,12 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
     @app.get("/api/admin/environment")
     def admin_environment() -> dict[str, Any]:
         cfg = state.load_config("default")
-        keys = ("MP_API_KEY", "OPENALEX_API_KEY", "ANTHROPIC_API_KEY", "LLM_API_KEY")
+        keys = ("MP_API_KEY", "OPENALEX_API_KEY", "ANTHROPIC_API_KEY")
         return {
             "keys": {k: (mask(k, os.environ.get(k)) if os.environ.get(k) else None) for k in keys},
             "llm": {
                 "provider": cfg.llm.provider,
                 "model": cfg.llm.model,
-                "base_url": cfg.llm.base_url,
                 "driver": driver_name(cfg),
                 "agent_model": agent_model(cfg),
             },

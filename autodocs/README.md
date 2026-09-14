@@ -77,8 +77,7 @@ cation in it belongs to a selected family. The families and their rationale live
 
 The assistant has two drivers. With `LLM_PROVIDER=anthropic` and an `ANTHROPIC_API_KEY`, a Claude
 model (`claude-sonnet-5` by default; `agent.model`, `AGENT_MODEL` or `LLM_MODEL` override)
-orchestrates the same tools the MCP server exposes and phrases the answer; with
-`LLM_PROVIDER=openai_compatible` the local model does the same through function calling. Without
+orchestrates the same tools the MCP server exposes and phrases the answer. Without
 a model, a rule-based driver routes each message by intent (new request, explain, compare, rerun
 with a change, what was excluded) and narrates from the result object. Both produce the same
 visible steps and the same canvas, and if the model is unreachable mid-conversation the rules
@@ -292,8 +291,7 @@ can confirm only a call that has already come back with its questions.
 
 `oxide-triage chat` is the same agent in the terminal. It needs a model: `LLM_PROVIDER=anthropic`
 with `ANTHROPIC_API_KEY` (the conversation and the tool outputs go to Anthropic; no private data
-exists in this system), or `LLM_PROVIDER=openai_compatible` against the local overlay (nothing
-leaves the site). `oxide-triage doctor` reports whether chat is ready. The agent is limited to
+exists in this system). `oxide-triage doctor` reports whether chat is ready. The agent is limited to
 `agent.max_tool_rounds` tool calls per message (`config/default.yaml`).
 
 ### Using it from Claude Desktop, Claude Cowork or Cursor (MCP)
@@ -402,8 +400,7 @@ cache before copying anything, and refuses to replace a populated cache without 
 `oxide-triage doctor` and the web app's status then name the release, its commit and its build
 date, because a cache has a shelf life and the date is how you know how stale it is. To make a
 bundle from your own warmed cache, `oxide-triage bundle build --out bundle/`; `bundle verify`
-checks one you were handed. The bundle holds no language model: the assistant runs on rules
-unless a local model comes along on the same media (`docker/compose.local-llm.yml`).
+checks one you were handed. The bundle holds no language model: the assistant runs on rules.
 
 ### Keys and environment
 
@@ -412,9 +409,9 @@ unless a local model comes along on the same media (`docker/compose.local-llm.ym
 | `MP_API_KEY` | warming the cache from Materials Project | free, https://next-gen.materialsproject.org/api |
 | `OPENALEX_API_KEY` | optional. Literature counts are fetched per query for the top-ranked candidates (about 50 searches, $0.05). Without a key OpenAlex allows $0.10/day per IP (two queries); a free account's key allows $1/day (twenty) | free account at https://openalex.org |
 | `OPENALEX_MAILTO` | contact email on OpenAlex requests (optional; no rate-limit effect any more) | any contact email |
-| `LLM_PROVIDER` | `none` (default) / `anthropic` / `openai_compatible`. With `none` the assistant is driven by rules; `oxide-triage chat` needs one of the latter two | — |
+| `LLM_PROVIDER` | `none` (default) / `anthropic`. With `none` the assistant is driven by rules; `oxide-triage chat` needs `anthropic` | — |
 | `ANTHROPIC_API_KEY` | only if `LLM_PROVIDER=anthropic` | https://console.anthropic.com |
-| `LLM_BASE_URL`, `LLM_MODEL` | only if `LLM_PROVIDER=openai_compatible` | your vLLM/Ollama endpoint |
+| `LLM_MODEL` | optional with `LLM_PROVIDER=anthropic`; the model for the parse and refute edges | — |
 | `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT` | MCP server defaults (`stdio`, `127.0.0.1`, `8765`) | — |
 | `OXIDE_TRIAGE_ADMIN` | `1` enables editing and cache operations on the Admin page (read-only otherwise) | — |
 | `OXIDE_TRIAGE_SITE_CONFIG` | path of the site overrides file (default `site.yaml` next to the cache; `off` disables) | — |
@@ -631,32 +628,15 @@ loopback only). For LAN access put a reverse proxy with authentication in front 
 server itself has no auth. Desktop apps on the same machine can instead launch `oxide-triage mcp`
 over stdio.
 
-### Optional: a locally hosted language model
-
-`docker/compose.local-llm.yml` adds a vLLM service serving **Qwen3-8B** and points the app at it.
-Nothing leaves the site. The model only parses the request, phrases caveats and drives the tools
-in the assistant, so an 8B model is adequate; the ranking is identical with any provider or
-none. The overlay starts vLLM with tool calling enabled (`--enable-auto-tool-choice
---tool-call-parser hermes`); the chat path is exercised against a fake server in the tests and
-has not yet been verified against a live vLLM.
-
-```bash
-docker compose -f docker/compose.yml -f docker/compose.local-llm.yml up --build -d
-```
-
-Needs an NVIDIA GPU (~18 GB for bf16; use an AWQ build for smaller cards). For CPU-only hosts the
-overlay documents an Ollama swap; the app speaks the OpenAI-compatible protocol either way.
-
 What leaves the site with each provider:
 
 | Provider | Data sent off-site |
 |---|---|
 | `none` | nothing |
-| `openai_compatible` (local) | nothing |
 | `anthropic` | the request text and the *public* structured facts for shortlisted candidates; in the assistant, the conversation and the tool outputs |
 
 No private lab data exists anywhere in this system, so the exposure with a cloud provider is the
-request wording itself. Sites for which that is unacceptable should use the local overlay.
+request wording itself. Sites for which that is unacceptable run with `LLM_PROVIDER=none`.
 
 ### Data sources and what is deliberately excluded
 
@@ -738,7 +718,7 @@ ui/                   React + TypeScript front end (Vite); `npm run build` write
   data/               element_hazards.yaml, cation_allowlist.yaml, compound_aliases.yaml,
                       hygroscopic_oxides.yaml, fixtures/fixture_cache.json
 config/               default.yaml + profiles/
-docker/               Dockerfile, compose.yml (app + mcp), compose.local-llm.yml, mcp-client-config.example.json
+docker/               Dockerfile, compose.yml (app + mcp), compose.offline.yml, mcp-client-config.example.json
 eval/                 run_eval.py, evaluation.ipynb
 docs/                 design-note.md
 tests/

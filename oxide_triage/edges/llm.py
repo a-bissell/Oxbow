@@ -5,9 +5,6 @@ Providers
   none               NullLLM: every call returns None; callers fall back to rules/templates.
   anthropic          Claude via the official SDK (cloud). Request text and *public* structured
                      facts leave the site. No private data exists in this system.
-  openai_compatible  Any OpenAI-style ``/chat/completions`` server: vLLM, Ollama, llama.cpp.
-                     Used for the locally hosted option (see docker/compose.local-llm.yml)
-                     where nothing leaves the site.
 
 Injection boundary
   ``wrap_retrieved`` renders retrieved text as a delimited data block, and ``SYSTEM_PREAMBLE``
@@ -29,8 +26,6 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Protocol
-
-import httpx
 
 from oxide_triage.config import AgentConfig, LLMConfig
 
@@ -129,56 +124,6 @@ class AnthropicLLM:
         return _parse_json(text)
 
 
-def _openai_endpoint(model: str | None, base_url: str | None) -> tuple[str, str]:
-    return (
-        model or os.environ.get("LLM_MODEL") or "Qwen/Qwen3-8B",
-        (base_url or os.environ.get("LLM_BASE_URL") or "http://localhost:8000/v1").rstrip("/"),
-    )
-
-
-def _openai_http_client(timeout_s: float) -> httpx.Client:
-    headers = {"Content-Type": "application/json"}
-    if key := os.environ.get("LLM_API_KEY"):
-        headers["Authorization"] = f"Bearer {key}"
-    # trust_env=False: a local model server must never be reached through an egress proxy.
-    return httpx.Client(timeout=timeout_s, headers=headers, trust_env=False)
-
-
-class OpenAICompatibleLLM:
-    """vLLM / Ollama / llama.cpp server. Kept dependency-free via httpx."""
-
-    def __init__(self, model: str | None, base_url: str | None, timeout_s: float = 60):
-        self.model, self.base_url = _openai_endpoint(model, base_url)
-        self.name = f"openai_compatible:{self.model}@{self.base_url}"
-        self._client = _openai_http_client(timeout_s)
-
-    def complete_json(self, system: str, user: str, schema: dict[str, Any]) -> dict[str, Any] | None:
-        body: dict[str, Any] = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": f"{SYSTEM_PREAMBLE}\n\n{system}"},
-                {
-                    "role": "user",
-                    "content": user + "\n\nReturn JSON matching this schema:\n" + json.dumps(schema),
-                },
-            ],
-            "temperature": 0,
-            "max_tokens": 4096,
-            "response_format": {"type": "json_object"},
-            # Qwen3 thinking mode is unnecessary for constrained JSON and slows local inference.
-            "chat_template_kwargs": {"enable_thinking": False},
-        }
-        try:
-            resp = self._client.post(f"{self.base_url}/chat/completions", json=body)
-            resp.raise_for_status()
-            data = resp.json()
-            text = data["choices"][0]["message"]["content"]
-        except (httpx.HTTPError, KeyError, IndexError, ValueError) as exc:
-            log.warning("Local LLM call failed: %s", exc)
-            return None
-        return _parse_json(text)
-
-
 def _parse_json(text: str | None) -> dict[str, Any] | None:
     if not text:
         return None
@@ -207,8 +152,6 @@ def make_llm(cfg: LLMConfig) -> LLMClient:
         except ImportError:
             log.warning("anthropic SDK not installed; install `oxide-triage[llm]`. Using no LLM.")
             return NullLLM()
-    if cfg.provider == "openai_compatible":
-        return OpenAICompatibleLLM(cfg.model, cfg.base_url, cfg.timeout_s)
     return NullLLM()
 
 
@@ -307,39 +250,6 @@ def anthropic_messages(transcript: list[Turn]) -> list[dict[str, Any]]:
     return out
 
 
-def openai_tools(specs: list[ToolSpec]) -> list[dict[str, Any]]:
-    return [
-        {
-            "type": "function",
-            "function": {"name": s.name, "description": s.description, "parameters": s.input_schema()},
-        }
-        for s in specs
-    ]
-
-
-def openai_messages(system: str, transcript: list[Turn]) -> list[dict[str, Any]]:
-    out: list[dict[str, Any]] = [{"role": "system", "content": system}]
-    for turn in transcript:
-        if isinstance(turn, UserTurn):
-            out.append({"role": "user", "content": turn.text})
-        elif isinstance(turn, AssistantTurn):
-            msg: dict[str, Any] = {"role": "assistant", "content": turn.text or ""}
-            if turn.tool_calls:
-                msg["tool_calls"] = [
-                    {
-                        "id": c.id,
-                        "type": "function",
-                        "function": {"name": c.name, "arguments": json.dumps(c.input)},
-                    }
-                    for c in turn.tool_calls
-                ]
-            out.append(msg)
-        else:
-            for r in turn.results:
-                out.append({"role": "tool", "tool_call_id": r.call_id, "content": r.text})
-    return out
-
-
 # ---- providers -------------------------------------------------------------------------
 
 
@@ -404,72 +314,6 @@ class AnthropicChat:
         )
 
 
-class OpenAICompatibleChat:
-    """vLLM / Ollama / llama.cpp with function calling. Not streamed: ``on_text`` receives the
-    whole reply once, so front ends use the same code path for both providers."""
-
-    def __init__(
-        self,
-        model: str | None,
-        base_url: str | None,
-        timeout_s: float = 300,
-        max_tokens: int = 16000,
-        enable_thinking: bool = True,
-    ):
-        self.model, self.base_url = _openai_endpoint(model, base_url)
-        self.name = f"openai_compatible:{self.model}@{self.base_url}"
-        self.max_tokens = max_tokens
-        self.enable_thinking = enable_thinking
-        self._client = _openai_http_client(timeout_s)
-
-    def chat(
-        self,
-        system: str,
-        transcript: list[Turn],
-        tools: list[ToolSpec],
-        *,
-        allow_tools: bool = True,
-        on_text: TextCallback | None = None,
-    ) -> AssistantTurn:
-        body: dict[str, Any] = {
-            "model": self.model,
-            "messages": openai_messages(system, transcript),
-            "tools": openai_tools(tools),
-            "tool_choice": "auto" if allow_tools else "none",
-            "temperature": 0,
-            "max_tokens": self.max_tokens,
-            "chat_template_kwargs": {"enable_thinking": self.enable_thinking},
-        }
-        resp = self._client.post(f"{self.base_url}/chat/completions", json=body)
-        resp.raise_for_status()
-        data = resp.json()
-        choice = data["choices"][0]
-        message = choice.get("message") or {}
-        text = message.get("content") or ""
-        calls: list[ToolCall] = []
-        for i, tc in enumerate(message.get("tool_calls") or []):
-            fn = tc.get("function") or {}
-            args = fn.get("arguments")
-            if isinstance(args, str):
-                try:
-                    args = json.loads(args) if args.strip() else {}
-                except ValueError:
-                    args = {"_malformed_arguments": args}
-            calls.append(
-                ToolCall(
-                    tc.get("id") or f"call_{i}", fn.get("name", ""), args if isinstance(args, dict) else {}
-                )
-            )
-        if on_text is not None and text:
-            on_text(text)
-        finish = choice.get("finish_reason")
-        stop = {"tool_calls": "tool_use", "length": "max_tokens", "stop": "end_turn"}.get(finish, finish)
-        usage = {k: v for k, v in (data.get("usage") or {}).items() if isinstance(v, int)}
-        return AssistantTurn(
-            text=text, tool_calls=calls, stop_reason=stop, usage=usage, raw_provider="openai"
-        )
-
-
 def chat_availability(cfg: LLMConfig) -> tuple[bool, str]:
     """Can the chat agent run under this configuration? (ok, reason-or-name)."""
     if cfg.provider == "anthropic":
@@ -480,10 +324,7 @@ def chat_availability(cfg: LLMConfig) -> tuple[bool, str]:
         if not os.environ.get("ANTHROPIC_API_KEY") and not os.environ.get("ANTHROPIC_AUTH_TOKEN"):
             return False, "LLM_PROVIDER=anthropic but ANTHROPIC_API_KEY is not set"
         return True, f"anthropic:{os.environ.get('AGENT_MODEL') or cfg.model or DEFAULT_CHAT_MODEL}"
-    if cfg.provider == "openai_compatible":
-        model, base_url = _openai_endpoint(cfg.model, cfg.base_url)
-        return True, f"openai_compatible:{model}@{base_url}"
-    return False, "LLM_PROVIDER is 'none'; set it to anthropic (needs ANTHROPIC_API_KEY) or openai_compatible"
+    return False, "LLM_PROVIDER is 'none'; set it to anthropic (needs ANTHROPIC_API_KEY)"
 
 
 def make_chat_llm(cfg: LLMConfig, agent: AgentConfig | None = None) -> ChatLLM:
@@ -491,9 +332,7 @@ def make_chat_llm(cfg: LLMConfig, agent: AgentConfig | None = None) -> ChatLLM:
     if not ok:
         raise RuntimeError(why)
     agent = agent or AgentConfig()
-    if cfg.provider == "anthropic":
-        # The assistant answers interactively, so latency matters more than at the edges:
-        # Sonnet by default, or agent.model / AGENT_MODEL / LLM_MODEL in that order.
-        model = os.environ.get("AGENT_MODEL") or agent.model or cfg.model or DEFAULT_CHAT_MODEL
-        return AnthropicChat(model, agent.timeout_s, agent.max_tokens)
-    return OpenAICompatibleChat(agent.model or cfg.model, cfg.base_url, agent.timeout_s, agent.max_tokens)
+    # The assistant answers interactively, so latency matters more than at the edges:
+    # Sonnet by default, or agent.model / AGENT_MODEL / LLM_MODEL in that order.
+    model = os.environ.get("AGENT_MODEL") or agent.model or cfg.model or DEFAULT_CHAT_MODEL
+    return AnthropicChat(model, agent.timeout_s, agent.max_tokens)

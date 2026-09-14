@@ -658,10 +658,6 @@ function ModelPage() {
               <td>nothing</td>
             </tr>
             <tr>
-              <td>openai_compatible (local)</td>
-              <td>nothing</td>
-            </tr>
-            <tr>
               <td>anthropic</td>
               <td>the request text, the conversation, and the public structured facts for shortlisted candidates</td>
             </tr>
