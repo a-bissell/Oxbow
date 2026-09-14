@@ -19,6 +19,7 @@ from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Str
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from oxide_triage import __version__
 from oxide_triage.actor import web_actor
 from oxide_triage.bundle import read_release
 from oxide_triage.cache import Cache
@@ -44,6 +45,7 @@ from oxide_triage.edges.render import render
 from oxide_triage.pipeline import add_material, load_fixtures, run_acquisition, warm_cache
 from oxide_triage.selfcheck import read_selfcheck, run_selfcheck
 from oxide_triage.server.agent import TurnRequest, agent_model, driver_name, run_turn
+from oxide_triage.server.auth import install_auth
 from oxide_triage.server.jobs import JobRunner
 from oxide_triage.server.store import SessionStore
 from oxide_triage.session import explain_candidate
@@ -175,8 +177,16 @@ def _sse(event: dict[str, Any]) -> str:
 
 def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = None) -> FastAPI:
     state = AppState(config_dir=config_dir, offline=offline)
-    app = FastAPI(title="Oxbow", version="0.2.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
+    app = FastAPI(title="Oxbow", version=__version__, docs_url="/api/docs", openapi_url="/api/openapi.json")
     app.state.triage = state
+    # A public deployment sets OXBOW_PASSWORD; everything below then sits behind the login
+    # page except /api/health, which a load balancer polls.
+    install_auth(app)
+
+    @app.get("/api/health", include_in_schema=False)
+    def health() -> dict[str, bool]:
+        """Liveness only: nothing about the cache or the configuration, and never gated."""
+        return {"ok": True}
 
     # ---- status and reference data --------------------------------------------------
 
