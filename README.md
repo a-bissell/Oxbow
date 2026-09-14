@@ -21,7 +21,7 @@ The design is in [docs/design-note.md](docs/design-note.md).
 
 ## Install
 
-Python 3.11 or newer.
+Needs Python 3.11 or newer. Docker instructions below.
 
 ```bash
 git clone https://github.com/a-bissell/oxide-triage.git
