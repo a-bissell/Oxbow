@@ -17,7 +17,7 @@ Oxbow ranks candidate materials against explicit criteria for a stated property 
 
 Oxbow runs as a web app, a command line tool, or an MCP server for Claude Desktop, Cowork or Cursor.
 
-The design is in [docs/design-note.md](docs/design-note.md).
+A hosted demo is at [ox-90f340a12770442fba24fc56c1830e71.ecs.us-east-1.on.aws](https://ox-90f340a12770442fba24fc56c1830e71.ecs.us-east-1.on.aws), password on request. The design is in [docs/design-note.md](docs/design-note.md).
 
 ## Install
 
@@ -101,7 +101,7 @@ Anything the request asks for that is outside the shipped policy is listed in th
 
 **A site admin changes the defaults for everyone.** Turn on `OXIDE_TRIAGE_ADMIN=1` and use the Admin panel in the web app, or edit `site.yaml` by hand. Common edits:
 
-- **Ranking criteria.** `weights:` sets the relative weight of stability, band gap, interface, toxicity, simplicity and literature; `figure_of_merit.weight` sets the dielectric constant. `gates:` sets the hard cut-offs (energy above hull, minimum gap, element count).
+- **Ranking criteria.** `weights:` sets the relative weight of stability, band gap, interface, toxicity, simplicity and literature; `figure_of_merit.weight` sets the weight of the profile's figure of merit (the dielectric constant in the default profile). `gates:` sets the hard cut-offs (energy above hull, minimum gap, element count).
 - **Hazard policy.** `toxicity.blocklist_tiers`, `element_blocklist`, `element_allowlist`, and `never_lift` for elements no request may unblock.
 - **Terminology.** `terminology:` maps local vocabulary to canonical terms, for example `hafnia: HfO2` or `hi-k: dielectric`. Add whatever your group says.
 - **Output and verbosity.** `output.default_template` picks how much detail every result carries: `pi_summary` is the one-page summary, `advanced` adds the per-criterion breakdown, `audit` shows every threshold and exclusion, `json` is machine-readable. Also `output.top_k`, `output.tie_band` (how close two scores must be to count as a tie) and `output.group_polymorphs`. For finer control, the templates are Jinja files in `oxide_triage/templates/`; the report is `report.html.j2`.
@@ -139,7 +139,7 @@ Start with `oxbow doctor`, which reports on keys, cache health and the known-ans
 
 `oxbow eval` runs the suite on the demo fixture; add `--live-cache` for real data. It covers a normal request, adversarial requests, a known-answer check, determinism, and missing-data handling.
 
-On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The full cases and expected behavior are in [docs/evaluation.md](docs/evaluation.md); the last live run is in [autodocs/live-evaluation.md](autodocs/live-evaluation.md). The reasoning behind the request/ranking separation is in the design note.
+On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The cases are in [eval/run_eval.py](eval/run_eval.py); the last live run is in [autodocs/live-evaluation.md](autodocs/live-evaluation.md). The reasoning behind the request/ranking separation is in the design note.
 
 ## Development
 
