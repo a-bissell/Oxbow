@@ -89,20 +89,16 @@ function Header({ result, rid, view, setView }: { result: TriageResult; rid: str
           </div>
         </div>
         <div className="row">
+          {/* The advanced summary and JSON stay on the API (/api/results/{id}/render/...) for the
+              assistant, the CLI and scripts; the row shows only what a person downloads. */}
           <a className="btn btn--sm" href={api.renderUrl(rid, "pi_summary")} download>
             Summary
-          </a>
-          <a className="btn btn--sm" href={api.renderUrl(rid, "advanced")} download>
-            Advanced
           </a>
           <a className="btn btn--sm" href={api.renderUrl(rid, "audit")} download>
             Audit
           </a>
           <a className="btn btn--sm" href={api.renderUrl(rid, "html")} download>
             Report
-          </a>
-          <a className="btn btn--sm" href={api.renderUrl(rid, "json")} download>
-            JSON
           </a>
         </div>
       </div>

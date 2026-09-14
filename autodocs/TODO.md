@@ -144,7 +144,8 @@ Ideas / planned work for this project.
       substrate / literature), one caveat each, ties stated in a sentence, deviations and
       not-acted-on lines kept, hashes in one footer line. The previous summary is the
       `advanced` template, between it and `audit`; the assistant reads `advanced` so its answers
-      keep their detail. Canvas downloads: Summary, Advanced, Audit, JSON, Report.
+      keep their detail. Canvas downloads: Summary, Audit, Report; `advanced` and `json` stay on
+      the API for the assistant, the CLI and scripts.
 - [x] **Interactive Agent UI** — done 2026-09-10: chat beside a results canvas, click a
       candidate to focus it, compare, rerun with a diff, clarify-before-run in the
       conversation. The assistant drives the same tools the MCP server exposes through the
