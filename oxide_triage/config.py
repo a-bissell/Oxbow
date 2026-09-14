@@ -68,7 +68,6 @@ ENV_KEYS: dict[str, str] = {
     "cache.offline": "OXIDE_TRIAGE_OFFLINE",
     "llm.provider": "LLM_PROVIDER",
     "llm.model": "LLM_MODEL",
-    "llm.base_url": "LLM_BASE_URL",
 }
 
 # The six criteria every material class wants: thermodynamic stability, an insulating gap (a
@@ -305,9 +304,8 @@ class LLMUseFor(BaseModel):
 
 
 class LLMConfig(BaseModel):
-    provider: Literal["none", "anthropic", "openai_compatible"]
+    provider: Literal["none", "anthropic"]
     model: str | None = None
-    base_url: str | None = None
     timeout_s: float = 60
     use_for: LLMUseFor = Field(default_factory=LLMUseFor)
 

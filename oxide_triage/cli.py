@@ -76,9 +76,7 @@ def query(
         None, "--offline/--online", help="Force cache-only or allow fetches."
     ),
     out: Path | None = typer.Option(None, "--out", "-o", help="Write output to this file."),
-    llm: str | None = typer.Option(
-        None, "--llm", help="Override provider: none | anthropic | openai_compatible"
-    ),
+    llm: str | None = typer.Option(None, "--llm", help="Override provider: none | anthropic"),
     yes: bool = typer.Option(False, "--yes", "-y", help="Skip clarification questions and run."),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
@@ -384,7 +382,7 @@ def chat(
     offline: bool | None = typer.Option(
         None, "--offline/--online", help="Force cache-only or allow fetches."
     ),
-    llm: str | None = typer.Option(None, "--llm", help="Override provider: anthropic | openai_compatible"),
+    llm: str | None = typer.Option(None, "--llm", help="Override provider: anthropic"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
     """Talk to the agent in the terminal. The model drives the same tools the MCP server and the

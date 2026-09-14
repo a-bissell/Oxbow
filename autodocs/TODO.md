@@ -106,23 +106,13 @@ Ideas / planned work for this project.
 
 ## Local language model
 
-- [ ] **Remove the locally hosted model path; it is out of scope.** The project ships two
-      drivers a reviewer can use, rules only (no key) and Anthropic, and the local path was a
-      third that nobody runs: a vLLM + NVIDIA compose overlay (`docker/compose.local-llm.yml`)
-      with Qwen-specific settings in the edge client. Keeping it means a serving story, a
-      per-model profile, recorded model responses and a weights asset for the offline release,
-      none of which the brief asks for. Remove rather than replace:
-      - `oxide_triage/edges/llm.py`: the `openai_compatible` provider and the Qwen defaults
-        (model name, thinking-mode switch, Hermes tool-call assumptions); the provider enum in
-        `config/default.yaml`, `oxide_triage/config.py`, `doctor.py` and the CLI `--llm` help.
-      - `docker/compose.local-llm.yml`, its reference in `docker/compose.yml` and
-        `docker/OFFLINE.md`; the `LLM_BASE_URL` block in `.env.example`.
-      - README "A locally hosted model" and the design note's deployment paragraph, rewritten
-        to say the model is Anthropic or nothing; the agent UI's driver label.
-      - The tests that exercise the provider (`tests/test_agent.py`, `test_config.py`,
-        `test_review_fixes.py`) and the deployment follow-up for a local-model asset.
-      The privacy argument the local path made ("nothing leaves the site") still holds for the
-      rules-only driver, which is the offline release's driver anyway.
+- [x] **Remove the locally hosted model path** — done 2026-09-14: the `openai_compatible`
+      provider, its edge and chat clients and wire-format helpers, the Qwen defaults,
+      `llm.base_url`, `LLM_BASE_URL` and `LLM_API_KEY`, `docker/compose.local-llm.yml` and every
+      mention in the READMEs, the offline note, the env example and the admin panel. The two
+      drivers left are rules (no key) and Anthropic. A local model was a third path nobody ran,
+      and it carried a serving story, a per-model profile and a weights asset the brief never
+      asked for.
 
 ## UI
 
@@ -144,7 +134,8 @@ Ideas / planned work for this project.
       substrate / literature), one caveat each, ties stated in a sentence, deviations and
       not-acted-on lines kept, hashes in one footer line. The previous summary is the
       `advanced` template, between it and `audit`; the assistant reads `advanced` so its answers
-      keep their detail. Canvas downloads: Summary, Advanced, Audit, JSON, Report.
+      keep their detail. Canvas downloads: Summary, Audit, Report; `advanced` and `json` stay on
+      the API for the assistant, the CLI and scripts.
 - [x] **Interactive Agent UI** — done 2026-09-10: chat beside a results canvas, click a
       candidate to focus it, compare, rerun with a diff, clarify-before-run in the
       conversation. The assistant drives the same tools the MCP server exposes through the

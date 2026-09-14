@@ -162,7 +162,7 @@ def test_selfcheck_makes_no_model_calls(monkeypatch):
     import oxide_triage.pipeline as pl
 
     monkeypatch.setattr(pl, "make_llm", lambda cfg: Counting())
-    monkeypatch.setenv("LLM_PROVIDER", "openai_compatible")
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic")
     cfg = load_config("default")
     cache = Cache(":memory:")
     load_fixtures(cfg, cache)  # runs the self-check

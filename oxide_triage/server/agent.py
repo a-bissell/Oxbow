@@ -6,8 +6,8 @@ calls, prose and follow-up suggestions. Two drivers decide which tools to call:
 
 * ``RulesDriver`` routes by intent with rules and narrates from the result object. It needs no
   model and no key, so the assistant works everywhere the CLI works.
-* ``ModelDriver`` runs the shared ``oxide_triage.agent.Agent`` (Anthropic tool use, or an
-  OpenAI-compatible local model) over the same tools, with its number guard. If the model fails
+* ``ModelDriver`` runs the shared ``oxide_triage.agent.Agent`` (Anthropic tool use) over the
+  same tools, with its number guard. If the model fails
   mid-turn the rules driver answers that turn and says so.
 
 Both go through ``WebToolBox``, the shared ``ToolBox`` with visible steps: every call is emitted
