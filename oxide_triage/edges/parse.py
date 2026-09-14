@@ -334,6 +334,8 @@ def rule_parse(
         kw["output_template"] = "json"
     elif hit(re.search(r"\bhtml\b|\bweb report\b|\bprintable report\b", t, re.I)):
         kw["output_template"] = "html"
+    elif hit(re.search(r"\b(advanced|detailed) (summary|view|report)\b", t, re.I)):
+        kw["output_template"] = "advanced"
     elif hit(re.search(r"\b(summary|brief|one screen|plain language|for the PI|non-technical)\b", t, re.I)):
         kw["output_template"] = "pi_summary"
 
@@ -403,7 +405,10 @@ def criteria_schema(criteria: Collection[str]) -> dict[str, Any]:
             },
             # anyOf rather than a null inside the enum: the Anthropic schema grammar rejects the latter.
             "output_template": {
-                "anyOf": [{"type": "string", "enum": ["pi_summary", "audit", "json"]}, {"type": "null"}]
+                "anyOf": [
+                    {"type": "string", "enum": ["pi_summary", "advanced", "audit", "json"]},
+                    {"type": "null"},
+                ]
             },
             "interpretation_notes": {"type": "array", "items": {"type": "string"}},
             # The substrate the request names for the interface criterion, as a formula (Ge,

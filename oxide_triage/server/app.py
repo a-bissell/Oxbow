@@ -388,8 +388,8 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
         result = state.store.get_result(rid)
         if result is None:
             raise HTTPException(404, "no such result")
-        if template not in {"pi_summary", "audit", "json", "html"}:
-            raise HTTPException(400, "template must be pi_summary, audit, json or html")
+        if template not in {"pi_summary", "advanced", "audit", "json", "html"}:
+            raise HTTPException(400, "template must be pi_summary, advanced, audit, json or html")
         text = render(result, template)
         media = {"json": "application/json", "html": "text/html"}.get(template, "text/markdown")
         ext = {"json": "json", "html": "html"}.get(template, "md")

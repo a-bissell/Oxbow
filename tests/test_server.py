@@ -197,7 +197,7 @@ def test_result_downloads(client):
     conv = client.post("/api/conversations", json={}).json()
     final, _ = turn(client, conv["id"], text=PI)
     rid = final["result_id"]
-    for tmpl in ("pi_summary", "audit", "json", "html"):
+    for tmpl in ("pi_summary", "advanced", "audit", "json", "html"):
         r = client.get(f"/api/results/{rid}/render/{tmpl}")
         assert r.status_code == 200 and "attachment" in r.headers["content-disposition"]
     assert client.get(f"/api/results/{rid}/render/nope").status_code == 400

@@ -269,7 +269,8 @@ def rule_caveats(sc: ScoredCandidate, eff: Effective, config: Config) -> list[Ca
         add(
             "metastable",
             "info" if e_hull <= 0.025 else "warning",
-            f"{e_hull * 1000:.0f} meV/atom above the convex hull: not the computed ground state; "
+            (f"{e_hull * 1000:.1f}" if e_hull * 1000 < 1 else f"{e_hull * 1000:.0f}")
+            + " meV/atom above the convex hull: not the computed ground state; "
             "may transform or phase-separate depending on processing.",
             e_hull_ev_atom=e_hull,
         )

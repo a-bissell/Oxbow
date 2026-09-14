@@ -102,6 +102,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
     def normal() -> tuple[bool, str]:
         res = run(PI)
         (out_dir / "normal_pi_summary.md").write_text(render(res, "pi_summary"), encoding="utf-8")
+        (out_dir / "normal_advanced.md").write_text(render(res, "advanced"), encoding="utf-8")
         (out_dir / "normal_audit.md").write_text(render(res, "audit"), encoding="utf-8")
         (out_dir / "normal_result.json").write_text(render(res, "json"), encoding="utf-8")
         if not res.shortlist:

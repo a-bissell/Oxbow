@@ -270,7 +270,7 @@ function ProfilesPage() {
                 <Num value={get(edited, "output.top_k")} min={1} max={50} onChange={(v) => update("output.top_k", v)} />
               </FieldRow>
               <FieldRow label="Default template" shipped={sh("output.default_template")}>
-                <Select value={get(edited, "output.default_template")} options={["pi_summary", "audit", "json", "html"]} onChange={(v) => update("output.default_template", v)} />
+                <Select value={get(edited, "output.default_template")} options={["pi_summary", "advanced", "audit", "json", "html"]} onChange={(v) => update("output.default_template", v)} />
               </FieldRow>
             </div>
           </div>
