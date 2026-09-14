@@ -74,6 +74,15 @@ class AppState:
         self._universe: tuple[str, list[frozenset[str]]] | None = None  # (fingerprint, cations per material)
         self._lock = threading.Lock()
         self._turn_locks: dict[str, threading.Lock] = {}
+        # The first status call needs the universe; compute it now, off the request path, so the
+        # first page load and the deployment's health check do not pay for it.
+        threading.Thread(target=self._warm_universe, name="warm-universe", daemon=True).start()
+
+    def _warm_universe(self) -> None:
+        try:
+            self.universe()
+        except Exception as exc:  # an empty or missing cache is a normal first-run state
+            log.info("universe not warmed: %s", exc)
 
     def load_config(self, profile: str = "default") -> Config:
         return load_config(profile, config_dir=self.config_dir)
@@ -85,7 +94,11 @@ class AppState:
     # ---- universe -------------------------------------------------------------------
 
     def universe(self) -> list[frozenset[str]]:
-        """Cation sets of every material in the cache, memoised on the cache fingerprint."""
+        """Cation sets of every material in the cache, memoised on the cache fingerprint.
+
+        Read from the cached summaries only: the count needs each material's elements, not
+        the assembled record, and assembling every record (hull arithmetic included) took
+        tens of seconds on a live cache, which was the first page load's wait."""
         cfg = self.load_config("default")
         cache = Cache(cfg.cache.path)
         try:
@@ -95,12 +108,15 @@ class AppState:
                     return self._universe[1]
             layer = DataLayer.from_config(cfg, cache=cache, offline=True)
             try:
-                records = layer.build_candidates()
+                sets: list[frozenset[str]] = []
+                for mid in layer.universe_ids():
+                    doc, _ = layer.mp.summary(mid)
+                    if doc is not None:
+                        sets.append(frozenset(str(e) for e in doc.get("elements", []) if e != "O"))
             finally:
                 layer.close()
         finally:
             cache.close()
-        sets = [frozenset(e for e in r.elements if e != "O") for r in records]
         with self._lock:
             self._universe = (fp, sets)
         return sets
