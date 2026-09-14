@@ -53,6 +53,9 @@ log = logging.getLogger(__name__)
 
 UI_DIST = Path(__file__).resolve().parent.parent / "ui" / "dist"
 
+# Seconds between keepalive comments on a turn's event stream while nothing else is sent.
+SSE_KEEPALIVE_S = 15.0
+
 GREETINGS = [
     "This band gap isn’t going to tunnel itself. Where should we start?",
     "On the lookout for a stable perovskite?",
@@ -74,6 +77,15 @@ class AppState:
         self._universe: tuple[str, list[frozenset[str]]] | None = None  # (fingerprint, cations per material)
         self._lock = threading.Lock()
         self._turn_locks: dict[str, threading.Lock] = {}
+        # The first status call needs the universe; compute it now, off the request path, so the
+        # first page load and the deployment's health check do not pay for it.
+        threading.Thread(target=self._warm_universe, name="warm-universe", daemon=True).start()
+
+    def _warm_universe(self) -> None:
+        try:
+            self.universe()
+        except Exception as exc:  # an empty or missing cache is a normal first-run state
+            log.info("universe not warmed: %s", exc)
 
     def load_config(self, profile: str = "default") -> Config:
         return load_config(profile, config_dir=self.config_dir)
@@ -85,7 +97,11 @@ class AppState:
     # ---- universe -------------------------------------------------------------------
 
     def universe(self) -> list[frozenset[str]]:
-        """Cation sets of every material in the cache, memoised on the cache fingerprint."""
+        """Cation sets of every material in the cache, memoised on the cache fingerprint.
+
+        Read from the cached summaries only: the count needs each material's elements, not
+        the assembled record, and assembling every record (hull arithmetic included) took
+        tens of seconds on a live cache, which was the first page load's wait."""
         cfg = self.load_config("default")
         cache = Cache(cfg.cache.path)
         try:
@@ -95,12 +111,15 @@ class AppState:
                     return self._universe[1]
             layer = DataLayer.from_config(cfg, cache=cache, offline=True)
             try:
-                records = layer.build_candidates()
+                sets: list[frozenset[str]] = []
+                for mid in layer.universe_ids():
+                    doc, _ = layer.mp.summary(mid)
+                    if doc is not None:
+                        sets.append(frozenset(str(e) for e in doc.get("elements", []) if e != "O"))
             finally:
                 layer.close()
         finally:
             cache.close()
-        sets = [frozenset(e for e in r.elements if e != "O") for r in records]
         with self._lock:
             self._universe = (fp, sets)
         return sets
@@ -318,8 +337,15 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
         threading.Thread(target=work, name=f"turn-{cid}", daemon=True).start()
 
         async def events() -> AsyncIterator[str]:
+            # A turn can be silent for a minute or more while the model argues against each
+            # candidate. Proxies and load balancers close an idle stream (60 s is a common
+            # default), so send an SSE comment at intervals; clients ignore comment lines.
             while True:
-                ev = await queue.get()
+                try:
+                    ev = await asyncio.wait_for(queue.get(), timeout=SSE_KEEPALIVE_S)
+                except TimeoutError:
+                    yield ": keepalive\n\n"
+                    continue
                 if ev is None:
                     yield _sse({"type": "end"})
                     return
