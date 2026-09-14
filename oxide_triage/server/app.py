@@ -53,6 +53,9 @@ log = logging.getLogger(__name__)
 
 UI_DIST = Path(__file__).resolve().parent.parent / "ui" / "dist"
 
+# Seconds between keepalive comments on a turn's event stream while nothing else is sent.
+SSE_KEEPALIVE_S = 15.0
+
 GREETINGS = [
     "This band gap isn’t going to tunnel itself. Where should we start?",
     "On the lookout for a stable perovskite?",
@@ -334,8 +337,15 @@ def create_app(config_dir: Path = DEFAULT_CONFIG_DIR, offline: bool | None = Non
         threading.Thread(target=work, name=f"turn-{cid}", daemon=True).start()
 
         async def events() -> AsyncIterator[str]:
+            # A turn can be silent for a minute or more while the model argues against each
+            # candidate. Proxies and load balancers close an idle stream (60 s is a common
+            # default), so send an SSE comment at intervals; clients ignore comment lines.
             while True:
-                ev = await queue.get()
+                try:
+                    ev = await asyncio.wait_for(queue.get(), timeout=SSE_KEEPALIVE_S)
+                except TimeoutError:
+                    yield ": keepalive\n\n"
+                    continue
                 if ev is None:
                     yield _sse({"type": "end"})
                     return
