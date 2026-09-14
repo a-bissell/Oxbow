@@ -13,164 +13,133 @@
 </p>
 
 # Oxbow
+Oxbow ranks candidate materials against explicit criteria for a stated property (dielectric constant, thermal conductivity, whatever the active profile scores for) drawing on public data from Materials Project, OQMD, OpenAlex and PubChem. Every number in the shortlist traces to a source and every data gap is named. The ranking is deterministic code over a local cache, so the same request against the same cache gives the same answer. The Claude-backed assistant interprets the request and answers follow-ups, but never changes a number, a rank or a citation. 
 
-**An agentic research assistant with a fully deterministic core**
+Oxbow runs as a web app, a command line tool, or an MCP server for Claude Desktop, Cowork or Cursor.
 
-Oxbow is a materials-triage system for a research center: it ranks known candidate materials from public data against explicit criteria and returns a shortlist where every number traces to a source and every gap is named. It ships instantiated for two material classes, oxide dielectrics for thin-film gate stacks (the worked example from the brief) and thermal barrier coatings, and a third class is a configuration profile away.
+The design is in [docs/design-note.md](docs/design-note.md).
 
-The ranking process is fully deterministic, and every number has a traceable provenance back to open-access, publicly available data. Each natural language request is parsed into a validated structure; filtering, scoring, and ranking are performed by code-based tools; a refutation pass argues against each shortlisted candidate; the result is rendered through editable templates. The same query against the same cache returns the same answer.
+## Install
 
-Oxbow was designed from the ground up with deep LLM integration in mind. The model acts as a research assistant; it interprets user requests with some flexibility and states caveats, it engages in followups conversationally and can help clarify or explain anything in the report. Nothing it says can change a number, a rank, or a citation (see docs/design-note.md for a deeper dive on this)
-
-If needed, the whole system can be run offline with no language model at all. With no model attached, the rules-based heuristics engine kicks in and supports natural language based querying and simple followup workflows. 
-
-The Oxbow web app is the premiere interface. It features a dynamic and interactive reporting window, auditing tools, an admin panel, and allows users to complete entire workflows in one place. Optionally, we include an MCP server so scientists can fit it inside their existing workflows in Claude Cowork, Cursor, Hermes Agent etc. 
-
-For the old school Linux types: yes there is also a CLI
-
-
-## Quick start
-
-Offline with demo data:
+Python 3.11 or newer.
 
 ```bash
-pip install -e ".[app]"
-oxbow load-fixtures          # synthetic demo data
-oxbow serve --open           # the web app; or: oxbow query --offline
+git clone https://github.com/a-bissell/oxide-triage.git
+cd oxide-triage
+pip install -e ".[app,llm]"
+cp .env.example .env
 ```
 
-`oxbow` and `oxide-triage` are the same command. Real data needs a free Materials Project key
-and `oxbow warm-cache`; see [Installing](#installing).
+Two keys go in `.env`:
 
-<!-- Optional: one screenshot of the web app here (docs/screenshots/...). -->
+- `ANTHROPIC_API_KEY`, with `LLM_PROVIDER=anthropic`, for the assistant. This is the intended experience: the model reads the request, explains the shortlist and handles follow-ups.
+- `MP_API_KEY`, a free Materials Project key, for real data.
 
-## What it does
-
-<!-- The PI's request as a blockquote, then how the answer is produced: parsed into a validated
-     structure; filtering, scoring and ranking as plain code over cached public data; a
-     refutation pass arguing against each shortlisted candidate; rendered through editable
-     templates. Same query + same cache = same answer. -->
-
-<!-- The three ways to run it: CLI, web app (assistant beside a results canvas, admin panel),
-     MCP server (Claude Desktop, Claude Cowork, Cursor). -->
-
-## For scientists
-
-### Writing a request
-
-<!-- Plain English. The vocabulary table (top 10, band gap above 5 eV, lead-free, include lead
-     compounds, prioritize dielectric constant, audit view ...). -->
-
-### Reading the output
-
-<!-- PI summary, audit view, JSON, HTML report. Then the things to know before trusting a
-     number: DFT band gaps and the correction, sparse dielectric constants (unknown is not
-     zero), stability is bulk thermodynamics, a shortlist entry is a conjecture. -->
-
-### Following up
-
-<!-- Focus a candidate, explain, compare, rerun with a change, what was excluded and why.
-     Confirmation before a change that lifts a hazard block or moves a gate. -->
-
-### From Claude Desktop, Cowork or Cursor (MCP)
-
-<!-- The client config snippet and the tool list. -->
-
-### What it will not do
-
-<!-- Trigger anything in the lab; fabricate evidence; enter a mode where the constraints are
-     lifted. One line each on what happens instead. -->
-
-## Installing
-
-### With Docker
+Warm the cache once (a few minutes), then start the app:
 
 ```bash
-cp .env.example .env                      # set MP_API_KEY (free)
-docker compose -f docker/compose.yml up --build
-docker compose -f docker/compose.yml run --rm app oxbow warm-cache
-```
-
-### Without Docker
-
-```bash
-pip install -e ".[web,llm]"
 oxbow warm-cache
-oxbow serve
+oxbow serve --open
 ```
 
-### Airgapped (offline) install
+`oxbow` and `oxide-triage` are the same command.
 
-Every tagged release ships the whole deployment for a off-network machines: self-checked data cache w/ manifest, the container image, and the package
-with every dependency as wheels. The release workflow loads the image with the network disabled
-and runs the install, the self-check and the PI's example request before anything is published.
-Install steps are in [`docker/OFFLINE.md`](docker/OFFLINE.md).
+### Other ways to run
 
-<!-- A sentence on why this exists: the two ends of the deployment spectrum. -->
+- **No keys.** `oxbow load-fixtures` installs synthetic demo data instead of warming the cache. With no Anthropic key (or `LLM_PROVIDER=none`) the assistant is driven by rules: it understands the request vocabulary below and simple follow-ups, but does not converse. The ranking is the same either way.
+- **Docker.** `cp .env.example .env`, then `docker compose -f docker/compose.yml up --build` serves on port 8000. Warm the cache with `docker compose -f docker/compose.yml run --rm app oxbow warm-cache`.
+- **No network.** Each tagged release ships a container image, all wheels, and a pre-warmed, checksummed data cache. Steps are in [docker/OFFLINE.md](docker/OFFLINE.md).
 
-### Keys and environment
+## Run
 
-| Variable | Needed for |
-|---|---|
+**Web app.** `oxbow serve --open`. Type a request in plain English; the shortlist, caveats and audit trail appear beside the chat. With a model attached, follow-ups ("why is ZrO2 fifth?", "rerun without lanthanum", "what does this caveat mean?") work in the same conversation. Every number the assistant quotes comes from a tool call; a number that does not is flagged. Summary, Audit and Report downloads are on the canvas.
+
+**Command line.**
+
+```bash
+oxbow query                                   # the brief's example request
+oxbow query "top 10 lead-free oxides with band gap above 5 eV"
+oxbow query -p conservative -t audit          # a profile and an output format
+oxbow report --out report.html                # self-contained HTML report with eval checks
+oxbow chat                                    # the assistant in the terminal (needs a model)
+```
+
+**MCP server.** `oxbow mcp` starts a stdio server; drop `docker/mcp-client-config.example.json` into your client's MCP config. The tools are the same ones the web assistant uses.
+
+Keys and environment go in `.env` (loaded automatically) or the shell:
+
+| Variable | Purpose |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | the assistant; set `LLM_PROVIDER=anthropic` alongside it |
+| `LLM_PROVIDER` | `anthropic` (recommended) or `none` for the rules-only fallback |
+| `LLM_MODEL` / `AGENT_MODEL` | optional model overrides for the parse/refute edges and the assistant |
 | `MP_API_KEY` | warming the cache from Materials Project (free) |
-| `OPENALEX_API_KEY` | optional; literature counts beyond the free daily budget |
-| `LLM_PROVIDER` | `none` (default, rules-driven assistant) or `anthropic` |
-| `ANTHROPIC_API_KEY` | only with `LLM_PROVIDER=anthropic` |
-| `LLM_MODEL` | optional with `LLM_PROVIDER=anthropic`; the model for the parse and refute edges |
+| `OPENALEX_API_KEY` | optional; more literature lookups per day |
 | `OXIDE_TRIAGE_CACHE` | path of the SQLite cache (default `data/cache.sqlite`) |
-| `OXIDE_TRIAGE_OFFLINE` | `1` forces cache-only operation |
-| `OXIDE_TRIAGE_ADMIN` | `1` enables editing and cache jobs in the admin panel |
-| `OXIDE_TRIAGE_CONFIG_DIR` | directory holding `default.yaml` and `profiles/` outside a checkout |
+| `OXIDE_TRIAGE_OFFLINE` | `1` forbids all network fetches |
+| `OXIDE_TRIAGE_ADMIN` | `1` lets the admin panel edit settings and run cache jobs |
+| `OXIDE_TRIAGE_CONFIG_DIR` | directory holding `default.yaml` and `profiles/` when not running from a checkout |
+| `OXBOW_PASSWORD` | optional shared password in front of the web app |
 
-A `.env` in the working directory or the repository root is loaded automatically.
+## Adjusting it
 
-## For admins
+Settings are layered: `config/default.yaml` holds every knob with a comment, a profile in `config/profiles/` overrides some of them, the site's own edits go in `site.yaml` next to the cache, and a request can adjust a few things for one run. `oxbow config --changed-only` prints what is in force and where it came from. Every departure from the shipped policy is printed on every result, so a reader always knows which rules produced the ranking.
 
-### The candidate universe and the cache
+**A scientist changes things in the request itself.** No files, no restart:
 
-<!-- What is fetched at warm time (Materials Project) and per query (OQMD, PubChem, OpenAlex);
-     the self-check before serving; retrieval completeness and why a ranking can refuse to be a
-     ranking; adaptive acquisition. -->
+| Say | Effect |
+| --- | --- |
+| "top 10" | shortlist length |
+| "band gap above 5 eV", "only on-hull" | gate thresholds for this run |
+| "prioritize the dielectric constant" | weight that criterion up |
+| "lead-free", "no lanthanum" | exclude elements |
+| "include lead" | permit a blocked element; asked to confirm, then logged |
+| "on germanium" | substrate for the interface check |
+| "audit view", "as json" | output format |
 
-### Configuration and profiles
+Anything the request asks for that is outside the shipped policy is listed in the header of the result as a deviation.
 
-`config/default.yaml` holds every knob; the profiles under `config/profiles/` are partial overrides on it, and the admin panel writes a site overrides file (`site.yaml` next to the cache) rather than the shipped YAML. Every site departure from the shipped policy is printed as a deviation on every result.
+**A site admin changes the defaults for everyone.** Turn on `OXIDE_TRIAGE_ADMIN=1` and use the Admin panel in the web app, or edit `site.yaml` by hand. Common edits:
 
-| Profile | Figure of merit | What it changes |
-|---|---|---|
-| `default` | dielectric constant (DFPT, Materials Project) | balanced oxide-dielectric triage on Si |
-| `conservative` | dielectric constant | tighter gates, tier-1 hazards blocked, literature weighted up |
-| `exploratory` | dielectric constant | wider hull and gap windows, missing data penalised lightly |
-| `ferroelectric-research` | dielectric constant | Pb and Bi permitted and flagged, lower gap bar |
-| `thermal-barrier` | minimum thermal conductivity (Clarke, from Materials Project elastic tensors; lower is better) | alumina substrate, no gap gate, its own cation universe and workhorses |
+- **Ranking criteria.** `weights:` sets the relative weight of stability, band gap, interface, toxicity, simplicity and literature; `figure_of_merit.weight` sets the dielectric constant. `gates:` sets the hard cut-offs (energy above hull, minimum gap, element count).
+- **Hazard policy.** `toxicity.blocklist_tiers`, `element_blocklist`, `element_allowlist`, and `never_lift` for elements no request may unblock.
+- **Terminology.** `terminology:` maps local vocabulary to canonical terms, for example `hafnia: HfO2` or `hi-k: dielectric`. Add whatever your group says.
+- **Output and verbosity.** `output.default_template` picks how much detail every result carries: `pi_summary` is the one-page summary, `advanced` adds the per-criterion breakdown, `audit` shows every threshold and exclusion, `json` is machine-readable. Also `output.top_k`, `output.tie_band` (how close two scores must be to count as a tie) and `output.group_polymorphs`. For finer control, the templates are Jinja files in `oxide_triage/templates/`; the report is `report.html.j2`.
 
-A profile for another class replaces the `figure_of_merit:` block (property, provider, label, units, curve, weight, missing-data handling, request vocabulary), the substrate, the cation allowlist and the self-check's workhorse list. See section 6 of the design note.
+Or pick a shipped profile with `-p` on the command line or in the web app:
 
-### What sites feed back to the platform team
+| Profile | What it changes |
+| --- | --- |
+| `default` | balanced oxide-dielectric triage on silicon |
+| `conservative` | tighter gates, tier-1 hazards blocked, literature weighted up |
+| `exploratory` | wider hull and gap windows, missing data penalized lightly |
+| `ferroelectric-research` | lead and bismuth permitted and flagged, lower gap bar |
+| `thermal-barrier` | a different material class: ranks for minimum thermal conductivity on alumina |
 
-Two Admin panels report on the two append-only logs written next to the cache. They are read-only: nothing in them changes a default, and a person who reads them edits a profile or the overlay.
+A new profile is a YAML file in `config/profiles/` that overrides only what differs. Ranking for a different property means replacing the `figure_of_merit:` block, as `thermal-barrier.yaml` does.
 
-- **Deviations log** (`deviations.jsonl`): every run that departed from shipped policy, and a summary by gate and by who decided. `request` means a scientist worked around the defaults in the request itself; if it repeats, retune the profile for that group. `site` means an admin already decided the shipped default is wrong here. `profile` and `cli` are expected.
-- **Data gaps** (`retrieval.jsonl`): per criterion, how often the ranked candidates lacked the value, split by why. *Absent* means no permitted public source holds it, so the fix is a new source or a measurement. *Not retrieved* means this cache never fetched it, so the fix is ops: check Sources & limits, then warm the cache.
+**A field deployment engineer sets things up once per site:**
 
-Both files grow without bound; rotate them with the site's usual tooling, since nothing reads them back into a run.
+- `oxbow bundle build` packages a warmed cache with a manifest; `oxbow bundle verify` and `oxbow bundle install` load it on a machine with no network. See [docker/OFFLINE.md](docker/OFFLINE.md).
+- `OXIDE_TRIAGE_CONFIG_DIR` points an installed wheel at a directory of config files outside a checkout; `OXIDE_TRIAGE_CACHE` places the cache and, with it, `site.yaml` and the logs.
+- Two append-only logs next to the cache, `deviations.jsonl` and `retrieval.jsonl`, record every run that departed from policy and every data gap. The Admin panel summarizes them. Rotate them with the site's usual tooling.
 
-### Data sources
+## Troubleshooting
 
-| Source | Used for | Access |
-|---|---|---|
-| Materials Project | candidate universe, hull energy, band gap and functional, DFPT dielectric, symmetry | free API key |
-| OQMD | independent hull distance; agreement is evidence, disagreement is a caveat | public |
-| OpenAlex | literature evidence: works matching the compound, and the thin-film subset | public |
-| PubChem | compound-level GHS hazard statements where a record exists | public |
-| shipped tables | element hazard tiers, hygroscopic oxides, cation families, compound aliases | in repo |
+Start with `oxbow doctor`, which reports on keys, cache health and the known-answer test.
 
-<!-- The "excluded on purpose" paragraph: ICSD, Scopus, Web of Science and why the result is
-     auditable because of it. -->
+| Symptom | Cause and fix |
+| --- | --- |
+| Empty shortlist, or every candidate excluded | Cache not warmed, or gates too tight for the request. Run `oxbow warm-cache`, then `oxbow config --changed-only` to see the gates in force. |
+| `serve` refuses to start after a cache warm | The self-check found that the workhorse dielectrics (HfO2, ZrO2, Al2O3, Ta2O5) did not surface where they should. Re-run `oxbow selfcheck` for the failing case; a partial warm is the usual cause. |
+| Data looks stale, or literature lookups are missing | Check `retrieval.jsonl` for the gaps, then re-warm. `OPENALEX_API_KEY` raises the daily literature limit. |
+| Assistant does not respond, or replies in fixed phrasing | No model attached. Confirm `ANTHROPIC_API_KEY` and `LLM_PROVIDER=anthropic`; without them the rules-only fallback is running and the ranking is unaffected. |
 
-## Design
+## Evaluation
 
-Six of the seven scoring criteria are what any material class wants: thermodynamic stability, an insulating gap (which a profile may zero), stability against the substrate, a hazard screen, compositional simplicity and public literature evidence. The seventh is the application's figure of merit, declared by the profile: the dielectric constant for the oxide-dielectric profiles, Clarke's minimum thermal conductivity for the thermal-barrier one. The model lives only at the edges; the ranking is plain code over cached public data. The design note is [docs/design-note.md](docs/design-note.md); the generated documents (evaluation report, ranking decisions, sample report) live under [autodocs/](autodocs/).
+`oxbow eval` runs the suite on the demo fixture; add `--live-cache` for real data. It covers a normal request, adversarial requests, a known-answer check, determinism, and missing-data handling.
+
+On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The full cases and expected behavior are in [docs/evaluation.md](docs/evaluation.md); the last live run is in [autodocs/live-evaluation.md](autodocs/live-evaluation.md). The reasoning behind the request/ranking separation is in the design note.
 
 ## Development
 
@@ -178,17 +147,11 @@ Six of the seven scoring criteria are what any material class wants: thermodynam
 pip install -e ".[all]"
 ruff check . && ruff format --check .
 pytest -q
-cd ui && npm ci && npm run build      # only to change the front end; the bundle is committed and CI checks it is current
+cd ui && npm ci && npm run build      # front end only; the built bundle is committed
 ```
 
-CI runs lint, the test suite, a wheel install into a clean environment, and a `--network none`
-smoke of the container image on every push and pull request. Tags starting with `v` run the
-release workflow.
+CI runs lint, tests, a clean wheel install, and an offline smoke test of the container image.
 
-### Repository layout
-
-<!-- One line per top-level directory. -->
-
-## Licence
+## License
 
 MIT.
