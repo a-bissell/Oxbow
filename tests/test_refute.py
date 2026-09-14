@@ -6,6 +6,7 @@ from oxide_triage.refute import (
     flatten,
     numeric_guard,
     primary_caveat,
+    refute,
     rule_caveats,
 )
 from oxide_triage.schemas import Criteria, DataStatus
@@ -162,3 +163,47 @@ def test_common_substrates_get_a_literature_confound_note_without_touching_the_s
     plain_score = score_candidate(make_record(formula="LaAlO3", elements=["La", "Al", "O"]), CFG, EFF)
     assert plain_score.adjusted_score == sc.adjusted_score
     assert "substrate_literature_confound" not in caveats_for(formula="HfO2")[0]
+
+
+class _SlowLLM:
+    """A model edge that takes a fixed time per call and names the candidate it saw, so a test
+    can tell that the calls overlapped and that each answer landed on its own candidate."""
+
+    name = "fake:slow"
+
+    def __init__(self, delay_s: float):
+        self.delay_s = delay_s
+        self.calls: list[str] = []
+        self._lock = __import__("threading").Lock()
+
+    def complete_json(self, system, user, schema):
+        import re as _re
+        import time as _time
+
+        formula = _re.search(r'"formula": "([^"]+)"', user).group(1)
+        with self._lock:
+            self.calls.append(formula)
+        _time.sleep(self.delay_s)
+        return {"observations": [{"text": f"{formula}: e_hull noted", "evidence_fields": ["formula"]}]}
+
+
+def test_model_refutations_run_concurrently_and_land_on_their_own_candidate(monkeypatch):
+    import time as _time
+
+    cfg = load_config("default", use_env=False, overrides={"llm": {"provider": "anthropic"}})
+    eff = resolve(cfg, Criteria(), load_hazard_table())[0]
+    formulas = ["HfO2", "ZrO2", "Al2O3", "LaAlO3", "SrHfO3"]
+    shortlist = [
+        score_candidate(make_record(mid=f"t-{i}", formula=f, elements=None), cfg, eff)
+        for i, f in enumerate(formulas)
+    ]
+    llm = _SlowLLM(delay_s=0.4)
+    started = _time.perf_counter()
+    label = refute(shortlist, eff, cfg, llm)
+    elapsed = _time.perf_counter() - started
+    assert label == "rules+fake:slow"
+    assert elapsed < 1.2, f"five 0.4 s calls took {elapsed:.2f}s: they did not overlap"
+    assert sorted(llm.calls) == sorted(formulas)
+    for sc, formula in zip(shortlist, formulas, strict=True):
+        obs = [c for c in sc.caveats if c.code == "model_observation"]
+        assert len(obs) == 1 and obs[0].text.startswith(formula + ":")

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 import yaml
@@ -624,14 +625,23 @@ def llm_caveats(sc: ScoredCandidate, llm: LLMClient) -> list[Caveat]:
     return out
 
 
+# Model refutations run concurrently: each candidate's call is independent, and five sequential
+# calls of ten to twenty seconds each were most of a query's wall-clock time. The clients are
+# thread-safe (one HTTP connection pool each), and the results are attached in shortlist order,
+# so the output is the same as the sequential loop's.
+MODEL_WORKERS = 5
+
+
 def refute(
     shortlist: list[ScoredCandidate], eff: Effective, config: Config, llm: LLMClient | None = None
 ) -> str:
     """Attach caveats to every shortlisted candidate. Returns a label of what produced them."""
     for sc in shortlist:
         sc.caveats = rule_caveats(sc, eff, config)
-    if llm is not None and llm.name != "none" and config.llm.use_for.refute:
-        for sc in shortlist:
-            sc.caveats.extend(llm_caveats(sc, llm))
+    if llm is not None and llm.name != "none" and config.llm.use_for.refute and shortlist:
+        with ThreadPoolExecutor(max_workers=min(MODEL_WORKERS, len(shortlist))) as pool:
+            observations = list(pool.map(lambda sc: llm_caveats(sc, llm), shortlist))
+        for sc, extra in zip(shortlist, observations, strict=True):
+            sc.caveats.extend(extra)
         return f"rules+{llm.name}"
     return "rules"
