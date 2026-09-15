@@ -71,6 +71,13 @@ Ideas / planned work for this project.
 - Thermal barriers rank on conductivity, stability and compatibility only. Melting point,
   thermal expansion, sintering, CMAS attack and toughness have no public per-material source
   and are named as unmodelled on every output. Not planned work until a source exists.
+- [ ] **General purpose: one class per assumption.** How many profiles make this a
+      general-purpose tool is not a count; it is a class for each assumption the engine still
+      bakes in (the property route, the curve shape, one scalar figure, a substrate, the
+      anion), plus a deferred stability seam. The ladder, the checklist a class touches, and
+      the first rung built end to end (piezoelectric oxides, parked on branch
+      `claude/agentic-material-generation-51b271`) are in `general-purpose-roadmap.md` in
+      this directory. Too large for the demo; sequenced as one pull request per rung.
 
 ## Data sources
 
