@@ -77,7 +77,9 @@ cation in it belongs to a selected family. The families and their rationale live
 
 The assistant has two drivers. With `LLM_PROVIDER=anthropic` and an `ANTHROPIC_API_KEY`, a Claude
 model (`claude-sonnet-5` by default; `agent.model`, `AGENT_MODEL` or `LLM_MODEL` override)
-orchestrates the same tools the MCP server exposes and phrases the answer. Without
+orchestrates the same tools the MCP server exposes and phrases the answer; with
+`LLM_PROVIDER=openai_compatible` an OpenAI model, or a self-hosted one behind `LLM_BASE_URL`, does
+the same through function calling. Without
 a model, a rule-based driver routes each message by intent (new request, explain, compare, rerun
 with a change, what was excluded) and narrates from the result object. Both produce the same
 visible steps and the same canvas, and if the model is unreachable mid-conversation the rules
@@ -291,7 +293,9 @@ can confirm only a call that has already come back with its questions.
 
 `oxide-triage chat` is the same agent in the terminal. It needs a model: `LLM_PROVIDER=anthropic`
 with `ANTHROPIC_API_KEY` (the conversation and the tool outputs go to Anthropic; no private data
-exists in this system). `oxide-triage doctor` reports whether chat is ready. The agent is limited to
+exists in this system), or `LLM_PROVIDER=openai_compatible` with `OPENAI_API_KEY`, or with
+`LLM_BASE_URL` and `LLM_MODEL` naming a vLLM/Ollama server (nothing leaves the site).
+`oxide-triage doctor` reports whether chat is ready. The agent is limited to
 `agent.max_tool_rounds` tool calls per message (`config/default.yaml`).
 
 ### Using it from Claude Desktop, Claude Cowork or Cursor (MCP)
@@ -400,7 +404,8 @@ cache before copying anything, and refuses to replace a populated cache without 
 `oxide-triage doctor` and the web app's status then name the release, its commit and its build
 date, because a cache has a shelf life and the date is how you know how stale it is. To make a
 bundle from your own warmed cache, `oxide-triage bundle build --out bundle/`; `bundle verify`
-checks one you were handed. The bundle holds no language model: the assistant runs on rules.
+checks one you were handed. The bundle holds no language model: the assistant runs on rules
+unless a model server comes along on the same media (see "Optional: another model").
 
 ### Keys and environment
 
@@ -409,9 +414,11 @@ checks one you were handed. The bundle holds no language model: the assistant ru
 | `MP_API_KEY` | warming the cache from Materials Project | free, https://next-gen.materialsproject.org/api |
 | `OPENALEX_API_KEY` | optional. Literature counts are fetched per query for the top-ranked candidates (about 50 searches, $0.05). Without a key OpenAlex allows $0.10/day per IP (two queries); a free account's key allows $1/day (twenty) | free account at https://openalex.org |
 | `OPENALEX_MAILTO` | contact email on OpenAlex requests (optional; no rate-limit effect any more) | any contact email |
-| `LLM_PROVIDER` | `none` (default) / `anthropic`. With `none` the assistant is driven by rules; `oxide-triage chat` needs `anthropic` | — |
+| `LLM_PROVIDER` | `none` (default) / `anthropic` / `openai_compatible`. With `none` the assistant is driven by rules; `oxide-triage chat` needs one of the latter two | — |
 | `ANTHROPIC_API_KEY` | only if `LLM_PROVIDER=anthropic` | https://console.anthropic.com |
-| `LLM_MODEL` | optional with `LLM_PROVIDER=anthropic`; the model for the parse and refute edges | — |
+| `OPENAI_API_KEY` | only if `LLM_PROVIDER=openai_compatible` and `LLM_BASE_URL` is unset | https://platform.openai.com |
+| `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY` | a self-hosted OpenAI-compatible server for `openai_compatible`; the model name is required, the key only if the server wants one | your vLLM/Ollama/llama.cpp endpoint |
+| `LLM_MODEL`, `AGENT_MODEL` | model overrides for the edges and the assistant respectively, any provider | — |
 | `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT` | MCP server defaults (`stdio`, `127.0.0.1`, `8765`) | — |
 | `OXIDE_TRIAGE_ADMIN` | `1` enables editing and cache operations on the Admin page (read-only otherwise) | — |
 | `OXIDE_TRIAGE_SITE_CONFIG` | path of the site overrides file (default `site.yaml` next to the cache; `off` disables) | — |
@@ -628,15 +635,35 @@ loopback only). For LAN access put a reverse proxy with authentication in front 
 server itself has no auth. Desktop apps on the same machine can instead launch `oxide-triage mcp`
 over stdio.
 
+### Optional: another model
+
+`LLM_PROVIDER=openai_compatible` speaks the OpenAI `/chat/completions` protocol. With only
+`OPENAI_API_KEY` set it talks to OpenAI (`gpt-5-mini` unless `LLM_MODEL` or `AGENT_MODEL` says
+otherwise). With `LLM_BASE_URL` set it talks to whatever serves that URL instead: vLLM, Ollama,
+llama.cpp or any other OpenAI-compatible server, on the machine or on the site's network. The
+model name then has to be given in `LLM_MODEL`, because the server decides what it is called,
+and `LLM_API_KEY` is sent as a bearer token only if set. The server has to support function
+calling for the assistant (vLLM needs `--enable-auto-tool-choice` and a `--tool-call-parser`;
+Ollama and llama.cpp do it for models that have a tool template). The model only parses the
+request, phrases caveats and drives the tools in the assistant, so a small model is adequate;
+the ranking is identical with any provider or none. This path is exercised against a fake server
+in the tests, not against a live vLLM or Ollama.
+
+```bash
+LLM_PROVIDER=openai_compatible LLM_BASE_URL=http://localhost:11434/v1 LLM_MODEL=qwen3:8b oxide-triage chat
+```
+
 What leaves the site with each provider:
 
 | Provider | Data sent off-site |
 |---|---|
 | `none` | nothing |
-| `anthropic` | the request text and the *public* structured facts for shortlisted candidates; in the assistant, the conversation and the tool outputs |
+| `openai_compatible` with `LLM_BASE_URL` on the site | nothing |
+| `anthropic`, or `openai_compatible` against OpenAI | the request text and the *public* structured facts for shortlisted candidates; in the assistant, the conversation and the tool outputs |
 
 No private lab data exists anywhere in this system, so the exposure with a cloud provider is the
-request wording itself. Sites for which that is unacceptable run with `LLM_PROVIDER=none`.
+request wording itself. Sites for which that is unacceptable run a self-hosted server or
+`LLM_PROVIDER=none`.
 
 ### Data sources and what is deliberately excluded
 

@@ -6,12 +6,14 @@ import asyncio
 import json
 from typing import Any
 
+import httpx
 import pytest
 
 from oxide_triage.agent import ROUND_CAP_MESSAGE, Agent
 from oxide_triage.config import LLMConfig, load_config
 from oxide_triage.edges.llm import (
     AssistantTurn,
+    OpenAICompatibleChat,
     ToolCall,
     ToolResult,
     ToolResultsTurn,
@@ -19,6 +21,8 @@ from oxide_triage.edges.llm import (
     anthropic_messages,
     anthropic_tools,
     chat_availability,
+    openai_messages,
+    openai_tools,
 )
 from oxide_triage.pipeline import load_fixtures
 from oxide_triage.tools import SPECS_BY_NAME, TOOL_SPECS, ToolBox, agent_system_prompt
@@ -336,6 +340,85 @@ def test_anthropic_wire_format_replays_raw_content_verbatim():
     assert anthropic_messages([UserTurn("hi"), foreign])[1]["content"] == [{"type": "text", "text": "hello"}]
 
 
+def test_openai_wire_format():
+    msgs = openai_messages("SYS", _transcript())
+    assert msgs[0] == {"role": "system", "content": "SYS"}
+    assistant = msgs[2]
+    assert assistant["content"] == "Running triage."
+    assert assistant["tool_calls"][0]["function"] == {
+        "name": "triage",
+        "arguments": json.dumps({"request": "x"}),
+    }
+    assert msgs[3] == {"role": "tool", "tool_call_id": "t1", "content": "<!-- result_id: abc -->"}
+    assert msgs[4]["tool_call_id"] == "t2" and msgs[5] == {"role": "assistant", "content": "Here you go."}
+    assert "tool_calls" not in msgs[5]
+    tools = openai_tools(TOOL_SPECS)
+    assert tools[0]["type"] == "function" and tools[0]["function"]["parameters"]["type"] == "object"
+
+
+def test_openai_compatible_chat_parses_tool_calls_and_text(monkeypatch):
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+    bodies: list[dict[str, Any]] = []
+    responses = [
+        {
+            "choices": [
+                {
+                    "finish_reason": "tool_calls",
+                    "message": {
+                        "content": None,
+                        "reasoning_content": "thinking...",
+                        "tool_calls": [
+                            {
+                                "id": "call_1",
+                                "type": "function",
+                                "function": {"name": "triage", "arguments": '{"request": "x"}'},
+                            },
+                            {
+                                "id": "call_2",
+                                "type": "function",
+                                "function": {"name": "profiles", "arguments": {}},
+                            },
+                            {
+                                "id": "call_3",
+                                "type": "function",
+                                "function": {"name": "explain", "arguments": "{not json"},
+                            },
+                        ],
+                    },
+                }
+            ],
+            "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+        },
+        {"choices": [{"finish_reason": "stop", "message": {"content": "All done."}}], "usage": {}},
+    ]
+
+    def handler(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=responses[len(bodies) - 1])
+
+    chat = OpenAICompatibleChat("local-model", "http://llm.test/v1")
+    chat._client = httpx.Client(transport=httpx.MockTransport(handler))
+    first = chat.chat("SYS", [UserTurn("go")], TOOL_SPECS)
+    assert (
+        first.stop_reason == "tool_use"
+        and first.text == ""
+        and first.usage == {"prompt_tokens": 10, "completion_tokens": 5}
+    )
+    assert [c.name for c in first.tool_calls] == ["triage", "profiles", "explain"]
+    assert first.tool_calls[0].input == {"request": "x"} and first.tool_calls[1].input == {}
+    assert "_malformed_arguments" in first.tool_calls[2].input
+    assert bodies[0]["tool_choice"] == "auto" and bodies[0]["tools"][0]["type"] == "function"
+    assert bodies[0]["messages"][0]["role"] == "system"
+    # A self-hosted server gets the permissive dialect: a temperature, max_tokens, vLLM's thinking switch.
+    assert bodies[0]["temperature"] == 0 and bodies[0]["max_tokens"] == chat.max_tokens
+    assert bodies[0]["chat_template_kwargs"] == {"enable_thinking": True}
+    assert "max_completion_tokens" not in bodies[0]
+    seen: list[str] = []
+    second = chat.chat("SYS", [UserTurn("go")], TOOL_SPECS, allow_tools=False, on_text=seen.append)
+    assert second.text == "All done." and seen == ["All done."] and second.stop_reason == "end_turn"
+    assert bodies[1]["tool_choice"] == "none"
+
+
 def test_chat_availability(monkeypatch):
     ok, why = chat_availability(LLMConfig(provider="none"))
     assert not ok and "LLM_PROVIDER" in why
@@ -347,6 +430,69 @@ def test_chat_availability(monkeypatch):
     pytest.importorskip("anthropic")
     ok, name = chat_availability(LLMConfig(provider="anthropic", model="claude-opus-5"))
     assert ok and name == "anthropic:claude-opus-5"
+    for var in ("OPENAI_API_KEY", "LLM_API_KEY", "LLM_BASE_URL", "LLM_MODEL"):
+        monkeypatch.delenv(var, raising=False)
+    # A self-hosted server: no key needed, but the served model has to be named.
+    ok, name = chat_availability(LLMConfig(provider="openai_compatible", model="m", base_url="http://x/v1/"))
+    assert ok and name == "openai_compatible:m@http://x/v1"
+    ok, why = chat_availability(LLMConfig(provider="openai_compatible", base_url="http://x/v1"))
+    assert not ok and "LLM_MODEL" in why
+    # OpenAI's API: the key is required, the model has a default.
+    ok, why = chat_availability(LLMConfig(provider="openai_compatible"))
+    assert not ok and "OPENAI_API_KEY" in why
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-openai")
+    ok, name = chat_availability(LLMConfig(provider="openai_compatible"))
+    assert ok and name == "openai_compatible:gpt-5-mini@https://api.openai.com/v1"
+
+
+def test_openai_cloud_dialect_and_auth(monkeypatch):
+    """Against api.openai.com the body uses max_completion_tokens, no temperature and no
+    vLLM-only fields, and the key travels as a bearer token; LLM_API_KEY still works as the
+    key's name for an authenticated self-hosted server."""
+    from oxide_triage.edges.llm import OpenAICompatibleLLM, make_llm, openai_endpoint
+
+    for var in ("OPENAI_API_KEY", "LLM_API_KEY", "LLM_BASE_URL", "LLM_MODEL"):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-openai")
+    endpoint = openai_endpoint(None, None)
+    assert endpoint.cloud and endpoint.api_key == "sk-openai" and endpoint.problem() is None
+    assert endpoint.http_client(1).headers["authorization"] == "Bearer sk-openai"
+    body = endpoint.body([{"role": "user", "content": "hi"}], 123, thinking=True)
+    assert body == {
+        "model": "gpt-5-mini",
+        "messages": [{"role": "user", "content": "hi"}],
+        "max_completion_tokens": 123,
+    }
+
+    seen: list[dict[str, Any]] = []
+
+    def handler(request):
+        seen.append({"auth": request.headers.get("authorization"), "body": json.loads(request.content)})
+        return httpx.Response(200, json={"choices": [{"message": {"content": '{"ok": true}'}}]})
+
+    llm = OpenAICompatibleLLM(None, None)
+    llm._client = httpx.Client(transport=httpx.MockTransport(handler), headers=llm._client.headers)
+    assert llm.complete_json("S", "U", {"type": "object"}) == {"ok": True}
+    assert seen[0]["auth"] == "Bearer sk-openai"
+    assert seen[0]["body"]["response_format"] == {"type": "json_object"}
+    assert "temperature" not in seen[0]["body"] and "chat_template_kwargs" not in seen[0]["body"]
+
+    # Self-hosted with LLM_API_KEY: the bearer token is sent, the local dialect is used.
+    monkeypatch.delenv("OPENAI_API_KEY")
+    monkeypatch.setenv("LLM_API_KEY", "local-secret")
+    local = openai_endpoint("qwen3:8b", "http://ollama:11434/v1")
+    assert not local.cloud and local.problem() is None
+    assert local.http_client(1).headers["authorization"] == "Bearer local-secret"
+    assert local.body([], 5, thinking=False)["chat_template_kwargs"] == {"enable_thinking": False}
+
+    # The edges fail closed to rules when the endpoint is unusable, never to a half-configured call.
+    monkeypatch.delenv("LLM_API_KEY")
+    assert make_llm(LLMConfig(provider="openai_compatible")).name == "none"
+    assert make_llm(LLMConfig(provider="openai_compatible", base_url="http://ollama:11434/v1")).name == "none"
+    assert (
+        make_llm(LLMConfig(provider="openai_compatible", model="m", base_url="http://ollama:11434/v1")).name
+        == "openai_compatible:m@http://ollama:11434/v1"
+    )
 
 
 def test_agent_config_does_not_move_the_config_hash():

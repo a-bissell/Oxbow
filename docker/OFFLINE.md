@@ -67,8 +67,9 @@ oxide-triage serve --open              # or: oxide-triage query --offline
   fetch is reported as not retrieved, never guessed at. `add-material` and `fill-gaps` need the
   network and say so.
 * **No language model is included.** The assistant is driven by rules, which reads the same
-  request vocabulary and narrates the same result object. The model path needs Anthropic's
-  API, so it is a networked option only.
+  request vocabulary and narrates the same result object. To use a local model, bring its
+  weights and an OpenAI-compatible server (vLLM, Ollama, llama.cpp) on your own media and set
+  `LLM_PROVIDER=openai_compatible`, `LLM_BASE_URL` and `LLM_MODEL`.
 * **Every output still names its sources.** The records in the cache are the same records a
   networked install holds, with the same timestamps and identifiers, so the audit view and the
   HTML report cite exactly what a colleague online can open.
