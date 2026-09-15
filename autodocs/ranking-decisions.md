@@ -1,6 +1,6 @@
 # Ranking decisions: what was set after seeing data, and what it moved
 
-Note from a Human: This is a list that I would have an agent add to whenever a choice was made that would affect rankings, as a sort of self check to ensure that I wasn't just overfitting the system to produce results that look right. -AB
+*Note from a Human: This is a list that I would have an agent add to whenever a choice was made that would affect rankings, as a sort of self check to ensure that I wasn't just overfitting the system to produce results that look right. -AB*
 
 A ranking is a stated preference over public numbers. Some of the numbers in `config/default.yaml`
 were chosen before any data was seen and some after, and a reader is entitled to know which,
