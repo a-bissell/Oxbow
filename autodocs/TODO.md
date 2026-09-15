@@ -106,13 +106,13 @@ Ideas / planned work for this project.
 
 ## Local language model
 
-- [x] **Remove the locally hosted model path** — done 2026-09-14: the `openai_compatible`
-      provider, its edge and chat clients and wire-format helpers, the Qwen defaults,
-      `llm.base_url`, `LLM_BASE_URL` and `LLM_API_KEY`, `docker/compose.local-llm.yml` and every
-      mention in the READMEs, the offline note, the env example and the admin panel. The two
-      drivers left are rules (no key) and Anthropic. A local model was a third path nobody ran,
-      and it carried a serving story, a per-model profile and a weights asset the brief never
-      asked for.
+- [x] **Drop the vLLM serving story, keep the provider** — done 2026-09-14. Gone:
+      `docker/compose.local-llm.yml` (the vLLM + NVIDIA overlay), the Qwen3-8B default and the
+      weights asset for the offline release. Kept, and reworked: the `openai_compatible`
+      provider. It now defaults to OpenAI's API (`OPENAI_API_KEY`, `gpt-5-mini`) and becomes a
+      local-model path when `LLM_BASE_URL` names a vLLM, Ollama or llama.cpp server; the model
+      name is then required rather than defaulted. Serving the model is the site's business.
+- [ ] Verify the chat path against a live Ollama and vLLM once; the tests use a fake server.
 
 ## UI
 
@@ -160,8 +160,8 @@ Ideas / planned work for this project.
       image on every push. Follow-ups:
       - [ ] Multi-arch image (arm64) and a wheel set per platform; the wheels are built for the
             runner (linux x86_64, CPython 3.11) and say so in their name.
-      - ~~Optional local-model asset~~ — dropped 2026-09-13 with the local model path (see
-        "Local language model").
+      - ~~Optional local-model asset~~ — dropped 2026-09-13; the site brings its own model server
+        (see "Local language model").
       - [ ] Refresh bundle: a scheduled run that re-warms and publishes a cache-only release so
             a site can update the data without a new image.
       - [ ] Bundle install from the admin panel (upload a bundle, verify, install) for sites

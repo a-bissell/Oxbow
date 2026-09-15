@@ -47,6 +47,7 @@ oxbow serve --open
 ### Other ways to run
 
 - **No keys.** `oxbow load-fixtures` installs synthetic demo data instead of warming the cache. With no Anthropic key (or `LLM_PROVIDER=none`) the assistant is driven by rules: it understands the request vocabulary below and simple follow-ups, but does not converse. The ranking is the same either way.
+- **Another model.** `LLM_PROVIDER=openai_compatible` with `OPENAI_API_KEY` uses OpenAI instead of Claude. Add `LLM_BASE_URL` (say `http://localhost:11434/v1`) and `LLM_MODEL` to point it at a vLLM, Ollama or llama.cpp server instead; then nothing leaves the machine. The model only interprets requests and phrases answers, so a small local model does the job.
 - **Docker.** `cp .env.example .env`, then `docker compose -f docker/compose.yml up --build` serves on port 8000. Warm the cache with `docker compose -f docker/compose.yml run --rm app oxbow warm-cache`.
 - **No network.** Each tagged release ships a container image, all wheels, and a pre-warmed, checksummed data cache. Steps are in [docker/OFFLINE.md](docker/OFFLINE.md).
 
@@ -71,7 +72,9 @@ Keys and environment go in `.env` (loaded automatically) or the shell:
 | Variable | Purpose |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | the assistant; set `LLM_PROVIDER=anthropic` alongside it |
-| `LLM_PROVIDER` | `anthropic` (recommended) or `none` for the rules-only fallback |
+| `LLM_PROVIDER` | `anthropic` (recommended), `openai_compatible`, or `none` for the rules-only fallback |
+| `OPENAI_API_KEY` | the assistant with `LLM_PROVIDER=openai_compatible` and no `LLM_BASE_URL` |
+| `LLM_BASE_URL`, `LLM_API_KEY` | a self-hosted OpenAI-compatible server (vLLM, Ollama, llama.cpp) for `openai_compatible`; the key only if the server wants one |
 | `LLM_MODEL` / `AGENT_MODEL` | optional model overrides for the parse/refute edges and the assistant |
 | `MP_API_KEY` | warming the cache from Materials Project (free) |
 | `OPENALEX_API_KEY` | optional; more literature lookups per day |
@@ -133,7 +136,7 @@ Start with `oxbow doctor`, which reports on keys, cache health and the known-ans
 | Empty shortlist, or every candidate excluded | Cache not warmed, or gates too tight for the request. Run `oxbow warm-cache`, then `oxbow config --changed-only` to see the gates in force. |
 | `serve` refuses to start after a cache warm | The self-check found that the workhorse dielectrics (HfO2, ZrO2, Al2O3, Ta2O5) did not surface where they should. Re-run `oxbow selfcheck` for the failing case; a partial warm is the usual cause. |
 | Data looks stale, or literature lookups are missing | Check `retrieval.jsonl` for the gaps, then re-warm. `OPENALEX_API_KEY` raises the daily literature limit. |
-| Assistant does not respond, or replies in fixed phrasing | No model attached. Confirm `ANTHROPIC_API_KEY` and `LLM_PROVIDER=anthropic`; without them the rules-only fallback is running and the ranking is unaffected. |
+| Assistant does not respond, or replies in fixed phrasing | No model attached. Confirm `ANTHROPIC_API_KEY` and `LLM_PROVIDER=anthropic` (or `OPENAI_API_KEY`, or `LLM_BASE_URL` and `LLM_MODEL`, with `openai_compatible`); `oxbow doctor` says which is missing. Without them the rules-only fallback is running and the ranking is unaffected. |
 
 ## Evaluation
 

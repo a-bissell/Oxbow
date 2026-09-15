@@ -1,8 +1,8 @@
 """The tool surface shared by the MCP server, the web assistant and ``oxide-triage chat``.
 
 One implementation of each tool lives here. ``mcp_server.py`` registers thin wrappers with the
-MCP framework; ``agent.py`` hands the same tools to a model through the Anthropic tool-use
-protocol; ``server/agent.py`` drives them from the web app, by a
+MCP framework; ``agent.py`` hands the same tools to a model through the Anthropic or
+OpenAI-compatible tool-use protocol; ``server/agent.py`` drives them from the web app, by a
 model or by rules. Whichever way a model reaches them, every guarantee of the
 system runs inside the tool: the request guard, the deterministic core, the self-check gate, the
 fixture banner and the clarify-before-run protocol. A model cannot obtain a number, a rank or a

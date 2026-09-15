@@ -42,11 +42,11 @@ def test_unknown_profile_lists_available():
 def test_env_overrides(monkeypatch):
     monkeypatch.setenv("OXIDE_TRIAGE_OFFLINE", "1")
     monkeypatch.setenv("OXIDE_TRIAGE_CACHE", "/tmp/x.sqlite")
-    monkeypatch.setenv("LLM_PROVIDER", "anthropic")
-    monkeypatch.setenv("LLM_MODEL", "claude-sonnet-5")
+    monkeypatch.setenv("LLM_PROVIDER", "openai_compatible")
+    monkeypatch.setenv("LLM_BASE_URL", "http://vllm:8000/v1")
     cfg = load_config()
     assert cfg.cache.offline is True and cfg.cache.path == "/tmp/x.sqlite"
-    assert cfg.llm.provider == "anthropic" and cfg.llm.model == "claude-sonnet-5"
+    assert cfg.llm.provider == "openai_compatible" and cfg.llm.base_url == "http://vllm:8000/v1"
 
 
 def test_invalid_values_rejected():

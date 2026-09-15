@@ -606,7 +606,7 @@ function ModelPage() {
                 </div>
               ))}
               <div className="small muted">
-                Set <code>LLM_PROVIDER</code>, <code>ANTHROPIC_API_KEY</code>, <code>LLM_MODEL</code> or <code>AGENT_MODEL</code> in <code>.env</code> and restart the server. With no key the assistant still works, driven by rules. With <code>openai_compatible</code> the local model drives it.
+                Set <code>LLM_PROVIDER</code>, <code>ANTHROPIC_API_KEY</code>, <code>LLM_MODEL</code> or <code>AGENT_MODEL</code> in <code>.env</code> and restart the server. With no key the assistant still works, driven by rules. With <code>openai_compatible</code> an OpenAI model drives it (<code>OPENAI_API_KEY</code>), or a self-hosted vLLM/Ollama model when <code>LLM_BASE_URL</code> and <code>LLM_MODEL</code> are set.
               </div>
             </>
           ) : (
@@ -628,7 +628,7 @@ function ModelPage() {
             <FieldRow label="Timeout (s)" shipped={shippedLabel(data?.shipped ?? null, edited, "llm.timeout_s")}>
               <Num value={get(edited, "llm.timeout_s")} min={5} onChange={(v) => update("llm.timeout_s", v)} />
             </FieldRow>
-            <FieldRow label="Assistant model" help="Blank = claude-sonnet-5 for anthropic; AGENT_MODEL in the environment wins" shipped={shippedLabel(data?.shipped ?? null, edited, "agent.model")}>
+            <FieldRow label="Assistant model" help="Blank = claude-sonnet-5 for anthropic, gpt-5-mini for openai_compatible against OpenAI, LLM_MODEL for a self-hosted server; AGENT_MODEL in the environment wins" shipped={shippedLabel(data?.shipped ?? null, edited, "agent.model")}>
               <input className="input input--sm" value={get(edited, "agent.model") ?? ""} onChange={(e) => update("agent.model", e.target.value || null)} />
             </FieldRow>
             <FieldRow label="Tool rounds per message" shipped={shippedLabel(data?.shipped ?? null, edited, "agent.max_tool_rounds")}>
@@ -656,6 +656,14 @@ function ModelPage() {
             <tr>
               <td>none</td>
               <td>nothing</td>
+            </tr>
+            <tr>
+              <td>openai_compatible, LLM_BASE_URL on the site</td>
+              <td>nothing</td>
+            </tr>
+            <tr>
+              <td>openai_compatible, OpenAI</td>
+              <td>the same as anthropic</td>
             </tr>
             <tr>
               <td>anthropic</td>

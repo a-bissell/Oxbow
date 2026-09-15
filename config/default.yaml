@@ -222,13 +222,16 @@ cache:
   offline: false
 
 # ---------------------------------------------------------------------------
-# LLM edges. provider: none | anthropic
+# LLM edges. provider: none | anthropic | openai_compatible
 # The deterministic core never sees the model. With provider=none the whole system
 # still runs: a rule-based parser handles the front edge and templates the back edge.
+# openai_compatible is OpenAI's API (OPENAI_API_KEY) unless base_url (LLM_BASE_URL) names a
+# vLLM / Ollama / llama.cpp server; then model (LLM_MODEL) is the served model's name.
 # ---------------------------------------------------------------------------
 llm:
   provider: none
   model: null
+  base_url: null
   timeout_s: 60
   use_for:
     parse: true      # natural-language request -> Criteria (validated)
@@ -238,7 +241,7 @@ llm:
 # ---------------------------------------------------------------------------
 # Chat agent (the web assistant and `oxide-triage chat`). The model drives the same
 # tools the MCP server exposes; every number, rank and citation comes out of a tool. Needs
-# llm.provider to be anthropic. Nothing here affects ranking.
+# llm.provider to be anthropic or openai_compatible. Nothing here affects ranking.
 # ---------------------------------------------------------------------------
 server:
   # The web app records who caused each deviation from the name the authenticating reverse
