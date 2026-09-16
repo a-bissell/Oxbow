@@ -4,17 +4,17 @@
 
 ## 1. Project Philosophy
 
-I went into this project with a few goals in mind: I wanted to create something useful, something scientifically robust, and (most importantly) something that I would want to use myself. 
+I went into this project with three goals: build something useful, something scientifically robust, and — most importantly — something I would want to use myself.
 
-When I was in the field with USGS or Lincoln Labs, nothing would sour a trip quite like software that made the job harder. If I am 5 miles off the Atlantic coast on an 18ft Boston Whaler, during a light rain, in March, I do not want a CLI. If I'm in a remote site a couple hours outside of Vegas with spotty satellite internet, I don't want my workflow to stop when the network goes down.
+When I was in the field with USGS or Lincoln Laboratory, nothing soured a trip quite like software that made the job harder. Five miles off the Atlantic coast on an 18-foot Boston Whaler, in a light March rain, I do not want a CLI. At a remote site a couple of hours outside Vegas, on spotty satellite internet, I do not want my workflow to die when the network does.
 
-When it comes to AI-enabled systems, the criterion is even simpler: I don't want something that will lie to me. 
+For AI-enabled systems, the criterion is even simpler: I don't want something that will lie to me.
 
-All that, plus the brief, left me with one objective: a usable, deterministic materials-science triage system that is as ready for the hyper-connected university lab as it is for the airgapped research site buried under a mountain.
+All of that, plus the brief, left me with one objective: a usable, deterministic materials-science triage system as ready for the hyper-connected university lab as for the airgapped research site buried under a mountain — provided someone warmed its cache before going under.
 
-Oxbow is my answer to this. It takes a natural-language request, ranks known materials from cached public data against explicit criteria, and returns a shortlist in which every number traces to its origin, every data gap is named, and every entry carries the arguments against it. The system is designed from the ground up with LLM integration in mind, but can fall back to a pure rules based approach if needed.
+Oxbow is my answer. It takes a natural-language request, ranks known materials from cached public data against explicit criteria, and returns a shortlist in which every number traces to its origin, every data gap is named, and every entry carries the arguments against it. It is designed from the ground up for LLM integration, and falls back to a pure rules-based path when no model is available.
 
-This system does not propose new materials or make publishable claims. The oxide-dielectric instance is built out in full because only a worked instance can show that the citations are real and the caveats are the ones a scientist would raise. A second instance, thermal barrier coatings, shows that the first is not the whole system.
+Oxbow does not propose new materials or make publishable claims. The oxide-dielectric instance is built out in full because only a worked instance can show that the citations are real and the caveats are the ones a scientist would raise. A second instance, thermal barrier coatings, shows that the first is not the whole system.
 
 ## 2. General Architecture
 ```mermaid
