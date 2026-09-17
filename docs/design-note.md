@@ -15,7 +15,7 @@ Oxbow takes a natural-language request, ranks known materials from cached public
 ```mermaid
 flowchart LR
     REQ([Scientist request]) --> FE
-    subgraph FE["Front edge<br/>rules, optional LLM"]
+    subgraph FE["Front edge — rules, optional LLM"]
         direction TB
         G["Guard"] --> P["Parser"]
     end
@@ -23,7 +23,7 @@ flowchart LR
         direction TB
         D["SQLite cache<br/>known · absent · not retrieved"] --> GA["Hard gates"] --> S["Seven weighted criteria"] --> R["Rank"]
     end
-    subgraph BE["Back edge<br/>rules, optional LLM"]
+    subgraph BE["Back edge — rules, optional LLM"]
         direction TB
         F["Refutation"] --> T["Templates"]
     end
