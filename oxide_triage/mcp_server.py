@@ -32,6 +32,7 @@ from typing import Any
 
 from mcp.server.mcpserver import Context, MCPServer
 
+from oxide_triage import __version__
 from oxide_triage.actor import Actor, local_actor, web_actor
 from oxide_triage.session import ResultStore
 from oxide_triage.tools import INSTRUCTIONS, SPECS_BY_NAME, ToolBox
@@ -40,7 +41,7 @@ server = MCPServer(
     name="oxide-triage",
     title="Oxbow: oxide dielectric triage",
     instructions=INSTRUCTIONS,
-    version="0.2.6",
+    version=__version__,
 )
 # Who the deviation log names for a call depends on the transport. Over stdio the client is
 # a process of the same OS user, so that user is the actor. Over HTTP the process user is the
