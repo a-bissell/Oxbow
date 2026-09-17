@@ -6,7 +6,7 @@
 
 When I was in the field with USGS or Lincoln Laboratory, nothing soured a trip quite like software that made the job harder. Five miles off the Atlantic coast on an 18-foot Boston Whaler, in a light March rain, I do not want a CLI. For AI-enabled systems the criterion is even simpler: I don't want something that will lie to me.
 
-That, plus the brief, left one objective — a usable, deterministic materials-science triage system, as ready for the hyper-connected university lab as for the airgapped site buried under a mountain, provided someone warmed its cache before going under.
+That, plus the brief, left me with this objective: a usable, deterministic materials-science triage system, as ready for the hyper-connected university lab as for the airgapped field or lab site.
 
 Oxbow takes a natural-language request, ranks known materials from cached public data against explicit criteria, and returns a shortlist in which every number traces to its origin, every data gap is named, and every entry carries the arguments against it. It does not propose new materials or make publishable claims. The oxide-dielectric instance is worked out in full because only a worked instance proves the citations are real; a second, thermal barrier coatings, shows it is not the whole system.
 
@@ -34,13 +34,13 @@ flowchart LR
 
 The shape of the diagram is the design: a language model may touch the two edges, and never the core.
 
-Everything comes from public sources, each cached in SQLite with a retrieval timestamp. Toxicity is scored from a versioned element hazard table in the repo because that table is complete; PubChem is caveat evidence only, because it is not.
+Everything comes from public sources, each cached in SQLite with a retrieval timestamp. Toxicity is scored from a versioned element hazard table in the repo because the PubChem data was incomplete.
 
 **A note on language models and scientific integrity.** A model's characterisation of an otherwise deterministic result ("this looks promising", "this is a novel approach") propagates downstream with the same authority as the value it describes. I call this semantic smuggling. To prevent it, computation and narration never share a code path: the core in `scoring/` imports nothing from `edges/`, where the model lives. The model is optional; where one is configured it may fill parser fields the rules left at default and add observations, each citing an existing fact field and introducing no new number. It may annotate; it may never touch a rank or a score.
 
 ## 3. How it ranks
 
-Seven weighted criteria, each normalised to [0, 1]: thermodynamic stability, effective band gap, interface stability against the substrate, hazard tier, compositional simplicity, literature evidence, and the application's figure of merit — declared by the profile rather than the engine, and for oxide dielectrics the DFPT dielectric constant. Hard gates exclude before scoring and state the reason; ties break on material id; polymorphs collapse under their best-scoring phase. DFT band gaps are systematically too low (PBE underestimates by ~40%; Borlido et al., *J. Chem. Theory Comput.* **15**, 5069 (2019)), so the correction lives in config and the gate applies to the corrected value, with the functional shown alongside.
+Seven weighted criteria, each normalised to [0, 1]: thermodynamic stability, effective band gap, interface stability against the substrate, hazard tier, compositional simplicity, literature evidence, and the application's figure of merit, declared by the profile rather than the engine, and for oxide dielectrics the DFPT dielectric constant. Hard gates exclude before scoring and state the reason; ties break on material id; polymorphs collapse under their best-scoring phase. DFT band gaps are systematically too low (PBE underestimates by ~40%; Borlido et al., *J. Chem. Theory Comput.* **15**, 5069 (2019)), so the correction lives in config and the gate applies to the corrected value, with the functional shown alongside.
 
 The interface criterion is the one the others cannot do without. Among good oxides the rest saturate: everything near the top is stable, wide-gap and well studied. What separated HfO2 from the field is that it does not react with silicon. That is a thermodynamics question, and Hubbard and Schlom showed how to ask it in 1996 — mix the candidate with the substrate, find the lowest-energy combination of stable phases at each composition, and report the most exothermic reaction with its products named. Reactions inside a stated tolerance count as none, because hull energies carry about that much error (oxide reaction-energy errors are σ ≈ 24 meV/atom, with 90% within ±40 meV/atom; Hautier et al., *Phys. Rev. B* **85**, 155208 (2012)).
 
