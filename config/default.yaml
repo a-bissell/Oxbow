@@ -34,7 +34,8 @@ gates:
   on_missing_band_gap: exclude
 
 # ---------------------------------------------------------------------------
-# Band gap handling. DFT (PBE/GGA) gaps underestimate experiment by ~30-50%.
+# Band gap handling. DFT (PBE/GGA) gaps underestimate experiment by ~30-50%
+# (PBE ~40%, LDA ~50%: Borlido et al., J. Chem. Theory Comput. 15, 5069 (2019)).
 # strategy: none | scalar_factor | hse_preferred
 #   none           use the reported value, whatever functional produced it
 #   scalar_factor  multiply GGA/GGA+U/r2SCAN values by scalar_factor; HSE untouched
@@ -110,8 +111,10 @@ interface:
   # is marginal (-0.03); Ta2O5 (-0.28), TiO2 (-0.15) and Nb2O5 (-0.50) react. Bulk thermodynamics
   # only: kinetics, interlayers and epitaxy are not modelled.
   substrate: Si                   # an element or a hull-phase formula (Ge, SrTiO3, ...)
-  # DFT formation energies carry errors of a few tens of meV/atom, so a reaction less exothermic
-  # than the tolerance is treated as no reaction: ZrO2 against Si comes out at -0.03 to -0.07
+  # DFT formation energies carry errors of a few tens of meV/atom (for oxide reaction energies the
+  # error is sigma ~24 meV/atom, with 90% within +-40 meV/atom: Hautier et al., Phys. Rev. B 85,
+  # 155208 (2012)), so a reaction less exothermic than the tolerance is treated as no reaction:
+  # ZrO2 against Si comes out at -0.03 to -0.07
   # depending on the functional, and Hubbard & Schlom classed it stable. The score falls from 1
   # at -tolerance to 0 at -(tolerance + zero_score_at_ev_atom). The caveat threshold below is
   # separate and smaller, so a marginal case is still flagged in words.
