@@ -12,8 +12,6 @@ The evaluation report (`docs/live-evaluation.md`, check 6) shows how the ranking
 every one of these settings is moved by a lot. That table, not this narrative, is the answer to
 "is it overfit".
 
-All dates are 2026-09-10; the project was built in one stretch and the sequence is what matters.
-
 ## Set before any data, on the synthetic fixture
 
 **Missing-data policy: renormalize → no_credit.** Trigger: the known-answer check on the
