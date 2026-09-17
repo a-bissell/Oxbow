@@ -17,7 +17,7 @@ Oxbow ranks candidate materials against explicit criteria for a stated property 
 
 Oxbow runs as a web app, a command line tool, or an MCP server for Claude Desktop, Cowork, Cursor etc.
 
-The design and the reasoning behind it are in [docs/design-note.md](docs/design-note.md).
+The design and the reasoning behind it are in [design-note.md](design-note.md).
 
 ## Install
 
