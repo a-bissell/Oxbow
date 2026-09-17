@@ -4,4 +4,4 @@ Deterministic ranking of oxide dielectric candidates from cached public data, wi
 language model permitted only at the edges (request parsing, caveat prose, rendering).
 """
 
-__version__ = "0.2.7"
+__version__ = "0.2.8"
