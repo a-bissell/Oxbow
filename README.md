@@ -17,6 +17,8 @@ Oxbow ranks candidate materials against explicit criteria for a stated property 
 
 Oxbow runs as a web app, a command line tool, or an MCP server for Claude Desktop, Cowork, Cursor etc.
 
+The design and the reasoning behind it are in [docs/design-note.md](docs/design-note.md).
+
 ## Install
 
 Needs Python 3.11 or newer
@@ -84,6 +86,8 @@ Keys and environment go in `.env` (loaded automatically) or the shell:
 
 ## Adjusting it
 
+In short: a **scientist** says it in the request, a **site admin** edits `site.yaml` or the Admin panel, a **deployment engineer** ships `oxbow bundle` and points `OXIDE_TRIAGE_CONFIG_DIR` at the site's config. The rest of this section is the detail.
+
 Settings are layered: `config/default.yaml` holds every knob with a comment, a profile in `config/profiles/` overrides some of them, the site's own edits go in `site.yaml` next to the cache, and a request can adjust a few things for one run. `oxbow config --changed-only` prints what is in force and where it came from. Every departure from the shipped policy is printed on every result, so a reader always knows which rules produced the ranking.
 
 **A scientist changes things in the request itself.** No files, no restart:
@@ -125,7 +129,7 @@ A new profile is a YAML file in `config/profiles/` that overrides only what diff
 - `OXIDE_TRIAGE_CONFIG_DIR` points an installed wheel at a directory of config files outside a checkout; `OXIDE_TRIAGE_CACHE` places the cache and, with it, `site.yaml` and the logs.
 - Two append-only logs next to the cache, `deviations.jsonl` and `retrieval.jsonl`, record every run that departed from policy and every data gap. The Admin panel summarizes them. Rotate them with the site's usual tooling.
 
-**Perimeter is prototype-grade, and deliberately shallow.** `OXBOW_PASSWORD` puts a single shared password in front of the web app and `OXIDE_TRIAGE_ADMIN=1` gates the admin panel; neither carries a user identity, so the logs above record *what* departed from policy but not *who*. In a shared lab this belongs behind the site's own SSO or an authenticating reverse proxy, with the resolved user stamped onto each log line — that is the missing piece before the deviation log is a real audit trail rather than a change record. The hosted demo linked at the top runs this shared-password perimeter against a demo Materials Project key with no write path to a live cache; it is illustrative, not a deployment.
+**Perimeter is prototype-grade, and deliberately shallow.** `OXBOW_PASSWORD` puts a single shared password in front of the web app and `OXIDE_TRIAGE_ADMIN=1` gates the admin panel; neither carries a user identity, so the logs above record *what* departed from policy but not *who*. In a shared lab this belongs behind the site's own SSO or an authenticating reverse proxy, with the resolved user stamped onto each log line — that is the missing piece before the deviation log is a real audit trail rather than a change record.
 
 ## Troubleshooting
 
@@ -142,7 +146,7 @@ Start with `oxbow doctor`, which reports on keys, cache health and the known-ans
 
 `oxbow eval` runs the suite on the demo fixture; add `--live-cache` for real data. It covers a normal request, adversarial requests, a known-answer check, determinism, and missing-data handling.
 
-On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The cases are in [eval/run_eval.py](eval/run_eval.py); the last live run is in [docs/live-evaluation.md](docs/live-evaluation.md). The reasoning behind the request/ranking separation is in the design note.
+On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The cases are in [oxide_triage/evaluation.py](oxide_triage/evaluation.py) (`oxbow eval` and [eval/run_eval.py](eval/run_eval.py) both call it); the last live run is in [docs/live-evaluation.md](docs/live-evaluation.md). [eval/evaluation.ipynb](eval/evaluation.ipynb) is the same suite as a notebook, with outputs saved, so it reads on GitHub without running anything.
 
 ## Development
 
