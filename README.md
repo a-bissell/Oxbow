@@ -17,8 +17,6 @@ Oxbow ranks candidate materials against explicit criteria for a stated property 
 
 Oxbow runs as a web app, a command line tool, or an MCP server for Claude Desktop, Cowork, Cursor etc.
 
-A hosted demo is at [ox-90f340a12770442fba24fc56c1830e71.ecs.us-east-1.on.aws](https://ox-90f340a12770442fba24fc56c1830e71.ecs.us-east-1.on.aws), password on request. The design is in [docs/design-note.md](docs/design-note.md).
-
 ## Install
 
 Needs Python 3.11 or newer
