@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/a-bissell/oxide-triage/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/a-bissell/oxide-triage/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://github.com/a-bissell/oxide-triage/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/a-bissell/oxide-triage?include_prereleases&label=release"></a>
+  <a href="https://github.com/a-bissell/Oxbow/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/a-bissell/Oxbow/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/a-bissell/Oxbow/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/a-bissell/Oxbow?include_prereleases&label=release"></a>
   <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-3776ab">
   <img alt="MIT" src="https://img.shields.io/badge/license-MIT-lightgrey">
 </p>
@@ -22,8 +22,8 @@ Oxbow runs as a web app, a command line tool, or an MCP server for Claude Deskto
 Needs Python 3.11 or newer
 
 ```bash
-git clone https://github.com/a-bissell/oxide-triage.git
-cd oxide-triage
+git clone https://github.com/a-bissell/Oxbow.git
+cd Oxbow
 pip install -e ".[app,llm]"
 cp .env.example .env
 ```
