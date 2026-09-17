@@ -457,6 +457,19 @@ def chat(
             )
         if reply.latest_result_id:
             typer.echo(f"[result] {reply.latest_result_id}", err=True)
+            # The prose above is free model text: if steered, it can omit or soften a caveat,
+            # and nothing validates prose for caveat coverage. The rendered result is
+            # deterministic and carries every caveat unconditionally, so it is printed here as
+            # the authoritative view. This is the terminal parallel of the web app's canvas,
+            # which sits beside the chat for exactly this reason: the caveats are guaranteed to
+            # be computed, but they are only guaranteed to be *seen* on a surface that shows the
+            # rendered result, not the prose alone.
+            result = toolbox.store.get(reply.latest_result_id)
+            if result is not None:
+                sys.stdout.write("\n--- result (deterministic; the caveats below are not model text) ---\n\n")
+                sys.stdout.write(render(result, "pi_summary"))
+                sys.stdout.write("\n")
+                sys.stdout.flush()
 
 
 @app.command()

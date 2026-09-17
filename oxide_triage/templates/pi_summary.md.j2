@@ -18,6 +18,7 @@
 _No ranking was run. Nothing below this line is a result._
 
 {% endif %}
+{% if result.guard.proceed %}
 {% if result.retrieval and not result.retrieval.comparable %}
 > **Incomplete data.** Only {{ result.retrieval.completeness | pct }} of what the ranking needed
 > was downloaded, so the order partly reflects which downloads finished. A starting point, not a
@@ -86,6 +87,7 @@ the audit view shows every number, weight and source.
 {% if result.warnings %}
 
 **Run warnings:** {{ result.warnings | join(" ") }}
+{% endif %}
 {% endif %}
 
 _Generated {{ result.generated_at }} · config `{{ result.config_hash }}` · cache `{{ result.cache_fingerprint }}`_

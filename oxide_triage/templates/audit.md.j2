@@ -79,6 +79,7 @@
 {% endfor %}
 
 {% endif %}
+{% if result.guard.proceed %}
 ## Scoring rules in effect
 
 `{{ result.scoring.formula }}`
@@ -199,4 +200,5 @@ Caveats ({{ sc.caveats | length }}):
 {% for w in result.warnings %}
 - {{ w }}
 {% endfor %}
+{% endif %}
 {% endif %}
