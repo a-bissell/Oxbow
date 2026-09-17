@@ -214,6 +214,7 @@ export interface Pending {
   tool: string;
   args: Record<string, unknown>;
   questions: string[];
+  resolved?: "confirmed" | "dismissed" | null;
 }
 
 export interface Turn {

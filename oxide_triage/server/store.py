@@ -52,12 +52,15 @@ class Step(BaseModel):
 
 
 class Pending(BaseModel):
-    """A tool call held back for confirmation (clarify-before-run)."""
+    """A tool call held back for confirmation (clarify-before-run). ``resolved`` records what
+    the person decided; until it is set the buttons stay live, however many turns have passed.
+    Consent is theirs alone: nothing here is ever set from model output."""
 
     id: str
     tool: str
     args: dict[str, Any]
     questions: list[str]
+    resolved: str | None = None  # None (open) | confirmed | dismissed
 
 
 class Turn(BaseModel):
