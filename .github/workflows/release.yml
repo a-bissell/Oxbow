@@ -284,7 +284,8 @@ jobs:
     name: Assemble and publish
     needs: [version, wheels, image, bundle, smoke]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Room for the upload retries below: a single 100 MB asset has taken nine minutes to fail.
+    timeout-minutes: 45
     permissions:
       contents: write
       id-token: write
@@ -312,27 +313,87 @@ jobs:
           (cd out && sha256sum * > SHA256SUMS)
           ls -lh out && cat out/SHA256SUMS
       # GitHub only stores attestations for public repositories (or org-owned ones on
-      # Enterprise Cloud); on a private user-owned repository the API refuses and the job
-      # would fail. SHA256SUMS still ships either way.
+      # Enterprise Cloud); on a private user-owned repository the API refuses. The API also
+      # fails transiently ("Failed to persist attestation" sank v0.2.7), and because this step
+      # runs before the upload, a failure here used to skip publishing a release that was
+      # already built and proven. Attestation is a bonus on top of SHA256SUMS, so it is allowed
+      # to fail: the outcome is reported below rather than taking the release down with it.
       - name: Attest build provenance
+        id: attest
         if: ${{ !github.event.repository.private }}
+        continue-on-error: true
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: out/*
+      - name: Say whether the attestation was stored
+        if: ${{ !github.event.repository.private }}
+        run: |
+          if [ "${{ steps.attest.outcome }}" = "success" ]; then
+            echo "build provenance attested"
+          else
+            echo "::warning::the attestation API failed; this release ships with SHA256SUMS only"
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: release-${{ env.V }}
           path: out/
           if-no-files-found: error
           compression-level: 0
-      - name: Publish the GitHub release
+      # Publishing is three steps, not one, because uploading ~170 MB of assets is the least
+      # reliable thing this workflow does: v0.2.6 lost the wheels to a GitHub 500 and then to a
+      # headers timeout, v0.2.7 lost the image to "Error saving asset". Every build and proof
+      # job had passed in each case. So the release is created as a draft first, assets are
+      # uploaded with retries, and the draft is only flipped to published once every asset is
+      # there at the right size. A failed upload now costs one retry rather than the release.
+      - name: Create the release as a draft
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: out/*
+          draft: true
           generate_release_notes: true
           body: |
             Offline release. `oxide-triage-${{ env.V }}-offline.tar.gz` holds the warmed cache with
             its manifest, the compose files and the install note; the image and the wheels are
             separate so the cache can be refreshed without re-downloading them. Verify with
             `sha256sum -c SHA256SUMS`; see `OFFLINE.md` inside the archive for the install steps.
+      - name: Upload the assets, retrying transient failures
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -u
+          for f in out/*; do
+            name=$(basename "$f")
+            for attempt in 1 2 3 4 5; do
+              if gh release upload "$TAG" "$f" --clobber; then
+                echo "uploaded ${name} (attempt ${attempt})"
+                break
+              fi
+              if [ "$attempt" = 5 ]; then
+                echo "::error::${name} did not upload after 5 attempts"
+                exit 1
+              fi
+              echo "::warning::${name} failed to upload (attempt ${attempt}); retrying"
+              sleep $((attempt * 20))
+            done
+          done
+      # A truncated upload reports success, so the sizes are compared before anyone can install
+      # from the result. Only then does the release become visible.
+      - name: Check every asset landed, then publish
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -eu
+          gh release view "$TAG" --json assets \
+            -q '.assets[] | .name + " " + (.size|tostring)' | sort > uploaded.txt
+          (cd out && for f in *; do echo "$f $(( $(wc -c < "$f") ))"; done) | sort > expected.txt
+          if ! diff -u expected.txt uploaded.txt; then
+            echo "::error::the release assets do not match what was built; leaving it as a draft"
+            exit 1
+          fi
+          cat expected.txt
+          gh release edit "$TAG" --draft=false
+          echo "published ${TAG}"
