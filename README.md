@@ -17,7 +17,7 @@ Oxbow ranks candidate materials against explicit criteria for a stated property 
 
 Oxbow runs as a web app, a command line tool, or an MCP server for Claude Desktop, Cowork, Cursor etc.
 
-The design and the reasoning behind it are in [docs/design-note.md](docs/design-note.md).
+The design and the reasoning behind it are in [design-note.md](design-note.md).
 
 ## Install
 
@@ -147,6 +147,8 @@ Start with `oxbow doctor`, which reports on keys, cache health and the known-ans
 `oxbow eval` runs the suite on the demo fixture; add `--live-cache` for real data. It covers a normal request, adversarial requests, a known-answer check, determinism, and missing-data handling.
 
 On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The cases are in [oxide_triage/evaluation.py](oxide_triage/evaluation.py) (`oxbow eval` and [eval/run_eval.py](eval/run_eval.py) both call it); the last live run is in [docs/live-evaluation.md](docs/live-evaluation.md). [eval/evaluation.ipynb](eval/evaluation.ipynb) is the same suite as a notebook, with outputs saved, so it reads on GitHub without running anything.
+
+Every ranking parameter that was set after seeing data is logged in [docs/ranking-decisions.md](docs/ranking-decisions.md), with what triggered it, what it moved in the live ranking, and why — including the two changes most open to the charge of tuning, and the sensitivity table that tests whether any of them decide the shortlist.
 
 ## Development
 
