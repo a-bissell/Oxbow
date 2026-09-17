@@ -18,6 +18,7 @@
 _No ranking was run. Nothing below this line is a result._
 
 {% endif %}
+{% if result.guard.proceed %}
 {% if result.retrieval and not result.retrieval.comparable %}
 > **The data behind this ranking is incomplete.** Only {{ result.retrieval.completeness | pct }} of
 > what the ranking needed was actually downloaded ({{ result.retrieval.n_fully_retrieved }} of
@@ -103,5 +104,6 @@ not scored as zero. Band gaps marked "corrected" are scaled DFT values, not meas
 
 {% if result.warnings %}
 **Run warnings:** {{ result.warnings | join(" ") }}
+{% endif %}
 {% endif %}
 _Generated {{ result.generated_at }} · config `{{ result.config_hash }}` · cache `{{ result.cache_fingerprint }}` · language model: {{ result.llm_usage | dictsort | map("join", "=") | join(", ") }}_
