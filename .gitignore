@@ -14,6 +14,7 @@ venv/
 /data/
 eval/output/
 .streamlit/secrets.toml
+Archive.zip
 
 
 # The built front end is committed on purpose: pip, the Docker image and the offline release

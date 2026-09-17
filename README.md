@@ -127,6 +127,8 @@ A new profile is a YAML file in `config/profiles/` that overrides only what diff
 - `OXIDE_TRIAGE_CONFIG_DIR` points an installed wheel at a directory of config files outside a checkout; `OXIDE_TRIAGE_CACHE` places the cache and, with it, `site.yaml` and the logs.
 - Two append-only logs next to the cache, `deviations.jsonl` and `retrieval.jsonl`, record every run that departed from policy and every data gap. The Admin panel summarizes them. Rotate them with the site's usual tooling.
 
+**Perimeter is prototype-grade, and deliberately shallow.** `OXBOW_PASSWORD` puts a single shared password in front of the web app and `OXIDE_TRIAGE_ADMIN=1` gates the admin panel; neither carries a user identity, so the logs above record *what* departed from policy but not *who*. In a shared lab this belongs behind the site's own SSO or an authenticating reverse proxy, with the resolved user stamped onto each log line — that is the missing piece before the deviation log is a real audit trail rather than a change record. The hosted demo linked at the top runs this shared-password perimeter against a demo Materials Project key with no write path to a live cache; it is illustrative, not a deployment.
+
 ## Troubleshooting
 
 Start with `oxbow doctor`, which reports on keys, cache health and the known-answer test.
@@ -142,7 +144,7 @@ Start with `oxbow doctor`, which reports on keys, cache health and the known-ans
 
 `oxbow eval` runs the suite on the demo fixture; add `--live-cache` for real data. It covers a normal request, adversarial requests, a known-answer check, determinism, and missing-data handling.
 
-On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The cases are in [eval/run_eval.py](eval/run_eval.py); the last live run is in [autodocs/live-evaluation.md](autodocs/live-evaluation.md). The reasoning behind the request/ranking separation is in the design note.
+On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The cases are in [eval/run_eval.py](eval/run_eval.py); the last live run is in [docs/live-evaluation.md](docs/live-evaluation.md). The reasoning behind the request/ranking separation is in the design note.
 
 ## Development
 
