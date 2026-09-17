@@ -61,10 +61,8 @@ SSE_KEEPALIVE_S = 15.0
 GREETINGS = [
     "This band gap isn’t going to tunnel itself. Where should we start?",
     "On the lookout for a stable perovskite?",
-    "Hull-hugging, wide-gap, non-toxic. Pick two? No, all three.",
-    "Al2O3 is fine. Let’s find something better.",
-    "Which oxides should go on the bench first?",
-    "Ranked on public data, argued against by design. Ask away.",
+    "Al2O3? More like ‘2003.’ Let’s find something new.",
+    "You propose, I dispose. Let’s get after it.",
 ]
 
 
