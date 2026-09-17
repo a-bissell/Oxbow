@@ -156,6 +156,49 @@ def test_clarify_before_run_then_confirm(client):
     held2, _ = turn(client, conv2["id"], text="Find dielectric candidates, include lead compounds, top 5.")
     dismissed, _ = turn(client, conv2["id"], dismiss=held2["pending"]["id"])
     assert dismissed["result_id"] is None and "not run" in dismissed["text"]
+    assert dismissed["pending"] is None
+    answered = _pending_by_id(client, conv2["id"], held2["pending"]["id"])
+    assert answered["resolved"] == "dismissed"
+
+
+def _pending_by_id(client, cid, pid):
+    conv = client.get(f"/api/conversations/{cid}").json()
+    return next(t["pending"] for t in conv["turns"] if (t.get("pending") or {}).get("id") == pid)
+
+
+def test_a_typed_yes_never_confirms_and_never_runs_something_else(client):
+    """The reported bug: a held run on a follow-up, answered in prose. The words must not
+    approve it, must not be re-read as a fresh request, and must not strand the buttons."""
+    conv = client.post("/api/conversations", json={}).json()
+    first, _ = turn(client, conv["id"], text=PI)
+    assert first["result_id"] and first["pending"] is None
+
+    held, _ = turn(
+        client,
+        conv["id"],
+        text="Include metastable phases within 60 meV of the hull and prioritize the dielectric constant.",
+    )
+    assert held["pending"] and held["steps"][0]["status"] == "held"
+    assert held["pending"]["resolved"] is None
+    pid = held["pending"]["id"]
+
+    # Prose consent: nothing runs, nothing is re-parsed into a different search.
+    typed, events = turn(client, conv["id"], text="Yes, proceed with those settings")
+    assert typed["result_id"] is None and typed["steps"] == []
+    assert not any(e["type"] == "result" for e in events)
+    assert "button" in typed["text"]
+    assert _pending_by_id(client, conv["id"], pid)["resolved"] is None  # still answerable
+
+    # Even after that turn, the button still resolves the original held call.
+    ran, _ = turn(client, conv["id"], confirm=pid)
+    assert ran["result_id"] and ran["steps"][0]["status"] == "done"
+    assert _pending_by_id(client, conv["id"], pid)["resolved"] == "confirmed"
+    result = client.get(f"/api/results/{ran['result_id']}").json()
+    assert result["criteria"]["max_energy_above_hull_ev_atom"] == 0.06
+
+    # A second click on the same confirmation does not run it twice.
+    again, _ = turn(client, conv["id"], confirm=pid)
+    assert again["result_id"] is None and "already run" in again["text"]
 
 
 def test_scope_strip_applies_as_deviations_and_scope(client):

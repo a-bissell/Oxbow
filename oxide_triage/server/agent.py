@@ -283,7 +283,12 @@ class WebToolBox(ToolBox):
 
 def narrate_result(result: TriageResult, rerun_of: str | None, store: SessionStore) -> tuple[str, list[str]]:
     if result.needs_confirmation:
-        return "Before I run this, please confirm:\n" + "\n".join(f"- {q}" for q in result.clarifications), []
+        return (
+            "Before I run this, please confirm:\n\n"
+            + "\n".join(f"- {q}" for q in result.clarifications)
+            + "\n\nUse the buttons below; I cannot take the answer from a message.",
+            [],
+        )
     if not result.guard.proceed:
         return result.warnings[0], []
     if not result.shortlist:
@@ -733,15 +738,42 @@ def run_turn(
         actor=actor,
     )
 
+    # Consent is a button, never a sentence. A held run is answered by confirm/dismiss naming its
+    # id; anything else leaves it open, and while one is open nothing else runs, so a "yes" typed
+    # into the box can never be mistaken for approval and quietly become a different run.
     pending = _find_pending(conv, req.confirm or req.dismiss)
+    if (req.confirm or req.dismiss) and pending is None:
+        turn.text = "That confirmation is no longer on offer. Ask again and I will put it back."
+        _finish(store, conv, turn, emit)
+        return turn
+    if pending is not None and pending.resolved:
+        was = "already run" if pending.resolved == "confirmed" else "already declined"
+        turn.text = f"That confirmation was {was}. Ask again if you want it now."
+        _finish(store, conv, turn, emit)
+        return turn
     if req.dismiss and pending is not None:
+        pending.resolved = "dismissed"
         turn.text = "Understood, I have not run it. Change the request or the scope and ask again."
         _finish(store, conv, turn, emit)
         return turn
     if req.confirm and pending is not None:
+        pending.resolved = "confirmed"
         state.confirmed_tool = pending.tool
         if not req.text.strip():
             user.text = "Yes, run it."
+
+    open_pending = _open_pending(conv)
+    if open_pending is not None and not req.confirm:
+        turn.text = (
+            "I still need that confirmed before I run anything, and confirming is a button here, "
+            "not something I can read out of a message. On the confirmation just above, choose "
+            "'Run with that' or \"Don't run\":\n\n"
+            + "\n".join(f"- {q}" for q in open_pending.questions)
+            + "\n\nNothing in this message was run and nothing changed. If you would rather ask "
+            'something else, choose "Don\'t run" first.'
+        )
+        _finish(store, conv, turn, emit)
+        return turn
 
     box = WebToolBox(state, config)
     driver = "model" if conv.driver in {"model", "claude"} and driver_name(config) == "model" else "rules"
@@ -790,6 +822,15 @@ def _find_pending(conv: Conversation, pid: str | None) -> Pending | None:
         return None
     for t in reversed(conv.turns):
         if t.role == "assistant" and t.pending and t.pending.id == pid:
+            return t.pending
+    return None
+
+
+def _open_pending(conv: Conversation) -> Pending | None:
+    """The held run still waiting on a person, if any. At most one is ever open: while one
+    stands, no turn reaches a tool, so no second one can be created."""
+    for t in reversed(conv.turns):
+        if t.role == "assistant" and t.pending and not t.pending.resolved:
             return t.pending
     return None
 

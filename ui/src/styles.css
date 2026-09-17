@@ -200,6 +200,8 @@ tr:last-child td { border-bottom: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .pendingcard { border-color: var(--warn); background: var(--warn-soft); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
 .pendingcard ul { margin: 0; padding-left: 18px; }
+/* Answered: it stays readable as a record of what was asked, and stops looking live. */
+.pendingcard--settled { border-color: var(--line); background: none; color: var(--muted); }
 .resultlink { font-size: 12.5px; }
 
 /* ---- canvas ------------------------------------------------------------------------ */

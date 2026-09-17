@@ -130,20 +130,27 @@ function UserTurn({ turn }: { turn: Turn }) {
 
 function AssistantTurn({ turn, isLast }: { turn: Turn; isLast: boolean }) {
   const app = useApp();
-  const pendingOpen = isLast && turn.pending && !app.busy;
+  // A held run stays answerable until someone answers it, however many turns have gone by since.
+  // Gating this on "is the last turn" stranded the card: still on screen, no longer clickable.
+  const pendingOpen = turn.pending && !turn.pending.resolved && !app.busy;
   return (
     <div className="turn--assistant">
       {turn.error && <div className="banner banner--warn small">{turn.error}</div>}
       <Steps steps={turn.steps} />
       {turn.text && <Prose text={turn.text} />}
       {turn.pending && (
-        <div className="card pendingcard">
+        <div className={`card pendingcard${turn.pending.resolved ? " pendingcard--settled" : ""}`}>
           <span className="label">Before running</span>
           <ul className="small">
             {turn.pending.questions.map((q, i) => (
               <li key={i}>{q}</li>
             ))}
           </ul>
+          {turn.pending.resolved && (
+            <div className="small" style={{ color: "var(--muted)" }}>
+              {turn.pending.resolved === "confirmed" ? "You ran it with that." : "You chose not to run it."}
+            </div>
+          )}
           {pendingOpen && (
             <div className="row">
               <button className="btn btn--primary btn--sm" onClick={() => void app.send({ confirm: turn.pending!.id })}>
