@@ -4,7 +4,7 @@
 
 ## 1. Why it exists
 
-When I was in the field with USGS or Lincoln Laboratory, nothing soured a trip quite like software that made the job harder. Five miles off the Atlantic coast on an 18-foot Boston Whaler, in a light March rain, I do not want a CLI. For AI-enabled systems the criterion is even simpler: I don't want something that will lie to me.
+When I was in the field with USGS or Lincoln Laboratory, nothing soured a trip quite like software that made the job harder. When I am out in the field managing multiple spinning plates, I do not want a CLI. For AI-enabled systems, I don't want something that will lie to me.
 
 That, plus the brief, left me with this objective: a usable, deterministic materials-science triage system, as ready for the hyper-connected university lab as for the airgapped field or lab site.
 
