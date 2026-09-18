@@ -50,9 +50,9 @@ The missing-data policy is battle tested, because my first version was flat wron
 
 ## 4. What it proves
 
-On live data the oxide-dielectric default ranks LaAlO3, HfO2, SrHfO3, LaScO3, ZrO2. HfO2 is 2nd of 317 candidates and ZrO2 5th; Al2O3 is 9th, and Ta2O5 falls to 99th, with its caveats explaining why: it reacts with silicon.
+On live data the oxide-dielectric profile ranks LaAlO3, HfO2, SrHfO3, LaScO3, ZrO2 as top 5. HfO2 is 2nd of 317 candidates and ZrO2 5th; Al2O3 is 9th, and Ta2O5 falls to 99th, with its caveats explaining why: it reacts with silicon.
 
-Retargeting to a new class touches three config files (a profile, a cation allowlist, and a property provider if the figure of merit is not already served) and no engine code. The thermal-barrier profile is that claim made concrete: same engine, same cache, no code change, a visibly different but defensible answer. Its figure of merit is Clarke's minimum thermal conductivity, lower preferred, and its substrate is the alumina scale on the bond coat. Of 750 candidates 394 pass, the rare-earth sesquioxides lead (Gd2O3 and Er2O3 at 0.8–0.9 W/m·K against zirconia's 1.13), and HfO2 lands 12th. One workhorse cannot be verified at all: Materials Project holds no elastic tensor for La2Zr2O7, and the self-check names it.
+Retargeting to a new class touches three config files (a profile, a cation allowlist, and a property provider if the figure of merit is not already available) and no engine code. The thermal-barrier profile is that claim made concrete: same engine, same cache, no code change, a visibly different but defensible answer. Its figure of merit is Clarke's minimum thermal conductivity, lower preferred, and its substrate is the alumina scale on the bond coat. Of 750 candidates 394 pass, the rare-earth sesquioxides lead (Gd2O3 and Er2O3 at 0.8–0.9 W/m·K against zirconia's 1.13), and HfO2 lands 12th. One workhorse cannot be verified at all: Materials Project holds no elastic tensor for La2Zr2O7, and the self-check names it.
 
 Eight checks run as pytest tests and as a report, passing on the fixture and the live cache. Two earn their keep: the interface criterion reproduces Hubbard and Schlom's held-out classification on 21 of 21 hard assertions, and the known-answer check has caught two real bugs, including the one above.
 
