@@ -9,7 +9,6 @@
   <a href="https://github.com/a-bissell/Oxbow/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/a-bissell/Oxbow/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://github.com/a-bissell/Oxbow/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/a-bissell/Oxbow?include_prereleases&label=release"></a>
   <img alt="Python 3.11+" src="https://img.shields.io/badge/python-3.11%2B-3776ab">
-  <img alt="MIT" src="https://img.shields.io/badge/license-MIT-lightgrey">
 </p>
 
 # Oxbow
@@ -46,7 +45,7 @@ oxbow serve --open
 
 ### Other ways to run
 
-- **No keys.** `oxbow load-fixtures` installs synthetic demo data instead of warming the cache. With no Anthropic key (or `LLM_PROVIDER=none`) the assistant is driven by rules: it understands the request vocabulary below and simple follow-ups, but does not converse. The ranking is the same either way.
+- **Demo Mode.** `oxbow load-fixtures` installs synthetic demo data instead of warming the cache. With no Anthropic key (or `LLM_PROVIDER=none`) the assistant is driven by rules: it understands the request vocabulary below and simple follow-ups, but does not converse. The ranking is the same either way.
 - **Another model.** `LLM_PROVIDER=openai_compatible` with `OPENAI_API_KEY` uses OpenAI instead of Claude. Add `LLM_BASE_URL` (say `http://localhost:11434/v1`) and `LLM_MODEL` to point it at a vLLM, Ollama or llama.cpp server instead; then nothing leaves the machine. The model only interprets requests and phrases answers, so a small local model does the job.
 - **Docker.** `cp .env.example .env`, then `docker compose -f docker/compose.yml up --build` serves on port 8000. Warm the cache with `docker compose -f docker/compose.yml run --rm app oxbow warm-cache`.
 - **No network.** Each tagged release ships a container image, all wheels, and a pre-warmed, checksummed data cache. Steps are in [docker/OFFLINE.md](docker/OFFLINE.md).
@@ -86,11 +85,9 @@ Keys and environment go in `.env` (loaded automatically) or the shell:
 
 ## Adjusting it
 
-In short: a **scientist** says it in the request, a **site admin** edits `site.yaml` or the Admin panel, a **deployment engineer** ships `oxbow bundle` and points `OXIDE_TRIAGE_CONFIG_DIR` at the site's config. The rest of this section is the detail.
+In short: a **scientist** says it in the request, a **site admin** edits `site.yaml` or the Admin panel, a **deployment engineer** ships `oxbow bundle` and points `OXIDE_TRIAGE_CONFIG_DIR` at the site's config. 
 
-Settings are layered: `config/default.yaml` holds every knob with a comment, a profile in `config/profiles/` overrides some of them, the site's own edits go in `site.yaml` next to the cache, and a request can adjust a few things for one run. `oxbow config --changed-only` prints what is in force and where it came from. Every departure from the shipped policy is printed on every result, so a reader always knows which rules produced the ranking.
-
-**A scientist changes things in the request itself.** No files, no restart:
+**A scientist changes things in the request itself.**
 
 | Say | Effect |
 | --- | --- |
@@ -104,7 +101,7 @@ Settings are layered: `config/default.yaml` holds every knob with a comment, a p
 
 Anything the request asks for that is outside the shipped policy is listed in the header of the result as a deviation.
 
-**A site admin changes the defaults for everyone.** Turn on `OXIDE_TRIAGE_ADMIN=1` and use the Admin panel in the web app, or edit `site.yaml` by hand. Common edits:
+**A site admin changes the defaults.** Turn on `OXIDE_TRIAGE_ADMIN=1` and use the Admin panel in the web app, or edit `site.yaml` by hand. Common edits:
 
 - **Ranking criteria.** `weights:` sets the relative weight of stability, band gap, interface, toxicity, simplicity and literature; `figure_of_merit.weight` sets the weight of the profile's figure of merit (the dielectric constant in the default profile). `gates:` sets the hard cut-offs (energy above hull, minimum gap, element count).
 - **Hazard policy.** `toxicity.blocklist_tiers`, `element_blocklist`, `element_allowlist`, and `never_lift` for elements no request may unblock.
@@ -127,9 +124,9 @@ A new profile is a YAML file in `config/profiles/` that overrides only what diff
 
 - `oxbow bundle build` packages a warmed cache with a manifest; `oxbow bundle verify` and `oxbow bundle install` load it on a machine with no network. See [docker/OFFLINE.md](docker/OFFLINE.md).
 - `OXIDE_TRIAGE_CONFIG_DIR` points an installed wheel at a directory of config files outside a checkout; `OXIDE_TRIAGE_CACHE` places the cache and, with it, `site.yaml` and the logs.
-- Two append-only logs next to the cache, `deviations.jsonl` and `retrieval.jsonl`, record every run that departed from policy and every data gap. The Admin panel summarizes them. Rotate them with the site's usual tooling.
+- Two append-only logs next to the cache, `deviations.jsonl` and `retrieval.jsonl`, record every run that departed from policy and every data gap. The Admin panel summarizes them. 
 
-**Perimeter is prototype-grade, and deliberately shallow.** `OXBOW_PASSWORD` puts a single shared password in front of the web app and `OXIDE_TRIAGE_ADMIN=1` gates the admin panel; neither carries a user identity, so the logs above record *what* departed from policy but not *who*. In a shared lab this belongs behind the site's own SSO or an authenticating reverse proxy, with the resolved user stamped onto each log line — that is the missing piece before the deviation log is a real audit trail rather than a change record.
+**Auth is prototype-grade** `OXBOW_PASSWORD` puts a single shared password in front of the web app and `OXIDE_TRIAGE_ADMIN=1` gates the admin panel; neither carries a user identity, so the logs above record *what* departed from policy but not *who*. At a real site, we would be integrating with the customer SSO, or setting up an authenticating reverse proxy.
 
 ## Troubleshooting
 
@@ -148,7 +145,7 @@ Start with `oxbow doctor`, which reports on keys, cache health and the known-ans
 
 On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The cases are in [oxide_triage/evaluation.py](oxide_triage/evaluation.py) (`oxbow eval` and [eval/run_eval.py](eval/run_eval.py) both call it); the last live run is in [docs/live-evaluation.md](docs/live-evaluation.md). [eval/evaluation.ipynb](eval/evaluation.ipynb) is the same suite as a notebook, with outputs saved, so it reads on GitHub without running anything.
 
-Every ranking parameter that was set after seeing data is logged in [docs/ranking-decisions.md](docs/ranking-decisions.md), with what triggered it, what it moved in the live ranking, and why — including the two changes most open to the charge of tuning, and the sensitivity table that tests whether any of them decide the shortlist.
+Every ranking parameter that was set after seeing data is logged in [docs/ranking-decisions.md](docs/ranking-decisions.md), with what triggered it, what it moved in the live ranking, and why. 
 
 ## Development
 
@@ -160,7 +157,3 @@ cd ui && npm ci && npm run build      # front end only; the built bundle is comm
 ```
 
 CI runs lint, tests, a clean wheel install, and an offline smoke test of the container image.
-
-## License
-
-MIT.
