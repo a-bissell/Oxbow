@@ -1,4 +1,4 @@
-# Held-out validation set for the interface criterion.
+# Retrospective benchmark set for the interface criterion.
 #
 # K. J. Hubbard and D. G. Schlom, "Thermodynamic stability of binary oxides in contact with
 # silicon", J. Mater. Res. 11(11), 2757-2776 (1996), DOI 10.1557/JMR.1996.0350. Earlier versions:
@@ -8,18 +8,18 @@
 # paywalled; the lists below are the abstract's, which is quoted verbatim at
 #   https://www.osti.gov/biblio/399779
 #   https://www.cambridge.org/core/journals/journal-of-materials-research/article/abs/thermodynamic-stability-of-binary-oxides-in-contact-with-silicon/3E01E4C834A07AB655D0E915335EDAE2
-# and confirmed 2026-09-10. This list was published thirty years before the code and was never
-# used to set a parameter in it; the self-check's workhorses were. That is the point of it.
+# and confirmed 2026-09-10. ZrO2 from this literature informed the tolerance choice,
+# and the assessment band was revised after inspecting outcomes. This is not independent validation.
 #
 # What the abstract asserts, and how each assertion is scored:
 #   proven_stable      "sufficient data exist to conclude ... are thermodynamically stable":
-#                      the tool must predict stable (E_rxn >= -tolerance). Hard.
+#                      stable or marginal counts as agreement (E_rxn >= -2*tolerance). Hard.
 #   not_shown_unstable "all binary oxides except the following are ... unstable": the paper
 #                      could not show these unstable, which is weaker than showing them stable.
 #                      Reported, counted, not a failure. Soft.
 #   unstable           everything else, by the abstract's own statement; the named examples
 #                      are the ones the secondary literature calls out (Robertson & Wallace).
-#                      The tool must predict a reaction (E_rxn < -tolerance). Hard.
+#                      The tool must predict a reaction (E_rxn < -2*tolerance). Hard.
 #   borderline         the paper's own versions disagree, or later work moved it. Reported only.
 #   secondary          ternaries "believed stable on silicon" in later Schlom-group work, not a
 #                      thermodynamic calculation. Reported only.

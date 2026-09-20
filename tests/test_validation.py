@@ -1,4 +1,4 @@
-"""Held-out validation of the interface criterion against Hubbard & Schlom (1996).
+"""Retrospective benchmark of the interface criterion against Hubbard & Schlom (1996).
 
 The fixture carries the real MP hull phases for every system on the list, so this runs offline
 and the numbers are the live ones."""
@@ -53,6 +53,8 @@ def test_hard_assertions_all_agree_and_disagreements_are_named(cache):
     names = {r.formula for r in report.disagreements}
     assert names == {"SrO", "CaZrO3", "SrZrO3"}
     text = render_markdown(report)
+    assert "Retrospective benchmark" in text and "Not independent validation" in text
+    assert "Held-out" not in text
     assert "21 of 21 agree" in text and "10 of 11 agree" in text and "Disagreements, named:" in text
     assert "SrO: the paper says stable; the hull says -0.136" in text
 

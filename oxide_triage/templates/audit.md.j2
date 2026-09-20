@@ -102,7 +102,7 @@
 {% endfor %}
 
 {% endif %}
-Missing-data policy: **{{ result.scoring.missing_data_policy }}**, penalty {{ result.scoring.missing_data_penalty }}; confidence thresholds {{ result.scoring.confidence_thresholds }}.
+Missing-data policy: **{{ result.scoring.missing_data_policy }}**, penalty {{ result.scoring.missing_data_penalty }}; data-coverage thresholds {{ result.scoring.confidence_thresholds }}.
 
 | Criterion | Weight |
 |---|---|
@@ -122,7 +122,7 @@ Gates:
 
 {{ sc.record.crystal_system or "?" }} {{ sc.record.spacegroup_symbol or "" }} · {{ sc.record.n_elements }} elements ({{ sc.record.elements | join("-") }}) · theoretical structure: {{ sc.record.theoretical }}
 
-**Adjusted score {{ sc.adjusted_score | fmt(4) }}** (raw on available data {{ sc.raw_score | fmt(4) }}, data coverage {{ sc.data_coverage | pct }}, confidence **{{ sc.confidence }}**)
+**Adjusted score {{ sc.adjusted_score | fmt(4) }}** (raw on available data {{ sc.raw_score | fmt(4) }}, data coverage {{ sc.data_coverage | pct }}, data coverage **{{ sc.confidence }}**)
 {% if sc.absent_criteria %}
 **Criteria the sources hold no record for:** {{ sc.absent_criteria | join(", ") }} _(a fact about the data; warming the cache will not change it)_
 {% endif %}
@@ -170,9 +170,9 @@ Provenance:
 | hazard | {{ r.hazard.provenance.source if r.hazard.provenance else "—" }} | {{ r.hazard.provenance.source_id if r.hazard.provenance else "—" }} | {{ r.hazard.provenance.note or "—" }} | PubChem: {{ r.hazard.pubchem_status.value }}{% if r.hazard.pubchem_cid %} (CID {{ r.hazard.pubchem_cid }}){% endif %} |
 {% if r.literature.sample_works %}
 
-Literature sample (retrieved titles; data, not endorsements):
+Literature matches (property support not established):
 {% for w in r.literature.sample_works %}
-- {{ w.year or "?" }} — {{ w.title }} ({{ w.work_id }}{% if w.doi %}, {{ w.doi }}{% endif %})
+- {{ w.year or "?" }} — {{ w.title }} ({{ w.work_id }}{% if w.doi %}, {% if w.doi | doi_url %}[DOI]({{ w.doi | doi_url }}){% else %}identifier unavailable{% endif %}{% endif %})
 {% endfor %}
 {% endif %}
 

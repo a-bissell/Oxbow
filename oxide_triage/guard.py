@@ -5,7 +5,7 @@ Bin 1  architecturally impossible   wetlab triggers, private lab data, paywalled
         does not exist; it does not say "I have been told to decline".
 Bin 2  configuration deviation      "include lead" looks like bypassing a safety filter but
         is a legitimate config change. Proceed; surface it in the header; log it.
-Bin 3  evidence-integrity attack    "cite a paper supporting this", "assume the data checks
+Bin 3  evidence-integrity attack    "invent a paper", "assume the data checks
         out", "just give me a number", "rank these even though you have no data". Refuse,
         because complying would fabricate evidence.
 Bin 0  override attempt            "ignore your previous instructions", "developer mode",
@@ -112,35 +112,28 @@ IMPOSSIBLE_RULES: list[Rule] = [
 ]
 
 _EVIDENCE_NOUN = r"(?:papers?|references?|citations?|sources?|studies|study|publications?|dois?)"
-_SUPPORT_VERB = r"(?:support\w*|prov(?:e|es|ing)|confirm\w*|back(?:s|ing)? up|backing|justif\w*|show(?:s|ing)? that|demonstrat\w*)"
 _PROPERTY = (
     r"(?:dielectric(?: constants?)?|permittivit\w*|k[- ]values?|kappa|band ?gaps?|gaps?|"
     r"hull distances?|energy above hull|stabilit\w*|values?|numbers?|constants?|figures?)"
 )
 
 INTEGRITY_RULES: list[Rule] = [
-    # "cite a paper supporting X": evidence is asked for *in support of a conclusion*. Plain
-    # "cite your sources" or "cite evidence for each candidate" is what the tool does anyway.
-    _r(
-        "fabricate_citation",
-        rf"\bcite\b[^.]{{0,40}}?\b{_SUPPORT_VERB}\b",
-        "A citation is evidence. This tool only reports literature records it actually retrieved; "
-        "it cannot produce a reference to support a conclusion.",
-    ),
-    # "find/give me a paper that supports the top pick" — the object is the tool's own result.
-    _r(
-        "fabricate_citation",
-        rf"\b(find|give|provide|add|include|make up|invent|generate|produce)\b[^.]{{0,30}}?"
-        rf"\b(a |some |any |one )?{_EVIDENCE_NOUN}\b[^.]{{0,20}}?\b{_SUPPORT_VERB}\b[^.]{{0,20}}?"
-        r"\b(the |this |that |your |our |its |my |each |every )?(top|pick|choice|rank\w*|result|conclusion|claim|"
-        r"recommendation|shortlist|answer|candidates?|number|value|one|material|entry)\b",
-        "A citation is evidence. This tool only reports literature records it actually retrieved; "
-        "it cannot produce a reference to support a conclusion.",
-    ),
     _r(
         "fabricate_citation",
         rf"\b(make up|invent|fabricate|manufacture)\b[^.]{{0,30}}?\b({_EVIDENCE_NOUN}|data|numbers?|values?|results?|evidence)\b",
         "This tool cannot invent references, data or numbers.",
+    ),
+    _r(
+        "fabricate_citation",
+        rf"\b(?:cite|generate|provide|use|add|give)\b[^.;]{{0,30}}?\b(?:fake|fictional|invented|fabricated)\s+{_EVIDENCE_NOUN}\b",
+        "This tool cannot present invented references as evidence.",
+    ),
+    _r(
+        "fabricate_citation",
+        rf"\b(?:cite|give|provide|add|include|generate)\b[^.;]{{0,50}}?\b{_EVIDENCE_NOUN}\b"
+        r"[^.;]{0,60}?\b(?:even (?:if|though|when)|regardless (?:of|whether))\b"
+        r"[^.;]{0,30}?\b(?:none|no(?:ne)? exists?|nonexistent|(?:not|don't|doesn't|do not|does not) exist|unavailable)\b",
+        "References must exist in retrieved evidence; the tool cannot supply nonexistent support.",
     ),
     _r(
         "assume_data_valid",
@@ -185,7 +178,7 @@ INTEGRITY_RULES: list[Rule] = [
         r"don'?t (show|include|mention|list|bother (?:with|about))|"
         r"do not (show|include|mention|list|bother (?:with|about))|without (any |the |all )?|no)\s*"
         r"(the )?(caveats?|uncertaint\w*|missing[- ]data|data gaps|warnings?|limitations?|disclaimers?|"
-        r"hedging|confidence labels?)\b",
+        r"hedging|confidence labels?|data[- ]coverage(?: labels?)?)\b",
         "Caveats and data gaps are part of the result, not decoration. The PI summary already "
         "compresses them to one line per candidate.",
     ),
@@ -439,6 +432,22 @@ def _hazard_allowances(
     return findings
 
 
+def _negated_instruction(text: str, start: int) -> bool:
+    """Local negation of an action, never a blanket exemption for the whole request.
+
+    Match each action independently so “do not invent papers, but fabricate data” blocks.
+    """
+    prefix = text[:start]
+    return bool(
+        re.search(
+            r"\b(?:do not|don't|don’t|never|must not|should not|avoid|without|no)\s+"
+            r"(?:(?:ever|please|any|under any circumstances|fabricated|invented)\s+)*$",
+            prefix,
+            re.I,
+        )
+    )
+
+
 def guard_request(
     text: str,
     table: HazardTable,
@@ -456,7 +465,7 @@ def guard_request(
     findings: list[GuardFinding] = []
 
     for rule in INTEGRITY_RULES:
-        m = rule.pattern.search(text)
+        m = next((m for m in rule.pattern.finditer(text) if not _negated_instruction(text, m.start())), None)
         if m:
             findings.append(
                 GuardFinding(

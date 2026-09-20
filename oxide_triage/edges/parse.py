@@ -73,7 +73,7 @@ _UNDERSTOOD = re.compile(
     r"candidates?|materials?|oxides?|dielectrics?|permittivit\w*|high[- ]?k|k[- ]values?|"
     r"gate[- ]?(?:oxides?|stacks?|dielectrics?)|thin[- ]films?|films?|ald|sputter\w*|deposit\w*|"
     r"(?:band ?)?gaps?|hull|thermodynamic\w*|stab(?:le|ility)|toxic\w*|non-?toxic|hazard\w*|safe\w*|"
-    r"simple|simplicity|compositions?|elements?|literature|evidence|published|papers?|public|"
+    r"simple|simplicity|compositions?|elements?|literature|evidence|published|papers?|citations?|references?|public|"
     r"promising|prefer\w*|priorit\w*|weight\w*|thresholds?|limits?|gates?|"
     r"explain|why|compare|compar\w*|versus|vs\.?|differ\w*|favou?r\w*|better|best|"
     r"re-?run|again|instead|profiles?|conservative|exploratory|default|"

@@ -378,11 +378,11 @@ def score_components(
     if iface.status == DataStatus.KNOWN and iface.reaction_energy_ev_atom is not None:
         e_rxn = iface.reaction_energy_ev_atom
         norm = clamp01(1.0 + (e_rxn + ic.tolerance_ev_atom) / ic.zero_score_at_ev_atom)
-        if e_rxn >= -1e-9:
-            label = f"stable against {iface.substrate} (no hull reaction)"
-        else:
-            prods = " + ".join(iface.products[:4]) or "hull phases"
-            label = f"reacts with {iface.substrate}: {e_rxn:+.3f} eV/atom -> {prods}"
+        relation = "within" if e_rxn >= -ic.tolerance_ev_atom else "outside"
+        label = (
+            f"bulk hull vs {iface.substrate}: {e_rxn:+.3f} eV/atom "
+            f"({relation} {ic.tolerance_ev_atom:g} eV/atom tolerance)"
+        )
         comps.append(
             _component(
                 "interface",

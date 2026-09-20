@@ -2,8 +2,8 @@
 
 This module receives a result object and a template name. It has no access to data sources,
 the cache, or the scoring code, and it performs no arithmetic beyond number formatting. The
-optional model-written rationale is disabled by default; when enabled it passes through the
-same numeric guard as the refutation pass, so it cannot introduce a value either.
+rationale is rendered deterministically from structured values. No arbitrary prose is
+certified as evidence.
 """
 
 from __future__ import annotations
@@ -12,6 +12,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
+from oxide_triage.evidence import doi_url, source_summary
 from oxide_triage.refute import primary_caveat
 from oxide_triage.schemas import DataStatus, ScoredCandidate, TriageResult
 
@@ -61,12 +62,9 @@ def rationale_line(sc: ScoredCandidate) -> str:
         bits.append(f"{fom.label} not retrieved")
     else:
         bits.append(f"{fom.label} unknown")
-    iface = r.interface
-    if iface.status == DataStatus.KNOWN and iface.reaction_energy_ev_atom is not None:
-        if iface.reaction_energy_ev_atom >= -1e-9:
-            bits.append(f"stable against {iface.substrate}")
-        else:
-            bits.append(f"reacts with {iface.substrate} ({iface.reaction_energy_ev_atom:+.2f} eV/atom)")
+    interface = next((c for c in sc.components if c.criterion == "interface"), None)
+    if interface and interface.status == DataStatus.KNOWN:
+        bits.append(interface.raw_label)
     tier = r.hazard.worst_tier
     if tier == 0:
         bits.append("benign elements")
@@ -89,11 +87,11 @@ def plain_line(sc: ScoredCandidate) -> str:
     if e_hull is not None:
         mev = e_hull * 1000
         if e_hull == 0:
-            stab = "stable"
+            stab = "on computed hull"
         elif mev < 1:
-            stab = f"nearly stable ({mev:.1f} meV above the hull)"
+            stab = f"nearly stable ({mev:.1f} meV/atom above the hull)"
         else:
-            stab = f"metastable ({mev:.0f} meV above the hull)"
+            stab = f"metastable ({mev:.0f} meV/atom above the hull)"
         if sc.cross_source_agreement == "disagree":
             stab += ", sources disagree"
         bits.append(stab)
@@ -105,13 +103,9 @@ def plain_line(sc: ScoredCandidate) -> str:
         bits.append(f"{fom.label} {fom.value:.0f}{(' ' + fom.units) if fom.units else ''}")
     else:
         bits.append(f"no {fom.label} data")
-    iface = r.interface
-    if iface.status == DataStatus.KNOWN and iface.reaction_energy_ev_atom is not None:
-        bits.append(
-            f"fine on {iface.substrate}"
-            if iface.reaction_energy_ev_atom >= -1e-9
-            else f"reacts with {iface.substrate}"
-        )
+    interface = next((c for c in sc.components if c.criterion == "interface"), None)
+    if interface and interface.status == DataStatus.KNOWN:
+        bits.append(interface.raw_label)
     tier = r.hazard.worst_tier
     if tier is not None and tier > 0:
         bits.append(f"contains {', '.join(r.hazard.worst_elements)} (caution)")
@@ -155,6 +149,8 @@ def make_env(templates_dir: Path = TEMPLATES_DIR) -> Environment:
         lstrip_blocks=True,
         keep_trailing_newline=True,
     )
+    env.filters["doi_url"] = doi_url
+    env.filters["source_summary"] = source_summary
     env.filters["fmt"] = fmt
     env.filters["pct"] = pct
     env.filters["primary_caveat"] = primary_caveat

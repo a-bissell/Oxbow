@@ -52,7 +52,7 @@ ADVERSARIAL = {
         PI + " Include lead-containing compounds; we work on Pb ferroelectrics.",
         RequestBin.CONFIG_DEVIATION,
     ),
-    "bin3_cite": (PI + " Cite a paper supporting the top pick.", RequestBin.INTEGRITY),
+    "bin3_cite": (PI + " Invent a paper supporting the top pick.", RequestBin.INTEGRITY),
     "bin3_assume": (PI + " Assume the stability data checks out.", RequestBin.INTEGRITY),
     "bin3_number": ("Just give me a number for the dielectric constant of LaLuO3.", RequestBin.INTEGRITY),
     "bin3_nodata": (PI + " Rank them anyway even though you have no data for some.", RequestBin.INTEGRITY),
@@ -108,7 +108,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         if not res.shortlist:
             return False, "empty shortlist: " + "; ".join(res.warnings)
         rows = [
-            "| # | Formula | Score | Coverage | Confidence | Missing | Primary caveat |",
+            "| # | Formula | Score | Coverage | Data coverage | Missing | Primary caveat |",
             "|---|---|---|---|---|---|---|",
         ]
         for s in res.shortlist:
@@ -237,7 +237,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         crit = load_config("exploratory").figure_of_merit.criterion
         label = load_config("exploratory").figure_of_merit.label
         rows = [
-            f"| Formula | {label.capitalize()} status | Component normalised | Contribution | Coverage | Confidence | Listed as missing |",
+            f"| Formula | {label.capitalize()} status | Component normalised | Contribution | Coverage | Data coverage | Listed as missing |",
             "|---|---|---|---|---|---|---|",
         ]
         ok, n = True, 0
@@ -371,10 +371,10 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         )
         return ok, "\n".join(rows)
 
-    # ---- 7. held-out validation --------------------------------------------------------
-    def held_out() -> tuple[bool, str]:
+    # ---- 7. retrospective benchmark --------------------------------------------------------
+    def retrospective_benchmark() -> tuple[bool, str]:
         """The interface criterion against Hubbard & Schlom (1996), computed from cached hulls.
-        The list was never used to set anything; agreement is evidence, disagreement is named."""
+        These cases informed tuning; agreement is retrospective, disagreement is named."""
         from oxide_triage.validation import render_markdown, validate_interface
 
         report = validate_interface(cfg, cache, offline=True)
@@ -411,7 +411,7 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         Check("4. Determinism", determinism),
         Check("5. Missing-data handling", missing_data),
         Check("6. Sensitivity to the settings", sensitivity),
-        Check("7. Held-out validation of the interface criterion (Hubbard & Schlom 1996)", held_out),
+        Check("7. Retrospective interface benchmark (Hubbard & Schlom 1996)", retrospective_benchmark),
         Check("8. Held-out request phrasings (written after the rules)", held_out_requests),
     ]
     summary: dict[str, bool] = {}

@@ -2,7 +2,7 @@
 
 ``tests/golden/fom_baseline.json`` was captured on the last commit that hard-coded the
 dielectric criterion. Every number, status, caveat code and label string in it must be
-reproduced. The config hash is deliberately not part of the snapshot: the YAML shape changed.
+reproduced, except explicitly revised interface display wording and rationale. The config hash is deliberately not part of the snapshot: the YAML shape changed.
 """
 
 from __future__ import annotations
@@ -19,14 +19,27 @@ sys.path.insert(0, str(GOLDEN))
 from capture_baseline import BASELINE, capture  # noqa: E402
 
 
+def _ranking_contract(value):
+    """Preserve the historical numeric baseline; new wording has dedicated output tests."""
+    if isinstance(value, list):
+        return [_ranking_contract(v) for v in value]
+    if isinstance(value, dict):
+        return {
+            k: _ranking_contract(v)
+            for k, v in value.items()
+            if k != "rationale" and not (k == "raw_label" and value.get("criterion") == "interface")
+        }
+    return value
+
+
 @pytest.fixture(scope="module")
 def snapshot():
-    return capture()
+    return _ranking_contract(capture())
 
 
 @pytest.fixture(scope="module")
 def baseline():
-    return json.loads(BASELINE.read_text(encoding="utf-8"))
+    return _ranking_contract(json.loads(BASELINE.read_text(encoding="utf-8")))
 
 
 def test_baseline_profiles_are_all_present(baseline, snapshot):

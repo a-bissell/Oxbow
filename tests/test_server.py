@@ -395,7 +395,7 @@ def test_model_driver_cannot_self_confirm_and_guard_runs_on_the_users_words(clie
 
     # 4. an integrity attack never reaches the model at all
     n_calls = len(fake.calls)
-    refused, _ = turn(client, conv["id"], text=PI + " Cite a paper supporting the top pick.")
+    refused, _ = turn(client, conv["id"], text=PI + " Invent a paper supporting the top pick.")
     assert len(fake.calls) == n_calls and "fabricat" in refused["text"]
     assert refused["steps"][0]["tool"] == "guard" and refused["steps"][0]["status"] == "failed"
 

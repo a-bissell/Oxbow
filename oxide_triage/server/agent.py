@@ -408,7 +408,7 @@ def narrate_explain(result: TriageResult, key: str) -> tuple[str, list[str]]:
     strongest = max(known, key=lambda c: c.normalized or 0.0) if known else None
     parts = [
         f"{r.formula} ranks {sc.rank} of {n_pass} passing with an adjusted score of {sc.adjusted_score:.3f} "
-        f"and {sc.confidence} confidence."
+        f"and {sc.confidence} data coverage."
     ]
     if strongest and weakest and strongest is not weakest:
         parts.append(
@@ -418,7 +418,9 @@ def narrate_explain(result: TriageResult, key: str) -> tuple[str, list[str]]:
         )
     if sc.missing_criteria:
         parts.append(
-            "No data for " + ", ".join(sc.missing_criteria) + ", which earns no credit and lowers confidence."
+            "No data for "
+            + ", ".join(sc.missing_criteria)
+            + ", which earns no credit and lowers data coverage."
         )
     cav = primary_caveat(sc, [c.code for c in result.run_notes])
     if cav is not None:

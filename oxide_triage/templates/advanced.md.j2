@@ -81,7 +81,7 @@ _No candidate passed every gate under this configuration. See the audit view for
 {% endif %}
 
 {% endif %}
-**{{ sc.rank }}. {{ sc.record.formula }}** ({{ sc.record.crystal_system or "?" }}, `{{ sc.record.material_id }}`{% if sc.polymorphs %}, +{{ sc.polymorphs | length }} other phase{{ "s" if sc.polymorphs | length > 1 }}{% endif %}) — score {{ sc.adjusted_score | fmt(2) }}, confidence **{{ sc.confidence }}**{% if sc.absent_criteria %}, no data for: {{ sc.absent_criteria | join(", ") }}{% endif %}{% if sc.not_retrieved_criteria %}, **never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}**{% endif %}
+**{{ sc.rank }}. {{ sc.record.formula }}** ({{ sc.record.crystal_system or "?" }}, `{{ sc.record.material_id }}`{% if sc.polymorphs %}, +{{ sc.polymorphs | length }} other phase{{ "s" if sc.polymorphs | length > 1 }}{% endif %}) — score {{ sc.adjusted_score | fmt(2) }}, data coverage **{{ sc.confidence }}**{% if sc.absent_criteria %}, no data for: {{ sc.absent_criteria | join(", ") }}{% endif %}{% if sc.not_retrieved_criteria %}, **never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}**{% endif %}
 
 - Why: {{ sc.rationale }}
 {% if cav %}
@@ -99,7 +99,7 @@ _No candidate passed every gate under this configuration. See the audit view for
 Scores are relative within this run and this profile, and candidates in the same tier are a
 tie: DFT gaps, {{ result.scoring.figure_of_merit.method if result.scoring.figure_of_merit else "computed" }} {{ result.scoring.figure_of_merit.label if result.scoring.figure_of_merit else "figure-of-merit" }} values and log-scaled literature counts do not support ordering
 two candidates {{ result.tie_band }} apart. A candidate ranked on partial data
-(confidence medium/low) has criteria with **no data behind them**; those are named per entry,
+(data coverage medium/low) has criteria with **no data behind them**; those are named per entry,
 not scored as zero. Band gaps marked "corrected" are scaled DFT values, not measurements.
 
 {% if result.warnings %}

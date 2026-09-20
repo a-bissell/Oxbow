@@ -85,12 +85,16 @@ def explain_candidate(result: TriageResult, key: str) -> str:
     if sc is None:
         known = sorted({s.record.formula for s in all_candidates(result)})
         return f"No candidate '{key}' in this result. Known formulas: {', '.join(known)}"
+    from oxide_triage.evidence import source_summary, statements
+
     r = sc.record
     lines = [
         f"# {r.formula} ({r.material_id}) — {r.crystal_system or '?'} {r.spacegroup_symbol or ''}".rstrip()
     ]
     if result.fixture_data:
         lines.append("> SYNTHETIC FIXTURE DATA: every value below is illustrative.")
+    lines.extend(f.render() for f in statements(sc))
+    lines.append(source_summary(sc))
     if sc.excluded:
         lines.append("**Excluded by a gate.** Reasons: " + "; ".join(sc.exclusion_reasons))
     elif sc.collapsed_under:
@@ -99,7 +103,7 @@ def explain_candidate(result: TriageResult, key: str) -> str:
             f"**Passed the gates; collapsed under the leading {r.formula} phase** "
             f"(`{sc.collapsed_under}`, rank {lead.rank if lead else '?'}). Ranked {sc.rank_by_material} over "
             f"materials before grouping. Adjusted score {sc.adjusted_score:.4f} "
-            f"(raw on available data {sc.raw_score:.4f}, coverage {sc.data_coverage:.0%}, confidence {sc.confidence})."
+            f"(raw on available data {sc.raw_score:.4f}, coverage {sc.data_coverage:.0%}, data coverage {sc.confidence})."
         )
     else:
         n_pass = len(result.shortlist) + len(result.ranked_beyond_shortlist)
@@ -117,7 +121,7 @@ def explain_candidate(result: TriageResult, key: str) -> str:
             )
         lines.append(
             f"**Rank {sc.rank} of {n_pass} passing compounds.**{tier_note} Adjusted score {sc.adjusted_score:.4f} "
-            f"(raw on available data {sc.raw_score:.4f}, coverage {sc.data_coverage:.0%}, confidence {sc.confidence})."
+            f"(raw on available data {sc.raw_score:.4f}, coverage {sc.data_coverage:.0%}, data coverage {sc.confidence})."
         )
         if sc.polymorphs:
             lines.append(
@@ -252,7 +256,7 @@ def compare_candidates(result: TriageResult, keys: list[str]) -> str:
 
     row("rank", [str(sc.rank) if sc.rank else "excluded" for sc in picked])
     row("adjusted score", ["—" if sc.adjusted_score is None else f"{sc.adjusted_score:.4f}" for sc in picked])
-    row("confidence", [sc.confidence for sc in picked])
+    row("data coverage", [sc.confidence for sc in picked])
     row("data coverage", [f"{sc.data_coverage:.0%}" for sc in picked])
     names = list(dict.fromkeys(c.criterion for sc in picked for c in sc.components))
     for name in names:
@@ -326,6 +330,6 @@ def list_candidates(result: TriageResult, section: str = "shortlist", limit: int
             phases = f", +{len(sc.polymorphs)} other phase(s)" if sc.polymorphs else ""
             tier = f", tier {sc.tier}" if sc.tier is not None else ""
             lines.append(
-                f"- #{sc.rank} {r.formula} ({r.material_id}): score {score}{tier}, confidence {sc.confidence}{phases}"
+                f"- #{sc.rank} {r.formula} ({r.material_id}): score {score}{tier}, data coverage {sc.confidence}{phases}"
             )
     return "\n".join(lines)

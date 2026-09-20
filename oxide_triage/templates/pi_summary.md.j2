@@ -65,6 +65,8 @@ _No candidate passed every gate under this configuration. The audit view says wh
 {% set cav = sc | primary_caveat(shared) %}
 **{{ sc.rank }}. {{ sc.record.formula }}**{% if sc.polymorphs %} (+{{ sc.polymorphs | length }} other phase{{ "s" if sc.polymorphs | length > 1 }}){% endif %} — {{ sc | plain_line }}{% if sc.confidence != "high" %} Partial data.{% endif %}
 
+{{ sc | source_summary }}
+
 {% if cav %}
 - Watch out: {{ cav.text }}
 {% endif %}
@@ -81,6 +83,8 @@ _No candidate passed every gate under this configuration. The audit view says wh
 
 {{ result.scope_limitation }}
 
+Interface results describe bulk thermodynamics within the stated tolerance, not film compatibility.
+The phase a deposited film adopts is not predicted; listed properties belong to the selected phase.
 Scores compare candidates within this run only, and a tie is a tie: the order inside one is
 arbitrary. The detailed summary (`advanced`) lists every criterion and caveat per candidate;
 the audit view shows every number, weight and source.

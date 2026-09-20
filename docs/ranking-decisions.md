@@ -124,12 +124,13 @@ perturbations. The result on the live cache:
 The honest reading: the settings decide the order among the top seven and not who is in it, and
 the tiers exist because the order among them is not something the inputs can support.
 
-## The held-out validation
+## The retrospective benchmark
 
 Hubbard and Schlom, J. Mater. Res. 11, 2757 (1996), classified the binary oxides by whether
 they are thermodynamically stable in contact with silicon at 1000 K, by the hull argument this
-tool implements, thirty years before the code. The list was never used to set a parameter; the
-self-check's workhorses were. `oxide-triage validate` computes the criterion for every oxide on
+tool implements. Publication before the code does not establish evaluation independence:
+ZrO2 informed the tolerance adjustment above, the workhorses informed other choices, and the
+assessment band was revised after inspecting outcomes. This is a retrospective benchmark. `oxide-triage validate` computes the criterion for every oxide on
 it (`oxide_triage/data/validation/hubbard_schlom_1996.yaml`, with the citation, the abstract's
 exact wording and a confidence tag per entry), and check 7 of the evaluation reports it.
 
@@ -155,11 +156,13 @@ data may differ from the 0 K hull there. Either way the tool ranks CaZrO3 tenth 
 nineteenth on the strength of it, and a reader deciding whether to trust that placement now
 has both sources and the number in front of them.
 
-**One decision inside the validation itself.** The first draft called a reaction "marginal"
+**One decision inside the benchmark itself.** The first draft called a reaction "marginal"
 anywhere on the scoring ramp, down to −0.25 eV/atom, and so called TiO2 (−0.17) marginal and
 scored it as a disagreement with "unstable". The band was redrawn at twice the tolerance,
 −0.10, which is what marginal means (the band the ZrO2 literature argues inside). This turned
 TiO2 into an agreement and SrO, CaZrO3 and SrZrO3 from agreements into the three
-disagreements above. The redraw made the result look worse, not better, and it is the right
-boundary; where the *score* reaches zero is a preference, where a reaction is distinguishable
-from noise is not.
+disagreements above. Regardless of its effect on the aggregate count, revising the boundary after looking at the
+cases prevents an independent-validation claim. The existing boundary is retained; its
+scientific justification and performance on untouched cases require future evaluation.
+
+The next evaluation must follow [the prospective protocol](future-evaluation.md). It has not yet been run.

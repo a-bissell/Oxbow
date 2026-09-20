@@ -135,7 +135,7 @@ comparing candidates against each other.</div>
     <span class="formula">{{ r.formula }}</span>
     <span class="tag">{{ r.material_id }} · {{ r.crystal_system or "?" }} {{ r.spacegroup_symbol or "" }}</span>
     {% if sc.tier is not none %}<span class="pill gray" title="Candidates within {{ result.tie_band }} of a tier's leader share the tier; the order inside a tier is arbitrary.">tier {{ sc.tier }}</span>{% endif %}
-    <span class="pill {{ sc.confidence }}">confidence {{ sc.confidence }}</span>
+    <span class="pill {{ sc.confidence }}">data coverage {{ sc.confidence }}</span>
     {% if sc.absent_criteria %}<span class="pill gray">no data: {{ sc.absent_criteria | join(", ") }}</span>{% endif %}
     {% if sc.not_retrieved_criteria %}<span class="pill warn" title="Never downloaded into this cache; the score is lowered by data the system failed to collect, so this rank is not comparable.">never downloaded: {{ sc.not_retrieved_criteria | join(", ") }}</span>{% endif %}
   </div>
@@ -191,20 +191,20 @@ comparing candidates against each other.</div>
 {% if passing %}
 <h2>Data-gap map <span class="tag">which criteria had data behind them, per passing candidate</span></h2>
 <div class="wrap"><table class="gapmap">
-  <tr><th>#</th><th>Formula</th>{% for c in result.shortlist[0].components if result.shortlist %}<th>{{ c.criterion }}</th>{% endfor %}<th>Coverage</th><th>Confidence</th></tr>
+  <tr><th>#</th><th>Formula</th>{% for c in result.shortlist[0].components if result.shortlist %}<th>{{ c.criterion }}</th>{% endfor %}<th>Coverage</th><th>Data coverage</th></tr>
   {% for sc in passing %}
   <tr><td class="mono">{{ sc.rank }}</td><td>{{ sc.record.formula }}</td>
     {% for c in sc.components %}<td class="{{ 'k' if c.status.value == 'known' else 'u' }}" title="{{ c.raw_label }}">{{ "●" if c.status.value == "known" else "?" }}</td>{% endfor %}
     <td class="mono">{{ sc.data_coverage | pct }}</td><td><span class="pill {{ sc.confidence }}">{{ sc.confidence }}</span></td></tr>
   {% endfor %}
 </table></div>
-<p class="sub">● data present · ? no data (earns no credit, lowers confidence, listed by name). Hover a cell for the observed value.</p>
+<p class="sub">● data present · ? no data (earns no credit, lowers data coverage, listed by name). Hover a cell for the observed value.</p>
 {% endif %}
 
 {% if result.ranked_beyond_shortlist %}
 <h2>Passed the gates, beyond the shortlist ({{ result.ranked_beyond_shortlist | length }} compounds{% if result.collapsed_polymorphs %}; {{ result.collapsed_polymorphs | length }} further phases collapsed under their compound's row{% endif %})</h2>
 <div class="wrap"><table>
-  <tr><th>#</th><th>Formula</th><th>Score</th><th>Coverage</th><th>Confidence</th><th>Missing</th><th>Main caveat</th></tr>
+  <tr><th>#</th><th>Formula</th><th>Score</th><th>Coverage</th><th>Data coverage</th><th>Missing</th><th>Main caveat</th></tr>
   {% for sc in result.ranked_beyond_shortlist %}{% set cav = sc | primary_caveat(shared) %}
   <tr><td class="mono">{{ sc.rank }}</td><td>{{ sc.record.formula }} <span class="tag">{{ sc.record.material_id }}</span>{% if sc.polymorphs %} <span class="tag">+{{ sc.polymorphs | length }} phase{{ "s" if sc.polymorphs | length > 1 }}</span>{% endif %}</td><td class="mono">{{ sc.adjusted_score | fmt(3) }}</td><td class="mono">{{ sc.data_coverage | pct }}</td><td>{{ sc.confidence }}</td><td>{{ sc.absent_criteria | join(", ") or "—" }}{% if sc.not_retrieved_criteria %} <b>(not downloaded: {{ sc.not_retrieved_criteria | join(", ") }})</b>{% endif %}</td><td>{{ cav.code if cav else "—" }}</td></tr>
   {% endfor %}
@@ -221,7 +221,7 @@ comparing candidates against each other.</div>
 
 <h2>How the ranking was computed</h2>
 <p class="mono">{{ result.scoring.formula }}</p>
-<p>Missing-data policy <b>{{ result.scoring.missing_data_policy }}</b>, penalty {{ result.scoring.missing_data_penalty }}; confidence thresholds {{ result.scoring.confidence_thresholds }}.</p>
+<p>Missing-data policy <b>{{ result.scoring.missing_data_policy }}</b>, penalty {{ result.scoring.missing_data_penalty }}; data-coverage thresholds {{ result.scoring.confidence_thresholds }}.</p>
 <div class="wrap"><table>
   <tr><th>Criterion</th><th>Weight</th></tr>
   {% for k, v in result.scoring.weights | dictsort %}<tr><td>{{ k }}</td><td class="mono">{{ v | fmt(3) }}</td></tr>{% endfor %}
@@ -245,7 +245,7 @@ comparing candidates against each other.</div>
 
 <h2>Read this before running anything</h2>
 <p class="scope">{{ result.scope_limitation }}</p>
-<p class="sub">Scores are relative within this run and profile. A candidate with a <em>medium</em> or <em>low</em> confidence label has criteria with no data behind them; they are named, not scored as zero. Band gaps marked “corrected” are scaled DFT values, not measurements. A shortlist entry is a conjecture; the caveats are the known counterexamples.</p>
+<p class="sub">Scores are relative within this run and profile. A candidate with a <em>medium</em> or <em>low</em> data-coverage label has criteria with no data behind them; they are named, not scored as zero. Band gaps marked “corrected” are scaled DFT values, not measurements. A shortlist entry is a conjecture; the caveats are the known counterexamples.</p>
 
 <footer>
   config <code>{{ result.config_hash }}</code> · cache <code>{{ result.cache_fingerprint }}</code> · offline {{ result.offline }} · language model: {{ result.llm_usage | dictsort | map("join", "=") | join(", ") }}

@@ -3,7 +3,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { api } from "../api";
-import { CRITERIA_LABELS, allCandidates, diffResults, findCandidate, fmt, fmtInt, formulaParts, gateLabel, pct, rationaleFacts, registerFigureOfMerit, visibleCaveats } from "../format";
+import { CRITERIA_LABELS, doiUrl, sourceUrl, allCandidates, diffResults, findCandidate, fmt, fmtInt, formulaParts, gateLabel, pct, rationaleFacts, registerFigureOfMerit, visibleCaveats } from "../format";
 import { useApp, type View } from "../store";
 import type { ScoredCandidate, TriageResult } from "../types";
 
@@ -15,9 +15,9 @@ export function Formula({ f }: { f: string }) {
   );
 }
 
-function Confidence({ sc }: { sc: ScoredCandidate }) {
+function DataCoverage({ sc }: { sc: ScoredCandidate }) {
   const cls = sc.confidence === "high" ? "chip--ok" : sc.confidence === "medium" ? "" : "chip--warn";
-  return <span className={`chip chip--sm ${cls}`}>{sc.confidence} confidence</span>;
+  return <span className={`chip chip--sm ${cls}`}>{sc.confidence} data coverage</span>;
 }
 
 function MissingChips({ sc }: { sc: ScoredCandidate }) {
@@ -215,7 +215,7 @@ function CandidateCard({ sc, onOpen, focused, shared }: { sc: ScoredCandidate; o
             {r.crystal_system ? ` · ${r.crystal_system}` : ""}
             {r.spacegroup_symbol ? ` ${r.spacegroup_symbol}` : ""}
           </span>
-          <Confidence sc={sc} />
+          <DataCoverage sc={sc} />
           {sc.tier != null && (
             <span className="chip chip--sm" title="Candidates within the tie band of a tier's leader share the tier; the order inside a tier is arbitrary.">
               tier {sc.tier}
@@ -266,7 +266,7 @@ function CompactTable({ rows, onOpen, excluded }: { rows: ScoredCandidate[]; onO
               {!excluded && <th className="num">Rank</th>}
               <th>Material</th>
               {excluded ? <th>Why it was excluded</th> : <th className="num">Score</th>}
-              {!excluded && <th>Confidence</th>}
+              {!excluded && <th>Data coverage</th>}
               {!excluded && <th>Missing</th>}
             </tr>
           </thead>
@@ -334,7 +334,7 @@ function GapsView({ result }: { result: TriageResult }) {
         </tbody>
       </table>
       <div className="small muted">
-        Absent means the source answered and holds no record: a fact about the data. Not retrieved means this cache never downloaded it: fixable by warming the cache. Both earn no credit and lower confidence; only the second makes candidates non-comparable.
+        Absent means the source answered and holds no record: a fact about the data. Not retrieved means this cache never downloaded it: fixable by warming the cache. Both earn no credit and lower data coverage; only the second makes candidates non-comparable.
       </div>
       {result.retrieval && <div className="small muted">{result.retrieval.note}</div>}
     </div>
@@ -402,10 +402,10 @@ function ProvenanceLine({ label, p }: { label: string; p?: { source: string; sou
       <span className="muted">{label}:</span> {p.source}
       {p.source_id ? ` ${p.source_id}` : ""}
       {p.retrieved_at ? ` · retrieved ${p.retrieved_at.slice(0, 10)}` : ""}
-      {p.url ? (
+      {sourceUrl(p.url) ? (
         <>
           {" · "}
-          <a href={p.url} target="_blank" rel="noreferrer">
+          <a href={sourceUrl(p.url)!} target="_blank" rel="noreferrer">
             open
           </a>
         </>
@@ -458,7 +458,7 @@ function FocusView({ result, rid, candidate }: { result: TriageResult; rid: stri
               {r.crystal_system ? ` · ${r.crystal_system}` : ""}
               {r.spacegroup_symbol ? ` ${r.spacegroup_symbol}` : ""}
             </span>
-            {!sc.excluded && <Confidence sc={sc} />}
+            {!sc.excluded && <DataCoverage sc={sc} />}
             {sc.excluded && <span className="chip chip--sm chip--crit">excluded</span>}
             {sc.collapsed_under && <span className="chip chip--sm chip--warn">collapsed under {sc.collapsed_under}</span>}
             {r.theoretical && <span className="chip chip--sm chip--warn">no observed structure</span>}
@@ -583,6 +583,7 @@ function FocusView({ result, rid, candidate }: { result: TriageResult; rid: stri
               <span className="muted">OQMD hull distance:</span> {r.cross_check.stability_ev_atom.toFixed(3)} eV/atom{r.cross_check.matched_formula ? ` (matched ${r.cross_check.matched_formula})` : ""}
             </div>
           )}
+          <p className="small muted">Literature matches mention the compound; support for a particular property has not been established.</p>
           <ProvenanceLine label="Literature" p={r.literature.provenance} />
           {r.literature.status === "known" && (
             <div className="small">
@@ -594,8 +595,8 @@ function FocusView({ result, rid, candidate }: { result: TriageResult; rid: stri
             <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>
               {r.literature.sample_works.slice(0, 5).map((w) => (
                 <li key={w.work_id}>
-                  {w.doi ? (
-                    <a href={`https://doi.org/${w.doi}`} target="_blank" rel="noreferrer">
+                  {doiUrl(w.doi) ? (
+                    <a href={doiUrl(w.doi)!} target="_blank" rel="noreferrer">
                       {w.title}
                     </a>
                   ) : (
@@ -681,7 +682,7 @@ function CompareView({ result, keys }: { result: TriageResult; keys: string[] })
                 ))}
               </tr>
               <tr>
-                <td>confidence · coverage</td>
+                <td>data coverage · fraction</td>
                 {picked.map((s) => (
                   <td key={s.record.material_id}>
                     {s.confidence} · {pct(s.data_coverage)}

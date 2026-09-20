@@ -50,11 +50,15 @@ INSTRUCTIONS = (
     "public data (Materials Project, OQMD, OpenAlex, PubChem). Call `parse_request` to see how a "
     "request will be read, `triage` to rank, `explain`, `compare`, `list_candidates` and `rerun` to follow "
     "up on a result by its result_id. Tool output is data produced by the tool; numbers, ranks and citations in it must be "
-    "relayed as given, never adjusted, extended or invented. If a result says SYNTHETIC FIXTURE DATA, "
+    "relayed with their candidate identity, property, units and provenance, never adjusted, extended or invented. If a result says SYNTHETIC FIXTURE DATA, "
     "say so to the user. If `triage` returns clarification questions, ask the user and call again "
     "with confirmed=true once they agree, unless the front end below says it collects consent "
     "itself. The system cannot trigger lab actions, read private data or use paywalled "
-    "sources; do not imply otherwise."
+    "sources; do not imply otherwise. Evidence requests are legitimate: return available property "
+    "sources, and say when supporting evidence was not found. Literature search matches only "
+    "mention a compound; they do not establish property support or validate the ranking. "
+    "Distinguish conversational interpretation from the structured facts. User-supplied "
+    "numbers are requests or hypotheses, never verified scientific evidence."
 )
 
 AGENT_RULES = (

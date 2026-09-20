@@ -99,16 +99,16 @@ def test_fixture_carries_real_hull_data_and_the_textbook_pattern(cache):
     assert "interface" in FIXED_CRITERIA
     hf = rows["HfO2"]
     comp = next(c for c in hf.components if c.criterion == "interface")
-    assert comp.normalized == 1.0 and comp.weight > 0 and "stable against Si" in comp.raw_label
+    assert comp.normalized == 1.0 and comp.weight > 0 and "bulk hull vs Si" in comp.raw_label
     ta = rows["Ta2O5"]
     comp = next(c for c in ta.components if c.criterion == "interface")
-    assert comp.normalized == 0.0 and "reacts with Si" in comp.raw_label
+    assert comp.normalized == 0.0 and "outside 0.05 eV/atom tolerance" in comp.raw_label
     # and the caveat names the products, critical when the reaction is past the zero point
     cav = next(c for c in ta.caveats if c.code == "substrate_reaction")
     assert cav.severity == "critical" and "TaSi2" in cav.text or "Ta5Si3" in cav.text
     assert not any(c.code == "substrate_reaction" for c in hf.caveats)
     # the rationale line says so in words
-    assert "stable against Si" in (hf.rationale or "")
+    assert "bulk hull vs Si" in (hf.rationale or "")
 
 
 def test_substrate_is_a_config_knob_and_the_weight_can_be_zeroed(cache):

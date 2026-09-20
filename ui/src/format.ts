@@ -113,3 +113,22 @@ export function splitParagraphs(text: string): string[] {
     .map((p) => p.trim())
     .filter(Boolean);
 }
+
+/** Same accepted DOI forms as the export renderer; no links for malformed IDs. */
+export function doiUrl(identifier: string | null | undefined): string | null {
+  if (!identifier) return null;
+  let value = identifier.trim().replace(/^https?:\/\/(?:dx\.)?doi\.org\//i, "");
+  try { value = decodeURIComponent(value); } catch { return null; }
+  if (!/^10\.\d{4,9}\/[^\s<>"?#]+$/i.test(value)) return null;
+  return "https://doi.org/" + value.split("/").map(x => encodeURIComponent(x).replace(/[!'()*]/g, c => "%" + c.charCodeAt(0).toString(16).toUpperCase())).join("/");
+}
+
+export function sourceUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (/^(?:10\.|https?:\/\/(?:dx\.)?doi\.org\/)/i.test(value)) return doiUrl(value);
+  if (/[\s<>"\\]/.test(value)) return null;
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) && !url.username ? value : null;
+  } catch { return null; }
+}

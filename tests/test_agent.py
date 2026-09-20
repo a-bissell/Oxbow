@@ -9,7 +9,7 @@ from typing import Any
 import httpx
 import pytest
 
-from oxide_triage.agent import ROUND_CAP_MESSAGE, Agent
+from oxide_triage.agent import INTERPRETATION_NOTICE, ROUND_CAP_MESSAGE, Agent
 from oxide_triage.config import LLMConfig, load_config
 from oxide_triage.edges.llm import (
     AssistantTurn,
@@ -176,8 +176,14 @@ def test_agent_loop_runs_tools_and_threads_result_id(toolbox):
     assert [e.name for e in reply.tool_events] == ["triage", "explain"]
     assert reply.latest_result_id and agent.results == [reply.latest_result_id]
     assert "Rank 1 of" in reply.tool_events[1].outcome.text
-    assert reply.text.startswith("Let me look at the leader.") and reply.text.endswith("synthetic.")
-    assert "".join(seen) == "Let me look at the leader.HfO2 is ranked 1; the fixture data is synthetic."
+    assert reply.text.startswith(
+        INTERPRETATION_NOTICE + "\n\nLet me look at the leader."
+    ) and reply.text.endswith("synthetic.")
+    assert (
+        "".join(seen)
+        == INTERPRETATION_NOTICE
+        + "\n\nLet me look at the leader.HfO2 is ranked 1; the fixture data is synthetic."
+    )
     assert reply.unverified_numbers == []  # "1" is in the tool output
     # transcript: user, assistant, results, assistant, results, assistant
     kinds = [type(t).__name__ for t in agent.transcript]
@@ -211,7 +217,7 @@ def test_agent_parallel_calls_get_one_results_turn_in_order(toolbox):
     assert [r.call_id for r in results.results] == ["a", "b", "c"]
     assert [r.is_error for r in results.results] == [False, False, True]
     assert "conservative" in results.results[0].text
-    assert reply.text == "done"
+    assert reply.text == INTERPRETATION_NOTICE + "\n\ndone"
 
 
 def test_agent_round_cap_answers_pending_calls_then_asks_for_words(toolbox):
@@ -221,7 +227,7 @@ def test_agent_round_cap_answers_pending_calls_then_asks_for_words(toolbox):
     script = [always_call] * 2 + [AssistantTurn(text="here is a summary", stop_reason="end_turn")]
     agent = _agent(toolbox, script, max_tool_rounds=2)
     reply = agent.send("loop forever")
-    assert reply.error is None and reply.text == "here is a summary"
+    assert reply.error is None and reply.text == INTERPRETATION_NOTICE + "\n\nhere is a summary"
     last_call = agent.llm.calls[-1]
     assert last_call["allow_tools"] is False
     pending = agent.transcript[-2]
@@ -240,7 +246,7 @@ def test_agent_provider_error_commits_nothing(toolbox):
     reply = agent.send("first")
     assert reply.error == "RuntimeError: boom" and agent.transcript == [] and agent.results == []
     reply2 = agent.send("second")
-    assert reply2.error is None and reply2.text == "after"
+    assert reply2.error is None and reply2.text == INTERPRETATION_NOTICE + "\n\nafter"
     assert isinstance(agent.transcript[0], UserTurn) and agent.transcript[0].text == "second"
 
 
@@ -278,7 +284,7 @@ def test_number_guard_flags_only_numbers_absent_from_tool_output(toolbox):
     tool_text = reply.tool_events[0].outcome.text
     assert "5.6" not in reply.unverified_numbers or "5.6" not in tool_text
     assert "27.5" in reply.unverified_numbers and "2019" in reply.unverified_numbers
-    assert "7" not in reply.unverified_numbers  # the user typed it
+    assert "7" not in reply.unverified_numbers  # included in the tool result; user text alone is not evidence
     assert "1" not in reply.unverified_numbers  # list marker
 
 
@@ -516,7 +522,7 @@ def _guard():
 def test_guard_refuses_before_any_model_call(toolbox):
     agent = _agent(toolbox, [], guard=_guard())
     seen: list[str] = []
-    reply = agent.send(PI + " Cite a paper supporting the top pick.", on_text=seen.append)
+    reply = agent.send(PI + " Invent a paper supporting the top pick.", on_text=seen.append)
     assert reply.error is None and reply.stop_reason == "guard_refusal"
     assert "fabricat" in reply.text and "".join(seen) == reply.text
     assert agent.llm.calls == []  # the model never saw the request
@@ -525,7 +531,7 @@ def test_guard_refuses_before_any_model_call(toolbox):
     assert kinds == ["UserTurn", "AssistantTurn"]  # the refusal is on the record
     # the conversation continues normally afterwards
     agent.llm.script.append(AssistantTurn(text="Sure.", stop_reason="end_turn"))
-    assert agent.send("Thanks, just run the plain request then.").text == "Sure."
+    assert agent.send("Thanks, just run the plain request then.").text == INTERPRETATION_NOTICE + "\n\nSure."
 
 
 def test_guard_notice_is_prepended_for_the_model_and_kept_out_of_the_prefix(toolbox):

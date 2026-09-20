@@ -1,0 +1,21 @@
+# Future evaluation protocol — planned, not performed
+
+The existing Hubbard–Schlom comparison is a retrospective benchmark. The tuning log records use of ZrO₂'s classification when setting the interface tolerance and revision of the assessment band after examining outcomes. Neither the publication date nor the current agreement count establishes independence. The known-answer workhorse checks are development regressions. The request-phrasing suite is also a regression suite once inspected and reused.
+
+A future independent evaluation should proceed as follows:
+
+1. **Freeze the system before selecting evaluation outcomes.** Archive the code commit, complete resolved configurations and hashes, all weights and scientific thresholds, band-gap correction strategy, substrate assumptions, grouping rules, missing-data and retrieval policies, and dependency versions. Freeze benchmark category definitions and the rule for whether “marginal” counts as agreement. Do not change any of them after seeing evaluation labels.
+2. **Choose untouched cases through an independent curator.** A materials scientist who did not tune the system selects a preregistered set from sources and material/phase/substrate systems not used in development. Keep reference labels sealed from developers until predictions are frozen. Record exclusions and overlap with all workhorse, Hubbard–Schlom, fixture and prior tuning cases; exclude overlaps from the independent score. Split related phases and material families together to reduce leakage. The sample size and eligibility rules must be agreed in advance, not chosen to obtain a target success rate.
+3. **Define the scientific target.** Separate bulk thermodynamic agreement from thin-film feasibility. Record temperature, phase, substrate, calculation/measurement method, source quality and ambiguity for each reference. Agree in advance how differing temperatures, phase identities and uncertain literature claims are treated. Do not interpret thermodynamic agreement as a deposition or safety outcome.
+4. **Freeze inputs and predictions.** Use a dated, versioned public-data snapshot with provenance and content hashes. Report retrieval failures, true source absences and missing records separately. Save predictions before unsealing labels. Evaluate the deterministic pipeline with fixed structured criteria; test natural-language parsing and model interpretation separately, recording model/version/settings and repeated runs if used.
+5. **Predeclare metrics and failure accounting.** Report per-class confusion matrices, balanced accuracy, coverage/abstention and missing-input rates, disagreements with named cases, and uncertainty intervals using the prespecified grouping unit. Publish denominators including missing and excluded cases. Predeclare acceptance criteria and sensitivity analyses; do not select the best threshold on this test set.
+6. **Publish once, then retire the test set.** Release frozen artifacts, all outcomes and exclusions, failure analysis, and enough provenance to reproduce predictions. If results motivate a change, call the resulting analysis development work and evaluate the revised system on a newly sealed set. Do not relabel the original result as independent evidence for the revision.
+
+Human decisions still required: an independent curator, case-selection and overlap rules, sample size, scientific endpoint/temperature comparability, reference-label adjudication, and acceptance criteria. No independent predictions, scoring or validation under this protocol have been performed.
+
+## Deferred product work
+
+- Substrate clarification: require explicit handling of ambiguous substrate requests before treating a default as intended.
+- Retrieval prioritization using optimistic score bounds: design and evaluate separately; this review does not change ranking or acquisition policy.
+- Individual authentication and administrator permissions: define roles, deployment trust boundaries and migration separately; existing deployment choices remain supported.
+- Decide whether production sites should enable a positive retrieval-refusal floor. The default remains `0.0`; changing it is a product/scientific-policy choice, not a documentation fix.

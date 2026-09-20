@@ -13,9 +13,9 @@ What it guarantees, and how:
 * Every tool call gets a result. Parallel calls are answered in one results turn, in order; when
   the round cap is hit, pending calls get an error result and the model is asked once more, with
   tools disallowed, to answer in words.
-* Numbers are checked. After the reply, every number in the prose is looked up in the numbers
-  the tools printed (and in the user's own words). Anything else is reported as unverified; the
-  front end marks it. The check flags, it does not rewrite.
+* Model prose is explicitly labelled interpretation, including streaming output. A numeric
+  inventory diagnostic may flag novel tokens, but never certifies a claim. User values and
+  failed tool outputs are not evidence. Scientific facts live in deterministic tool results.
 * The request guard runs on the user's own words before any model sees them. A request the
   guard declines (one that would need fabricated evidence) is answered with the refusal and no
   model call; a request with a notice (an override attempt, a capability the deployment lacks)
@@ -51,6 +51,8 @@ from oxide_triage.tools import TOOL_SPECS, GuardFn, ToolBox, ToolOutcome, ToolSp
 log = logging.getLogger(__name__)
 
 ROUND_CAP_MESSAGE = "tool budget for this message is exhausted; answer from what you already have"
+INTERPRETATION_NOTICE = "Model interpretation — not verified evidence. Check the structured results and property sources for scientific claims."
+
 GUARD_REFUSAL = "guard_refusal"  # stop_reason of a turn the request guard answered
 
 
@@ -119,10 +121,8 @@ class Agent:
     def _guard_corpus(self, turns: list[Turn]) -> set[float]:
         texts: list[str] = []
         for t in turns:
-            if isinstance(t, UserTurn):
-                texts.append(t.text)
-            elif isinstance(t, ToolResultsTurn):
-                texts.extend(r.text for r in t.results)
+            if isinstance(t, ToolResultsTurn):
+                texts.extend(r.text for r in t.results if not r.is_error)
         # Never the assistant's own earlier prose: a hallucinated number must not launder itself.
         return allowed_numbers(texts)
 
@@ -158,6 +158,8 @@ class Agent:
             reply.guard_notes = guard_notice(decision)
             if reply.guard_notes:
                 shown = "[Request guard: " + " ".join(reply.guard_notes) + "]\n\n" + user_text
+        if on_text is not None:
+            on_text(INTERPRETATION_NOTICE + "\n\n")
         new: list[Turn] = [UserTurn(prefix + shown)]
         try:
             turn: AssistantTurn | None = None
@@ -205,6 +207,7 @@ class Agent:
         assert turn is not None
         # Everything the model said this turn, including a lead-in before a tool call.
         reply.text = "\n\n".join(t.text for t in new if isinstance(t, AssistantTurn) and t.text.strip())
+        reply.text = INTERPRETATION_NOTICE + "\n\n" + reply.text
         reply.stop_reason = turn.stop_reason
         if self.number_guard == "flag":
             reply.unverified_numbers = unverified_numbers(reply.text, self._guard_corpus(self.transcript))

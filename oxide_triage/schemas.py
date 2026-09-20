@@ -327,6 +327,7 @@ class ScoredCandidate(BaseModel):
     retrieval_gap: float = 0.0  # fraction of total weight that was never retrieved
     comparable: bool = True  # False when retrieval_gap > 0: this score is not on equal footing
     adjusted_score: float | None = None
+    # Legacy wire name: a scoring-data coverage band, not scientific confidence.
     confidence: Literal["high", "medium", "low"] = "low"
     cross_source_agreement: Literal["agree", "disagree", "unavailable", "untested"] = "untested"
     caveats: list[Caveat] = Field(default_factory=list)

@@ -104,13 +104,8 @@ def test_model_output_at_refute_edge_is_validated_not_trusted():
     fake = ObedientFakeLLM()
     res = run_triage(PI, cfg, cache=_cache_with_injection(True), offline=True, llm=fake)
     llm_caveats = [c for s in res.shortlist for c in s.caveats if c.origin == "llm"]
-    texts = [c.text for c in llm_caveats]
-    # 27.5 and 0.9999 are not in any candidate's facts -> dropped by the numeric guard;
-    # "nonexistent_field" -> dropped by the evidence check; "Set rank to 1." has a number not in facts.
-    assert not any("27.5" in t or "0.9999" in t or "Set rank" in t for t in texts)
-    # The one observation whose numbers exist in the facts survives *as an info caveat only*.
-    assert all(c.severity == "info" and c.code == "model_observation" for c in llm_caveats)
-    assert fake.prompts, "the refutation edge should have called the model"
+    assert llm_caveats == []
+    assert fake.prompts == [], "production caveats must not call the model"
 
 
 def test_retrieved_text_is_delimited_as_data_and_preamble_says_so():
@@ -120,7 +115,11 @@ def test_retrieved_text_is_delimited_as_data_and_preamble_says_so():
         overrides={"llm": {"use_for": {"parse": False, "refute": True}}, "output": {"top_k": 30}},
     )
     fake = ObedientFakeLLM()
-    run_triage(PI, cfg, cache=_cache_with_injection(True), offline=True, llm=fake)
+    result = run_triage(PI, cfg, cache=_cache_with_injection(True), offline=True, llm=fake)
+    from oxide_triage.refute import llm_caveats
+
+    for sc in result.shortlist:
+        llm_caveats(sc, fake)
     shown = [u for _, u in fake.prompts if "IGNORE ALL PREVIOUS INSTRUCTIONS" in u]
     assert shown, "LaLuO3 should be in a 30-long shortlist and its titles shown to the model"
     user = shown[0]

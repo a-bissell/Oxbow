@@ -12,7 +12,7 @@
 </p>
 
 # Oxbow
-Oxbow ranks candidate materials against explicit criteria for a stated property (dielectric constant, thermal conductivity, or whatever the active profile scores for) drawing on public data from Materials Project, OQMD, OpenAlex and PubChem. Every number in the shortlist traces to a source and every data gap is named. The ranking is deterministic code over a local cache, so the same request against the same cache gives the same answer. The Claude-backed assistant interprets the request and answers follow-ups, but never changes a number, a rank or a citation. 
+Oxbow ranks candidate materials against explicit criteria for a stated property (dielectric constant, thermal conductivity, or whatever the active profile scores for) drawing on public data from Materials Project, OQMD, OpenAlex and PubChem. Every number in the shortlist traces to a source and every data gap is named. The ranking is deterministic code over a local cache, so the same request against the same cache gives the same answer. The Claude-backed assistant interprets the request and answers follow-ups. Its prose is labelled interpretation, not verified evidence; scientific values, ranks and provenance are rendered separately from structured records.
 
 Oxbow runs as a web app, a command line tool, or an MCP server for Claude Desktop, Cowork, Cursor etc.
 
@@ -74,7 +74,7 @@ Keys and environment go in `.env` (loaded automatically) or the shell:
 | `LLM_PROVIDER` | `anthropic` (recommended), `openai_compatible`, or `none` for the rules-only fallback |
 | `OPENAI_API_KEY` | the assistant with `LLM_PROVIDER=openai_compatible` and no `LLM_BASE_URL` |
 | `LLM_BASE_URL`, `LLM_API_KEY` | a self-hosted OpenAI-compatible server (vLLM, Ollama, llama.cpp) for `openai_compatible`; the key only if the server wants one |
-| `LLM_MODEL` / `AGENT_MODEL` | optional model overrides for the parse/refute edges and the assistant |
+| `LLM_MODEL` / `AGENT_MODEL` | optional model overrides for the parse edge and the assistant |
 | `MP_API_KEY` | warming the cache from Materials Project (free) |
 | `OPENALEX_API_KEY` | optional; more literature lookups per day |
 | `OXIDE_TRIAGE_CACHE` | path of the SQLite cache (default `data/cache.sqlite`) |
@@ -85,7 +85,7 @@ Keys and environment go in `.env` (loaded automatically) or the shell:
 
 ## Adjusting it
 
-In short: a **scientist** says it in the request, a **site admin** edits `site.yaml` or the Admin panel, a **deployment engineer** ships `oxbow bundle` and points `OXIDE_TRIAGE_CONFIG_DIR` at the site's config. 
+In short: a **scientist** says it in the request, a **site admin** edits `site.yaml` or the Admin panel, a **deployment engineer** ships `oxbow bundle` and points `OXIDE_TRIAGE_CONFIG_DIR` at the site's config.
 
 **A scientist changes things in the request itself.**
 
@@ -124,7 +124,7 @@ A new profile is a YAML file in `config/profiles/` that overrides only what diff
 
 - `oxbow bundle build` packages a warmed cache with a manifest; `oxbow bundle verify` and `oxbow bundle install` load it on a machine with no network. See [docker/OFFLINE.md](docker/OFFLINE.md).
 - `OXIDE_TRIAGE_CONFIG_DIR` points an installed wheel at a directory of config files outside a checkout; `OXIDE_TRIAGE_CACHE` places the cache and, with it, `site.yaml` and the logs.
-- Two append-only logs next to the cache, `deviations.jsonl` and `retrieval.jsonl`, record every run that departed from policy and every data gap. The Admin panel summarizes them. 
+- Two append-only logs next to the cache, `deviations.jsonl` and `retrieval.jsonl`, record every run that departed from policy and every data gap. The Admin panel summarizes them.
 
 **Auth is prototype-grade** `OXBOW_PASSWORD` puts a single shared password in front of the web app and `OXIDE_TRIAGE_ADMIN=1` gates the admin panel; neither carries a user identity, so the logs above record *what* departed from policy but not *who*. At a real site, we would be integrating with the customer SSO, or setting up an authenticating reverse proxy.
 
@@ -145,7 +145,7 @@ Start with `oxbow doctor`, which reports on keys, cache health and the known-ans
 
 On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The cases are in [oxide_triage/evaluation.py](oxide_triage/evaluation.py) (`oxbow eval` and [eval/run_eval.py](eval/run_eval.py) both call it); the last live run is in [docs/live-evaluation.md](docs/live-evaluation.md). [eval/evaluation.ipynb](eval/evaluation.ipynb) is the same suite as a notebook, with outputs saved, so it reads on GitHub without running anything.
 
-Every ranking parameter that was set after seeing data is logged in [docs/ranking-decisions.md](docs/ranking-decisions.md), with what triggered it, what it moved in the live ranking, and why. 
+Every ranking parameter that was set after seeing data is logged in [docs/ranking-decisions.md](docs/ranking-decisions.md), with what triggered it, what it moved in the live ranking, and why.
 
 ## Development
 
@@ -157,3 +157,17 @@ cd ui && npm ci && npm run build      # front end only; the built bundle is comm
 ```
 
 CI runs lint, tests, a clean wheel install, and an offline smoke test of the container image.
+
+### Evidence boundaries
+
+Caveats in reports are rule-derived. The legacy `llm.use_for.refute` setting remains loadable, but production refutation no longer calls a model. Model-written assertions cannot become evidence-backed caveats by naming a field. The assistant remains available for conversation; its numeric-token diagnostic does **not** validate attribution, units, citations, qualitative assertions or meaning, even when no tokens are flagged. User numbers are not scientific evidence.
+
+Candidate explanations render known numerical facts with candidate identity, property, units and source provenance. Missing provenance is not invented. This establishes traceability to the retrieved record, not experimental truth: sources may be wrong, approximate or mismatched. DOI validation checks syntax only, not resolution or paper contents. Property sources are distinct from literature search matches, whose support for a property has not been established.
+
+The displayed high/medium/low label means **data coverage**, not scientific confidence. The JSON field `confidence` and configuration key `confidence_thresholds` retain their legacy names for compatibility. Source disagreement, corrected DFT gaps, missing data and retrieval failures retain their separate caveats.
+
+### Retrieval and evaluation guarantees
+
+The default warns below 95% retrieval completeness (`retrieval.min_completeness_warn: 0.95`). Its ranking-refusal floor is **disabled** (`min_completeness_serve: 0.0`); incomplete rankings can be returned with warnings and per-candidate retrieval caveats. A site may opt into a positive refusal floor. The separate known-answer self-check becomes inconclusive below 90% retrieval; that is not the ranking-refusal policy. None of these defaults changed in this review.
+
+Ranking is deterministic for fixed structured criteria, configuration and cache. Model-assisted request parsing and conversational explanations can vary, and model explanations are not validated scientific evidence. The `validate` command retains its name for compatibility, but the Hubbard–Schlom comparison is a **retrospective benchmark**: its ZrO₂ case informed the tolerance choice, and the assessment band was adjusted after examining outcomes. It is not independent validation. The [future evaluation protocol](docs/future-evaluation.md) specifies frozen parameters and untouched cases; that evaluation has not been performed.

@@ -133,7 +133,7 @@ literature:
   thin_film_weight: 0.7         # remainder goes to total works
 
 # How an UNKNOWN criterion affects ranking. It is always displayed as unknown (never as
-# zero) and always lowers the confidence label. For the ranking arithmetic:
+# zero) and always lowers the data-coverage label. For the ranking arithmetic:
 #   no_credit    the unknown criterion earns no contribution; adjusted = raw*coverage - penalty*(1-coverage)
 #                A candidate can never outrank another by having *less* data. (default)
 #   renormalize  score over the criteria that have data only; adjusted = raw - penalty*(1-coverage)
@@ -238,8 +238,8 @@ llm:
   timeout_s: 60
   use_for:
     parse: true      # natural-language request -> Criteria (validated)
-    refute: true     # elaborate rule-derived caveats over structured facts
-    rationale: false # one-line plain-language rationale per candidate (numeric-guarded)
+    refute: true     # legacy setting; production caveats are now rule-only
+    rationale: false # legacy setting; rationale is rendered from structured records
 
 # ---------------------------------------------------------------------------
 # Chat agent (the web assistant and `oxide-triage chat`). The model drives the same
