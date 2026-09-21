@@ -470,7 +470,7 @@
         <div>
           <ul class="clean">
             <li><span class="b">▸</span><span>Has caught <b>two real bugs</b> before they could corrupt a ranking.</span></li>
-            <li><span class="b">▸</span><span>Held out against <b>Hubbard &amp; Schlom (1996)</b> for the interface criterion: <span class="mono">21 / 21</span> hard assertions.</span></li>
+            <li><span class="b">▸</span><span>Retrospective benchmark against <b>Hubbard &amp; Schlom (1996)</b> for the interface criterion: <span class="mono">21 / 21</span> hard assertions.</span></li>
             <li><span class="b">▸</span><span>Extra phrasings written <b>after</b> the rules were frozen, so the tests can't encode the answer.</span></li>
           </ul>
         </div>
@@ -503,17 +503,17 @@
           <div style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--slate);">SQLite cache · every value carries a status</div>
         </div>
         <div class="arch-col">
-          <div class="node model"><span class="mini">◐ optional LLM</span><span class="nt">Refute</span><span class="ns">argues over facts</span></div>
+          <div class="node"><span class="nt">Refute</span><span class="ns">rules over facts</span></div>
           <div class="node"><span class="nt">Templates</span><span class="ns">Jinja · summary · audit</span></div>
         </div>
       </div>
       <div class="arch-legend">
-        <span><i class="sw-model"></i> the model assists only these two edges — parse and refute</span>
+        <span><i class="sw-model"></i> the model assists only one edge — parse</span>
         <span><i class="sw-core"></i> core &amp; other edges are deterministic: same input, same output</span>
       </div>
       <div class="boundary-note">
         <span class="ico">▲</span>
-        <p><b>The scoring core and the LLM edge do not share a code path.</b> The model interprets the request, phrases an answer, and can add caveats. The LLM is structurally blocked from changing a number, rank, or citation.</p>
+        <p><b>The scoring core and the LLM edge do not share a code path.</b> The model interprets the request and fills fields the rules left at default. Every caveat is derived by rules from structured facts, so no model sentence enters a report. The LLM is structurally blocked from changing a number, rank, citation, or caveat.</p>
       </div>
     </div>
   </section>
@@ -600,7 +600,7 @@
         </div>
         <div class="card" style="border-left:3px solid var(--core); align-self:start;">
           <div class="tag good">no fabrication</div>
-          <p style="margin:.75rem 0 0; font-size:.92rem;">The refutation stage lets the model add at most three observations per candidate — but each must cite an existing fact, and a numeric guard <b>discards any number or citation not already in the data</b>. The model can add words; it cannot add claims.</p>
+          <p style="margin:.75rem 0 0; font-size:.92rem;">The refutation stage is rule-only: every caveat is derived from structured facts, so <b>no model sentence enters a report</b>. An earlier version let the model add observations behind a numeric guard; a guard that checks numbers as a bag cannot tell a band gap from a dielectric constant, so the layer was removed.</p>
         </div>
       </div>
     </div>
@@ -722,7 +722,7 @@ injected number in output?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ok">✗ dis
           <div class="check"><span class="ck">04</span><span><b>Determinism</b> — same in, same out</span></div>
           <div class="check"><span class="ck">05</span><span><b>Missing data</b> never scored as a value</span></div>
           <div class="check"><span class="ck">06</span><span><b>Sensitivity</b> sweep of every weight</span></div>
-          <div class="check"><span class="ck">07</span><span>Interface vs <b>Hubbard &amp; Schlom</b>, 21/21</span></div>
+          <div class="check"><span class="ck">07</span><span>Retrospective benchmark vs <b>Hubbard &amp; Schlom</b>, 21/21</span></div>
           <div class="check"><span class="ck">08</span><span><b>Held-out</b> phrasings, post-freeze</span></div>
         </div>
         <div class="stack">
