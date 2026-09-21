@@ -1,7 +1,7 @@
 """Oxide Dielectric Triage Assistant.
 
 Deterministic ranking of oxide dielectric candidates from cached public data, with a
-language model permitted only at the edges (request parsing, caveat prose, rendering).
+language model permitted only at the front edge (request parsing) and in the assistant.
 """
 
-__version__ = "0.2.9"
+__version__ = "0.2.10"
