@@ -54,7 +54,7 @@ On live data the oxide-dielectric profile ranks LaAlO3, HfO2, SrHfO3, LaScO3, Zr
 
 Retargeting to a new class touches three config files (a profile, a cation allowlist, and a property provider if the figure of merit is not already available) and no engine code. The thermal-barrier profile is that claim made concrete: same engine, same cache, no code change, a visibly different but defensible answer. Its figure of merit is Clarke's minimum thermal conductivity, lower preferred, and its substrate is the alumina scale on the bond coat. Of 750 candidates 394 pass, the rare-earth sesquioxides lead (Gd2O3 and Er2O3 at 0.8–0.9 W/m·K against zirconia's 1.13), and HfO2 lands 12th. One workhorse cannot be verified at all: Materials Project holds no elastic tensor for La2Zr2O7, and the self-check names it.
 
-Eight checks run as pytest tests and as a report, passing on the fixture and the live cache. Two earn their keep: the interface criterion reproduces Hubbard and Schlom's held-out classification on 21 of 21 hard assertions, and the known-answer check has caught two real bugs, including the one above.
+Eight checks run as pytest tests and as a report, passing on the fixture and the live cache. Two earn their keep: the interface criterion reproduces Hubbard and Schlom's published classification on 21 of 21 hard assertions (a retrospective benchmark: that paper informed the interface tolerance, so it is not an independent validation), and the known-answer check has caught two real bugs, including the one above.
 
 ## 5. Limits
 

@@ -1,13 +1,16 @@
-"""Held-out validation of the interface criterion against a published classification.
+"""Retrospective benchmark of the interface criterion against a published classification.
 
-The self-check's four workhorses were used to set the ranking's windows, so they cannot
-validate it. Hubbard and Schlom (1996) classified the binary oxides by whether they are
-thermodynamically stable in contact with silicon at 1000 K, by the same hull argument this
-tool implements, thirty years before the code; the tool never saw the list while any
-parameter was set. This module computes the criterion for every oxide on that list and
-reports agreement, scored the way the abstract itself asserts things: "proven stable" and
-"unstable" are hard, "not shown unstable" is soft (reported, not failed), and the borderline
-and secondary entries are reported only. Disagreements are named, never smoothed.
+Hubbard and Schlom (1996) classified the binary oxides by whether they are thermodynamically
+stable in contact with silicon at 1000 K, by the same hull argument this tool implements.
+This module computes the criterion for every oxide on that list and reports agreement, scored
+the way the abstract itself asserts things: "proven stable" and "unstable" are hard, "not
+shown unstable" is soft (reported, not failed), and the borderline and secondary entries are
+reported only. Disagreements are named, never smoothed.
+
+It is a benchmark, not an independent validation. The paper's classification of ZrO2 was one
+of the reasons for the interface tolerance (docs/ranking-decisions.md), and the "marginal"
+band below was redrawn after the first results were seen. Agreement here shows the criterion
+reproduces the published picture; it does not show it would on cases nobody has looked at.
 """
 
 from __future__ import annotations
@@ -157,8 +160,11 @@ def validate_interface(
 
 def render_markdown(report: ValidationReport) -> str:
     lines = [
-        f"Held-out set: {report.citation}; substrate {report.substrate}; the tool's tolerance "
+        f"Retrospective benchmark: {report.citation}; substrate {report.substrate}; the tool's tolerance "
         f"{report.tolerance_ev_atom:g} eV/atom (a reaction inside it counts as none).",
+        "",
+        "Not an independent validation: the paper's ZrO2 entry informed the tolerance, and the marginal "
+        "band was redrawn after the first results were seen (docs/ranking-decisions.md).",
         "",
         "| Oxide | Paper says | Group | Tool: E_rxn (eV/atom) | Tool says | Products | Agrees |",
         "|---|---|---|---|---|---|---|",
