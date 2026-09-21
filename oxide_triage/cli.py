@@ -234,8 +234,8 @@ def validate(
     profile: str = typer.Option("default", "--profile", "-p"),
     online: bool = typer.Option(False, "--online", help="Fetch hulls not yet cached (needs MP_API_KEY)."),
 ) -> None:
-    """Compare the interface criterion with Hubbard & Schlom (1996), a published classification the
-    tool was never tuned against. Exit 6 when a hard assertion disagrees."""
+    """Compare the interface criterion with Hubbard & Schlom (1996), a published classification.
+    A retrospective benchmark, not an independent validation. Exit 6 when a hard assertion disagrees."""
     from oxide_triage.validation import render_markdown, validate_interface
 
     config = load_config(profile)

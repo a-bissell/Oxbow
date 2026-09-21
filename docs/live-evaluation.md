@@ -102,9 +102,9 @@ two runs identical (excluding timestamp): True; cache fingerprint 5215dc52374553
 Over the 22 counted perturbations: the base tier 1 (LaAlO3, HfO2, SrHfO3) is reproduced exactly in 7; its members never fall below rank 7; worst rank per compound: LaAlO3 2, HfO2 5, SrHfO3 7, ZrO2 9, Al2O3 12. The contrast row is not counted.
 Reading: the tier boundary moves with the settings (which candidates join the leaders), but the leaders themselves stay in the top ten under every weight moved by half in either direction and every parameter set after seeing live data moved past its original value.
 
-## 7. Held-out validation of the interface criterion (Hubbard & Schlom 1996) — PASS
+## 7. Retrospective benchmark of the interface criterion (Hubbard & Schlom 1996) — PASS
 
-Held-out set: Hubbard & Schlom, J. Mater. Res. 11, 2757 (1996), DOI 10.1557/JMR.1996.0350; substrate Si; the tool's tolerance 0.05 eV/atom (a reaction inside it counts as none).
+Retrospective benchmark: Hubbard & Schlom, J. Mater. Res. 11, 2757 (1996), DOI 10.1557/JMR.1996.0350; substrate Si; the tool's tolerance 0.05 eV/atom (a reaction inside it counts as none).
 
 | Oxide | Paper says | Group | Tool: E_rxn (eV/atom) | Tool says | Products | Agrees |
 |---|---|---|---|---|---|---|

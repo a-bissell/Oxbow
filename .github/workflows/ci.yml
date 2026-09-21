@@ -87,13 +87,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # 22: `npm test` runs the .ts sources directly through Node's type stripping.
+          node-version: "22"
           cache: npm
           cache-dependency-path: ui/package-lock.json
-      - name: Rebuild the bundle from ui/src
+      - name: Test and rebuild the bundle from ui/src
         run: |
           cd ui
           npm ci
+          npm test
           npm run build
       - name: The committed bundle must match the source
         # oxide_triage/ui/dist is committed so that pip, the image and the offline release need

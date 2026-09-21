@@ -2,8 +2,7 @@
 
 This module receives a result object and a template name. It has no access to data sources,
 the cache, or the scoring code, and it performs no arithmetic beyond number formatting. The
-optional model-written rationale is disabled by default; when enabled it passes through the
-same numeric guard as the refutation pass, so it cannot introduce a value either.
+rationale line is assembled from structured values; no model text enters a rendered report.
 """
 
 from __future__ import annotations

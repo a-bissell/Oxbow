@@ -7,8 +7,7 @@ Cursor, ...).
 Architecture note. When the system is driven this way, the client's model is the front edge: it
 turns the scientist's words into tool calls. Every guarantee of the system lives *inside* the
 tools, not in the client's prompt: the request guard still bins the text, the deterministic core
-still ranks, the fixture banner and deviations still print, model output at the refutation edge
-is still validated. A client model cannot obtain a number, a rank or a citation that the tool did
+still ranks, the fixture banner and deviations still print, the caveats are still rule-derived. A client model cannot obtain a number, a rank or a citation that the tool did
 not compute. Follow-up tools (`explain`, `rerun`) work from stored result objects, so a
 conversation about a shortlist never re-derives anything.
 

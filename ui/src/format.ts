@@ -113,3 +113,13 @@ export function splitParagraphs(text: string): string[] {
     .map((p) => p.trim())
     .filter(Boolean);
 }
+
+/** A DOI as a resolver link. OpenAlex returns DOIs as full https://doi.org/ URLs and other
+ *  sources as bare identifiers; both are accepted. Anything that is not a DOI gets no link
+ *  rather than a link that cannot resolve. */
+export function doiUrl(identifier: string | null | undefined): string | null {
+  if (!identifier) return null;
+  const value = identifier.trim().replace(/^https?:\/\/(?:dx\.)?doi\.org\//i, "");
+  if (!/^10\.\d{4,9}\/\S+$/i.test(value)) return null;
+  return "https://doi.org/" + value;
+}

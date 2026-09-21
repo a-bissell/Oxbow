@@ -1,14 +1,7 @@
 from __future__ import annotations
 
 from oxide_triage.config import load_config, load_hazard_table
-from oxide_triage.refute import (
-    SEVERITY_RANK,
-    flatten,
-    numeric_guard,
-    primary_caveat,
-    refute,
-    rule_caveats,
-)
+from oxide_triage.refute import SEVERITY_RANK, primary_caveat, refute, rule_caveats
 from oxide_triage.schemas import Criteria, DataStatus
 from oxide_triage.scoring.core import score_candidate
 from oxide_triage.scoring.settings import resolve
@@ -67,15 +60,6 @@ def test_caveats_sorted_by_severity_then_code_and_primary_is_first():
     ranks = [SEVERITY_RANK[c.severity] for c in sc.caveats]
     assert ranks == sorted(ranks)
     assert primary_caveat(sc).code == "cross_source_disagreement"
-
-
-def test_numeric_guard():
-    facts = flatten({"a": {"e_hull": 0.012, "gap": 5.63}, "n": 4600, "s": "E_hull = 0.000 eV/atom"})
-    assert numeric_guard("The gap of 5.63 eV rests on 4600 papers", facts)
-    assert numeric_guard("hull distance 0.012", facts)
-    assert not numeric_guard("dielectric constant is 27.5", facts)
-    assert not numeric_guard("cite Smith 2019", facts)
-    assert numeric_guard("no numbers here", facts)
 
 
 def test_incomplete_retrieval_is_the_loudest_caveat():
@@ -165,45 +149,14 @@ def test_common_substrates_get_a_literature_confound_note_without_touching_the_s
     assert "substrate_literature_confound" not in caveats_for(formula="HfO2")[0]
 
 
-class _SlowLLM:
-    """A model edge that takes a fixed time per call and names the candidate it saw, so a test
-    can tell that the calls overlapped and that each answer landed on its own candidate."""
-
-    name = "fake:slow"
-
-    def __init__(self, delay_s: float):
-        self.delay_s = delay_s
-        self.calls: list[str] = []
-        self._lock = __import__("threading").Lock()
-
-    def complete_json(self, system, user, schema):
-        import re as _re
-        import time as _time
-
-        formula = _re.search(r'"formula": "([^"]+)"', user).group(1)
-        with self._lock:
-            self.calls.append(formula)
-        _time.sleep(self.delay_s)
-        return {"observations": [{"text": f"{formula}: e_hull noted", "evidence_fields": ["formula"]}]}
-
-
-def test_model_refutations_run_concurrently_and_land_on_their_own_candidate(monkeypatch):
-    import time as _time
-
+def test_refutation_is_rules_only_whatever_the_model_configuration():
     cfg = load_config("default", use_env=False, overrides={"llm": {"provider": "anthropic"}})
     eff = resolve(cfg, Criteria(), load_hazard_table())[0]
-    formulas = ["HfO2", "ZrO2", "Al2O3", "LaAlO3", "SrHfO3"]
     shortlist = [
         score_candidate(make_record(mid=f"t-{i}", formula=f, elements=None), cfg, eff)
-        for i, f in enumerate(formulas)
+        for i, f in enumerate(["HfO2", "ZrO2"])
     ]
-    llm = _SlowLLM(delay_s=0.4)
-    started = _time.perf_counter()
-    label = refute(shortlist, eff, cfg, llm)
-    elapsed = _time.perf_counter() - started
-    assert label == "rules+fake:slow"
-    assert elapsed < 1.2, f"five 0.4 s calls took {elapsed:.2f}s: they did not overlap"
-    assert sorted(llm.calls) == sorted(formulas)
-    for sc, formula in zip(shortlist, formulas, strict=True):
-        obs = [c for c in sc.caveats if c.code == "model_observation"]
-        assert len(obs) == 1 and obs[0].text.startswith(formula + ":")
+    assert refute(shortlist, eff, cfg) == "rules"
+    for sc in shortlist:
+        assert sc.caveats == rule_caveats(sc, eff, cfg)
+        assert all(c.origin == "rule" for c in sc.caveats)

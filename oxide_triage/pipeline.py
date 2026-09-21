@@ -3,8 +3,8 @@
     guard  ->  parse (front edge)  ->  clarify?  ->  self-check gate  ->  data layer (cache)
            ->  deterministic core  ->  refutation (annotates)  ->  render (back edge, templates)
 
-The language model, if configured, is invoked in exactly two places (parse, refute) and its
-output is validated before use. The core never sees it. When the system is driven through MCP,
+The language model, if configured, is invoked in exactly one place (parse) and its output
+is validated before use. The core never sees it, and the caveats are rule-derived. When the system is driven through MCP,
 the client's model plays the front-edge role and this module is still the enforcement point.
 """
 
@@ -409,7 +409,7 @@ def run_triage(
         shortlist, beyond = ranked[: eff.top_k], ranked[eff.top_k :]
 
         emit(progress, "refute", f"Arguing against each of the {len(shortlist)} shortlisted candidates")
-        llm_usage["refute"] = refute(shortlist, eff, config, llm)
+        llm_usage["refute"] = refute(shortlist, eff, config)
         for sc in beyond + excluded + collapsed:
             sc.caveats = rule_caveats(sc, eff, config)
         for sc in ranked:

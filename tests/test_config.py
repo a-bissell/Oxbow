@@ -200,6 +200,17 @@ def test_site_strips_reserved_keys_and_rejects_unknown(tmp_path, caplog):
         load_config("conservative", use_env=False, site_config=bad2)
 
 
+def test_site_written_when_refute_was_a_model_setting_still_loads(tmp_path, caplog):
+    """The Admin page used to write llm.use_for.refute. The pass is rule-only now; the key is
+    dropped with a warning rather than rejected, so an older site.yaml keeps loading."""
+    site = _site(tmp_path, {"base": {"llm": {"use_for": {"refute": True, "parse": False}}}})
+    with caplog.at_level(logging.WARNING, logger="oxide_triage.config"):
+        cfg = load_config(use_env=False, site_config=site)
+    assert cfg.llm.use_for.parse is False
+    assert not hasattr(cfg.llm.use_for, "refute")
+    assert "llm.use_for.refute" in caplog.text and "no longer has any effect" in caplog.text
+
+
 def test_site_dict_leaves_replace_but_profiles_merge(tmp_path):
     site = _site(
         tmp_path,

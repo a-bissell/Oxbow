@@ -124,12 +124,17 @@ perturbations. The result on the live cache:
 The honest reading: the settings decide the order among the top seven and not who is in it, and
 the tiers exist because the order among them is not something the inputs can support.
 
-## The held-out validation
+## The retrospective benchmark
 
 Hubbard and Schlom, J. Mater. Res. 11, 2757 (1996), classified the binary oxides by whether
 they are thermodynamically stable in contact with silicon at 1000 K, by the hull argument this
-tool implements, thirty years before the code. The list was never used to set a parameter; the
-self-check's workhorses were. `oxide-triage validate` computes the criterion for every oxide on
+tool implements, thirty years before the code. Publication before the code does not make it
+held out: the paper's classification of ZrO2 is one of the reasons given for the interface
+tolerance above, and the marginal band below was redrawn after the first results were seen.
+So this is a retrospective benchmark, not an independent validation. Agreement shows the
+criterion reproduces the published picture; a claim about cases nobody has looked at would
+need a set chosen and sealed before any further parameter moves. `oxide-triage validate`
+computes the criterion for every oxide on
 it (`oxide_triage/data/validation/hubbard_schlom_1996.yaml`, with the citation, the abstract's
 exact wording and a confidence tag per entry), and check 7 of the evaluation reports it.
 
@@ -155,11 +160,12 @@ data may differ from the 0 K hull there. Either way the tool ranks CaZrO3 tenth 
 nineteenth on the strength of it, and a reader deciding whether to trust that placement now
 has both sources and the number in front of them.
 
-**One decision inside the validation itself.** The first draft called a reaction "marginal"
+**One decision inside the benchmark itself.** The first draft called a reaction "marginal"
 anywhere on the scoring ramp, down to −0.25 eV/atom, and so called TiO2 (−0.17) marginal and
 scored it as a disagreement with "unstable". The band was redrawn at twice the tolerance,
 −0.10, which is what marginal means (the band the ZrO2 literature argues inside). This turned
 TiO2 into an agreement and SrO, CaZrO3 and SrZrO3 from agreements into the three
 disagreements above. The redraw made the result look worse, not better, and it is the right
 boundary; where the *score* reaches zero is a preference, where a reaction is distinguishable
-from noise is not.
+from noise is not. It was still a boundary drawn after seeing the cases, which is why the
+section is called a benchmark and not a validation.

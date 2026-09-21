@@ -371,10 +371,11 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         )
         return ok, "\n".join(rows)
 
-    # ---- 7. held-out validation --------------------------------------------------------
-    def held_out() -> tuple[bool, str]:
+    # ---- 7. retrospective benchmark ----------------------------------------------------
+    def retrospective_benchmark() -> tuple[bool, str]:
         """The interface criterion against Hubbard & Schlom (1996), computed from cached hulls.
-        The list was never used to set anything; agreement is evidence, disagreement is named."""
+        The paper informed the tolerance and the marginal band, so agreement is a reproduction
+        of the published picture, not independent evidence; disagreement is named either way."""
         from oxide_triage.validation import render_markdown, validate_interface
 
         report = validate_interface(cfg, cache, offline=True)
@@ -411,7 +412,10 @@ def run_all(out_dir: Path = Path("eval/output"), use_fixtures: bool = True) -> s
         Check("4. Determinism", determinism),
         Check("5. Missing-data handling", missing_data),
         Check("6. Sensitivity to the settings", sensitivity),
-        Check("7. Held-out validation of the interface criterion (Hubbard & Schlom 1996)", held_out),
+        Check(
+            "7. Retrospective benchmark of the interface criterion (Hubbard & Schlom 1996)",
+            retrospective_benchmark,
+        ),
         Check("8. Held-out request phrasings (written after the rules)", held_out_requests),
     ]
     summary: dict[str, bool] = {}

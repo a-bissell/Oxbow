@@ -300,7 +300,6 @@ class CacheConfig(BaseModel):
 
 class LLMUseFor(BaseModel):
     parse: bool = True
-    refute: bool = True
     rationale: bool = False
 
 
@@ -706,6 +705,8 @@ SITE_HEADER = (
     "# (OXIDE_TRIAGE_CACHE, OXIDE_TRIAGE_OFFLINE, LLM_*) win over anything here.\n"
 )
 _SITE_STRIPPED = ("profile_name", "cache.path")
+# Keys that no longer do anything. A site file written when they did keeps loading.
+_DROPPED_PATHS = ("llm.use_for.refute",)  # the refutation pass is rule-only now
 # Keys a site file may hold from before the dielectric criterion became the configurable figure
 # of merit. They are moved, not rejected, so an Admin-written site.yaml keeps loading.
 _LEGACY_PATHS = {
@@ -720,6 +721,9 @@ def _clean_layer(layer: dict[str, Any], name: str) -> dict[str, Any]:
     for path in _SITE_STRIPPED:
         if _pop_path(layer, path):
             log.warning("%s: '%s' cannot be set in the site file; ignored", name, path)
+    for path in _DROPPED_PATHS:
+        if _pop_path(layer, path):
+            log.warning("%s: '%s' no longer has any effect; ignored", name, path)
     for old, new in _LEGACY_PATHS.items():
         value = flatten_leaves(layer).get(old)
         if value is not None and _pop_path(layer, old):

@@ -74,7 +74,7 @@ Keys and environment go in `.env` (loaded automatically) or the shell:
 | `LLM_PROVIDER` | `anthropic` (recommended), `openai_compatible`, or `none` for the rules-only fallback |
 | `OPENAI_API_KEY` | the assistant with `LLM_PROVIDER=openai_compatible` and no `LLM_BASE_URL` |
 | `LLM_BASE_URL`, `LLM_API_KEY` | a self-hosted OpenAI-compatible server (vLLM, Ollama, llama.cpp) for `openai_compatible`; the key only if the server wants one |
-| `LLM_MODEL` / `AGENT_MODEL` | optional model overrides for the parse/refute edges and the assistant |
+| `LLM_MODEL` / `AGENT_MODEL` | optional model overrides for the parse edge and the assistant |
 | `MP_API_KEY` | warming the cache from Materials Project (free) |
 | `OPENALEX_API_KEY` | optional; more literature lookups per day |
 | `OXIDE_TRIAGE_CACHE` | path of the SQLite cache (default `data/cache.sqlite`) |
@@ -145,7 +145,9 @@ Start with `oxbow doctor`, which reports on keys, cache health and the known-ans
 
 On live data the top five for the brief's request are LaAlO3, HfO2, SrHfO3, LaScO3 and ZrO2, with HfO2 second of 317 passing compounds and Ta2O5 far down, explained by its reaction with silicon. The cases are in [oxide_triage/evaluation.py](oxide_triage/evaluation.py) (`oxbow eval` and [eval/run_eval.py](eval/run_eval.py) both call it); the last live run is in [docs/live-evaluation.md](docs/live-evaluation.md). [eval/evaluation.ipynb](eval/evaluation.ipynb) is the same suite as a notebook, with outputs saved, so it reads on GitHub without running anything.
 
-Every ranking parameter that was set after seeing data is logged in [docs/ranking-decisions.md](docs/ranking-decisions.md), with what triggered it, what it moved in the live ranking, and why. 
+Every ranking parameter that was set after seeing data is logged in [docs/ranking-decisions.md](docs/ranking-decisions.md), with what triggered it, what it moved in the live ranking, and why.
+
+`oxbow validate` compares the interface criterion with Hubbard & Schlom's 1996 classification of binary oxides on silicon (21 of 21 hard assertions agree on live data). It is a retrospective benchmark, not an independent validation: that paper's ZrO2 entry was one reason for the interface tolerance, and the marginal band was redrawn after the first results. The log above says where.
 
 ## Development
 
@@ -153,7 +155,7 @@ Every ranking parameter that was set after seeing data is logged in [docs/rankin
 pip install -e ".[all]"
 ruff check . && ruff format --check .
 pytest -q
-cd ui && npm ci && npm run build      # front end only; the built bundle is committed
+cd ui && npm ci && npm test && npm run build      # front end only; the built bundle is committed
 ```
 
 CI runs lint, tests, a clean wheel install, and an offline smoke test of the container image.

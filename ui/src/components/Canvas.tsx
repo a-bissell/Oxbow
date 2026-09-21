@@ -3,7 +3,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { api } from "../api";
-import { CRITERIA_LABELS, allCandidates, diffResults, findCandidate, fmt, fmtInt, formulaParts, gateLabel, pct, rationaleFacts, registerFigureOfMerit, visibleCaveats } from "../format";
+import { CRITERIA_LABELS, allCandidates, diffResults, doiUrl, findCandidate, fmt, fmtInt, formulaParts, gateLabel, pct, rationaleFacts, registerFigureOfMerit, visibleCaveats } from "../format";
 import { useApp, type View } from "../store";
 import type { ScoredCandidate, TriageResult } from "../types";
 
@@ -594,8 +594,8 @@ function FocusView({ result, rid, candidate }: { result: TriageResult; rid: stri
             <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>
               {r.literature.sample_works.slice(0, 5).map((w) => (
                 <li key={w.work_id}>
-                  {w.doi ? (
-                    <a href={`https://doi.org/${w.doi}`} target="_blank" rel="noreferrer">
+                  {doiUrl(w.doi) ? (
+                    <a href={doiUrl(w.doi)!} target="_blank" rel="noreferrer">
                       {w.title}
                     </a>
                   ) : (
