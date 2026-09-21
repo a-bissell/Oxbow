@@ -619,9 +619,6 @@ function ModelPage() {
             <FieldRow label="Parse requests" help="Fill in fields the rules left at default; never override an element decision" shipped={shippedLabel(data?.shipped ?? null, edited, "llm.use_for.parse")}>
               <Select value={String(get(edited, "llm.use_for.parse"))} options={["true", "false"]} onChange={(v) => update("llm.use_for.parse", v === "true")} />
             </FieldRow>
-            <FieldRow label="Elaborate caveats" help="Up to three observations per candidate over delimited facts, numerically guarded" shipped={shippedLabel(data?.shipped ?? null, edited, "llm.use_for.refute")}>
-              <Select value={String(get(edited, "llm.use_for.refute"))} options={["true", "false"]} onChange={(v) => update("llm.use_for.refute", v === "true")} />
-            </FieldRow>
             <FieldRow label="One-line rationale" help="Plain-language rationale per candidate, numerically guarded" shipped={shippedLabel(data?.shipped ?? null, edited, "llm.use_for.rationale")}>
               <Select value={String(get(edited, "llm.use_for.rationale"))} options={["true", "false"]} onChange={(v) => update("llm.use_for.rationale", v === "true")} />
             </FieldRow>

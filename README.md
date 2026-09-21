@@ -74,7 +74,7 @@ Keys and environment go in `.env` (loaded automatically) or the shell:
 | `LLM_PROVIDER` | `anthropic` (recommended), `openai_compatible`, or `none` for the rules-only fallback |
 | `OPENAI_API_KEY` | the assistant with `LLM_PROVIDER=openai_compatible` and no `LLM_BASE_URL` |
 | `LLM_BASE_URL`, `LLM_API_KEY` | a self-hosted OpenAI-compatible server (vLLM, Ollama, llama.cpp) for `openai_compatible`; the key only if the server wants one |
-| `LLM_MODEL` / `AGENT_MODEL` | optional model overrides for the parse/refute edges and the assistant |
+| `LLM_MODEL` / `AGENT_MODEL` | optional model overrides for the parse edge and the assistant |
 | `MP_API_KEY` | warming the cache from Materials Project (free) |
 | `OPENALEX_API_KEY` | optional; more literature lookups per day |
 | `OXIDE_TRIAGE_CACHE` | path of the SQLite cache (default `data/cache.sqlite`) |

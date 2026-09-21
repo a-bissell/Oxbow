@@ -566,10 +566,29 @@ def test_model_cannot_confirm_a_held_run_on_its_own(toolbox):
 def test_anthropic_schema_drops_constraints_the_api_rejects():
     from oxide_triage.edges.llm import anthropic_schema
     from oxide_triage.edges.parse import criteria_schema
-    from oxide_triage.refute import REFUTE_SCHEMA
     from oxide_triage.session import DEFAULT_CRITERIA
 
     CRITERIA_SCHEMA = criteria_schema(DEFAULT_CRITERIA)
+    # A second schema using the constraints the API rejects at every nesting level.
+    REFUTE_SCHEMA = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "observations": {
+                "type": "array",
+                "maxItems": 3,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "text": {"type": "string", "maxLength": 300},
+                        "fields": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+                    },
+                    "required": ["text", "fields"],
+                },
+            }
+        },
+        "required": ["observations"],
+    }
 
     def keys(o):
         if isinstance(o, dict):

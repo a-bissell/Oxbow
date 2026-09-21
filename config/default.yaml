@@ -238,7 +238,6 @@ llm:
   timeout_s: 60
   use_for:
     parse: true      # natural-language request -> Criteria (validated)
-    refute: true     # elaborate rule-derived caveats over structured facts
     rationale: false # one-line plain-language rationale per candidate (numeric-guarded)
 
 # ---------------------------------------------------------------------------

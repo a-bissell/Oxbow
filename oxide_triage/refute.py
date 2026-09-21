@@ -3,25 +3,26 @@
 A shortlist entry is a conjecture. This stage attaches the known counterexamples as caveats.
 It annotates; it never alters a rank or a score, and it never fetches data.
 
-Two layers:
-  * Rule-derived caveats (always). Deterministic, from structured facts already retrieved.
-  * Optional model elaboration over the same structured facts, delimited as data. Model output
-    is validated: it may add at most three observations per candidate, each must cite a fact
-    field that exists, and any number it mentions must already appear in the facts
-    (``numeric_guard``). Anything else is discarded. The model cannot introduce a value.
+Every caveat is rule-derived: deterministic, from structured facts already retrieved. No
+language model runs here. An earlier version let a model add "observations" over the same
+facts behind a numeric guard; that guard checked numbers as a bag, so a value could be
+attributed to the wrong property, and it could not check a qualitative claim at all. A caveat
+that only a model could have written is not a counterexample the reader can audit, so the
+layer was removed rather than patched.
+
+The number helpers at the bottom (``allowed_numbers``, ``unverified_numbers``) serve the chat
+agent, which flags numbers in model prose that no tool printed.
 """
 
 from __future__ import annotations
 
 import re
 from collections.abc import Iterable
-from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 import yaml
 
 from oxide_triage.config import DATA_DIR, Config
-from oxide_triage.edges.llm import LLMClient, wrap_retrieved
 from oxide_triage.schemas import Caveat, DataStatus, ScoredCandidate
 from oxide_triage.scoring.settings import Effective
 
@@ -474,52 +475,10 @@ def primary_caveat(sc: ScoredCandidate, exclude: Iterable[str] = ()) -> Caveat |
 
 
 # --------------------------------------------------------------------------------------
-# Optional model elaboration (over structured facts only)
+# Number helpers for the chat agent's number guard
 # --------------------------------------------------------------------------------------
 
-REFUTE_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "additionalProperties": False,
-    "properties": {
-        "observations": {
-            "type": "array",
-            "maxItems": 3,
-            "items": {
-                "type": "object",
-                "additionalProperties": False,
-                "properties": {
-                    "text": {"type": "string", "maxLength": 300},
-                    "evidence_fields": {"type": "array", "items": {"type": "string"}, "minItems": 1},
-                },
-                "required": ["text", "evidence_fields"],
-            },
-        }
-    },
-    "required": ["observations"],
-}
-
-REFUTE_SYSTEM = (
-    "Your job is to argue AGAINST a candidate material for thin-film experiments, "
-    "using only the structured facts provided. Point out weaknesses a bench scientist should "
-    "check before committing time. Do not restate caveats already listed. Do not introduce any "
-    "number, citation or property that is not present in the facts. Each observation must name "
-    "the fact field(s) it is based on."
-)
-
 NUMBER_RE = re.compile(r"(?<![A-Za-z\d])[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?")
-
-
-def flatten(obj: Any, prefix: str = "") -> dict[str, Any]:
-    out: dict[str, Any] = {}
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            out.update(flatten(v, f"{prefix}.{k}" if prefix else str(k)))
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj):
-            out.update(flatten(v, f"{prefix}[{i}]"))
-    else:
-        out[prefix] = obj
-    return out
 
 
 def _decimals(tok: str) -> int:
@@ -557,92 +516,8 @@ def unverified_numbers(text: str, allowed: set[float]) -> list[str]:
     return out
 
 
-def numeric_guard(text: str, facts: dict[str, Any]) -> bool:
-    """True if every number in ``text`` equals some fact value once that value is rounded to
-    the precision the text used. "5.6" matches 5.63; "2019" does not match 2010."""
-    return not unverified_numbers(text, allowed_numbers(facts.values()))
-
-
-def candidate_facts(sc: ScoredCandidate) -> dict[str, Any]:
-    r = sc.record
-    return {
-        "formula": r.formula,
-        "material_id": r.material_id,
-        "elements": r.elements,
-        "crystal_system": r.crystal_system,
-        "theoretical_structure": r.theoretical,
-        "stability": r.stability.model_dump(exclude={"provenance"}),
-        "cross_check_oqmd": r.cross_check.model_dump(exclude={"provenance"}),
-        "cross_source_agreement": sc.cross_source_agreement,
-        "band_gap": sc.band_gap_assessment.model_dump(),
-        "figure_of_merit": r.figure_of_merit.model_dump(exclude={"provenance"}),
-        "hazard": r.hazard.model_dump(exclude={"provenance"}),
-        "literature": r.literature.model_dump(exclude={"provenance"}),
-        "score": {
-            "adjusted": sc.adjusted_score,
-            "raw": sc.raw_score,
-            "data_coverage": sc.data_coverage,
-            "confidence": sc.confidence,
-        },
-        "missing_criteria": sc.missing_criteria,
-        "rule_caveats": [c.code for c in sc.caveats],
-    }
-
-
-def llm_caveats(sc: ScoredCandidate, llm: LLMClient) -> list[Caveat]:
-    facts = candidate_facts(sc)
-    flat = flatten(facts)
-    user = (
-        "Structured facts for one candidate follow as retrieved data. Argue against it.\n"
-        + wrap_retrieved(facts, "triage_facts")
-    )
-    data = llm.complete_json(REFUTE_SYSTEM, user, REFUTE_SCHEMA)
-    if not data:
-        return []
-    out: list[Caveat] = []
-    for obs in (data.get("observations") or [])[:3]:
-        if not isinstance(obs, dict):
-            continue
-        text = str(obs.get("text", "")).strip()[:300]
-        fields = [str(f) for f in obs.get("evidence_fields") or []]
-        valid_fields = [
-            f
-            for f in fields
-            if f in flat or any(k.startswith(f + ".") or k.startswith(f + "[") for k in flat)
-        ]
-        if not text or not valid_fields:
-            continue
-        if not numeric_guard(text, flat):
-            continue  # the model introduced a number that is not in the facts
-        out.append(
-            Caveat(
-                code="model_observation",
-                severity="info",
-                text=text,
-                origin="llm",
-                evidence={"fields": valid_fields, "model": llm.name},
-            )
-        )
-    return out
-
-
-# Model refutations run concurrently: each candidate's call is independent, and five sequential
-# calls of ten to twenty seconds each were most of a query's wall-clock time. The clients are
-# thread-safe (one HTTP connection pool each), and the results are attached in shortlist order,
-# so the output is the same as the sequential loop's.
-MODEL_WORKERS = 5
-
-
-def refute(
-    shortlist: list[ScoredCandidate], eff: Effective, config: Config, llm: LLMClient | None = None
-) -> str:
+def refute(shortlist: list[ScoredCandidate], eff: Effective, config: Config) -> str:
     """Attach caveats to every shortlisted candidate. Returns a label of what produced them."""
     for sc in shortlist:
         sc.caveats = rule_caveats(sc, eff, config)
-    if llm is not None and llm.name != "none" and config.llm.use_for.refute and shortlist:
-        with ThreadPoolExecutor(max_workers=min(MODEL_WORKERS, len(shortlist))) as pool:
-            observations = list(pool.map(lambda sc: llm_caveats(sc, llm), shortlist))
-        for sc, extra in zip(shortlist, observations, strict=True):
-            sc.caveats.extend(extra)
-        return f"rules+{llm.name}"
     return "rules"
