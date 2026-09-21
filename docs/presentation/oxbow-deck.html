@@ -277,6 +277,9 @@
   td .formula { font-family:"IBM Plex Mono",monospace; font-weight:600; color: var(--ink); }
   td .formula sub { font-size:.72em; }
   .cav { font-size:.82rem; color: var(--slate); }
+  table.compact { font-size: .84rem; }
+  table.compact tbody td { padding: .42rem .8rem; }
+  table.compact thead th { padding: .5rem .8rem; }
 
   .metric-row { display:flex; flex-wrap:wrap; gap:.7rem; margin-top:1rem; }
   .metric { flex:1; min-width: 110px; background: var(--panel); border:1px solid var(--line); border-radius:10px; padding:.7rem .85rem; }
@@ -514,6 +517,50 @@
       <div class="boundary-note">
         <span class="ico">▲</span>
         <p><b>The scoring core and the LLM edge do not share a code path.</b> The model interprets the request and fills fields the rules left at default. Every caveat is derived by rules from structured facts, so no model sentence enters a report. The LLM is structurally blocked from changing a number, rank, citation, or caveat.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 4b · HOW IT RANKS ========================= -->
+  <section class="slide" id="srank">
+    <div class="slide-inner">
+      <div class="eyebrow">How it ranks</div>
+      <h2 style="margin-bottom:.5rem;">Gates set the floor; criteria order the rest.</h2>
+      <p class="kicker-sub" style="margin-bottom:1.1rem; max-width:none;">Four gates exclude before scoring, each with a stated reason. Six criteria are generic; the seventh is what the profile ranks <i>for</i>.</p>
+      <div class="cols wide-left">
+        <div>
+          <div class="table-wrap">
+            <table class="compact">
+              <thead><tr><th>Criterion</th><th>Weight</th><th>Score 0 → 1</th></tr></thead>
+              <tbody>
+                <tr><td><span class="formula">stability</span></td><td><span class="mono">0.25</span></td><td>1 − E<sub>hull</sub> / 0.10 eV/atom, ± OQMD agreement</td></tr>
+                <tr><td><span class="formula">band gap</span></td><td><span class="mono">0.25</span></td><td>4.0 eV gate → 1 at 5.5 eV effective; PBE × 1.4</td></tr>
+                <tr><td><span class="formula">interface</span></td><td><span class="mono">0.15</span></td><td>Si hull reaction; ≤ 0.05 eV/atom is none, 0 at −0.25</td></tr>
+                <tr><td><span class="formula">toxicity</span></td><td><span class="mono">0.15</span></td><td>worst element tier: 0 → 1.0, 1 → 0.5, 2 → 0</td></tr>
+                <tr><td><span class="formula">simplicity</span></td><td><span class="mono">0.10</span></td><td>distinct elements: 2 → 1.0, 3 → 0.6, 4 → 0.3</td></tr>
+                <tr><td><span class="formula">literature</span></td><td><span class="mono">0.10</span></td><td>log-saturating, 0.7 thin-film (500) + 0.3 all (5,000)</td></tr>
+                <tr class="hi"><td><span class="formula">dielectric κ</span> <span class="cav">★</span></td><td><span class="mono">0.15</span></td><td>0 at κ = 8 → 1 at κ = 30 (MP DFPT)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="cav" style="margin:.6rem 0 0;">★ the figure of merit — thermal-barrier swaps it for Clarke κ<sub>min</sub>. Every weight halved or × 1.5 keeps the top tier in the top ten.</p>
+        </div>
+        <div class="stack">
+          <div class="card" style="border-left:3px solid var(--core);">
+            <div class="tag good">hard gates</div>
+            <ul class="clean" style="margin-top:.7rem; font-size:.86rem; gap:.45rem;">
+              <li><span class="b">▸</span><span><b>E<sub>hull</sub> ≤ 0.05 eV/atom</b> — unknown → excluded</span></li>
+              <li><span class="b">▸</span><span><b>effective band gap ≥ 4.0 eV</b> — unknown → excluded</span></li>
+              <li><span class="b">▸</span><span><b>≤ 3 distinct elements</b></span></li>
+              <li><span class="b">▸</span><span><b>no tier-2 element</b> (Pb, Cd, Hg, As, Tl, Be …) — no request can lift this</span></li>
+            </ul>
+            <p style="margin:.7rem 0 0; font-size:.8rem; color:var(--slate);">Plus required / excluded elements from the request. A missing κ is caveated, not excluded.</p>
+          </div>
+          <div class="card">
+            <div class="tag">gate ≠ criterion</div>
+            <p style="margin:.6rem 0 0; font-size:.86rem;">Interface and literature only score. Ta₂O₅ passes every gate and ranks 99th with a caveat naming the reaction, rather than vanishing.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>

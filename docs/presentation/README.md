@@ -1,7 +1,7 @@
 # Presentation deck
 
-A 12-slide walkthrough of Oxbow, structured one slide per brief requirement
-plus ground-truth, architecture, evaluation, and traceability beats.
+A 13-slide walkthrough of Oxbow, structured one slide per brief requirement
+plus ground-truth, architecture, ranking-criteria, evaluation, and traceability beats.
 
 - **`oxbow-deck.html`** — self-contained HTML deck (keyboard/scroll navigation,
   light/dark aware). Open in any browser; arrow keys or space to advance.
