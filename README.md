@@ -155,7 +155,7 @@ Every ranking parameter that was set after seeing data is logged in [docs/rankin
 pip install -e ".[all]"
 ruff check . && ruff format --check .
 pytest -q
-cd ui && npm ci && npm run build      # front end only; the built bundle is committed
+cd ui && npm ci && npm test && npm run build      # front end only; the built bundle is committed
 ```
 
 CI runs lint, tests, a clean wheel install, and an offline smoke test of the container image.
